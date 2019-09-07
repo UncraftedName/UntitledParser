@@ -3,7 +3,7 @@ using UncraftedDemoParser.DemoStructure.Components.Abstract;
 
 namespace UncraftedDemoParser.Obsolete {
 	
-	public class NetTick : DemoComponent {
+	public class OldNetTick : DemoComponent {
 
 		public int Type; // NetMsgTypeBits long
 		public int mnTick;
@@ -13,7 +13,7 @@ namespace UncraftedDemoParser.Obsolete {
 		// (float)buffer.ReadUBitLong( 16 ) / NET_TICK_SCALEUP;
 		
 		
-		public NetTick(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
+		public OldNetTick(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
 
 
 		public override void ParseBytes() {

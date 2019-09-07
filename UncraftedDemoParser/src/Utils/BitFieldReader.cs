@@ -8,30 +8,25 @@ namespace UncraftedDemoParser.Utils {
 	// and reading fields that don't start on a byte boundary.
 	// The pointer is incremented automatically.
 	public class BitFieldReader {
-		
-		private readonly byte[] _data;
-		public readonly int Length;
-		public int Pointer {get; private set;} // total bit counter
-		private byte CurrentByte => _data[Pointer >> 3]; 	// same as Pointer / 8
+
+		public byte[] Data {get; private set;}
+		public int Length {get; private set;}
+		public int Pointer; // total bit counter
+		private byte CurrentByte => Data[Pointer >> 3]; 	// same as Pointer / 8
 		private int BitIndex => Pointer & 0x07; 			// same as Pointer % 8
 		private int RemainingBitMask => 0xff << BitIndex;	// mask to get remaining bits in this byte
 		private bool IsByteAligned => BitIndex == 0;
 		
 		
 		public BitFieldReader(byte[] data, int bitLength) {
-			_data = data;
+			Data = data;
 			Pointer = 0;
 			Length = bitLength;
 		}
 
 
 		public BitFieldReader(byte[] data) : this(data, data.Length * 8) {}
-		
 
-		public void tmpOffset(int offset) {
-			Pointer += offset;
-		}
-		
 
 		// only for the current byte
 		private int BitMask(int bitCount) {
@@ -64,7 +59,7 @@ namespace UncraftedDemoParser.Utils {
 
 		public byte[] ReadBytes(int byteCount) {
 			if (IsByteAligned) {
-				byte[] result = _data.SubArray(Pointer >> 3, byteCount);
+				byte[] result = Data.SubArray(Pointer >> 3, byteCount);
 				Pointer += byteCount << 3;
 				return result;
 			} else {
@@ -126,6 +121,19 @@ namespace UncraftedDemoParser.Utils {
 			}
 			return Encoding.ASCII.GetString(bytes.ToArray());
 		}
+
+
+		public string ReadStringOfLength(int strLength) {
+			return Encoding.ASCII.GetString(ReadBytes(strLength));
+;		}
+
+
+		public void DiscardPreviousBits() {
+			var (bytes, bitCount) = ReadRemainingBits();
+			Data = bytes;
+			Length = bitCount;
+			Pointer = 0;
+		}
 		
 
 		private T ReadPrimitive<T>(Func<byte[], int, T> bitConverterFunc, int sizeOfType) {
@@ -150,8 +158,13 @@ namespace UncraftedDemoParser.Utils {
 			return ReadPrimitive(BitConverter.ToSingle, sizeof(float));
 		}
 
-
+		
 		// for all 'IfExists' methods - read one bit, if it's set, read the desired field
+
+
+		public bool? ReadBoolIfExists() { // wtf is this shit
+			return ReadBool() ? ReadBool() : (bool?) null;
+		}
 
 
 		public byte? ReadByteIfExists() {

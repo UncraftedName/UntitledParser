@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace UncraftedDemoParser.DemoStructure.Components.Abstract {
 	
 	// used to describe the various components of a demo,
@@ -20,7 +22,9 @@ namespace UncraftedDemoParser.DemoStructure.Components.Abstract {
 
 		// If any fields of a packet are ever updated, call this to get the modified byte array.
 		// Behavior is undefined if fields are updated and this isn't called.
-		public abstract void UpdateBytes();
+		public virtual void UpdateBytes() {
+			Debug.WriteLine($"not sure how to update {this.GetType().Name}");
+		}
 
 
 		public override string ToString() {

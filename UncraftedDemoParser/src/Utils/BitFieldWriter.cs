@@ -93,9 +93,10 @@ namespace UncraftedDemoParser.Utils {
 		}
 		
 
-		public void WriteString(string str) {
+		public void WriteString(string str, bool nullTerminate = true) {
 			WriteBytes(Encoding.ASCII.GetBytes(str));
-			WriteByte(0); // all strings are null terminated
+			if (nullTerminate)
+				WriteByte(0);
 		}
 		
 

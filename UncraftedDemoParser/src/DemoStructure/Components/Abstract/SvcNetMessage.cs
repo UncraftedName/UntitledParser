@@ -1,9 +1,23 @@
+using UncraftedDemoParser.Utils;
+
+// stealing code xd
+// https://github.com/NeKzor/sdp.js/blob/master/src/types/NetMessages.js
+
 namespace UncraftedDemoParser.DemoStructure.Components.Abstract {
 	
 	// just for organization, doesn't have any additional functionality (for now)
 	public abstract class SvcNetMessage : DemoPacket {
-		
+
 		protected SvcNetMessage(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
+
+
+		public sealed override void ParseBytes() {
+			ParseBytes(new BitFieldReader(Bytes));
+		}
+
+
+		// all svc/net messages will use the field reader
+		protected abstract void ParseBytes(BitFieldReader bfr);
 	}
 
 

@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using UncraftedDemoParser.DemoStructure;
+using UncraftedDemoParser.DemoStructure.Components;
+using UncraftedDemoParser.Obsolete;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser {
