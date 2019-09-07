@@ -1,8 +1,7 @@
-using System.Diagnostics;
 using UncraftedDemoParser.DemoStructure.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser.DemoStructure.Components {
+namespace UncraftedDemoParser.DemoStructure.Components.NetSvcMessages {
 	
 	public class SvcSetView : SvcNetMessage {
 

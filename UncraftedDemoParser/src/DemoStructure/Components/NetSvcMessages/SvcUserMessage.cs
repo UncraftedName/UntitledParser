@@ -1,7 +1,7 @@
 using UncraftedDemoParser.DemoStructure.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser.DemoStructure.Components {
+namespace UncraftedDemoParser.DemoStructure.Components.NetSvcMessages {
 	
 	public class SvcUserMessage : SvcNetMessage {
 
@@ -13,7 +13,7 @@ namespace UncraftedDemoParser.DemoStructure.Components {
 		public byte[] MsgData;
 
 
-		public SvcUserMessage(byte[] data, SourceDemo demoRef, int tick): base(data, demoRef, tick) {}
+		public SvcUserMessage(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 		
 		
 		protected override void ParseBytes(BitFieldReader bfr) {

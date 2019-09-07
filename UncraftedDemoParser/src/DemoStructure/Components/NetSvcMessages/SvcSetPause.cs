@@ -1,7 +1,7 @@
 using UncraftedDemoParser.DemoStructure.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser.DemoStructure.Components {
+namespace UncraftedDemoParser.DemoStructure.Components.NetSvcMessages {
 	
 	
 	public class SvcSetPause : SvcNetMessage {
@@ -10,7 +10,7 @@ namespace UncraftedDemoParser.DemoStructure.Components {
 		public bool IsPaused;
 		
 		
-		public SvcSetPause(byte[] data, SourceDemo demoRef, int tick): base(data, demoRef, tick) {}
+		public SvcSetPause(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 		
 		
 		protected override void ParseBytes(BitFieldReader bfr) {

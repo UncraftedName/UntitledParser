@@ -1,7 +1,7 @@
 using UncraftedDemoParser.DemoStructure.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser.DemoStructure.Components {
+namespace UncraftedDemoParser.DemoStructure.Components.NetSvcMessages {
 	
 	public class SvcGameEvent : SvcNetMessage {
 
@@ -10,7 +10,7 @@ namespace UncraftedDemoParser.DemoStructure.Components {
 		public byte[] Data;
 		
 		
-		public SvcGameEvent(byte[] data, SourceDemo demoRef, int tick): base(data, demoRef, tick) {}
+		public SvcGameEvent(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 		
 		
 		protected override void ParseBytes(BitFieldReader bfr) {

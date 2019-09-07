@@ -6,7 +6,7 @@ namespace UncraftedDemoParser.DemoStructure.Components {
 	public class NetNop : SvcNetMessage {
 		
 		
-		public NetNop(byte[] data, SourceDemo demoRef, int tick): base(data, demoRef, tick) {}
+		public NetNop(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 		
 		
 		// byte[] {0, 0, 0, 0, 0}
