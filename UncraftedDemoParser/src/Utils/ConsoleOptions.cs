@@ -88,14 +88,14 @@ namespace UncraftedDemoParser.Utils {
 						demos[0].ParseBytes();
 					else
 						demos[0].QuickParse();
-					demos[0].PrintCustomOutput(printHeader: !QuietMode);
+					demos[0].PrintListdemoOutput(printHeader: !QuietMode);
 					if (DumpSvcPackets)
-						demos[0].CountSvcMessages().WriteToFiles(
+						demos[0].SvcMessagesCounterAsString().WriteToFiles(
 							$"{Directory.GetCurrentDirectory()}/{FolderName}/_svc message counter.txt");
 					if (Verbose)
-						demos[0].ToString().WriteToFiles($"{Directory.GetCurrentDirectory()}/{FolderName}/_verbose.txt");
+						demos[0].AsVerboseString().WriteToFiles($"{Directory.GetCurrentDirectory()}/{FolderName}/_verbose.txt");
 					if (DumpSvcPackets)
-						demos[0].GetSubPacketData().WriteToFiles(
+						demos[0].SvcMessagesAsString().WriteToFiles(
 							$"{Directory.GetCurrentDirectory()}/{FolderName}/_svc messages dump.txt");
 				} else {
 					for (int i = 0; i < demos.Count; i++) {
@@ -104,15 +104,15 @@ namespace UncraftedDemoParser.Utils {
 							demos[i].ParseBytes();
 						else
 							demos[i].QuickParse();
-						demos[i].PrintCustomOutput(printHeader: !QuietMode, demoName: demoDirs[i].Name);
+						demos[i].PrintListdemoOutput(printHeader: !QuietMode, demoName: demoDirs[i].Name);
 						if (DumpSvcPackets)
-							demos[i].CountSvcMessages().WriteToFiles(
+							demos[i].SvcMessagesCounterAsString().WriteToFiles(
 								$"{Directory.GetCurrentDirectory()}/{FolderName}/svc message counter - {demoName}.txt");
 						if (Verbose)
-							demos[i].ToString().WriteToFiles(
+							demos[i].AsVerboseString().WriteToFiles(
 								$"{Directory.GetCurrentDirectory()}/{FolderName}/verbose - {demoName}.txt");
 						if (DumpSvcPackets)
-							demos[i].GetSubPacketData().WriteToFiles(
+							demos[i].SvcMessagesAsString().WriteToFiles(
 								$"{Directory.GetCurrentDirectory()}/{FolderName}/svc messages dump - {demoName}.txt");
 					}
 				}

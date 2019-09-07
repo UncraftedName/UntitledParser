@@ -1,12 +1,13 @@
 using System;
 using System.Diagnostics;
+using UncraftedDemoParser.DemoStructure.Packets.Abstract;
 
 namespace UncraftedDemoParser.DemoStructure.Packets {
 	
 	// unknown data
-	public class SyncTick : DemoComponent {
+	public class SyncTick : DemoPacket {
 
-		public SyncTick(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
+		public SyncTick(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 
 
 		public override void ParseBytes() {

@@ -3,6 +3,7 @@ using static UncraftedDemoParser.DemoStructure.SourceDemoSettings.SourceGame;
 
 namespace UncraftedDemoParser.DemoStructure {
 	
+	// determines most of the demo settings based solely on the header
 	public class SourceDemoSettings {
 
 		public enum SourceGame {
@@ -16,9 +17,11 @@ namespace UncraftedDemoParser.DemoStructure {
 		public readonly int MaxSplitscreenPlayers;
 		public bool HasAlignmentByte => NewEngine;
 		public readonly float TicksPerSeoncd;
+		public readonly Header Header;
 
 
 		public SourceDemoSettings(Header h) {
+			Header = h;
 			if (h.DemoProtocol == 3 && h.NetworkProtocol == 15)
 				Game = Portal1;
 			else if (h.DemoProtocol == 4 && h.NetworkProtocol == 2001)

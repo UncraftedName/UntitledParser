@@ -1,16 +1,17 @@
 using System;
+using UncraftedDemoParser.DemoStructure.Packets.Abstract;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser.DemoStructure.Packets {
 	
-	public class CustomData : DemoComponent {
+	public class CustomData : DemoPacket {
 
 		public int Unknown;
 		// int size    <- not stored for simplicity
 		public byte[] Data;
 		
 		
-		public CustomData(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
+		public CustomData(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 
 
 		public override void ParseBytes() {

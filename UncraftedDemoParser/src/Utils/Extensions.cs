@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using UncraftedDemoParser.DemoStructure;
 using UncraftedDemoParser.DemoStructure.Packets;
+using UncraftedDemoParser.DemoStructure.Packets.Abstract;
 using static UncraftedDemoParser.DemoStructure.Packets.Packet;
 
 namespace UncraftedDemoParser.Utils {
@@ -47,33 +48,29 @@ namespace UncraftedDemoParser.Utils {
 		
 
 		// creates a new packet of the given packet type with the given data
-		public static DemoComponent ToPacket(this PacketType packetType, byte[] data, SourceDemo demoRef) {
+		public static DemoPacket ToDemoPacket(this PacketType packetType, byte[] data, SourceDemo demoRef, int tick) {
 			switch (packetType) {
 				case PacketType.SignOn:
-					return new SignOn(data, demoRef);
+					return new SignOn(data, demoRef, tick);
 				case PacketType.Packet:
-					return new Packet(data, demoRef);
+					return new Packet(data, demoRef, tick);
 				case PacketType.SyncTick:
-					return new SyncTick(data, demoRef);
+					return new SyncTick(data, demoRef, tick);
 				case PacketType.ConsoleCmd:
-					return new ConsoleCmd(data, demoRef);
+					return new ConsoleCmd(data, demoRef, tick);
 				case PacketType.UserCmd:
-					return new UserCmd(data, demoRef);
+					return new UserCmd(data, demoRef, tick);
 				case PacketType.DataTables:
 					return null;
 				case PacketType.Stop:
 					return null;
 				case PacketType.CustomData:
-					return new CustomData(data, demoRef);
+					return new CustomData(data, demoRef, tick);
 				case PacketType.StringTables:
-					return new StringTables(data, demoRef);
+					return new StringTables(data, demoRef, tick);
 				default:
 					throw new ArgumentOutOfRangeException(nameof(packetType), packetType, $"unknown packet type: {packetType}");
 			}
-
-			// more compact to use reflection but not tested and probably supa slow
-			/*return (DemoComponent)Activator.CreateInstance(typeof(DemoComponent).Assembly.GetType(
-				typeof(DemoComponent).Namespace + "." + packetType), data, demoRef);*/
 		}
 
 

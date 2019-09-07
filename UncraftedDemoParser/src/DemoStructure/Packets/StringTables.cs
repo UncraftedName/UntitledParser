@@ -1,11 +1,12 @@
 using System.Diagnostics;
+using UncraftedDemoParser.DemoStructure.Packets.Abstract;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser.DemoStructure.Packets {
 	
-	public class StringTables : DemoComponent {
+	public class StringTables : DemoPacket {
 
-		public StringTables(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
+		public StringTables(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 
 
 		public override void ParseBytes() {
@@ -23,7 +24,7 @@ namespace UncraftedDemoParser.DemoStructure.Packets {
 	}
 
 
-	public class StringTable : DemoComponent {
+	public class StringTable : DemoPacket {
 		
 		public int TableCount;
 		public string TableName;
@@ -37,7 +38,7 @@ namespace UncraftedDemoParser.DemoStructure.Packets {
 		public byte[] ClientEntryData; 		// optional, (set if client entry size is set)
 
 
-		public StringTable(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
+		public StringTable(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 
 
 		public override void ParseBytes() {

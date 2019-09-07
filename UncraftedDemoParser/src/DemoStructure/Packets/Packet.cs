@@ -1,10 +1,11 @@
 using System.Linq;
 using System.Text;
+using UncraftedDemoParser.DemoStructure.Packets.Abstract;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser.DemoStructure.Packets {
 	
-	public class Packet : DemoComponent {
+	public class Packet : DemoPacket {
 
 		
 		public CmdInfo[] PacketInfo;
@@ -14,20 +15,20 @@ namespace UncraftedDemoParser.DemoStructure.Packets {
 		private byte _messageType;
 
 		public SvcMessageType MessageType {
-			get => _messageType.ToSvcMessageType(_demoRef.DemoSettings.NewEngine);
-			set => _messageType = value.ToByte(_demoRef.DemoSettings.NewEngine);
+			get => _messageType.ToSvcMessageType(DemoRef.DemoSettings.NewEngine);
+			set => _messageType = value.ToByte(DemoRef.DemoSettings.NewEngine);
 		}
 		public byte[] SvcMessage;
 		
 
-		public Packet(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
+		public Packet(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 
 
 		public override void ParseBytes() {
 			BitFieldReader bfr = new BitFieldReader(Bytes);
-			PacketInfo = new CmdInfo[_demoRef.DemoSettings.MaxSplitscreenPlayers];
+			PacketInfo = new CmdInfo[DemoRef.DemoSettings.MaxSplitscreenPlayers];
 			for (int i = 0; i < PacketInfo.Length; i++)
-				PacketInfo[i] = new CmdInfo(bfr.ReadBytes(76), _demoRef);
+				PacketInfo[i] = new CmdInfo(bfr.ReadBytes(76), DemoRef, Tick);
 			InSequence = bfr.ReadInt();
 			OutSequence = bfr.ReadInt();
 			int svcMessageSize = bfr.ReadInt();
@@ -104,7 +105,7 @@ namespace UncraftedDemoParser.DemoStructure.Packets {
 	}
 
 
-	public class CmdInfo : DemoComponent {
+	public class CmdInfo : DemoPacket {
 
 		public int Flags;
 		public float[] ViewOrigin = new float[3];
@@ -117,7 +118,7 @@ namespace UncraftedDemoParser.DemoStructure.Packets {
 		private float[][] _floats;
 		
 		
-		public CmdInfo(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
+		public CmdInfo(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 
 
 		public override void ParseBytes() {

@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using UncraftedDemoParser.DemoStructure.Packets;
+using UncraftedDemoParser.DemoStructure.Packets.Abstract;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser.DemoStructure {
@@ -46,7 +47,7 @@ namespace UncraftedDemoParser.DemoStructure {
 		public int SignOnLength;
 
 
-		public Header(byte[] data, SourceDemo demoRef): base(data, demoRef) {
+		public Header(byte[] data, SourceDemo demoRef) : base(data, demoRef) {
 			ParseBytes();
 		}
 

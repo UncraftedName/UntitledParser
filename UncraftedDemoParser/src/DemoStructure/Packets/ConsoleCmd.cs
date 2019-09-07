@@ -1,15 +1,16 @@
+using UncraftedDemoParser.DemoStructure.Packets.Abstract;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser.DemoStructure.Packets {
 	
 	// first 4 bytes are length of the command, the command is also null terminated
-	public class ConsoleCmd : DemoComponent {
+	public class ConsoleCmd : DemoPacket {
 
 		// int size    <- not stored for simplicity
 		public string Command;
 		
 		
-		public ConsoleCmd(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
+		public ConsoleCmd(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 
 
 		public override void ParseBytes() {

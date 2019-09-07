@@ -43,9 +43,10 @@
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="src\DemoStructure\Constants.cs" />
         <Compile Include="src\DemoStructure\Header.cs" />
+        <Compile Include="src\DemoStructure\Packets\Abstract\DemoComponent.cs" />
+        <Compile Include="src\DemoStructure\Packets\Abstract\DemoPacket.cs" />
         <Compile Include="src\DemoStructure\Packets\ConsoleCmd.cs" />
         <Compile Include="src\DemoStructure\Packets\CustomData.cs" />
-        <Compile Include="src\DemoStructure\Packets\DemoComponent.cs" />
         <Compile Include="src\DemoStructure\Packets\Net-Svc Messages\NetTick.cs" />
         <Compile Include="src\DemoStructure\Packets\Packet.cs" />
         <Compile Include="src\DemoStructure\Packets\PacketFrame.cs" />
@@ -56,15 +57,16 @@
         <Compile Include="src\DemoStructure\Packets\UserCmd.cs" />
         <Compile Include="src\DemoStructure\SourceDemo.cs" />
         <Compile Include="src\DemoStructure\SourceDemoSettings.cs" />
-        <Compile Include="src\obsolete\CazzarsParser.cs" />
-        <Compile Include="src\obsolete\OriginalParser.cs" />
-        <Compile Include="src\obsolete\SpecialTickTracker.cs" />
-        <Compile Include="src\obsolete\UserCmdOld.cs" />
+        <Compile Include="src\Obsolete\CazzarsParser.cs" />
+        <Compile Include="src\Obsolete\OriginalParser.cs" />
+        <Compile Include="src\Obsolete\SpecialTickTracker.cs" />
+        <Compile Include="src\Obsolete\UserCmdOld.cs" />
         <Compile Include="src\Program.cs" />
         <Compile Include="src\Utils\BitFieldReader.cs" />
         <Compile Include="src\Utils\BitFieldWriter.cs" />
         <Compile Include="src\Utils\ConsoleOptions.cs" />
         <Compile Include="src\Utils\Extensions.cs" />
+        <Compile Include="src\Utils\ParserTextUtils.cs" />
         <Compile Include="src\Utils\ParserUtils.cs" />
     </ItemGroup>
     <ItemGroup>

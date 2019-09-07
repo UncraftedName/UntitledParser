@@ -1,9 +1,10 @@
 using System.Text;
+using UncraftedDemoParser.DemoStructure.Packets.Abstract;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser.DemoStructure.Packets {
 	
-	public class UserCmd : DemoComponent {
+	public class UserCmd : DemoPacket {
 
 		public int Cmd;
 		// int size -> size of the rest of the data in bytes, not stored for simplicity
@@ -17,7 +18,7 @@ namespace UncraftedDemoParser.DemoStructure.Packets {
 		public short? MouseDx, MouseDy;
 		
 		
-		public UserCmd(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
+		public UserCmd(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 
 
 		public override void ParseBytes() {

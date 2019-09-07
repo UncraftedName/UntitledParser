@@ -1,13 +1,20 @@
+using UncraftedDemoParser.DemoStructure.Packets.Abstract;
+
 namespace UncraftedDemoParser.DemoStructure.Packets {
 	
-	public class Stop : DemoComponent {
+	public class Stop : DemoPacket {
 		
-		public Stop(SourceDemo demoRef) : base(new byte[0], demoRef) {}
+		public Stop(SourceDemo demoRef, int tick) : base(new byte[0], demoRef, tick) {}
 
 
 		public override void ParseBytes() {}
 
 		
 		public override void UpdateBytes() {}
+
+
+		public override string ToString() {
+			return "";
+		}
 	}
 }

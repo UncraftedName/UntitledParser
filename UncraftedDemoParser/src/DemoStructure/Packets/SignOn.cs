@@ -1,10 +1,11 @@
 using System.Diagnostics;
+using UncraftedDemoParser.DemoStructure.Packets.Abstract;
 
 namespace UncraftedDemoParser.DemoStructure.Packets {
 	
-	public class SignOn : DemoComponent {
+	public class SignOn : DemoPacket {
 
-		public SignOn(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
+		public SignOn(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 
 
 		public override void ParseBytes() {

@@ -16,13 +16,13 @@ namespace UncraftedDemoParser {
                 Environment.Exit(0);
             } else {
                 // assume that running from IDE (using debugger)
-                const string demoName = "portal2";
+                const string demoName = "testchmb_a_04";
                 SourceDemo sd = new SourceDemo(new DirectoryInfo($@"..\..\demos\{demoName}.dem"));
-                sd.PrintCustomOutput(printHeader: true);
-                sd.ToString().WriteToFiles(@"..\..\out\_verbose.txt", $@"..\..\out\verbose-{demoName}.txt");
-                sd.CountSvcMessages().WriteToFiles(@"..\..\out\_svc message counter.txt",
+                sd.PrintListdemoOutput(printHeader: true);
+                sd.AsVerboseString().WriteToFiles(@"..\..\out\_verbose.txt", $@"..\..\out\verbose-{demoName}.txt");
+                sd.SvcMessagesCounterAsString().WriteToFiles(@"..\..\out\_svc message counter.txt",
                     $@"..\..\out\svc message counter-{demoName}.txt");
-                sd.GetSubPacketData().WriteToFiles(@"..\..\out\_sub packet data.txt",
+                sd.SvcMessagesAsString().WriteToFiles(@"..\..\out\_sub packet data.txt",
                     $@"..\..\out\sub packet data - {demoName}.txt");
             }
         }
