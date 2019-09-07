@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UncraftedDemoParser.DemoStructure;
-using UncraftedDemoParser.DemoStructure.Packets;
-using UncraftedDemoParser.DemoStructure.Packets.Abstract;
-using static UncraftedDemoParser.DemoStructure.Packets.Packet;
+using static UncraftedDemoParser.DemoStructure.Components.Packets.Packet;
 
 namespace UncraftedDemoParser.Utils {
 	

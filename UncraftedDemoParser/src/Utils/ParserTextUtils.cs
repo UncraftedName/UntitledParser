@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UncraftedDemoParser.DemoStructure;
-using UncraftedDemoParser.DemoStructure.Packets;
+using UncraftedDemoParser.DemoStructure.Components;
+using UncraftedDemoParser.DemoStructure.Components.Abstract;
+using UncraftedDemoParser.DemoStructure.Components.Packets;
 
 namespace UncraftedDemoParser.Utils {
 	
@@ -14,7 +16,7 @@ namespace UncraftedDemoParser.Utils {
 		public static string SvcMessagesCounterAsString(this SourceDemo sd) {
 			var messageCounter = sd.GetSvcMessageDict();
 			StringBuilder builder = new StringBuilder();
-			foreach (Packet.SvcMessageType messageType in messageCounter.Keys.OrderBy(type => messageCounter[type]).ThenBy(type => type.ToString()))
+			foreach (SvcMessageType messageType in messageCounter.Keys.OrderBy(type => messageCounter[type]).ThenBy(type => type.ToString()))
 				builder.AppendLine($"{messageType} appears {messageCounter[messageType]} times");
 			return builder.ToString();
 		}
@@ -25,7 +27,7 @@ namespace UncraftedDemoParser.Utils {
 			var messageCounter = sd.GetSvcMessageDict();
 			StringBuilder builder = new StringBuilder();
 			var packets = sd.FilterForPacketType<Packet>();
-			foreach (Packet.SvcMessageType messageType in messageCounter.Keys.OrderBy(type => messageCounter[type]).ThenBy(type => type.ToString())) {
+			foreach (SvcMessageType messageType in messageCounter.Keys.OrderBy(type => messageCounter[type]).ThenBy(type => type.ToString())) {
 				builder.AppendLine($"-{messageType}-"); // append message name
 				foreach ((int tick, byte[] data) in     // iterating over tick and the sub packet data
 					packets.Where(packet => packet.MessageType == messageType)

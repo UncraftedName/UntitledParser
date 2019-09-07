@@ -1,7 +1,7 @@
-using UncraftedDemoParser.DemoStructure.Packets.Abstract;
+using UncraftedDemoParser.DemoStructure.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser.DemoStructure.Packets {
+namespace UncraftedDemoParser.DemoStructure.Components.Packets {
 	
 	// first 4 bytes are length of the command, the command is also null terminated
 	public class ConsoleCmd : DemoPacket {

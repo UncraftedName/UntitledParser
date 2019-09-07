@@ -1,8 +1,8 @@
 using System;
 using System.Diagnostics;
-using UncraftedDemoParser.DemoStructure.Packets.Abstract;
+using UncraftedDemoParser.DemoStructure.Components.Abstract;
 
-namespace UncraftedDemoParser.DemoStructure.Packets {
+namespace UncraftedDemoParser.DemoStructure.Components.Packets {
 	
 	// unknown data
 	public class SyncTick : DemoPacket {

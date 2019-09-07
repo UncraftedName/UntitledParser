@@ -1,10 +1,9 @@
 using System;
 using System.Text;
-using UncraftedDemoParser.DemoStructure.Packets;
-using UncraftedDemoParser.DemoStructure.Packets.Abstract;
+using UncraftedDemoParser.DemoStructure.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser.DemoStructure {
+namespace UncraftedDemoParser.DemoStructure.Components {
 	
 	public sealed class Header : DemoComponent {
 		
@@ -47,6 +46,8 @@ namespace UncraftedDemoParser.DemoStructure {
 		public int SignOnLength;
 
 
+		// Header auto parses because source demo settings are needed to parse the rest of the demo,
+		// and those settings are constructed from the header.
 		public Header(byte[] data, SourceDemo demoRef) : base(data, demoRef) {
 			ParseBytes();
 		}
@@ -100,6 +101,8 @@ namespace UncraftedDemoParser.DemoStructure {
 			return output.ToString();
 		}
 
+		
+		// cuts off all '\0' from the end of the string
 		private string ByteArrayAsString(byte[] strBytes) {
 			unsafe {
 				fixed (byte* bytePtr = strBytes) { 
@@ -109,8 +112,9 @@ namespace UncraftedDemoParser.DemoStructure {
 		}
 
 
-		private byte[] StringAsByteArray(string str, int size) {
-			byte[] result = new byte[size];
+		// fills the unused indices with '\0'
+		private byte[] StringAsByteArray(string str, int length) {
+			byte[] result = new byte[length];
 			Array.Copy(Encoding.ASCII.GetBytes(str), result, str.Length);
 			return result;
 		}

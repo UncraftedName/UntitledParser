@@ -1,4 +1,4 @@
-namespace UncraftedDemoParser.DemoStructure {
+namespace UncraftedDemoParser.Obsolete {
 	
 	public static class Constants {
 

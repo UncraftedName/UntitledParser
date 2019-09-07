@@ -41,23 +41,24 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="src\DemoStructure\Constants.cs" />
-        <Compile Include="src\DemoStructure\Header.cs" />
-        <Compile Include="src\DemoStructure\Packets\Abstract\DemoComponent.cs" />
-        <Compile Include="src\DemoStructure\Packets\Abstract\DemoPacket.cs" />
-        <Compile Include="src\DemoStructure\Packets\ConsoleCmd.cs" />
-        <Compile Include="src\DemoStructure\Packets\CustomData.cs" />
-        <Compile Include="src\DemoStructure\Packets\Net-Svc Messages\NetTick.cs" />
-        <Compile Include="src\DemoStructure\Packets\Packet.cs" />
-        <Compile Include="src\DemoStructure\Packets\PacketFrame.cs" />
-        <Compile Include="src\DemoStructure\Packets\SignOn.cs" />
-        <Compile Include="src\DemoStructure\Packets\Stop.cs" />
-        <Compile Include="src\DemoStructure\Packets\StringTables.cs" />
-        <Compile Include="src\DemoStructure\Packets\SyncTick.cs" />
-        <Compile Include="src\DemoStructure\Packets\UserCmd.cs" />
+        <Compile Include="src\DemoStructure\Components\Abstract\SvcNetMessage.cs" />
+        <Compile Include="src\DemoStructure\Components\Header.cs" />
+        <Compile Include="src\DemoStructure\Components\Packets\ConsoleCmd.cs" />
+        <Compile Include="src\DemoStructure\Components\Packets\CustomData.cs" />
+        <Compile Include="src\DemoStructure\Components\Packets\Packet.cs" />
+        <Compile Include="src\DemoStructure\Components\Packets\SignOn.cs" />
+        <Compile Include="src\DemoStructure\Components\Packets\Stop.cs" />
+        <Compile Include="src\DemoStructure\Components\Packets\StringTables.cs" />
+        <Compile Include="src\DemoStructure\Components\Packets\SyncTick.cs" />
+        <Compile Include="src\DemoStructure\Components\Packets\UserCmd.cs" />
+        <Compile Include="src\DemoStructure\Components\Abstract\DemoComponent.cs" />
+        <Compile Include="src\DemoStructure\Components\Abstract\DemoPacket.cs" />
+        <Compile Include="src\DemoStructure\Components\PacketFrame.cs" />
         <Compile Include="src\DemoStructure\SourceDemo.cs" />
         <Compile Include="src\DemoStructure\SourceDemoSettings.cs" />
         <Compile Include="src\Obsolete\CazzarsParser.cs" />
+        <Compile Include="src\Obsolete\Constants.cs" />
+        <Compile Include="src\Obsolete\NetTick.cs" />
         <Compile Include="src\Obsolete\OriginalParser.cs" />
         <Compile Include="src\Obsolete\SpecialTickTracker.cs" />
         <Compile Include="src\Obsolete\UserCmdOld.cs" />
@@ -73,6 +74,7 @@
     <ItemGroup>
       <Folder Include="demos" />
       <Folder Include="out" />
+      <Folder Include="src\DemoStructure\Components\Net-Svc Messages" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

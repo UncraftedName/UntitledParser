@@ -1,6 +1,7 @@
-using UncraftedDemoParser.DemoStructure.Packets.Abstract;
+using UncraftedDemoParser.DemoStructure;
+using UncraftedDemoParser.DemoStructure.Components.Abstract;
 
-namespace UncraftedDemoParser.DemoStructure.Packets {
+namespace UncraftedDemoParser.Obsolete {
 	
 	public class NetTick : DemoComponent {
 

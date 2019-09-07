@@ -1,4 +1,5 @@
 using System;
+using UncraftedDemoParser.DemoStructure.Components;
 using static UncraftedDemoParser.DemoStructure.SourceDemoSettings.SourceGame;
 
 namespace UncraftedDemoParser.DemoStructure {

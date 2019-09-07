@@ -1,22 +1,10 @@
 using System;
-using System.Linq;
 using System.Text;
-using UncraftedDemoParser.DemoStructure.Packets.Abstract;
+using UncraftedDemoParser.DemoStructure.Components.Abstract;
+using UncraftedDemoParser.DemoStructure.Components.Packets;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser.DemoStructure.Packets {
-	
-	public enum PacketType {
-		SignOn = 1,
-		Packet,
-		SyncTick,
-		ConsoleCmd,
-		UserCmd,
-		DataTables,
-		Stop,
-		CustomData,
-		StringTables
-	}
+namespace UncraftedDemoParser.DemoStructure.Components {
 	
 	
 	// Holds information such as packet type and what tick the packet occured on (stored in the packet)

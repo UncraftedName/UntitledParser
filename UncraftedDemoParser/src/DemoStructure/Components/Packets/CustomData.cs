@@ -1,8 +1,8 @@
 using System;
-using UncraftedDemoParser.DemoStructure.Packets.Abstract;
+using UncraftedDemoParser.DemoStructure.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser.DemoStructure.Packets {
+namespace UncraftedDemoParser.DemoStructure.Components.Packets {
 	
 	public class CustomData : DemoPacket {
 

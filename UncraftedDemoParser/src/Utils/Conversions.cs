@@ -1,7 +1,8 @@
 using System;
 using UncraftedDemoParser.DemoStructure;
-using UncraftedDemoParser.DemoStructure.Packets;
-using UncraftedDemoParser.DemoStructure.Packets.Abstract;
+using UncraftedDemoParser.DemoStructure.Components;
+using UncraftedDemoParser.DemoStructure.Components.Abstract;
+using UncraftedDemoParser.DemoStructure.Components.Packets;
 
 namespace UncraftedDemoParser.Utils {
 	
@@ -63,45 +64,45 @@ namespace UncraftedDemoParser.Utils {
 		}
 
 
-		public static Packet.SvcMessageType ToSvcMessageType(this byte b, bool newEngine) {
+		public static SvcMessageType ToSvcMessageType(this byte b, bool newEngine) {
 			if (!newEngine) {
 				switch (b) {
 					case 3:
-						return Packet.SvcMessageType.NetTick;
+						return SvcMessageType.NetTick;
 					case 4:
-						return Packet.SvcMessageType.NetStringCmd;
+						return SvcMessageType.NetStringCmd;
 					case 5:
-						return Packet.SvcMessageType.NetSetConVar;
+						return SvcMessageType.NetSetConVar;
 					case 6:
-						return Packet.SvcMessageType.NetSignOnState;
+						return SvcMessageType.NetSignOnState;
 					case 7:
-						return Packet.SvcMessageType.SvcPrint;
+						return SvcMessageType.SvcPrint;
 					case 16:
 					case 22:
 					case 33:
 						throw new ArgumentException($"unknown svc message type: {b}");
 				}
 			}
-			return (Packet.SvcMessageType)b;
+			return (SvcMessageType)b;
 		}
 
 
-		public static byte ToByte(this Packet.SvcMessageType svcMessage, bool newEngine) {
+		public static byte ToByte(this SvcMessageType svcMessage, bool newEngine) {
 			if (!newEngine) {
 				switch (svcMessage) {
-					case Packet.SvcMessageType.NetTick:
+					case SvcMessageType.NetTick:
 						return 3;
-					case Packet.SvcMessageType.NetStringCmd:
+					case SvcMessageType.NetStringCmd:
 						return 4;
-					case Packet.SvcMessageType.NetSetConVar:
+					case SvcMessageType.NetSetConVar:
 						return 5;
-					case Packet.SvcMessageType.NetSignOnState:
+					case SvcMessageType.NetSignOnState:
 						return 6;
-					case Packet.SvcMessageType.SvcPrint:
+					case SvcMessageType.SvcPrint:
 						return 7;
-					case Packet.SvcMessageType.NetSplitScreenUser:
-					case Packet.SvcMessageType.SvcSplitScreen:
-					case Packet.SvcMessageType.SvcPaintmapData:
+					case SvcMessageType.NetSplitScreenUser:
+					case SvcMessageType.SvcSplitScreen:
+					case SvcMessageType.SvcPaintmapData:
 						throw new ArgumentException($"unknown svc message type: {svcMessage}");
 				}
 			}

@@ -1,6 +1,6 @@
-using UncraftedDemoParser.DemoStructure.Packets.Abstract;
+using UncraftedDemoParser.DemoStructure.Components.Abstract;
 
-namespace UncraftedDemoParser.DemoStructure.Packets {
+namespace UncraftedDemoParser.DemoStructure.Components.Packets {
 	
 	public class Stop : DemoPacket {
 		

@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using UncraftedDemoParser.DemoStructure;
-using UncraftedDemoParser.DemoStructure.Packets;
-using UncraftedDemoParser.DemoStructure.Packets.Abstract;
+using UncraftedDemoParser.DemoStructure.Components;
+using UncraftedDemoParser.DemoStructure.Components.Abstract;
+using UncraftedDemoParser.DemoStructure.Components.Packets;
 
 namespace UncraftedDemoParser.Utils {
 	
@@ -16,10 +17,10 @@ namespace UncraftedDemoParser.Utils {
 
 
 		// returns a dictionary that maps every svc packet to the amount of times that svc packet appears
-		public static Dictionary<Packet.SvcMessageType, int> GetSvcMessageDict(this SourceDemo sd) {
-			var messageCounter = new Dictionary<Packet.SvcMessageType, int>();
+		public static Dictionary<SvcMessageType, int> GetSvcMessageDict(this SourceDemo sd) {
+			var messageCounter = new Dictionary<SvcMessageType, int>();
 			foreach (Packet packet in sd.FilterForPacketType<Packet>()) {
-				Packet.SvcMessageType messageType = packet.MessageType;
+				SvcMessageType messageType = packet.MessageType;
 				if (messageCounter.ContainsKey(messageType))
 					messageCounter[messageType]++;
 				else

@@ -1,4 +1,4 @@
-namespace UncraftedDemoParser.DemoStructure.Packets.Abstract {
+namespace UncraftedDemoParser.DemoStructure.Components.Abstract {
 	
 	// used to describe the various components of a demo,
 	// constructed with a byte array, and contains fields that can be updated and rewritten to a new byte array

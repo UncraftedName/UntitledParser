@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using UncraftedDemoParser.DemoStructure.Packets;
+using UncraftedDemoParser.DemoStructure.Components;
+using UncraftedDemoParser.DemoStructure.Components.Packets;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser.DemoStructure {
@@ -48,7 +49,7 @@ namespace UncraftedDemoParser.DemoStructure {
 		
 		public void UpdateBytes() {
 			Header.UpdateBytes();
-			Frames.ForEach(delegate(PacketFrame p) {p.UpdateBytes();});
+			Frames.ForEach(p => p.UpdateBytes());
 			List<byte> tmpBytes = new List<byte>(838 + Frames.Sum(frame => frame.Bytes.Length));
 			tmpBytes.AddRange(Header.Bytes);
 			Frames.ForEach(p => tmpBytes.AddRange(p.Bytes));

@@ -1,9 +1,9 @@
 using System.Linq;
 using System.Text;
-using UncraftedDemoParser.DemoStructure.Packets.Abstract;
+using UncraftedDemoParser.DemoStructure.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser.DemoStructure.Packets {
+namespace UncraftedDemoParser.DemoStructure.Components.Packets {
 	
 	public class Packet : DemoPacket {
 
@@ -58,48 +58,6 @@ namespace UncraftedDemoParser.DemoStructure.Packets {
 			output.AppendLine($"\tmessage type: {MessageType}");
 			output.Append($"\tmessage of length {SvcMessage.Length}: {SvcMessage.AsHexStr()}");
 			return output.ToString();
-		}
-
-
-		public enum SvcMessageType {
-			NetNop,
-			NetDisconnect,
-			NetFile,
-			NetSplitScreenUser,
-			NetTick,
-			NetStringCmd,
-			NetSetConVar,
-			NetSignOnState,
-			SvcServerInfo,
-			SvcSendTable,
-			SvcClassInfo,
-			SvcSetPause,
-			SvcCreateStringTable,
-			SvcUpdateStringTables,
-			SvcVoiceInit,
-			SvcVoiceData,
-			SvcPrint,
-			SvcSounds,
-			SvcSetView,
-			SvcFixAngle,
-			SvcCrosshairAngle,
-			SvcBspDecal,
-			SvcSplitScreen,
-			SvcUserMessage,
-			SvcEntityMessage,
-			SvcGameEvent,
-			SvcPacketEntities,
-			SvcTempEntities,
-			SvcPrefetch,
-			SvcMenu,
-			SvcGameEventList,
-			SvcGetCvadValue,
-			SvcCmdKeyValues,
-			SvcPaintmapData,
-			//SvcEncryptedData,     only used in CS:GO
-			//SvcHltvData,
-			//SvcBroadcaseCommand,
-			//NetPlayerAvatarData
 		}
 	}
 

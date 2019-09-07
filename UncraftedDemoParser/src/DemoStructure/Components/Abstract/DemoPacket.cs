@@ -1,4 +1,4 @@
-namespace UncraftedDemoParser.DemoStructure.Packets.Abstract {
+namespace UncraftedDemoParser.DemoStructure.Components.Abstract {
 	
 	// doesn't have to be a packet. used for everything that isn't the header or packet frame
 	public abstract class DemoPacket : DemoComponent {
@@ -10,5 +10,18 @@ namespace UncraftedDemoParser.DemoStructure.Packets.Abstract {
 		protected DemoPacket(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef) {
 			Tick = tick;
 		}
+	}
+	
+	
+	public enum PacketType {
+		SignOn = 1,
+		Packet,
+		SyncTick,
+		ConsoleCmd,
+		UserCmd,
+		DataTables,
+		Stop,
+		CustomData,
+		StringTables
 	}
 }
