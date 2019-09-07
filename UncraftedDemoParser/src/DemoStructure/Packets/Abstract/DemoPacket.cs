@@ -1,5 +1,6 @@
 namespace UncraftedDemoParser.DemoStructure.Packets.Abstract {
 	
+	// doesn't have to be a packet. used for everything that isn't the header or packet frame
 	public abstract class DemoPacket : DemoComponent {
 
 		// in the demo this is stored as part of the packet frame,

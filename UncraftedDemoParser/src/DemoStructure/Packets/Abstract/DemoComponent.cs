@@ -5,7 +5,7 @@ namespace UncraftedDemoParser.DemoStructure.Packets.Abstract {
 	public abstract class DemoComponent {
 
 		public byte[] Bytes {get;protected set;}
-		public SourceDemo DemoRef; // literally only needed to know which tick the stop packet is on
+		public SourceDemo DemoRef; // literally only needed for stop packet, otherwise source demo settings would be passed
 		
 
 		protected DemoComponent(byte[] data, SourceDemo demoRef) {

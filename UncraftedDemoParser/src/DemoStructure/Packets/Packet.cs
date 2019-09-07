@@ -33,7 +33,6 @@ namespace UncraftedDemoParser.DemoStructure.Packets {
 			OutSequence = bfr.ReadInt();
 			int svcMessageSize = bfr.ReadInt();
 			_messageType = bfr.ReadBits(6)[0]; // i'm not sure if the data starts on the byte boundary
-			//Console.WriteLine($"\t{MessageType}");
 			SvcMessage = bfr.ReadBytes(svcMessageSize - 1);
 		}
 
@@ -105,7 +104,7 @@ namespace UncraftedDemoParser.DemoStructure.Packets {
 	}
 
 
-	public class CmdInfo : DemoPacket {
+	public sealed class CmdInfo : DemoPacket {
 
 		public int Flags;
 		public float[] ViewOrigin = new float[3];
@@ -115,10 +114,12 @@ namespace UncraftedDemoParser.DemoStructure.Packets {
 		public float[] ViewAngles2 = new float[3];
 		public float[] LocalViewAngles2 = new float[3];
 
-		private float[][] _floats;
-		
-		
-		public CmdInfo(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
+		private float[][] _floats; // just a reference to the above floats for easy iteration
+
+
+		public CmdInfo(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {
+			ParseBytes();
+		}
 
 
 		public override void ParseBytes() {
@@ -140,11 +141,11 @@ namespace UncraftedDemoParser.DemoStructure.Packets {
 
 
 		public override string ToString() {
-			StringBuilder output = new StringBuilder();
+			StringBuilder output = new StringBuilder(200);
 			BitFieldWriter bfwTmp = new BitFieldWriter(4);
-			// location are written as xyz, angles as written as pitch, yaw, roll
 			bfwTmp.WriteInt(Flags);
 			output.AppendLine($"\tflags: {bfwTmp.Data.AsBinStr()}");
+			// locations are written as xyz, angles as written as pitch, yaw, roll
 			output.AppendFormat("\tview origin:         {0,11} {1,11} {2,11}\n", $"{ViewOrigin[0]:F2} ,",       $"{ViewOrigin[1]:F2} ,",       $"{ViewOrigin[2]:F2} ");
 			output.AppendFormat("\tview angles:         {0,11} {1,11} {2,11}\n", $"{ViewAngles[0]:F2}°,",       $"{ViewAngles[1]:F2}°,",       $"{ViewAngles[2]:F2}°");
 			output.AppendFormat("\tlocal view angles:   {0,11} {1,11} {2,11}\n", $"{LocalViewAngles[0]:F2}°,",  $"{LocalViewAngles[1]:F2}°,",  $"{LocalViewAngles[2]:F2}°");

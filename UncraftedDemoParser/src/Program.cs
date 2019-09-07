@@ -16,7 +16,7 @@ namespace UncraftedDemoParser {
                 Environment.Exit(0);
             } else {
                 // assume that running from IDE (using debugger)
-                const string demoName = "testchmb_a_04";
+                const string demoName = "004-uncrafted-560";
                 SourceDemo sd = new SourceDemo(new DirectoryInfo($@"..\..\demos\{demoName}.dem"));
                 sd.PrintListdemoOutput(printHeader: true);
                 sd.AsVerboseString().WriteToFiles(@"..\..\out\_verbose.txt", $@"..\..\out\verbose-{demoName}.txt");

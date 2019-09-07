@@ -27,7 +27,7 @@ namespace UncraftedDemoParser.DemoStructure {
 		}
 
 
-		// get all packets, but only parse the consolecmd packet; used solely for printing the custom parser output
+		// get all packets, but only parse the consolecmd packet; used solely for printing the listdemo output
 		public void QuickParse() {
 			Header = new Header(Bytes.SubArray(0, 1072), this); // header auto-parses
 			DemoSettings = new SourceDemoSettings(Header);
@@ -51,22 +51,8 @@ namespace UncraftedDemoParser.DemoStructure {
 			Frames.ForEach(delegate(PacketFrame p) {p.UpdateBytes();});
 			List<byte> tmpBytes = new List<byte>(838 + Frames.Sum(frame => frame.Bytes.Length));
 			tmpBytes.AddRange(Header.Bytes);
-			Frames.ForEach(delegate(PacketFrame p) {tmpBytes.AddRange(p.Bytes);});
+			Frames.ForEach(p => tmpBytes.AddRange(p.Bytes));
 			Bytes = tmpBytes.ToArray();
-		}
-
-
-		public string AsVerboseString() {
-			StringBuilder output = new StringBuilder(300 * Frames.Count);
-			output.AppendLine(Header.ToString());
-			output.AppendLine();
-			
-			Frames.ForEach(frame => {
-				output.Append(frame);
-				if (frame.Type != PacketType.Stop)
-					output.AppendLine();
-			});
-			return output.ToString();
 		}
 	}
 }

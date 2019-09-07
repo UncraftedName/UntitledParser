@@ -16,113 +16,11 @@ namespace UncraftedDemoParser.Utils {
 			Array.Copy(data, index, result, 0, length);
 			return result;
 		}
-		
-		
-		// gets the packet type associated with this byte value
-		public static PacketType ToPacketType(this byte b, bool newEngine) {
-			if (b > 0 && b < 8)
-				return (PacketType)b;
-			if (newEngine) {
-				if (b == 8)
-					return PacketType.CustomData;
-				if (b == 9)
-					return PacketType.StringTables;
-			}
-			if (b == 8)
-				return PacketType.StringTables;
-			throw new ArgumentException($"unknown packet type value: {b}");
-		}
-
-
-		// gets the byte value associated with this packet type
-		public static byte ToByte(this PacketType packetType, bool newEngine) {
-			byte byteVal = (byte)packetType;
-			if (byteVal < 8)
-				return byteVal;
-			if (packetType == PacketType.StringTables)
-				return (byte)(newEngine ? 9 : 8);
-			if (newEngine && packetType == PacketType.CustomData)
-				return 8;
-			throw new ArgumentException($"unknown packet type: {packetType}");
-		}
-		
-
-		// creates a new packet of the given packet type with the given data
-		public static DemoPacket ToDemoPacket(this PacketType packetType, byte[] data, SourceDemo demoRef, int tick) {
-			switch (packetType) {
-				case PacketType.SignOn:
-					return new SignOn(data, demoRef, tick);
-				case PacketType.Packet:
-					return new Packet(data, demoRef, tick);
-				case PacketType.SyncTick:
-					return new SyncTick(data, demoRef, tick);
-				case PacketType.ConsoleCmd:
-					return new ConsoleCmd(data, demoRef, tick);
-				case PacketType.UserCmd:
-					return new UserCmd(data, demoRef, tick);
-				case PacketType.DataTables:
-					return null;
-				case PacketType.Stop:
-					return null;
-				case PacketType.CustomData:
-					return new CustomData(data, demoRef, tick);
-				case PacketType.StringTables:
-					return new StringTables(data, demoRef, tick);
-				default:
-					throw new ArgumentOutOfRangeException(nameof(packetType), packetType, $"unknown packet type: {packetType}");
-			}
-		}
-
-
-		public static SvcMessageType ToSvcMessageType(this byte b, bool newEngine) {
-			if (!newEngine) {
-				switch (b) {
-					case 3:
-						return SvcMessageType.NetTick;
-					case 4:
-						return SvcMessageType.NetStringCmd;
-					case 5:
-						return SvcMessageType.NetSetConVar;
-					case 6:
-						return SvcMessageType.NetSignOnState;
-					case 7:
-						return SvcMessageType.SvcPrint;
-					case 16:
-					case 22:
-					case 33:
-						throw new ArgumentException($"unknown svc message type: {b}");
-				}
-			}
-			return (SvcMessageType)b;
-		}
-
-
-		public static byte ToByte(this SvcMessageType svcMessage, bool newEngine) {
-			if (!newEngine) {
-				switch (svcMessage) {
-					case SvcMessageType.NetTick:
-						return 3;
-					case SvcMessageType.NetStringCmd:
-						return 4;
-					case SvcMessageType.NetSetConVar:
-						return 5;
-					case SvcMessageType.NetSignOnState:
-						return 6;
-					case SvcMessageType.SvcPrint:
-						return 7;
-					case SvcMessageType.NetSplitScreenUser:
-					case SvcMessageType.SvcSplitScreen:
-					case SvcMessageType.SvcPaintmapData:
-						throw new ArgumentException($"unknown svc message type: {svcMessage}");
-				}
-			}
-			return (byte)svcMessage;
-		}
 
 
 		public static T RequireNonNull<T>(this T o) {
 			if (o == null)
-				throw new ArgumentException("something is null that isn't supposed to be");
+				throw new NullReferenceException("something is null that isn't supposed to be");
 			return o;
 		}
 
@@ -167,6 +65,22 @@ namespace UncraftedDemoParser.Utils {
 
 		public static void WriteToFiles(this string data, params string[] files) {
 			files.ToList().ForEach(file => File.WriteAllText(file, data));
+		}
+
+
+		public static T[] AppendedWith<T>(this T[] arr1, T[] arr2) {
+			T[] output = new T[arr1.Length + arr2.Length];
+			arr1.CopyTo(output, 0);
+			arr2.CopyTo(output, arr1.Length);
+			return output;
+		}
+
+
+		public static T[] AppendedWith<T>(this T[] arr, T item) {
+			T[] output = new T[arr.Length + 1];
+			arr.CopyTo(output, 0);
+			arr[arr.Length - 1] = item;
+			return output;
 		}
 	}
 }

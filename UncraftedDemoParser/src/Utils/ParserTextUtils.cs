@@ -45,6 +45,20 @@ namespace UncraftedDemoParser.Utils {
 		}
 
 
+		public static string AsVerboseString(this SourceDemo sd) {
+			StringBuilder output = new StringBuilder(300 * sd.Frames.Count);
+			output.AppendLine(sd.Header.ToString());
+			output.AppendLine();
+			
+			sd.Frames.ForEach(frame => {
+				output.Append(frame);
+				if (frame.Type != PacketType.Stop)
+					output.AppendLine();
+			});
+			return output.ToString();
+		}
+
+
 		// prints basically what listdemo prints, optionally prints the "correct" timing for length
 		public static void PrintListdemoOutput(this SourceDemo sd, bool printHeader, string demoName=null) {
 			Console.ForegroundColor = ConsoleColor.Gray;

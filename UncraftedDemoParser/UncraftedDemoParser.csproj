@@ -65,6 +65,7 @@
         <Compile Include="src\Utils\BitFieldReader.cs" />
         <Compile Include="src\Utils\BitFieldWriter.cs" />
         <Compile Include="src\Utils\ConsoleOptions.cs" />
+        <Compile Include="src\Utils\Conversions.cs" />
         <Compile Include="src\Utils\Extensions.cs" />
         <Compile Include="src\Utils\ParserTextUtils.cs" />
         <Compile Include="src\Utils\ParserUtils.cs" />
