@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using UncraftedDemoParser.DemoStructure;
-using UncraftedDemoParser.DemoStructure.Components;
-using UncraftedDemoParser.DemoStructure.Components.Abstract;
-using UncraftedDemoParser.DemoStructure.Components.Packets;
+using UncraftedDemoParser.Parser;
+using UncraftedDemoParser.Parser.Components;
+using UncraftedDemoParser.Parser.Components.Abstract;
+using UncraftedDemoParser.Parser.Components.Packets;
 
 namespace UncraftedDemoParser.Utils {
 	
@@ -31,7 +31,7 @@ namespace UncraftedDemoParser.Utils {
 				builder.AppendLine($"-{messageType}-"); // append message name
 				foreach ((int tick, byte[] data) in     // iterating over tick and the sub packet data
 					packets.Where(packet => packet.MessageType == messageType)
-						.Select(packet => Tuple.Create(packet.Tick, packet.SvcMessage))) 
+						.Select(packet => Tuple.Create(packet.Tick, packet.SvcMessageBytes))) 
 				{
 					builder.AppendLine($"[{tick}] {data.AsHexStr()}");
 				}
@@ -62,11 +62,10 @@ namespace UncraftedDemoParser.Utils {
 
 
 		// prints basically what listdemo prints, optionally prints the "correct" timing for length
-		public static void PrintListdemoOutput(this SourceDemo sd, bool printHeader, string demoName=null) {
+		public static void PrintListdemoOutput(this SourceDemo sd, bool printHeader, bool printName) {
 			Console.ForegroundColor = ConsoleColor.Gray;
-			if (demoName != null) {
-				Console.WriteLine(demoName);
-			}
+			if (printName)
+				Console.WriteLine(sd.Name);
 			
 			if (printHeader) {
 				Header h = sd.Header;

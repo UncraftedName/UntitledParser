@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UncraftedDemoParser.DemoStructure;
-using static UncraftedDemoParser.DemoStructure.Components.Packets.Packet;
+using static UncraftedDemoParser.Parser.Components.Packets.Packet;
 
 namespace UncraftedDemoParser.Utils {
 	

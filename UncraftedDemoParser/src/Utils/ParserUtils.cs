@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using UncraftedDemoParser.DemoStructure;
-using UncraftedDemoParser.DemoStructure.Components;
-using UncraftedDemoParser.DemoStructure.Components.Abstract;
-using UncraftedDemoParser.DemoStructure.Components.Packets;
+using UncraftedDemoParser.Parser;
+using UncraftedDemoParser.Parser.Components;
+using UncraftedDemoParser.Parser.Components.Abstract;
+using UncraftedDemoParser.Parser.Components.Packets;
 
 namespace UncraftedDemoParser.Utils {
 	

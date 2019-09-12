@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using UncraftedDemoParser.DemoStructure;
-using UncraftedDemoParser.DemoStructure.Components;
 using UncraftedDemoParser.Obsolete;
+using UncraftedDemoParser.Parser;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser {
@@ -20,7 +19,7 @@ namespace UncraftedDemoParser {
                 // assume that running from IDE (using debugger)
                 const string demoName = "004-uncrafted-560";
                 SourceDemo sd = new SourceDemo(new DirectoryInfo($@"..\..\demos\{demoName}.dem"));
-                sd.PrintListdemoOutput(printHeader: true);
+                sd.PrintListdemoOutput(printHeader: true, printName: true);
                 sd.AsVerboseString().WriteToFiles(@"..\..\out\_verbose.txt", $@"..\..\out\verbose-{demoName}.txt");
                 sd.SvcMessagesCounterAsString().WriteToFiles(@"..\..\out\_svc message counter.txt",
                     $@"..\..\out\svc message counter-{demoName}.txt");

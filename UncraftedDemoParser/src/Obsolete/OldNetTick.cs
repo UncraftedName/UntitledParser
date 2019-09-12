@@ -1,5 +1,5 @@
-using UncraftedDemoParser.DemoStructure;
-using UncraftedDemoParser.DemoStructure.Components.Abstract;
+using UncraftedDemoParser.Parser;
+using UncraftedDemoParser.Parser.Components.Abstract;
 
 namespace UncraftedDemoParser.Obsolete {
 	
@@ -16,7 +16,7 @@ namespace UncraftedDemoParser.Obsolete {
 		public OldNetTick(byte[] data, SourceDemo demoRef) : base(data, demoRef) {}
 
 
-		public override void ParseBytes() {
+		protected override void ParseBytes() {
 			throw new System.NotImplementedException();
 		}
 

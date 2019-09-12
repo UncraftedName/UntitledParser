@@ -16,16 +16,18 @@ namespace UncraftedDemoParser.Utils {
 		private int BitIndex => Pointer & 0x07; 			// same as Pointer % 8
 		private int RemainingBitMask => 0xff << BitIndex;	// mask to get remaining bits in this byte
 		private bool IsByteAligned => BitIndex == 0;
+		public bool IsBigEndian;
 		
 		
-		public BitFieldReader(byte[] data, int bitLength) {
+		public BitFieldReader(byte[] data, int bitLength, bool isBigEndian = false) {
 			Data = data;
 			Pointer = 0;
 			Length = bitLength;
+			IsBigEndian = isBigEndian;
 		}
 
 
-		public BitFieldReader(byte[] data) : this(data, data.Length * 8) {}
+		public BitFieldReader(byte[] data, bool isBigEndian = false) : this(data, data.Length * 8, isBigEndian) {}
 
 
 		// only for the current byte
@@ -105,8 +107,8 @@ namespace UncraftedDemoParser.Utils {
 			if (bitCount > 32 || bitCount < 0)
 				throw new ArgumentException();
 			byte[] bytes = new byte[4];
-			Array.Copy(ReadBits(bitCount), 0, bytes, 0, bitCount >> 3);
-			if (BitConverter.IsLittleEndian)
+			Array.Copy(ReadBits(bitCount), 0, bytes, 0, (int)Math.Ceiling(bitCount / 8.0f));
+			if (!BitConverter.IsLittleEndian ^ IsBigEndian)
 				Array.Reverse(bytes);
 			return BitConverter.ToInt32(bytes, 0);
 		}
@@ -129,7 +131,7 @@ namespace UncraftedDemoParser.Utils {
 
 
 		public void DiscardPreviousBits() {
-			var (bytes, bitCount) = ReadRemainingBits();
+			(byte[] bytes, int bitCount) = ReadRemainingBits();
 			Data = bytes;
 			Length = bitCount;
 			Pointer = 0;
@@ -138,7 +140,7 @@ namespace UncraftedDemoParser.Utils {
 
 		private T ReadPrimitive<T>(Func<byte[], int, T> bitConverterFunc, int sizeOfType) {
 			byte[] bytes = ReadBytes(sizeOfType);
-			if (!BitConverter.IsLittleEndian)
+			if (!BitConverter.IsLittleEndian ^ IsBigEndian)
 				Array.Reverse(bytes);
 			return bitConverterFunc(bytes, 0);
 		}

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UncraftedDemoParser.DemoStructure;
+using UncraftedDemoParser.Parser;
 
 namespace UncraftedDemoParser.Utils {
 	
@@ -88,7 +88,7 @@ namespace UncraftedDemoParser.Utils {
 						demos[0].ParseBytes();
 					else
 						demos[0].QuickParse();
-					demos[0].PrintListdemoOutput(printHeader: !QuietMode);
+					demos[0].PrintListdemoOutput(!QuietMode, false);
 					if (DumpSvcPackets)
 						demos[0].SvcMessagesCounterAsString().WriteToFiles(
 							$"{Directory.GetCurrentDirectory()}/{FolderName}/_svc message counter.txt");
@@ -104,7 +104,7 @@ namespace UncraftedDemoParser.Utils {
 							demos[i].ParseBytes();
 						else
 							demos[i].QuickParse();
-						demos[i].PrintListdemoOutput(printHeader: !QuietMode, demoName: demoDirs[i].Name);
+						demos[i].PrintListdemoOutput(!QuietMode, true);
 						if (DumpSvcPackets)
 							demos[i].SvcMessagesCounterAsString().WriteToFiles(
 								$"{Directory.GetCurrentDirectory()}/{FolderName}/svc message counter - {demoName}.txt");
