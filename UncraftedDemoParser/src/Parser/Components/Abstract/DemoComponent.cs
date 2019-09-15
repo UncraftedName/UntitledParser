@@ -25,7 +25,11 @@ namespace UncraftedDemoParser.Parser.Components.Abstract {
 		public DemoComponent TryParse(int? tick = null) { // experimental, might remove
 			try {
 				ParseBytes();
-			} catch (Exception) {
+			} catch (FailedToParseException) {
+				throw;
+			} catch (Exception e) {
+				Debug.WriteLine(e.StackTrace);
+				Debug.WriteLine(e.ToString());
 				throw new FailedToParseException(this, tick);
 			}
 			return this;

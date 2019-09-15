@@ -17,7 +17,7 @@ namespace UncraftedDemoParser.Parser.Misc {
 
 
 		public override string ToString() {
-			return $"Failed to parse {Component.GetType()}{(Tick.HasValue ? $" on tick {Tick}" : "")}";
+			return $"Failed to parse {Component.GetType().Name}{(Tick.HasValue ? $" on tick {Tick}" : "")}";
 		}
 	}
 }

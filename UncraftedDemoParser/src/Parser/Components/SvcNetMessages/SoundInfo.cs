@@ -4,7 +4,7 @@ using UncraftedDemoParser.Utils;
 // literally stealing code
 // https://github.com/NeKzor/sdp.js/blob/master/src/types/SoundInfo.js
 
-namespace UncraftedDemoParser.Parser.Components.NetSvcMessages {
+namespace UncraftedDemoParser.Parser.Components.SvcNetMessages {
 	
 	// not actually an svc message, but easier to store as one
 	public sealed class SoundInfo : SvcNetMessage {

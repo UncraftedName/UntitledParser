@@ -38,7 +38,8 @@ namespace UncraftedDemoParser.Parser.Components.Packets {
 			_messageType = bfr.ReadBits(6)[0]; // i'm not sure if the data starts on the byte boundary
 			SvcMessageBytes = bfr.ReadBytes(svcMessageSize - 1);
 			// might throw exceptions
-			SvcNetMessage = (SvcNetMessage)MessageType.ToSvcNetMessage(SvcMessageBytes, DemoRef, Tick).TryParse(Tick);
+			SvcNetMessage = MessageType.ToSvcNetMessage(SvcMessageBytes, DemoRef, Tick);
+			SvcNetMessage.TryParse();
 		}
 
 		public override void UpdateBytes() {
@@ -61,7 +62,8 @@ namespace UncraftedDemoParser.Parser.Components.Packets {
 			output.AppendLine($"\tin sequence: {InSequence}");
 			output.AppendLine($"\tout sequence: {OutSequence}");
 			output.AppendLine($"\tmessage type: {MessageType}");
-			output.Append($"\tmessage of length {SvcMessageBytes.Length}: {SvcMessageBytes.AsHexStr()}");
+			output.AppendLine($"\tmessage of length {SvcMessageBytes.Length}: {SvcMessageBytes.AsHexStr()}");
+			output.Append(SvcNetMessage);
 			return output.ToString();
 		}
 	}

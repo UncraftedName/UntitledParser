@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UncraftedDemoParser.Parser.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser.Parser.Components.NetSvcMessages {
+namespace UncraftedDemoParser.Parser.Components.SvcNetMessages {
 	
 	public class SvcSounds : SvcNetMessage {
 

@@ -1,7 +1,7 @@
 using System;
 using UncraftedDemoParser.Parser.Components.Abstract;
-using UncraftedDemoParser.Parser.Components.NetSvcMessages;
 using UncraftedDemoParser.Parser.Components.Packets;
+using UncraftedDemoParser.Parser.Components.SvcNetMessages;
 
 namespace UncraftedDemoParser.Parser.Misc {
 	
@@ -125,6 +125,8 @@ namespace UncraftedDemoParser.Parser.Misc {
 					return new SvcPrefetch(data, demoRef, tick);
 				case SvcMessageType.SvcSetPause:
 					return new SvcSetPause(data, demoRef, tick);
+				case SvcMessageType.SvcSetView:
+					return new SvcSetView(data, demoRef, tick);
 				case SvcMessageType.SvcSounds:
 					return new SvcSounds(data, demoRef, tick);
 				case SvcMessageType.SvcTempEntities:

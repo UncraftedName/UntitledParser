@@ -1,3 +1,4 @@
+using System.Text;
 using UncraftedDemoParser.Utils;
 
 // stealing code xd
@@ -18,6 +19,18 @@ namespace UncraftedDemoParser.Parser.Components.Abstract {
 
 		// all svc/net messages will use the field reader
 		protected abstract void ParseBytes(BitFieldReader bfr);
+
+
+		protected virtual void PopulatedBuilder(StringBuilder builder) {} // todo make abstract once all tostrings are implemented
+
+
+		public sealed override string ToString() {
+			StringBuilder builder = new StringBuilder();
+			PopulatedBuilder(builder);
+			if (builder.Length == 0)
+				return $"\t\t{base.ToString()}";
+			return builder.ToString();
+		}
 	}
 
 

@@ -1,7 +1,8 @@
+using System.Text;
 using UncraftedDemoParser.Parser.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser.Parser.Components.NetSvcMessages {
+namespace UncraftedDemoParser.Parser.Components.SvcNetMessages {
 	
 	public class NetSignOnState : SvcNetMessage {
 
@@ -31,6 +32,15 @@ namespace UncraftedDemoParser.Parser.Components.NetSvcMessages {
 				if (strLength > 0)
 					MapName = bfr.ReadStringOfLength(strLength);
 			}
+		}
+
+
+		protected override void PopulatedBuilder(StringBuilder builder) {
+			builder.AppendLine($"\t\tsign on state: {SignOnState}");
+			builder.AppendLine($"\t\tspawn count: {SpawnCount}");
+			builder.AppendLine($"\t\tserver player count: {NumServerPlayers?.ToString() ?? "null"}");
+			builder.AppendLine($"\t\tplayer network id length: {PlayerNetworkIds?.Length.ToString() ?? "null"}");
+			builder.Append($"\t\tmap name: {MapName ?? "null"}");
 		}
 	}
 }
