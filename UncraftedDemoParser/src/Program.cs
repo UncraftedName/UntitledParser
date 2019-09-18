@@ -5,8 +5,8 @@ using UncraftedDemoParser.Obsolete;
 using UncraftedDemoParser.Parser;
 using UncraftedDemoParser.Utils;
 
-namespace UncraftedDemoParser {
-    public static class Program {
+namespace UncraftedDemoParser { 
+    internal static class Program {
 
         public static void Main(string[] args) {
             if (!Debugger.IsAttached) { // this is a mess atm
