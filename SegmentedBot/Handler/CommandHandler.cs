@@ -35,7 +35,8 @@ namespace SegmentedBot.Handler {
 			
 			// Create a WebSocket-based command context based on the message
 			var context = new SocketCommandContext(_client, message);
-
+			
+			
 			if (message.Attachments.Count == 0) {
 
 				// Determine if the message is a command based on the prefix and make sure no bots trigger commands
