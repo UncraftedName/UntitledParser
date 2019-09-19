@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using UncraftedDemoParser.Obsolete;
+﻿using System.IO;
 using UncraftedDemoParser.Parser;
 using UncraftedDemoParser.Utils;
 

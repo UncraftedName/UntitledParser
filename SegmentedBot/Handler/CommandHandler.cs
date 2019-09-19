@@ -1,10 +1,9 @@
-using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
 
-namespace SegmentedRunBot.Handlers {
+namespace SegmentedBot.Handler {
 	
 	public class CommandHandler {
 		

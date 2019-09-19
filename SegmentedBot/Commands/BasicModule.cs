@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
-namespace SegmentedRunBot.Modules {
+namespace SegmentedBot.Commands {
 	
 	public class InfoModule : ModuleBase<SocketCommandContext> {
 
