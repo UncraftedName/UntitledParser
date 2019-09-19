@@ -15,6 +15,7 @@ namespace SegmentedBot {
 
 
 		public static void Main(string[] args) => MainAsync().GetAwaiter().GetResult();
+		
 
 
 		private static async Task MainAsync() {
@@ -30,8 +31,8 @@ namespace SegmentedBot {
 			await _client.StopAsync();
 			// await Task.Delay(-1);
 		}
-		
-		
+
+
 		private static Task Log(LogMessage msg) {
 			Console.WriteLine(msg.ToString());
 			return Task.CompletedTask;
