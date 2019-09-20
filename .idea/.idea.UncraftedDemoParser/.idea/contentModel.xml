@@ -6,10 +6,14 @@
       <e p="SegmentedBot" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
         <e p="Commands" t="Include">
+          <e p="AdminModule.cs" t="Include" />
           <e p="BasicModule.cs" t="Include" />
         </e>
         <e p="Handler" t="Include">
           <e p="CommandHandler.cs" t="Include" />
+        </e>
+        <e p="Manager" t="Include">
+          <e p="DataManager.cs" t="Include" />
         </e>
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
@@ -20,6 +24,10 @@
         </e>
         <e p="Program.cs" t="Include" />
         <e p="SegmentedBot.csproj" t="IncludeRecursive" />
+        <e p="Utils" t="Include">
+          <e p="Forest.cs" t="Include" />
+          <e p="UniqueTree.cs" t="Include" />
+        </e>
       </e>
       <e p="UncraftedDemoParser" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />

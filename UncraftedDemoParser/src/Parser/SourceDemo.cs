@@ -17,7 +17,7 @@ namespace UncraftedDemoParser.Parser {
 		public string Name;
 
 
-		public SourceDemo(DirectoryInfo directoryInfo, bool parse = true) : 
+		public SourceDemo(DirectoryInfo directoryInfo, bool parse = true):
 			this(File.ReadAllBytes(directoryInfo.FullName), parse, directoryInfo.Name) {}
 		
 		

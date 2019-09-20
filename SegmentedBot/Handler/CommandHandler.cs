@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Discord.Commands;
@@ -29,13 +30,14 @@ namespace SegmentedBot.Handler {
 			// Don't process the command if it was a system message
 			var message = messageParam as SocketUserMessage;
 			if (message == null) return;
+			
+			// (message.Channel as SocketGuildChannel)?.Guild.Name
 
 			// Create a number to track where the prefix ends and the command begins
 			int argPos = 0;
 			
 			// Create a WebSocket-based command context based on the message
 			var context = new SocketCommandContext(_client, message);
-			
 			
 			if (message.Attachments.Count == 0) {
 

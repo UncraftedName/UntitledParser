@@ -13,16 +13,15 @@ namespace SegmentedBot {
 
 		private static DiscordSocketClient _client;
 
-
+		
 		public static void Main(string[] args) => MainAsync().GetAwaiter().GetResult();
 		
-
 
 		private static async Task MainAsync() {
 			_client = new DiscordSocketClient(
 				new DiscordSocketConfig {WebSocketProvider = WS4NetProvider.Instance});
 			_client.Log += Log;
-			await _client.LoginAsync(TokenType.Bot, File.ReadAllText( // too lazy to do proper secrets atm
+			Task login = _client.LoginAsync(TokenType.Bot, File.ReadAllText( // too lazy to do proper secrets atm
 				$@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\Microsoft\UserSecrets\901a5b7c-ee65-4aa9-af81-a28c11cb91ce\secrets.json"));
 			await _client.StartAsync();
 			CommandHandler handler = new CommandHandler(_client, new CommandService());
