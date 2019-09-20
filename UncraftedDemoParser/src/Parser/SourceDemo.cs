@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UncraftedDemoParser.Parser.Components;
+using UncraftedDemoParser.Parser.Components.Abstract;
 using UncraftedDemoParser.Parser.Components.Packets;
 using UncraftedDemoParser.Utils;
 
