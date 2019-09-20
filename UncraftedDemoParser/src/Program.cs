@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using UncraftedDemoParser.Parser;
+using UncraftedDemoParser.Parser.Components.Abstract;
+using UncraftedDemoParser.Parser.Components.Packets;
+using UncraftedDemoParser.Parser.Components.SvcNetMessages;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser { 
@@ -24,6 +28,9 @@ namespace UncraftedDemoParser {
                     $@"..\..\out\svc message counter-{demoName}.txt");
                 sd.SvcMessagesAsString().WriteToFiles(@"..\..\out\_sub packet data.txt",
                     $@"..\..\out\sub packet data - {demoName}.txt");
+                
+                Console.WriteLine(sd.FilterForPacketType<Packet>().Where(packet => packet.MessageType == SvcMessageType.NetTick)
+                    .Select(packet => packet.SvcNetMessage).Cast<NetTick>().Select(netTick => netTick.EngineTick - netTick.Tick).Distinct().QuickToString());
             }
         }
     }

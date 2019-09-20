@@ -68,6 +68,7 @@
               <e p="SvcNetMessages" t="Include">
                 <e p="NetNop.cs" t="Include" />
                 <e p="NetSignOnState.cs" t="Include" />
+                <e p="NetStringCmd.cs" t="Include" />
                 <e p="NetTick.cs" t="Include" />
                 <e p="SoundInfo.cs" t="Include" />
                 <e p="SvcCmdKeyValues.cs" t="Include" />

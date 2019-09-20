@@ -1,100 +1,100 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-    <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{97E0D662-BE84-4A04-964B-CBB1A14DB14B}</ProjectGuid>
-        <OutputType>Exe</OutputType>
-        <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>UncraftedDemoParser</RootNamespace>
-        <AssemblyName>UncraftedDemoParser</AssemblyName>
-        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-        <FileAlignment>512</FileAlignment>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-    </PropertyGroup>
-    <ItemGroup>
-        <Reference Include="System" />
-        <Reference Include="System.Core" />
-        <Reference Include="System.Data" />
-        <Reference Include="System.Numerics" />
-        <Reference Include="System.Xml" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="src\Parser\Components\Abstract\SvcNetMessage.cs" />
-        <Compile Include="src\Parser\Components\Header.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\NetNop.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\NetSignOnState.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\NetTick.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\SoundInfo.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\SvcCmdKeyValues.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\SvcGameEvent.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\SvcPrefetch.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\SvcSetPause.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\SvcSetView.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\SvcSounds.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\SvcTempEntities.cs" />
-        <Compile Include="src\Parser\Components\SvcNetMessages\SvcUserMessage.cs" />
-        <Compile Include="src\Parser\Components\Packets\ConsoleCmd.cs" />
-        <Compile Include="src\Parser\Components\Packets\CustomData.cs" />
-        <Compile Include="src\Parser\Components\Packets\Packet.cs" />
-        <Compile Include="src\Parser\Components\Packets\SignOn.cs" />
-        <Compile Include="src\Parser\Components\Packets\Stop.cs" />
-        <Compile Include="src\Parser\Components\Packets\StringTables.cs" />
-        <Compile Include="src\Parser\Components\Packets\SyncTick.cs" />
-        <Compile Include="src\Parser\Components\Packets\UserCmd.cs" />
-        <Compile Include="src\Parser\Components\Abstract\DemoComponent.cs" />
-        <Compile Include="src\Parser\Components\Abstract\DemoPacket.cs" />
-        <Compile Include="src\Parser\Components\PacketFrame.cs" />
-        <Compile Include="src\Parser\Misc\Conversions.cs" />
-        <Compile Include="src\Parser\Misc\FailedToParseException.cs" />
-        <Compile Include="src\Parser\SourceDemo.cs" />
-        <Compile Include="src\Parser\SourceDemoSettings.cs" />
-        <Compile Include="src\Obsolete\CazzarsParser.cs" />
-        <Compile Include="src\Obsolete\Constants.cs" />
-        <Compile Include="src\Obsolete\OldNetTick.cs" />
-        <Compile Include="src\Obsolete\OriginalParser.cs" />
-        <Compile Include="src\Obsolete\SpecialTickTracker.cs" />
-        <Compile Include="src\Obsolete\UserCmdOld.cs" />
-        <Compile Include="src\Program.cs" />
-        <Compile Include="src\Utils\BitFieldReader.cs" />
-        <Compile Include="src\Utils\BitFieldWriter.cs" />
-        <Compile Include="src\Utils\ConsoleOptions.cs" />
-        <Compile Include="src\Utils\Extensions.cs" />
-        <Compile Include="src\Utils\ParserTextUtils.cs" />
-        <Compile Include="src\Utils\ParserUtils.cs" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="demos" />
-      <Folder Include="out" />
-    </ItemGroup>
-    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{97E0D662-BE84-4A04-964B-CBB1A14DB14B}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UncraftedDemoParser</RootNamespace>
+    <AssemblyName>UncraftedDemoParser</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Parser\Components\Abstract\SvcNetMessage.cs" />
+    <Compile Include="src\Parser\Components\Header.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\NetNop.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\NetSignOnState.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\NetStringCmd.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\NetTick.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\SoundInfo.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\SvcCmdKeyValues.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\SvcGameEvent.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\SvcPrefetch.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\SvcSetPause.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\SvcSetView.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\SvcSounds.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\SvcTempEntities.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\SvcUserMessage.cs" />
+    <Compile Include="src\Parser\Components\Packets\ConsoleCmd.cs" />
+    <Compile Include="src\Parser\Components\Packets\CustomData.cs" />
+    <Compile Include="src\Parser\Components\Packets\Packet.cs" />
+    <Compile Include="src\Parser\Components\Packets\SignOn.cs" />
+    <Compile Include="src\Parser\Components\Packets\Stop.cs" />
+    <Compile Include="src\Parser\Components\Packets\StringTables.cs" />
+    <Compile Include="src\Parser\Components\Packets\SyncTick.cs" />
+    <Compile Include="src\Parser\Components\Packets\UserCmd.cs" />
+    <Compile Include="src\Parser\Components\Abstract\DemoComponent.cs" />
+    <Compile Include="src\Parser\Components\Abstract\DemoPacket.cs" />
+    <Compile Include="src\Parser\Components\PacketFrame.cs" />
+    <Compile Include="src\Parser\Misc\Conversions.cs" />
+    <Compile Include="src\Parser\Misc\FailedToParseException.cs" />
+    <Compile Include="src\Parser\SourceDemo.cs" />
+    <Compile Include="src\Parser\SourceDemoSettings.cs" />
+    <Compile Include="src\Obsolete\CazzarsParser.cs" />
+    <Compile Include="src\Obsolete\Constants.cs" />
+    <Compile Include="src\Obsolete\OldNetTick.cs" />
+    <Compile Include="src\Obsolete\OriginalParser.cs" />
+    <Compile Include="src\Obsolete\SpecialTickTracker.cs" />
+    <Compile Include="src\Obsolete\UserCmdOld.cs" />
+    <Compile Include="src\Program.cs" />
+    <Compile Include="src\Utils\BitFieldReader.cs" />
+    <Compile Include="src\Utils\BitFieldWriter.cs" />
+    <Compile Include="src\Utils\ConsoleOptions.cs" />
+    <Compile Include="src\Utils\Extensions.cs" />
+    <Compile Include="src\Utils\ParserTextUtils.cs" />
+    <Compile Include="src\Utils\ParserUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="demos" />
+    <Folder Include="out" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">
     </Target>
     <Target Name="AfterBuild">
     </Target>
     -->
-
 </Project>

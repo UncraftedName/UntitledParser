@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using static UncraftedDemoParser.Parser.Components.Packets.Packet;
 
 namespace UncraftedDemoParser.Utils {
@@ -78,6 +79,16 @@ namespace UncraftedDemoParser.Utils {
 			arr.CopyTo(output, 0);
 			arr[arr.Length - 1] = item;
 			return output;
+		}
+
+
+		public static string QuickToString<T>(this IEnumerable<T> enumerable, string separator = ", ") {
+			StringBuilder builder = new StringBuilder("{");
+			foreach (T x in enumerable)
+				builder.Append($"{x}{separator}");
+			builder.Remove(builder.Length - separator.Length, separator.Length);
+			builder.Append("}");
+			return builder.ToString();
 		}
 	}
 }

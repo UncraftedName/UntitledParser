@@ -133,6 +133,8 @@ namespace UncraftedDemoParser.Parser.Misc {
 					return new SvcTempEntities(data, demoRef, tick);
 				case SvcMessageType.SvcUserMessage:
 					return new SvcUserMessage(data, demoRef, tick);
+				case SvcMessageType.NetStringCmd:
+					return new NetStringCmd(data, demoRef, tick);
 				default:
 					throw new ArgumentException($"unknown svc message type: {messageType}");
 			}

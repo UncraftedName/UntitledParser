@@ -28,7 +28,7 @@ namespace SegmentedBot.Handler {
 
 		private async Task HandleCommandAsync(SocketMessage messageParam) {
 			// Don't process the command if it was a system message
-			var message = messageParam as SocketUserMessage;
+			SocketUserMessage message = messageParam as SocketUserMessage;
 			if (message == null) return;
 			
 			// (message.Channel as SocketGuildChannel)?.Guild.Name
