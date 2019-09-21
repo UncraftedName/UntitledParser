@@ -1,3 +1,4 @@
+using System.Text;
 using UncraftedDemoParser.Parser.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
@@ -15,6 +16,11 @@ namespace UncraftedDemoParser.Parser.Components.SvcNetMessages {
 		
 		protected override void ParseBytes(BitFieldReader bfr) {
 			IsPaused = bfr.ReadBool();
+		}
+
+
+		protected override void PopulatedBuilder(StringBuilder builder) {
+			builder.Append($"\t\tis paused: {IsPaused}");
 		}
 	}
 }

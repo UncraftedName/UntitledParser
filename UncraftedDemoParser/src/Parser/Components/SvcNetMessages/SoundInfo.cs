@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using System.Text;
 using UncraftedDemoParser.Parser.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
@@ -10,15 +13,15 @@ namespace UncraftedDemoParser.Parser.Components.SvcNetMessages {
 	public sealed class SoundInfo : SvcNetMessage {
 
 		
-		public bool? BitCountForEntIndex; // true => 5, false => 11. null => entity index = 0
+		public bool? BitCountForEntIndex; // true => 5, false => 11, null => entity index = 0
 		public int EntityIndex;
 		public int SoundNumber;
 		public int Flags;
 		public int Channel;
 		public bool IsAmbient;
 		public bool IsSentence;
-		public int SequenceNumber;
 		// the following are set if this isn't a "stop sound" packet
+		public int? SequenceNumber;
 		public float? Volume;
 		public int? SoundLevel;
 		public int? Pitch;
@@ -58,6 +61,25 @@ namespace UncraftedDemoParser.Parser.Components.SvcNetMessages {
 				OriginY = bfr.ReadBitsAsIntIfExists(12).GetValueOrDefault();
 				OriginZ = bfr.ReadBitsAsIntIfExists(12).GetValueOrDefault();
 				SpeakerEntity = bfr.ReadBitsAsIntIfExists(12).GetValueOrDefault();
+			}
+		}
+
+
+		protected override void PopulatedBuilder(StringBuilder builder) {
+			builder.AppendLine($"\t\t\tentity index: {EntityIndex}");
+			builder.AppendLine($"\t\t\tsound number: {SoundNumber}");
+			builder.AppendLine($"\t\t\tflags: {(SoundFlags)Flags}");
+			builder.AppendLine($"\t\t\tchannel: {Channel}");
+			builder.AppendLine($"\t\t\tis ambient: {IsAmbient}");
+			builder.Append($"\t\t\tis sentence: {IsSentence}");
+			if (Flags != (int)SoundFlags.Stop) {
+				builder.AppendLine("\n\t\t\tsequence number: " + SequenceNumber);
+				builder.AppendLine($"\t\t\tvolume: {Volume}");
+				builder.AppendLine($"\t\t\tsound level: {SoundLevel}");
+				builder.AppendLine($"\t\t\tpitch: {Pitch}");
+				builder.AppendLine($"\t\t\tdelay: {Delay}");
+				builder.AppendLine($"\t\t\tx: {OriginX:D4}, y: {OriginY:D4}, z: {OriginZ:D4}");
+				builder.Append($"\t\t\tspeaker entity: {SpeakerEntity}");
 			}
 		}
 	}

@@ -1,3 +1,4 @@
+using System.Text;
 using UncraftedDemoParser.Parser.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
@@ -16,6 +17,11 @@ namespace UncraftedDemoParser.Parser.Components.SvcNetMessages {
 		protected override void ParseBytes(BitFieldReader bfr) {
 			BufferLength = bfr.Data.Length;
 			Buffer = bfr.ReadBytes(BufferLength);
+		}
+
+
+		protected override void PopulatedBuilder(StringBuilder builder) {
+			builder.Append($"\t\tbuffer length: {BufferLength}");
 		}
 	}
 }
