@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Text;
 using UncraftedDemoParser.Parser.Components.Abstract;
@@ -39,7 +40,10 @@ namespace UncraftedDemoParser.Parser.Components.Packets {
 			SvcMessageBytes = bfr.ReadBytes(svcMessageSize - 1);
 			// might throw exceptions
 			SvcNetMessage = MessageType.ToSvcNetMessage(SvcMessageBytes, DemoRef, Tick);
-			SvcNetMessage.TryParse();
+			if (SvcNetMessage == null)
+				Console.WriteLine($"warning: {MessageType} is not parsable yet");
+			else
+				SvcNetMessage.TryParse();
 		}
 
 		public override void UpdateBytes() {

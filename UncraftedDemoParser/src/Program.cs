@@ -20,7 +20,7 @@ namespace UncraftedDemoParser {
                 Environment.Exit(0);
             } else {
                 // assume that running from IDE (using debugger)
-                const string demoName = "portal2";
+                const string demoName = "toggleduck";
                 SourceDemo sd = new SourceDemo(new DirectoryInfo($@"..\..\demos\{demoName}.dem"));
                 sd.PrintListdemoOutput(printHeader: true, printName: true);
                 sd.AsVerboseString().WriteToFiles(@"..\..\out\_verbose.txt", $@"..\..\out\verbose-{demoName}.txt");
