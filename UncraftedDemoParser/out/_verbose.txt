@@ -89,7 +89,10 @@ Not implemented
 	out sequence: 698
 	message type: SvcBspDecal
 	message of length 150: 3f 97 c1 f7 8f 90 37 09 3c 80 d5 af 64 8c fd 23 e1 4b 82 82 61 f5 7f 19 6c ff 08 79 91 c0 04 58 fd 59 86 dd 3f 12 6e 23 b4 18 56 bf 91 c1 f7 8f 90 93 08 6c 80 d5 8f 64 cc fd 23 e1 3d 82 9a 61 f5 67 19 6c ff 08 f9 93 40 00 58 fd 62 06 db 3f 42 4e 23 30 01 56 3f ff c1 77 89 f0 d3 04 1c 81 d5 4f 65 cc fd 23 e1 45 42 8c 61 f5 f3 1f 7c 92 08 7b 4f c0 0b 58 fd 4d 46 de 3f 12 0e 25 e8 18 56 3f 96 c1 f7 8f 90 fb 08 74 80 d5 ff 63 90 89 25 e4 46 02 09 20
-
+		position: <7763.5, 2.2096E-33, -3.8836E-10>
+		decal texture index: 100
+		no entity or model index
+		low priority: True
 
 [0] PACKET
 	flags: 00000000 00000000 00000000 00000000

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace UncraftedDemoParser.Utils {
@@ -120,6 +121,13 @@ namespace UncraftedDemoParser.Utils {
 
 		public void WriteFloat(float f) {
 			WritePrimitive(BitConverter.GetBytes, f);
+		}
+
+
+		public void WriteVector3(Vector3 vector3) {
+			WriteFloat(vector3.X);
+			WriteFloat(vector3.Y);
+			WriteFloat(vector3.Z);
 		}
 
 		

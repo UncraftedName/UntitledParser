@@ -26,7 +26,7 @@ namespace UncraftedDemoParser.Utils {
 		public static string SvcMessagesAsString(this SourceDemo sd) {
 			var messageCounter = sd.GetSvcMessageDict();
 			StringBuilder builder = new StringBuilder();
-			var packets = sd.FilterForPacketType<Packet>();
+			var packets = sd.FilteredForPacketType<Packet>();
 			foreach (SvcMessageType messageType in messageCounter.Keys.OrderBy(type => messageCounter[type]).ThenBy(type => type.ToString())) {
 				builder.AppendLine($"-{messageType}-"); // append message name
 				foreach ((int tick, byte[] data) in     // iterating over tick and the sub packet data
@@ -42,7 +42,7 @@ namespace UncraftedDemoParser.Utils {
 
 		// returns a list of ticks where the given regex matches the consolecmd packet
 		public static IEnumerable<int> TicksWhereRegexMatches(this SourceDemo sd, Regex regex) {
-			return sd.FilterForPacketType<ConsoleCmd>().Where(cmd => regex.IsMatch(cmd.Command))
+			return sd.FilteredForPacketType<ConsoleCmd>().Where(cmd => regex.IsMatch(cmd.Command))
 				.Select(cmd => cmd.Tick);
 		}
 

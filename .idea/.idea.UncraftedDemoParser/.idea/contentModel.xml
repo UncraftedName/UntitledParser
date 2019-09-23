@@ -71,6 +71,7 @@
                 <e p="NetStringCmd.cs" t="Include" />
                 <e p="NetTick.cs" t="Include" />
                 <e p="SoundInfo.cs" t="Include" />
+                <e p="SvcBspDecal.cs" t="Include" />
                 <e p="SvcCmdKeyValues.cs" t="Include" />
                 <e p="SvcGameEvent.cs" t="Include" />
                 <e p="SvcPrefetch.cs" t="Include" />

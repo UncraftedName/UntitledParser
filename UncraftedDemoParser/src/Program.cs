@@ -23,13 +23,14 @@ namespace UncraftedDemoParser {
                 const string demoName = "toggleduck";
                 SourceDemo sd = new SourceDemo(new DirectoryInfo($@"..\..\demos\{demoName}.dem"));
                 sd.PrintListdemoOutput(printHeader: true, printName: true);
+                sd.FilteredForNetMessageType<SvcBspDecal>()[0].Position.X = 7763.541635f;
                 sd.AsVerboseString().WriteToFiles(@"..\..\out\_verbose.txt", $@"..\..\out\verbose-{demoName}.txt");
                 sd.SvcMessagesCounterAsString().WriteToFiles(@"..\..\out\_svc message counter.txt",
                     $@"..\..\out\svc message counter-{demoName}.txt");
                 sd.SvcMessagesAsString().WriteToFiles(@"..\..\out\_sub packet data.txt",
                     $@"..\..\out\sub packet data - {demoName}.txt");
                 
-                Console.WriteLine(sd.FilterForPacketType<Packet>().Where(packet => packet.MessageType == SvcMessageType.NetTick)
+                Console.WriteLine(sd.FilteredForPacketType<Packet>().Where(packet => packet.MessageType == SvcMessageType.NetTick)
                     .Select(packet => packet.SvcNetMessage).Cast<NetTick>().Select(netTick => netTick.EngineTick - netTick.Tick).Distinct().QuickToString());
             }
         }

@@ -48,6 +48,7 @@
     <Compile Include="src\Parser\Components\SvcNetMessages\NetStringCmd.cs" />
     <Compile Include="src\Parser\Components\SvcNetMessages\NetTick.cs" />
     <Compile Include="src\Parser\Components\SvcNetMessages\SoundInfo.cs" />
+    <Compile Include="src\Parser\Components\SvcNetMessages\SvcBspDecal.cs" />
     <Compile Include="src\Parser\Components\SvcNetMessages\SvcCmdKeyValues.cs" />
     <Compile Include="src\Parser\Components\SvcNetMessages\SvcGameEvent.cs" />
     <Compile Include="src\Parser\Components\SvcNetMessages\SvcPrefetch.cs" />

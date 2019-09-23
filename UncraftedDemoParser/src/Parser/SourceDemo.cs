@@ -39,7 +39,7 @@ namespace UncraftedDemoParser.Parser {
 			do {
 				Frames.Add(new PacketFrame(Bytes, ref index, this));
 			} while (index < Bytes.Length);
-			this.FilterForPacketType<ConsoleCmd>().ForEach(cmd => cmd.TryParse());
+			this.FilteredForPacketType<ConsoleCmd>().ForEach(cmd => cmd.TryParse());
 		}
 
 

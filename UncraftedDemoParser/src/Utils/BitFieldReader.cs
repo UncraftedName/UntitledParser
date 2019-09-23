@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace UncraftedDemoParser.Utils {
@@ -158,6 +159,11 @@ namespace UncraftedDemoParser.Utils {
 
 		public float ReadFloat() {
 			return ReadPrimitive(BitConverter.ToSingle, sizeof(float));
+		}
+
+
+		public Vector3 ReadVector3() {
+			return new Vector3(ReadFloat(), ReadFloat(), ReadFloat());
 		}
 
 		

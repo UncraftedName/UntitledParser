@@ -82,12 +82,12 @@ namespace UncraftedDemoParser.Utils {
 		}
 
 
-		public static string QuickToString<T>(this IEnumerable<T> enumerable, string separator = ", ") {
-			StringBuilder builder = new StringBuilder("{");
+		public static string QuickToString<T>(this IEnumerable<T> enumerable, string separator = ", ", string start = "{", string end = "}") {
+			StringBuilder builder = new StringBuilder(start);
 			foreach (T x in enumerable)
 				builder.Append($"{x}{separator}");
 			builder.Remove(builder.Length - separator.Length, separator.Length);
-			builder.Append("}");
+			builder.Append(end);
 			return builder.ToString();
 		}
 	}
