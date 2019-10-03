@@ -165,7 +165,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			Console.WriteLine($"\n{UsageStr}");
 			Console.ForegroundColor = ConsoleColor.Yellow;
 			Console.WriteLine("Use -h, --help, or /? to get full help\n");
-			Console.ForegroundColor = ConsoleColor.Green;
+			Console.ResetColor();
 		}
 
 
