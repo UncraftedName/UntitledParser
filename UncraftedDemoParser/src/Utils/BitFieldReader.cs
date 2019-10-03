@@ -130,12 +130,16 @@ namespace UncraftedDemoParser.Utils {
 			return Encoding.ASCII.GetString(ReadBytes(strLength));
 ;		}
 
-
+		
 		public void DiscardPreviousBits() {
+			/*int bitsToRead = Pointer + 1;
+			Pointer = 0;
+			byte[] discardedBits = ReadBits(bitsToRead);*/
 			(byte[] bytes, int bitCount) = ReadRemainingBits();
 			Data = bytes;
 			Length = bitCount;
 			Pointer = 0;
+			//return discardedBits;
 		}
 		
 

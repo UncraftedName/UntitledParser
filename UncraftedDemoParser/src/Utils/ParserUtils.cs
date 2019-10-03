@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UncraftedDemoParser.Parser;
@@ -46,9 +47,19 @@ namespace UncraftedDemoParser.Utils {
 		}
 
 
-		public static int Length(this SourceDemo sd) {
+		public static int TickCount(this SourceDemo sd) {
 			List<int> packetTicks = sd.FilteredForPacketType<Packet>().Select(packet => packet.Tick).Where(i => i >= 0).ToList();
 			return packetTicks.Max() - packetTicks.Min() + 1;
+		}
+
+
+		public static void ParseForPacketTypes(this SourceDemo sd, params Type[] types) {
+			if (types.Contains(typeof(DemoPacket))) {
+				sd.Frames.ForEach(frame => frame.DemoPacket.TryParse(frame.Tick));
+			} else {
+				foreach (PacketFrame packetFrame in sd.Frames.Where(frame => types.Contains(frame.DemoPacket.GetType())))
+					packetFrame.DemoPacket.TryParse(packetFrame.Tick);
+			}
 		}
 	}
 }

@@ -18,7 +18,7 @@ namespace UncraftedDemoParser.Utils {
 
 		public static T RequireNonNull<T>(this T o) {
 			if (o == null)
-				throw new NullReferenceException("something is null that isn't supposed to be");
+				throw new NullReferenceException("something is null :thinking:");
 			return o;
 		}
 
@@ -82,13 +82,22 @@ namespace UncraftedDemoParser.Utils {
 		}
 
 
-		public static string QuickToString<T>(this IEnumerable<T> enumerable, string separator = ", ", string start = "{", string end = "}") {
+		public static string QuickToString<T>(this IEnumerable<T> enumerable, string separator = ", ", string start = "[", string end = "]") {
 			StringBuilder builder = new StringBuilder(start);
-			foreach (T x in enumerable)
+			bool containsElements = false;
+			foreach (T x in enumerable) {
 				builder.Append($"{x}{separator}");
-			builder.Remove(builder.Length - separator.Length, separator.Length);
+				containsElements = true;
+			}
+			if (containsElements) 
+				builder.Remove(builder.Length - separator.Length, separator.Length);
 			builder.Append(end);
 			return builder.ToString();
+		}
+
+
+		public static string GetPathRelativeTo(this string relativeTo, string path) {
+			return Uri.UnescapeDataString(new Uri(Path.GetFullPath(path)).MakeRelativeUri(new Uri(Path.GetFullPath(relativeTo))).ToString());
 		}
 	}
 }

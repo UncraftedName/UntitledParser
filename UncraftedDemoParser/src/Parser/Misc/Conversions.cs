@@ -19,7 +19,7 @@ namespace UncraftedDemoParser.Parser.Misc {
 			}
 			if (b == 8)
 				return PacketType.StringTables;
-			throw new ArgumentException($"unknown packet type value: {b}");
+			throw new FailedToParseException($"This demo has an unknown packet type. Value: {b}");
 		}
 
 

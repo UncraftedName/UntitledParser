@@ -1,19 +1,26 @@
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using UncraftedDemoParser.Parser.Components.Abstract;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser.Parser.Components.Packets {
 	
 	public class StringTables : DemoPacket {
+		
+		public List<StringTable> Tables;
+		
 
 		public StringTables(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 
 
 		protected override void ParseBytes() {
-			Debug.WriteLine("string tables packet not parsable yet");
-		}
-
-		public override void UpdateBytes() {
+			Tables = new List<StringTable>();
+			BitFieldReader bfr = new BitFieldReader(Bytes);
+			byte tableCount = bfr.ReadByte();
+			for (int i = 0; i < tableCount; i++) {
+				//Tables.Append(new StringTable(bfr, DemoRef, tick))
+			}
 			Debug.WriteLine("string tables packet not parsable yet");
 		}
 

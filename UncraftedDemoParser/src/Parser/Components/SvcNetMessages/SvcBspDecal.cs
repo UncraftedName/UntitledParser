@@ -14,7 +14,7 @@ namespace UncraftedDemoParser.Parser.Components.SvcNetMessages {
 		public bool LowPriority;
 		
 		
-		public SvcBspDecal(byte[] data, SourceDemo demoRef, int tick): base(data, demoRef, tick) {}
+		public SvcBspDecal(byte[] data, SourceDemo demoRef, int tick) : base(data, demoRef, tick) {}
 		
 		
 		protected override void ParseBytes(BitFieldReader bfr) {

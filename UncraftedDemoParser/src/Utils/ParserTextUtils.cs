@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -7,6 +8,7 @@ using UncraftedDemoParser.Parser;
 using UncraftedDemoParser.Parser.Components;
 using UncraftedDemoParser.Parser.Components.Abstract;
 using UncraftedDemoParser.Parser.Components.Packets;
+using UncraftedDemoParser.Parser.Misc;
 
 namespace UncraftedDemoParser.Utils {
 	
@@ -39,11 +41,9 @@ namespace UncraftedDemoParser.Utils {
 			return builder.ToString();
 		}
 
-
-		// returns a list of ticks where the given regex matches the consolecmd packet
-		public static IEnumerable<int> TicksWhereRegexMatches(this SourceDemo sd, Regex regex) {
-			return sd.FilteredForPacketType<ConsoleCmd>().Where(cmd => regex.IsMatch(cmd.Command))
-				.Select(cmd => cmd.Tick);
+		
+		public static List<ConsoleCmd> PacketsWhereRegexMatches(this SourceDemo sd, Regex regex) {
+			return sd.FilteredForPacketType<ConsoleCmd>().Where(cmd => regex.IsMatch(cmd.Command)).ToList();
 		}
 
 
@@ -62,14 +62,18 @@ namespace UncraftedDemoParser.Utils {
 
 
 		// prints basically what listdemo prints, optionally prints the "correct" timing for length
-		public static void PrintListdemoOutput(this SourceDemo sd, bool printHeader, bool printName) {
+		public static void PrintListdemoOutput(this SourceDemo sd, bool printHeader, bool printName, TextWriter writer = null) {
+			if (!sd.FilteredForPacketType<Packet>().Any())
+				throw new FailedToParseException("this demo is missing regular packets");
+			if (writer == null)
+				writer = Console.Out;
 			Console.ForegroundColor = ConsoleColor.Gray;
 			if (printName)
-				Console.WriteLine(sd.Name);
+				writer.WriteLine(sd.Name);
 			
 			if (printHeader) {
 				Header h = sd.Header;
-				Console.Write(
+				writer.Write(
 					$"{"Demo protocol",     -25}: {h.DemoProtocol}" +
 					$"\n{"Network protocol",-25}: {h.NetworkProtocol}" +
 					$"\n{"Server name",     -25}: {h.ServerName}" +
@@ -83,25 +87,23 @@ namespace UncraftedDemoParser.Utils {
 			}
 
 			StringBuilder builder = new StringBuilder("\n");
-			foreach (int i in sd.TicksWhereRegexMatches(new Regex("autosave")))
-				builder.AppendLine($"Autosave command detected on tick {i}, time {i / sd.DemoSettings.TicksPerSeoncd:F3}");
-			foreach (int i in sd.TicksWhereRegexMatches(new Regex("#save#", RegexOptions.IgnoreCase)))
-				builder.AppendLine($"Save flag detected on tick {i}, time {i / sd.DemoSettings.TicksPerSeoncd:F3}");
-			foreach (int i in sd.TicksWhereRegexMatches(new Regex("startneurotoxins 99999")))
+			foreach (ConsoleCmd i in sd.PacketsWhereRegexMatches(new Regex("autosave")))
+				builder.AppendLine($"Autosave command detected on tick {i.Tick}, time {i.Tick / sd.DemoSettings.TicksPerSeoncd:F3}");
+			foreach (ConsoleCmd i in sd.PacketsWhereRegexMatches(new Regex("#save#", RegexOptions.IgnoreCase)))
+				builder.AppendLine($"Save flag detected on tick {i.Tick}, time {i.Tick / sd.DemoSettings.TicksPerSeoncd:F3}");
+			foreach (ConsoleCmd i in sd.PacketsWhereRegexMatches(new Regex("startneurotoxins 99999")))
 				builder.AppendLine(
-					$"End of normal game detected on tick {i}, time {i / sd.DemoSettings.TicksPerSeoncd:F3}");
+					$"End of normal game detected on tick {i.Tick}, time {i.Tick / sd.DemoSettings.TicksPerSeoncd:F3}");
 			
 			if (builder.Length > 1) {
-				Console.ForegroundColor = ConsoleColor.DarkYellow;
-				Console.Write(builder.ToString());
 				Console.ForegroundColor = ConsoleColor.Yellow;
-				Console.WriteLine("(Use tick + 1 for timing to include the 0th tick)");
+				writer.Write(builder.ToString());
 			}
 
 			Console.ForegroundColor = ConsoleColor.Cyan;
-			Console.WriteLine(
-				$"\n{"Calculated total time",   -25}: {sd.Length() / sd.DemoSettings.TicksPerSeoncd}" +
-				$"\n{"Calculated total ticks",  -25}: {sd.Length()}\n");
+			writer.WriteLine(
+				$"\n{"Calculated total time",   -25}: {(sd.TickCount() - 1) / sd.DemoSettings.TicksPerSeoncd}" +
+				$"\n{"Calculated total ticks",  -25}: {sd.TickCount() - 1}\n");
 			Console.ForegroundColor = ConsoleColor.Gray;
 		}
 	}

@@ -43,7 +43,7 @@ namespace UncraftedDemoParser.Parser.Components.Packets {
 			if (SvcNetMessage == null)
 				Console.WriteLine($"warning: {MessageType} is not parsable yet");
 			else
-				SvcNetMessage.TryParse();
+				SvcNetMessage.TryParse(Tick);
 		}
 
 		public override void UpdateBytes() {

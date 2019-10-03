@@ -18,10 +18,14 @@ namespace UncraftedDemoParser.Parser {
 		public string Name;
 
 
-		public SourceDemo(DirectoryInfo directoryInfo, bool parse = true):
+		public SourceDemo(string filePath, bool parse = true) :
+			this(new DirectoryInfo(filePath), parse) {}
+
+
+		public SourceDemo(DirectoryInfo directoryInfo, bool parse = true) :
 			this(File.ReadAllBytes(directoryInfo.FullName), parse, directoryInfo.Name) {}
-		
-		
+
+
 		public SourceDemo(byte[] data, bool parse = true, string name = "") {
 			Name = name;
 			Bytes = data;
@@ -31,7 +35,7 @@ namespace UncraftedDemoParser.Parser {
 
 
 		// get all packets, but only parse the consolecmd packet; used solely for printing the listdemo output
-		public void QuickParse() {
+		public void QuickParse() { // todo: remove parsing the consolecmd packet
 			Header = (Header)new Header(Bytes.SubArray(0, 1072), this).TryParse();
 			DemoSettings = new SourceDemoSettings(Header);
 			Frames = new List<PacketFrame>();
@@ -40,6 +44,14 @@ namespace UncraftedDemoParser.Parser {
 				Frames.Add(new PacketFrame(Bytes, ref index, this));
 			} while (index < Bytes.Length);
 			this.FilteredForPacketType<ConsoleCmd>().ForEach(cmd => cmd.TryParse());
+		}
+
+
+		public void ParsePacketTypes<T>() where T : DemoPacket {
+			if (typeof(T) == typeof(DemoPacket))
+				Frames.ForEach(frame => frame.DemoPacket.TryParse(frame.Tick));
+			else
+				this.FilteredForPacketType<T>().ForEach(packet => packet.TryParse(packet.Tick));
 		}
 
 

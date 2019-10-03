@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using UncraftedDemoParser.Parser.Misc;
+using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser.Parser.Components.Abstract {
 	
@@ -17,19 +18,30 @@ namespace UncraftedDemoParser.Parser.Components.Abstract {
 			DemoRef = demoRef;
 		}
 
-
-		protected abstract void ParseBytes();
-
 		
+		protected DemoComponent(BitFieldReader bfr, SourceDemo demoRef) {
+			DemoRef = demoRef;
+			ParseBytes(bfr);
+		}
+
+
+		// override this or (override ParseBytes(bfr))
+		protected virtual void ParseBytes() {}
+
+
+		protected virtual void ParseBytes(BitFieldReader bfr) {}
+
+
 		// call this to populate the fields from the byte array
-		public DemoComponent TryParse(int? tick = null) { // experimental, might remove
+		// virtual to allow packets call
+		public DemoComponent TryParse(int? tick = null) {
 			try {
 				ParseBytes();
 			} catch (FailedToParseException) {
 				throw;
 			} catch (Exception e) {
-				Debug.WriteLine(e.StackTrace);
 				Debug.WriteLine(e.ToString());
+				Debug.WriteLine(e.StackTrace);
 				throw new FailedToParseException(this, tick);
 			}
 			return this;
@@ -39,7 +51,7 @@ namespace UncraftedDemoParser.Parser.Components.Abstract {
 		// If any fields of a packet are ever updated, call this to get the modified byte array.
 		// Behavior is undefined if fields are updated and this isn't called.
 		public virtual void UpdateBytes() {
-			Debug.WriteLine($"not sure how to update {this.GetType().Name}");
+			Debug.WriteLine($"not sure how to update {GetType().Name}");
 		}
 
 

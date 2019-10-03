@@ -37,10 +37,13 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\ConsoleParsing\ConsoleParsingSetup.cs" />
+    <Compile Include="src\ConsoleParsing\ConsoleParsingMain.cs" />
     <Compile Include="src\Parser\Components\Abstract\SvcNetMessage.cs" />
     <Compile Include="src\Parser\Components\Header.cs" />
     <Compile Include="src\Parser\Components\SvcNetMessages\NetNop.cs" />
@@ -81,7 +84,6 @@
     <Compile Include="src\Program.cs" />
     <Compile Include="src\Utils\BitFieldReader.cs" />
     <Compile Include="src\Utils\BitFieldWriter.cs" />
-    <Compile Include="src\Utils\ConsoleOptions.cs" />
     <Compile Include="src\Utils\Extensions.cs" />
     <Compile Include="src\Utils\ParserTextUtils.cs" />
     <Compile Include="src\Utils\ParserUtils.cs" />
