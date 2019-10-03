@@ -38,6 +38,10 @@
           <e p="AssemblyInfo.cs" t="Include" />
         </e>
         <e p="src" t="Include">
+          <e p="ConsoleParsing" t="Include">
+            <e p="ConsoleParsingMain.cs" t="Include" />
+            <e p="ConsoleParsingSetup.cs" t="Include" />
+          </e>
           <e p="obsolete" t="Include">
             <e p="CazzarsParser.cs" t="Include" />
             <e p="Constants.cs" t="Include" />
@@ -93,7 +97,6 @@
           <e p="Utils" t="Include">
             <e p="BitFieldReader.cs" t="Include" />
             <e p="BitFieldWriter.cs" t="Include" />
-            <e p="ConsoleOptions.cs" t="Include" />
             <e p="Extensions.cs" t="Include" />
             <e p="ParserTextUtils.cs" t="Include" />
             <e p="ParserUtils.cs" t="Include" />
