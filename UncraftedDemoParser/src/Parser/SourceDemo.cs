@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using UncraftedDemoParser.Parser.Components;
 using UncraftedDemoParser.Parser.Components.Abstract;
 using UncraftedDemoParser.Parser.Components.Packets;
+using UncraftedDemoParser.Parser.Misc;
 using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser.Parser {
@@ -40,10 +43,18 @@ namespace UncraftedDemoParser.Parser {
 			DemoSettings = new SourceDemoSettings(Header);
 			Frames = new List<PacketFrame>();
 			int index = 1072;
-			do {
-				Frames.Add(new PacketFrame(Bytes, ref index, this));
-			} while (index < Bytes.Length);
-			this.FilteredForPacketType<ConsoleCmd>().ForEach(cmd => cmd.TryParse());
+			try {
+				do {
+					Frames.Add(new PacketFrame(Bytes, ref index, this));
+				} while (index < Bytes.Length);
+			} catch (FailedToParseException e) {
+				Console.WriteLine($"{e.Message}; frames so far: {Frames.Count}");
+				throw;
+			} catch (Exception e) {
+				Debug.WriteLine($"Failed to quick parse, index: {index}; frames traversed: {Frames.Count}");
+				Debug.WriteLine(e.ToString());
+				throw new FailedToParseException("quick parse failed, this is probably not a playable demo");
+			}
 		}
 
 

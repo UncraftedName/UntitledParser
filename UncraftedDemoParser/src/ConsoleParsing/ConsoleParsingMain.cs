@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -30,7 +31,6 @@ namespace UncraftedDemoParser.ConsoleParsing {
 		// run after the setup is done, loops over every demo and displays/writes each option
 		private static void MainLoop() {
 			if (_demoPaths.Count == 0) {
-				Console.WriteLine("No demo files found");
 				Environment.Exit(0);
 			}
 			Console.ForegroundColor = ConsoleColor.White;
@@ -57,6 +57,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 				if (relativeDir.Substring(0, 9) == "../../../")
 					relativeDir = demoPath;
 				Console.WriteLine($"Parsing {relativeDir}...");
+				Debug.WriteLine($"Parsing {Path.GetFullPath(demoPath)}...");
 				try {
 					_currentDemo.QuickParse();
 					_currentDemo.ParseForPacketTypes(_packetTypesToParse);
@@ -178,6 +179,15 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			}.QuickToString(")|(", "(", ")")));
 			if (matches.Count == 0)
 				WriteLineToOutput("no suspicious commands found");
+			else
+				matches.ForEach(cmd => WriteLineToOutput($"[{cmd.Tick}] {cmd.Command}"));
+		}
+
+
+		private static void DumpJumps() {
+			List<ConsoleCmd> matches = _currentDemo.PacketsWhereRegexMatches(new Regex("[-+]jump"));
+			if (matches.Count == 0)
+				WriteLineToOutput("no jumps found");
 			else
 				matches.ForEach(cmd => WriteLineToOutput($"[{cmd.Tick}] {cmd.Command}"));
 		}

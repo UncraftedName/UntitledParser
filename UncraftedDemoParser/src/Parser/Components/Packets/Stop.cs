@@ -7,12 +7,6 @@ namespace UncraftedDemoParser.Parser.Components.Packets {
 		public Stop(SourceDemo demoRef, int tick) : base(new byte[0], demoRef, tick) {}
 
 
-		protected override void ParseBytes() {}
-
-		
-		public override void UpdateBytes() {}
-
-
 		public override string ToString() {
 			return "";
 		}

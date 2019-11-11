@@ -46,6 +46,7 @@
     <Compile Include="src\ConsoleParsing\ConsoleParsingMain.cs" />
     <Compile Include="src\Parser\Components\Abstract\SvcNetMessage.cs" />
     <Compile Include="src\Parser\Components\Header.cs" />
+    <Compile Include="src\Parser\Components\Packets\DataTables.cs" />
     <Compile Include="src\Parser\Components\SvcNetMessages\NetNop.cs" />
     <Compile Include="src\Parser\Components\SvcNetMessages\NetSignOnState.cs" />
     <Compile Include="src\Parser\Components\SvcNetMessages\NetStringCmd.cs" />
@@ -89,7 +90,6 @@
     <Compile Include="src\Utils\ParserUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="demos" />
     <Folder Include="out" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

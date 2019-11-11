@@ -59,7 +59,7 @@ namespace UncraftedDemoParser.Parser.Components {
 						packetLength += GetIntAtPointer(data, currentPointer + packetLength - 4); // length of the additional data in the packet
 						break;
 					case PacketType.SyncTick:
-						throw new ArgumentException("Idk how to parse the sync tick packet");
+						throw new FailedToParseException("Idk how to skip over the sync tick packet");
 					case PacketType.ConsoleCmd:
 						packetLength = GetIntAtPointer(data, currentPointer) + 4;
 						break;
@@ -67,7 +67,7 @@ namespace UncraftedDemoParser.Parser.Components {
 						packetLength = GetIntAtPointer(data, currentPointer + 4) + 8;
 						break;
 					case PacketType.DataTables:
-						throw new ArgumentException("Idk how to parse the data tables packet");
+						throw new FailedToParseException("Idk how to skip over the data tables packet");
 					case PacketType.CustomData:
 						packetLength = GetIntAtPointer(data, currentPointer + 4) + 8;
 						break;
@@ -81,7 +81,14 @@ namespace UncraftedDemoParser.Parser.Components {
 						throw new ArgumentOutOfRangeException();
 				}
 
-				DemoPacket = Type.ToDemoPacket(data.SubArray(currentPointer, packetLength), demoRef, tick).RequireNonNull();
+				try {
+					DemoPacket = Type.ToDemoPacket(data.SubArray(currentPointer, packetLength), demoRef, tick);
+				} catch (ArgumentOutOfRangeException) {
+					throw new FailedToParseException("some unknown packet appeared, probably an unplayable demo");
+				} catch (Exception) {
+					throw new FailedToParseException($"couldn't generate a sub array of length {packetLength} on tick {tick}");
+				}
+
 				pointer = currentPointer + packetLength;
 			}
 			Bytes = data.SubArray(originalPointer, pointer - originalPointer);

@@ -57,6 +57,7 @@ namespace UncraftedDemoParser.Parser.Components.Packets {
 			bfw.WriteInt(SvcMessageBytes.Length);
 			bfw.WriteBitsFromInt(_messageType, 6);
 			bfw.WriteBytes(SvcMessageBytes);
+			Bytes = bfw.Data;
 		}
 
 

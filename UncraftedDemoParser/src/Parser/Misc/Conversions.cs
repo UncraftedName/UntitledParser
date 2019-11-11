@@ -50,7 +50,7 @@ namespace UncraftedDemoParser.Parser.Misc {
 				case PacketType.UserCmd:
 					return new UserCmd(data, demoRef, tick);
 				case PacketType.DataTables:
-					return null;
+					return new DataTables(data, demoRef, tick);
 				case PacketType.Stop:
 					return new Stop(demoRef, tick);
 				case PacketType.CustomData:
@@ -139,7 +139,6 @@ namespace UncraftedDemoParser.Parser.Misc {
 					return new SvcBspDecal(data, demoRef, tick);
 				default:
 					return null;
-					//throw new ArgumentException($"unknown svc message type: {messageType}");
 			}
 		}
 	}

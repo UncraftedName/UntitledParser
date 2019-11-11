@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using UncraftedDemoParser.Parser.Components.Abstract;
 using UncraftedDemoParser.Parser.Components.Packets;
+using UncraftedDemoParser.Utils;
 
 namespace UncraftedDemoParser.ConsoleParsing {
 	
@@ -35,7 +36,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			{"-l", $"              Print demo info in a format similar to listdemo++"},
 			{"-v", $"              Dump all parsable information about the demo"},
 			{"-m", $"              Dump the bytes of all svc/net messages in hex"},
-			{"-r", $" <regex>      (def.=\"{DefaultRegex}\")Dumps all console commands where the regex matches"},
+			{"-r", $" <regex>      (def.=\"{DefaultRegex}\") Dumps all console commands where the regex matches"},
 			{"-p", $"              Dump every |tick|~|x,y,z|pitch,yaw,roll|~{{player2}}~... for all players"},
 			{"-c", $"              Dump all suspicious commands and cheats"},
 			{"-R", $"              Search folders recursively"}
@@ -43,7 +44,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 
 		// pre-parsing/const stuff
 		private static readonly List<string> UserDirs = new List<string>();
-		private static readonly List<String> UserOptions = new List<string>();
+		private static readonly List<String> UserOptions = new List<string>(); // options that aren't "-h"
 		private static Type[] _packetTypesToParse;
 		private const String UsageStr = "Usage: UncraftedDemoParser.exe [demos/dirs] <options>";
 		private const String DefaultFolderName = "parser output";
@@ -117,12 +118,16 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			}
 
 			if (helpOptionSet) {
-				PrintOptionHelp();
+				if (UserOptions.Count == 0)
+					PrintFullHelp();
+				else
+					PrintOptionHelp();
 				Environment.Exit(0);
 			}
 
 			if (UserOptions.Count == 0 && UserDirs.Count == 0) {
 				PrintShortUsageString();
+				Console.ReadKey();
 				Environment.Exit(0);
 			}
 			
