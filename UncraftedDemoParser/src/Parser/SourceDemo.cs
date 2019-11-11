@@ -19,6 +19,7 @@ namespace UncraftedDemoParser.Parser {
 		public SourceDemoSettings DemoSettings;
 		public byte[] Bytes {get;protected set;}
 		public string Name;
+		private bool _fullParseCompleted = false; // you can't call updateBytes() until a full parse has been done
 
 
 		public SourceDemo(string filePath, bool parse = true) :
@@ -34,6 +35,12 @@ namespace UncraftedDemoParser.Parser {
 			Bytes = data;
 			if (parse)
 				ParseBytes();
+		}
+
+
+		// there's gonna be a bit of overhead to reparse the header but for now it's probably worth it to see what the errors are
+		public void ParseHeader() {
+			Header = (Header)new Header(Bytes.SubArray(0, 1072), this).TryParse();
 		}
 
 
@@ -73,6 +80,8 @@ namespace UncraftedDemoParser.Parser {
 		
 		
 		public void UpdateBytes() {
+			if (!_fullParseCompleted)
+				throw new ApplicationException("Can't update bytes until a full parse has been done.");
 			Header.UpdateBytes();
 			Frames.ForEach(p => p.UpdateBytes());
 			List<byte> tmpBytes = new List<byte>(838 + Frames.Sum(frame => frame.Bytes.Length));

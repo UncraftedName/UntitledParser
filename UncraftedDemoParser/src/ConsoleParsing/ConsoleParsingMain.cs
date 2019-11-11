@@ -34,7 +34,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 				Environment.Exit(0);
 			}
 			Console.ForegroundColor = ConsoleColor.White;
-			Console.WriteLine("listdemo++ v0.1 by UncraftedName\n");
+			Console.WriteLine($"listdemo++ v{Version} by UncraftedName\n");
 			Console.ForegroundColor = ConsoleColor.Gray;
 			if (_normalOptions.Count == 0) { // called without args
 				foreach (string demoPath in _demoPaths) {

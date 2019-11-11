@@ -10,6 +10,8 @@ namespace UncraftedDemoParser.ConsoleParsing {
 	
 	// I tried to make this better than it was. I'm not sure if I did, but at least I made some tasty spaghetti.
 	internal static partial class ConsoleOptions {
+
+		private const string Version = "0.1";
 		
 		// A list of all the options; each option has the following properties:
 		// the character to set the option, the priority of that option:
@@ -46,17 +48,21 @@ namespace UncraftedDemoParser.ConsoleParsing {
 		private static readonly List<string> UserDirs = new List<string>();
 		private static readonly List<String> UserOptions = new List<string>(); // options that aren't "-h"
 		private static Type[] _packetTypesToParse;
-		private const String UsageStr = "Usage: UncraftedDemoParser.exe [demos/dirs] <options>";
+		private static String UsageStr => "Usage: \"" + AppDomain.CurrentDomain.FriendlyName + "\" [demos/dirs] <options>";
 		private const String DefaultFolderName = "parser output";
 		private const String DefaultRegex = ".*";
 		private static bool _recursive = false;
 
 
 		public static void ParseOptions(string[] args) {
-			if (args.Length == 1 && (args[0] == "-h" || args[0] == "--help" || args[0] == "/?")) {
-				PrintFullHelp();
+			if (args.Length == 1) {
+				if (args[0] == "-h" || args[0] == "--help" || args[0] == "/?") 
+					PrintFullHelp();
+				if (args[0] == "--version") 
+					Console.WriteLine($"v{Version}");
 				Environment.Exit(0);
 			}
+
 			bool helpOptionSet = false; // handled separately
 			bool expectingDirs = true;
 			for (int i = 0; i < args.Length; i++) {
@@ -176,6 +182,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 
 		private static void PrintFullHelp() {
 			Console.WriteLine($"\n{UsageStr}");
+			Console.WriteLine($"v{Version}");
 			Console.WriteLine("Prints information in demo files & provides some parsing functionality.\n" +
 							  "With no arguments prints information similar to listdemo.\n");
 			Console.WriteLine("Getting help:\n" +
