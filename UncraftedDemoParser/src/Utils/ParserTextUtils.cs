@@ -87,18 +87,24 @@ namespace UncraftedDemoParser.Utils {
 			}
 			
 			Regex[] regexes = {
-				new Regex("autosave"), 
-				new Regex("#checkpoint#", RegexOptions.IgnoreCase),
-				new Regex("#save#", RegexOptions.IgnoreCase),
-				new Regex("startneurotoxins 99999")
+				new Regex("^autosave$"), 
+				new Regex("^autosavedangerous$"), 
+				new Regex("^autosavedangerousissafe$"), 
+				new Regex("^echo #checkpoint#$", RegexOptions.IgnoreCase),
+				new Regex("^echo #save#$", RegexOptions.IgnoreCase),
+				new Regex("^startneurotoxins 99999$")
 			};
 			string[] names = { // all appended by "detected on tick..."
+				"Autosavedangerous command",
+				"Autosavedangerousissafe command",
 				"Autosave command",
 				"Checkpoint flag",
 				"Save flag",
 				"End of game"
 			};
 			ConsoleColor[] colors = {
+				ConsoleColor.DarkYellow,
+				ConsoleColor.DarkYellow,
 				ConsoleColor.DarkYellow,
 				ConsoleColor.Magenta,
 				ConsoleColor.Yellow,
