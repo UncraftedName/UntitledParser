@@ -15,7 +15,7 @@ namespace UncraftedDemoParser.Parser.Components.SvcNetMessages {
 		
 		
 		protected override void ParseBytes(BitFieldReader bfr) {
-			IsPaused = bfr.ReadBool();
+			IsPaused = bfr.Length != 0 && bfr.ReadBool(); // idk how to handle this better, sometimes the data length is 0
 		}
 
 

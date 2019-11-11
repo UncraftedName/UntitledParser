@@ -76,6 +76,7 @@ namespace UncraftedDemoParser.Parser {
 		public void ParseBytes() { // header auto-parses
 			QuickParse();
 			Frames.ForEach(frame => frame.TryParse());
+			_fullParseCompleted = true;
 		}
 		
 		
