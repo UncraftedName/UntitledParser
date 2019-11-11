@@ -106,8 +106,17 @@ namespace UncraftedDemoParser.Utils {
 
 
 		public static string GetPathRelativeTo(this string relativeTo, string path) {
-			//Console.WriteLine();
 			return Uri.UnescapeDataString(new Uri(Path.GetFullPath(path)).MakeRelativeUri(new Uri(Path.GetFullPath(relativeTo))).ToString());
+		}
+
+		
+		// credit to https://stackoverflow.com/questions/489258/linqs-distinct-on-a-particular-property
+		public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector) {
+			HashSet<TKey> seenKeys = new HashSet<TKey>();
+			foreach (T element in source) {
+				if (seenKeys.Add(keySelector(element)))
+					yield return element;
+			}
 		}
 	}
 }

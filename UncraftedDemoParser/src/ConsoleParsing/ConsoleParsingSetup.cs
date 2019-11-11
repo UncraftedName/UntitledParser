@@ -11,7 +11,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 	// I tried to make this better than it was. I'm not sure if I did, but at least I made some tasty spaghetti.
 	internal static partial class ConsoleOptions {
 
-		private const string Version = "0.2";
+		private const string Version = "0.3";
 		
 		// A list of all the options; each option has the following properties:
 		// the character to set the option, the priority of that option:

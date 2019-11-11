@@ -105,7 +105,7 @@ namespace UncraftedDemoParser.Utils {
 				ConsoleColor.Green
 			};
 			for (int i = 0; i < regexes.Length; i++) {
-				foreach (ConsoleCmd cmd in sd.PacketsWhereRegexMatches(regexes[i])) {
+				foreach (ConsoleCmd cmd in sd.PacketsWhereRegexMatches(regexes[i]).DistinctBy(cmd => cmd.Tick)) {
 					Console.ForegroundColor = colors[i];
 					writer.WriteLine($"{names[i]} detected on tick {cmd.Tick}, time {cmd.Tick / sd.DemoSettings.TicksPerSeoncd:F3}");
 				}
