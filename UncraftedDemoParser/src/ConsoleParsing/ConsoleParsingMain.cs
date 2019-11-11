@@ -54,7 +54,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			foreach (string demoPath in _demoPaths) {
 				_currentDemo = new SourceDemo(demoPath, parse: false);
 				string relativeDir = demoPath.GetPathRelativeTo(Application.ExecutablePath);
-				if (relativeDir.Substring(0, 9) == "../../../")
+				if (relativeDir.Length >= 9 && relativeDir.Substring(0, 9) == "../../../")
 					relativeDir = demoPath;
 				Console.WriteLine($"Parsing {relativeDir}...");
 				Debug.WriteLine($"Parsing {Path.GetFullPath(demoPath)}...");

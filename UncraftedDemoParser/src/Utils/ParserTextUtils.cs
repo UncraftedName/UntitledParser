@@ -61,7 +61,7 @@ namespace UncraftedDemoParser.Utils {
 		}
 
 
-		// prints basically what listdemo prints, optionally prints the "correct" timing for length
+		// prints the same "wrong" tick count as listdemo+ for consistency, not including the 0th tick
 		public static void PrintListdemoOutput(this SourceDemo sd, bool printHeader, bool printName, TextWriter writer = null) {
 			if (!sd.FilteredForPacketType<Packet>().Any())
 				throw new FailedToParseException("this demo is missing regular packets");
@@ -85,19 +85,30 @@ namespace UncraftedDemoParser.Utils {
 					$"\n{"Frames",          -25}: {h.FrameCount}" +
 					$"\n{"SignOn Length",   -25}: {h.SignOnLength}\n\n");
 			}
-
-			StringBuilder builder = new StringBuilder("\n");
-			foreach (ConsoleCmd i in sd.PacketsWhereRegexMatches(new Regex("autosave")))
-				builder.AppendLine($"Autosave command detected on tick {i.Tick}, time {i.Tick / sd.DemoSettings.TicksPerSeoncd:F3}");
-			foreach (ConsoleCmd i in sd.PacketsWhereRegexMatches(new Regex("#save#", RegexOptions.IgnoreCase)))
-				builder.AppendLine($"Save flag detected on tick {i.Tick}, time {i.Tick / sd.DemoSettings.TicksPerSeoncd:F3}");
-			foreach (ConsoleCmd i in sd.PacketsWhereRegexMatches(new Regex("startneurotoxins 99999")))
-				builder.AppendLine(
-					$"End of normal game detected on tick {i.Tick}, time {i.Tick / sd.DemoSettings.TicksPerSeoncd:F3}");
 			
-			if (builder.Length > 1) {
-				Console.ForegroundColor = ConsoleColor.Yellow;
-				writer.Write(builder.ToString());
+			Regex[] regexes = {
+				new Regex("autosave"), 
+				new Regex("#checkpoint#", RegexOptions.IgnoreCase),
+				new Regex("#save#", RegexOptions.IgnoreCase),
+				new Regex("startneurotoxins 99999")
+			};
+			string[] names = { // all appended by "detected on tick..."
+				"Autosave command",
+				"Checkpoint flag",
+				"Save flag",
+				"End of game"
+			};
+			ConsoleColor[] colors = {
+				ConsoleColor.DarkYellow,
+				ConsoleColor.Magenta,
+				ConsoleColor.Yellow,
+				ConsoleColor.Green
+			};
+			for (int i = 0; i < regexes.Length; i++) {
+				foreach (ConsoleCmd cmd in sd.PacketsWhereRegexMatches(regexes[i])) {
+					Console.ForegroundColor = colors[i];
+					writer.WriteLine($"{names[i]} detected on tick {cmd.Tick}, time {cmd.Tick / sd.DemoSettings.TicksPerSeoncd:F3}");
+				}
 			}
 
 			Console.ForegroundColor = ConsoleColor.Cyan;

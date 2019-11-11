@@ -49,7 +49,6 @@ namespace UncraftedDemoParser.Parser.Components {
 				}
 
 				int packetLength;
-
 				switch (Type) {
 					case PacketType.SignOn:
 						packetLength = demoRef.DemoSettings.Header.SignOnLength;
@@ -78,6 +77,7 @@ namespace UncraftedDemoParser.Parser.Components {
 						packetLength = 0;
 						break;
 					default:
+						Console.WriteLine($"unexpected packet number: {Type}");
 						throw new ArgumentOutOfRangeException();
 				}
 

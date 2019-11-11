@@ -1,8 +1,0 @@
-if parsing dir, last demo will go out of bounds:
-UncraftedDemoParser.exe "B:\Games\Portal Source\portal" -c -f
-System.ArgumentOutOfRangeException: Index and lenfth must refer to a location with the string.
-Parameter name: length:
-	at System.String.Substring(Int32 startIndex, int32 length)
-	at UncraftedDemoParser.ConsoleParsing.ConsoleOptions.MainLoop()
-	at UncraftedDemoParser.ConsoleParsing.ConsoleOptions.ParseOptions(String[] args)
-	at UncraftedDemoParser.Program.Main(String[] args)

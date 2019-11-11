@@ -11,7 +11,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 	// I tried to make this better than it was. I'm not sure if I did, but at least I made some tasty spaghetti.
 	internal static partial class ConsoleOptions {
 
-		private const string Version = "0.1";
+		private const string Version = "0.2";
 		
 		// A list of all the options; each option has the following properties:
 		// the character to set the option, the priority of that option:
@@ -29,6 +29,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			{'p', Tuple.Create<int, bool, Action, string, Type[]>(5, false, DumpPositions, 		 "positions", 		new[] {typeof(Packet)})},
 			{'r', Tuple.Create<int, bool, Action, string, Type[]>(5, true,  DumpRegexMatches, 	 "regex matches", 	new[] {typeof(ConsoleCmd)})},
 			{'R', Tuple.Create<int, bool, Action, string, Type[]>(8, false, SearchRecursively, 	 null,				new Type[0])},
+			{'j', Tuple.Create<int, bool, Action, string, Type[]>(5, false, DumpJumps, 			 "jump list", 		new[] {typeof(ConsoleCmd)})}
 		};
 
 		// this is a separate thing cuz the above list is already supa fat
@@ -41,7 +42,8 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			{"-r", $" <regex>      (def.=\"{DefaultRegex}\") Dumps all console commands where the regex matches"},
 			{"-p", $"              Dump every |tick|~|x,y,z|pitch,yaw,roll|~{{player2}}~... for all players"},
 			{"-c", $"              Dump all suspicious commands and cheats"},
-			{"-R", $"              Search folders recursively"}
+			{"-R", $"              Search folders recursively"},
+			{"-h", $"              Dump all jumps found in the demo"}
 		};
 
 		// pre-parsing/const stuff
@@ -56,11 +58,14 @@ namespace UncraftedDemoParser.ConsoleParsing {
 
 		public static void ParseOptions(string[] args) {
 			if (args.Length == 1) {
-				if (args[0] == "-h" || args[0] == "--help" || args[0] == "/?") 
+				if (args[0] == "-h" || args[0] == "--help" || args[0] == "/?") {
 					PrintFullHelp();
-				if (args[0] == "--version") 
+					Environment.Exit(0);
+				}
+				if (args[0] == "--version") {
 					Console.WriteLine($"v{Version}");
-				Environment.Exit(0);
+					Environment.Exit(0);
+				}
 			}
 
 			bool helpOptionSet = false; // handled separately
@@ -199,8 +204,9 @@ namespace UncraftedDemoParser.ConsoleParsing {
 
 		private static void PrintOptionHelp() {
 			foreach (string option in UserOptions.Select(option => option.Substring(0, 2))) {
-				if (HelpMessages.ContainsKey(option))
-					Console.WriteLine($"{option}{HelpMessages[option]}");
+				Console.WriteLine(HelpMessages.ContainsKey(option)
+					? $"{option}{HelpMessages[option]}"
+					: "No help description written");
 			}
 		}
 

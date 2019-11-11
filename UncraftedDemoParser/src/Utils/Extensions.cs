@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using static UncraftedDemoParser.Parser.Components.Packets.Packet;
 
@@ -9,9 +11,16 @@ namespace UncraftedDemoParser.Utils {
 	
 	public static class Extensions {
 
-		public static T[] SubArray<T>(this T[] data, int index, int length) {
+		public static T[] SubArray<T>(this T[] data, int index, int length, [CallerMemberName] string caller = "") {
 			T[] result = new T[length];
-			Array.Copy(data, index, result, 0, length);
+			if (index + length > data.Length) {
+				Array.Copy(data, index, result, 0, data.Length - index);
+				Debug.WriteLine(
+					$"SubArray() trying to go out of bounds, writing {(data.Length - index)} bytes instead of {length}; caller: {caller}");
+			} else {
+				Array.Copy(data, index, result, 0, length);
+			}
+
 			return result;
 		}
 
@@ -97,6 +106,7 @@ namespace UncraftedDemoParser.Utils {
 
 
 		public static string GetPathRelativeTo(this string relativeTo, string path) {
+			//Console.WriteLine();
 			return Uri.UnescapeDataString(new Uri(Path.GetFullPath(path)).MakeRelativeUri(new Uri(Path.GetFullPath(relativeTo))).ToString());
 		}
 	}
