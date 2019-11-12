@@ -90,8 +90,8 @@ namespace UncraftedDemoParser.Utils {
 				new Regex("^autosave$"), 
 				new Regex("^autosavedangerous$"), 
 				new Regex("^autosavedangerousissafe$"), 
-				new Regex("^echo #checkpoint#$", RegexOptions.IgnoreCase),
-				new Regex("^echo #save#$", RegexOptions.IgnoreCase),
+				new Regex("[ \\t]*echo #checkpoint#[ \\t]*$", RegexOptions.IgnoreCase),
+				new Regex("[ \\t]*echo #SAVE#$[ \\t]*", RegexOptions.IgnoreCase),
 				new Regex("^startneurotoxins 99999$")
 			};
 			string[] names = { // all appended by "detected on tick..."
