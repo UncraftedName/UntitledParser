@@ -43,7 +43,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			{"-p", $"              Dump every |tick|~|x,y,z|pitch,yaw,roll|~{{player2}}~... for all players"},
 			{"-c", $"              Dump all suspicious commands and cheats"},
 			{"-R", $"              Search folders recursively"},
-			{"-h", $"              Dump all jumps found in the demo"}
+			{"-j", $"              Dump all jumps found in the demo"}
 		};
 
 		// pre-parsing/const stuff
@@ -206,7 +206,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			foreach (string option in UserOptions.Select(option => option.Substring(0, 2))) {
 				Console.WriteLine(HelpMessages.ContainsKey(option)
 					? $"{option}{HelpMessages[option]}"
-					: "No help description written");
+					: $"No help description written for {option}");
 			}
 		}
 
