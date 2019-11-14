@@ -21,17 +21,16 @@ namespace UncraftedDemoParser {
                 Environment.Exit(0);
             } else {
                 ConsoleOptions.ParseOptions(new[]
-                    {@"escape_02_1.dem"});
-                    
-                const string demoName = "problem demos\\chapter7";
-                SourceDemo sd = new SourceDemo(new DirectoryInfo($@"..\..\demos\{demoName}.dem"), false);
-                //sd.QuickParse();
+                    {@"3420demo.dem", "jless-00-07-bill_play3-1579.dem", "-v", "-f", "ya boi", "-m"});
+                
+                const string demoName = "problem demos\\18_camerafly_attempt_1_2";
+                //SourceDemo sd = new SourceDemo(new DirectoryInfo($@"..\..\demos\{demoName}.dem"), false);
+                SourceDemo sd = new SourceDemo("3420demo.dem", false);
+                sd.QuickParse();
                 sd.ParseBytes();
                 
                 
                 //File.WriteAllText(@"B:\Projects\Rider\UncraftedDemoParser\UncraftedDemoParser\bin\Debug\output.txt", sd.AsVerboseString());
-                //sd.UpdateBytes();
-                //File.WriteAllBytes(@"B:\Projects\Rider\UncraftedDemoParser\UncraftedDemoParser\bin\Debug\ademo.dem", sd.Bytes);
             }
         }
     }

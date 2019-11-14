@@ -8,10 +8,10 @@ namespace UncraftedDemoParser.Parser.Misc {
 	public static class Conversions {
 		
 		// gets the packet type associated with this byte value
-		public static PacketType ToPacketType(this byte b, bool newEngine) {
+		public static PacketType ToPacketType(this byte b, SourceDemoSettings demoSettings) {
 			if (b > 0 && b < 8)
 				return (PacketType)b;
-			if (newEngine) {
+			if (demoSettings.NewEngine) {
 				if (b == 8)
 					return PacketType.CustomData;
 				if (b == 9)
@@ -19,18 +19,23 @@ namespace UncraftedDemoParser.Parser.Misc {
 			}
 			if (b == 8)
 				return PacketType.StringTables;
+			if (b == 0 && demoSettings.Game == SourceDemoSettings.SourceGame.PORTAL_1_3420)
+				return PacketType.StringTables;
 			throw new FailedToParseException($"This demo has an unknown packet type. Value: {b}");
 		}
 
 
 		// gets the byte value associated with this packet type
-		public static byte ToByte(this PacketType packetType, bool newEngine) {
+		public static byte ToByte(this PacketType packetType, SourceDemoSettings demoSettings) {
+			if (packetType == PacketType.StringTables &&
+				demoSettings.Game == SourceDemoSettings.SourceGame.PORTAL_1_3420)
+				return 0;
 			byte byteVal = (byte)packetType;
 			if (byteVal < 8)
 				return byteVal;
 			if (packetType == PacketType.StringTables)
-				return (byte)(newEngine ? 9 : 8);
-			if (newEngine && packetType == PacketType.CustomData)
+				return (byte)(demoSettings.NewEngine ? 9 : 8);
+			if (demoSettings.NewEngine && packetType == PacketType.CustomData)
 				return 8;
 			throw new ArgumentException($"unknown packet type: {packetType}");
 		}
@@ -63,8 +68,8 @@ namespace UncraftedDemoParser.Parser.Misc {
 		}
 
 
-		public static SvcMessageType ToSvcMessageType(this byte b, bool newEngine) {
-			if (!newEngine) {
+		public static SvcMessageType ToSvcMessageType(this byte b, SourceDemoSettings demoSettings) {
+			if (!demoSettings.NewEngine) {
 				switch (b) {
 					case 3:
 						return SvcMessageType.NetTick;
@@ -77,17 +82,21 @@ namespace UncraftedDemoParser.Parser.Misc {
 					case 7:
 						return SvcMessageType.SvcPrint;
 					case 16:
+						if (demoSettings.Game == SourceDemoSettings.SourceGame.PORTAL_1_STEAMPIPE)
+							return SvcMessageType.NetSignOnState;
+						return SvcMessageType.Unknown;
 					case 22:
 					case 33:
-						throw new ArgumentException($"unknown svc message type: {b}");
+						return SvcMessageType.Unknown; // this prevents throwing more exceptions if paired with a check for null from ToSvcNetMessage()
 				}
 			}
+			// might add 3420 & leak support, but for now my memes will stay dreams
 			return (SvcMessageType)b;
 		}
 
 
-		public static byte ToByte(this SvcMessageType messageType, bool newEngine) {
-			if (!newEngine) {
+		public static byte ToByte(this SvcMessageType messageType, SourceDemoSettings demoSettings) {
+			if (!demoSettings.NewEngine) {
 				switch (messageType) {
 					case SvcMessageType.NetTick:
 						return 3;
@@ -96,6 +105,8 @@ namespace UncraftedDemoParser.Parser.Misc {
 					case SvcMessageType.NetSetConVar:
 						return 5;
 					case SvcMessageType.NetSignOnState:
+						if (demoSettings.Game == SourceDemoSettings.SourceGame.PORTAL_1_STEAMPIPE)
+							return 16;
 						return 6;
 					case SvcMessageType.SvcPrint:
 						return 7;

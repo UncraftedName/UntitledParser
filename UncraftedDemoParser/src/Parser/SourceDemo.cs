@@ -38,16 +38,16 @@ namespace UncraftedDemoParser.Parser {
 		}
 
 
-		// there's gonna be a bit of overhead to reparse the header but for now it's probably worth it to see what the errors are
+		// there's gonna be a bit of overhead to reparse the header but for now it's probably worth it to see any errors for now
 		public void ParseHeader() {
 			Header = (Header)new Header(Bytes.SubArray(0, 1072), this).TryParse();
+			DemoSettings = new SourceDemoSettings(Header);
 		}
 
 
 		// get all packets, but only parse the consolecmd packet; used solely for printing the listdemo output
-		public void QuickParse() { // todo: remove parsing the consolecmd packet
-			Header = (Header)new Header(Bytes.SubArray(0, 1072), this).TryParse();
-			DemoSettings = new SourceDemoSettings(Header);
+		public void QuickParse() {
+			ParseHeader();
 			Frames = new List<PacketFrame>();
 			int index = 1072;
 			try {

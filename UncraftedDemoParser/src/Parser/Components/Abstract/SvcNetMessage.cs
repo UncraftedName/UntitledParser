@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using UncraftedDemoParser.Utils;
 
@@ -73,5 +74,6 @@ namespace UncraftedDemoParser.Parser.Components.Abstract {
 		//SvcHltvData,
 		//SvcBroadcaseCommand,
 		//NetPlayerAvatarData
+		Unknown = Int32.MinValue
 	}
 }

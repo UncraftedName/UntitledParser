@@ -113,13 +113,13 @@ namespace UncraftedDemoParser.Utils {
 			for (int i = 0; i < regexes.Length; i++) {
 				foreach (ConsoleCmd cmd in sd.PacketsWhereRegexMatches(regexes[i]).DistinctBy(cmd => cmd.Tick)) {
 					Console.ForegroundColor = colors[i];
-					writer.WriteLine($"{names[i]} detected on tick {cmd.Tick}, time {cmd.Tick / sd.DemoSettings.TicksPerSeoncd:F3}");
+					writer.WriteLine($"{names[i]} detected on tick {cmd.Tick}, time {cmd.Tick / sd.DemoSettings.TicksPerSecond:F3}");
 				}
 			}
 
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			writer.WriteLine(
-				$"\n{"Calculated total time",   -25}: {(sd.TickCount() - 1) / sd.DemoSettings.TicksPerSeoncd}" +
+				$"\n{"Calculated total time",   -25}: {(sd.TickCount() - 1) / sd.DemoSettings.TicksPerSecond}" +
 				$"\n{"Calculated total ticks",  -25}: {sd.TickCount() - 1}\n");
 			Console.ForegroundColor = ConsoleColor.Gray;
 		}

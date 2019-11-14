@@ -17,8 +17,8 @@ namespace UncraftedDemoParser.Parser.Components.Packets {
 		private byte _messageType;
 
 		public SvcMessageType MessageType {
-			get => _messageType.ToSvcMessageType(DemoRef.DemoSettings.NewEngine);
-			set => _messageType = value.ToByte(DemoRef.DemoSettings.NewEngine);
+			get => _messageType.ToSvcMessageType(DemoRef.DemoSettings);
+			set => _messageType = value.ToByte(DemoRef.DemoSettings);
 		}
 		public byte[] SvcMessageBytes; // to be removed
 		public SvcNetMessage SvcNetMessage;
@@ -38,12 +38,13 @@ namespace UncraftedDemoParser.Parser.Components.Packets {
 			int svcMessageSize = bfr.ReadInt();
 			_messageType = bfr.ReadBits(6)[0]; // i'm not sure if the data starts on the byte boundary
 			SvcMessageBytes = bfr.ReadBytes(svcMessageSize - 1);
-			// might throw exceptions
 			SvcNetMessage = MessageType.ToSvcNetMessage(SvcMessageBytes, DemoRef, Tick);
-			if (SvcNetMessage == null)
-				Console.WriteLine($"warning: {MessageType} is not parsable yet");
-			else
-				SvcNetMessage.TryParse(Tick);
+			if (DemoRef.DemoSettings.Game != SourceDemoSettings.SourceGame.PORTAL_1_3420) { // idk how to parse the messages for a 3420 demo
+				if (SvcNetMessage == null)
+					Console.WriteLine($"warning: {MessageType} is not parsable yet");
+				else
+					SvcNetMessage.TryParse(Tick);
+			}
 		}
 
 		public override void UpdateBytes() {
@@ -66,7 +67,7 @@ namespace UncraftedDemoParser.Parser.Components.Packets {
 			PacketInfo.ToList().ForEach(info => output.AppendLine(info.ToString()));
 			output.AppendLine($"\tin sequence: {InSequence}");
 			output.AppendLine($"\tout sequence: {OutSequence}");
-			output.AppendLine($"\tmessage type: {MessageType}");
+			output.AppendLine($"\tmessage type: {MessageType} ({_messageType})");
 			output.AppendLine($"\tmessage of length {SvcMessageBytes.Length}: {SvcMessageBytes.AsHexStr()}");
 			output.Append(SvcNetMessage);
 			return output.ToString();

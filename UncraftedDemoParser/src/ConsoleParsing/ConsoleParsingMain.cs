@@ -36,15 +36,9 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			Console.ForegroundColor = ConsoleColor.White;
 			Console.WriteLine($"listdemo++ v{Version} by UncraftedName\n");
 			Console.ForegroundColor = ConsoleColor.Gray;
+			bool noUserArgs = _normalOptions.Count == 0;
 			if (_normalOptions.Count == 0) { // called without args
-				foreach (string demoPath in _demoPaths) {
-					SourceDemo sd = new SourceDemo(demoPath, parse: false);
-					sd.QuickParse();
-					sd.ParsePacketTypes<ConsoleCmd>();
-					sd.PrintListdemoOutput(true, true);
-				}
-				Console.ReadKey();
-				Environment.Exit(0);
+				_normalOptions.Append(GetOptionFromFunc("PrintListDemoOutput").Value);
 			}
 
 			if (_writeToFile)
@@ -59,6 +53,9 @@ namespace UncraftedDemoParser.ConsoleParsing {
 				Console.WriteLine($"Parsing {relativeDir}...");
 				Debug.WriteLine($"Parsing {Path.GetFullPath(demoPath)}...");
 				try {
+					_currentDemo.ParseHeader();
+					if (_currentDemo.DemoSettings.Game != SourceDemoSettings.SourceGame.UNKNOWN)
+						Console.WriteLine($"game detected - {_currentDemo.DemoSettings.Game}");
 					_currentDemo.QuickParse();
 					_currentDemo.ParseForPacketTypes(_packetTypesToParse);
 				} catch (FailedToParseException e) {
@@ -66,7 +63,8 @@ namespace UncraftedDemoParser.ConsoleParsing {
 					Console.WriteLine($"{e.Message}... skipping demo.");
 					continue;
 				} catch (Exception e) {
-					Debug.WriteLine(e.ToString());
+					Debug.WriteLine(e.StackTrace);
+					Console.WriteLine($"Exception thrown from {new StackTrace(e).GetFrame(0).GetMethod().Name}");
 					Console.WriteLine("Failed to parse demo. Like, super failed... skipping demo.");
 					continue;
 				}
@@ -93,6 +91,11 @@ namespace UncraftedDemoParser.ConsoleParsing {
 				if (_writeToFile)
 					foreach (TextWriter writer in _writers.Values)
 						writer.Dispose();
+			}
+
+			if (noUserArgs) {
+				Console.ReadKey();
+				Environment.Exit(0);
 			}
 		}
 

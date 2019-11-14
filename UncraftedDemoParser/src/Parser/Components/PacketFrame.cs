@@ -16,8 +16,8 @@ namespace UncraftedDemoParser.Parser.Components {
 		private byte _typeValue;
 
 		public PacketType Type {
-			get => _typeValue.ToPacketType(DemoRef.DemoSettings.NewEngine);
-			set => _typeValue = value.ToByte(DemoRef.DemoSettings.NewEngine);
+			get => _typeValue.ToPacketType(DemoRef.DemoSettings);
+			set => _typeValue = value.ToByte(DemoRef.DemoSettings);
 		}
 
 		// in the demo the tick is stored as part of the packet frame, 

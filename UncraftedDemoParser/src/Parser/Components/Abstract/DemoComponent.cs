@@ -38,6 +38,7 @@ namespace UncraftedDemoParser.Parser.Components.Abstract {
 			try {
 				ParseBytes();
 			} catch (FailedToParseException) {
+				Debug.WriteLine($"Demo failed to parse on tick {tick}");
 				throw;
 			} catch (Exception e) {
 				Debug.WriteLine(e.ToString());
