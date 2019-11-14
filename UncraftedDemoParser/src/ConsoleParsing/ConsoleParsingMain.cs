@@ -37,8 +37,10 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			Console.WriteLine($"listdemo++ v{Version} by UncraftedName\n");
 			Console.ForegroundColor = ConsoleColor.Gray;
 			bool noUserArgs = _normalOptions.Count == 0;
-			if (_normalOptions.Count == 0) { // called without args
-				_normalOptions.Append(GetOptionFromFunc("PrintListDemoOutput").Value);
+			// if called without args (besides files), add the list demo output to the option list
+			if (_normalOptions.Count == 0) {
+				_normalOptions.Add(OptionList.Values.Single(tuple => tuple.Item3 == (Action)PrintListDemoOutput));
+				_packetTypesToParse = new[] {typeof(ConsoleCmd)};
 			}
 
 			if (_writeToFile)
