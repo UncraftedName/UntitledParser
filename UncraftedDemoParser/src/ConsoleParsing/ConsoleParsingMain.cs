@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -12,6 +11,8 @@ using UncraftedDemoParser.Parser;
 using UncraftedDemoParser.Parser.Components.Packets;
 using UncraftedDemoParser.Parser.Misc;
 using UncraftedDemoParser.Utils;
+
+using OptionProperties = System.Tuple<int, bool, System.Action, string, System.Type[]>;
 
 namespace UncraftedDemoParser.ConsoleParsing {
 	
@@ -118,7 +119,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 
 
 		// used to reverse lookup the option char, so that the chars don't have to be hard coded
-		private static KeyValuePair<char, Tuple<int, bool, Action, string, Type[]>> GetOptionFromFunc([CallerMemberName] string caller = "") {
+		private static KeyValuePair<char, OptionProperties> GetOptionFromFunc([CallerMemberName] string caller = "") {
 			return OptionList.Single(pair => pair.Value.Item3.Method.Name == caller);
 		}
 

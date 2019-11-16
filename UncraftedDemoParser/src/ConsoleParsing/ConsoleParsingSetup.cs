@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using UncraftedDemoParser.Parser.Components.Abstract;
 using UncraftedDemoParser.Parser.Components.Packets;
-using UncraftedDemoParser.Utils;
+
+using OptionProperties = System.Tuple<int, bool, System.Action, string, System.Type[]>;
 
 namespace UncraftedDemoParser.ConsoleParsing {
 	
@@ -12,24 +13,26 @@ namespace UncraftedDemoParser.ConsoleParsing {
 	internal static partial class ConsoleOptions {
 
 		private const string Version = "0.7";
+
+		private static readonly Func<int, bool, Action, string, Type[], OptionProperties> OptionTupleHelper = Tuple.Create;
 		
 		// A list of all the options; each option has the following properties:
 		// the character to set the option, the priority of that option:
 		// 		(5 means dump/print option, anything else means to run once before the demo parsing begins),
 		// whether that option allows a string after it, the function for that option,
 		// the file name to dump the output to, and the packets to parse for that option to work.
-		private static readonly Dictionary<char, Tuple<int, bool, Action, string, Type[]>> OptionList = new Dictionary<char, Tuple<int, bool, Action, string, Type[]>> {
-			{'f', Tuple.Create<int, bool, Action, string, Type[]>(8, true,  SetOutputToFile, 	 null, 				new Type[0])},
-			{'s', Tuple.Create<int, bool, Action, string, Type[]>(6, false, SortDemos, 			 null, 				new Type[0])},
-			{'h', Tuple.Create<int, bool, Action, string, Type[]>(9, false, PrintOptionHelp,	 null, 				new Type[0])},
-			{'l', Tuple.Create<int, bool, Action, string, Type[]>(5, false, PrintListDemoOutput, "listdemo output", new[] {typeof(ConsoleCmd)})},
-			{'v', Tuple.Create<int, bool, Action, string, Type[]>(5, false, PrintVerboseOutput,  "verbose output",	new[] {typeof(DemoPacket)})}, // parse all packets
-			{'m', Tuple.Create<int, bool, Action, string, Type[]>(5, false, DumpSvcMessages, 	 "svc messages", 	new[] {typeof(Packet)})},
-			{'c', Tuple.Create<int, bool, Action, string, Type[]>(5, false, DumpCheats,	 		 "cheats", 			new[] {typeof(ConsoleCmd)})},
-			{'p', Tuple.Create<int, bool, Action, string, Type[]>(5, false, DumpPositions, 		 "positions", 		new[] {typeof(Packet)})},
-			{'r', Tuple.Create<int, bool, Action, string, Type[]>(5, true,  DumpRegexMatches, 	 "regex matches", 	new[] {typeof(ConsoleCmd)})},
-			{'R', Tuple.Create<int, bool, Action, string, Type[]>(8, false, SearchRecursively, 	 null,				new Type[0])},
-			{'j', Tuple.Create<int, bool, Action, string, Type[]>(5, false, DumpJumps, 			 "jump list", 		new[] {typeof(ConsoleCmd)})}
+		private static readonly Dictionary<char, OptionProperties> OptionList = new Dictionary<char, OptionProperties> {
+			{'f', OptionTupleHelper(8, true,  SetOutputToFile, 	 	null, 				new Type[0])},
+			{'s', OptionTupleHelper(6, false, SortDemos, 			null, 				new Type[0])},
+			{'h', OptionTupleHelper(9, false, PrintOptionHelp,	 	null, 				new Type[0])},
+			{'l', OptionTupleHelper(5, false, PrintListDemoOutput, 	"listdemo output", 	new[] {typeof(ConsoleCmd)})},
+			{'v', OptionTupleHelper(5, false, PrintVerboseOutput,  	"verbose output",	new[] {typeof(DemoPacket)})}, // parse all packets
+			{'m', OptionTupleHelper(5, false, DumpSvcMessages, 	 	"svc messages", 	new[] {typeof(Packet)})},
+			{'c', OptionTupleHelper(5, false, DumpCheats,	 		"cheats", 			new[] {typeof(ConsoleCmd)})},
+			{'p', OptionTupleHelper(5, false, DumpPositions, 		"positions", 		new[] {typeof(Packet)})},
+			{'r', OptionTupleHelper(5, true,  DumpRegexMatches, 	"regex matches", 	new[] {typeof(ConsoleCmd)})},
+			{'R', OptionTupleHelper(8, false, SearchRecursively, 	null,				new Type[0])},
+			{'j', OptionTupleHelper(5, false, DumpJumps, 			"jump list", 		new[] {typeof(ConsoleCmd)})}
 		};
 
 		// this is a separate thing cuz the above list is already supa fat
@@ -143,7 +146,7 @@ namespace UncraftedDemoParser.ConsoleParsing {
 			}
 			
 			// sorts the option properties based on priority
-			List<Tuple<int, bool, Action, string, Type[]>> optionProperties = UserOptions.Select(uOption => OptionList[uOption[1]])
+			List<OptionProperties> optionProperties = UserOptions.Select(uOption => OptionList[uOption[1]])
 				.OrderByDescending(tuple => tuple.Item1).ToList();
 			
 			// sets the packets that are required to be parsed based on the user options
