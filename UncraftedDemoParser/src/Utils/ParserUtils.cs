@@ -49,7 +49,7 @@ namespace UncraftedDemoParser.Utils {
 
 		public static int TickCount(this SourceDemo sd) {
 			List<int> packetTicks = sd.FilteredForPacketType<Packet>().Select(packet => packet.Tick).Where(i => i >= 0).ToList();
-			return packetTicks.Max() - packetTicks.Min() + 1;
+			return packetTicks.Max() - packetTicks.Min() + 1; // accounts for 0th tick
 		}
 
 

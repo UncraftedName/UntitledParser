@@ -89,25 +89,19 @@ namespace UncraftedDemoParser.Utils {
 			Regex[] regexes = {
 				new Regex("^autosave$"), 
 				new Regex("^autosavedangerous$"), 
-				new Regex("^autosavedangerousissafe$"), 
-				new Regex("[ \\t]*echo #checkpoint#[ \\t]*$", RegexOptions.IgnoreCase),
-				new Regex("[ \\t]*echo #SAVE#$[ \\t]*", RegexOptions.IgnoreCase),
+				new Regex("^autosavedangerousissafe$"),
 				new Regex("^startneurotoxins 99999$")
 			};
 			string[] names = { // all appended by "detected on tick..."
 				"Autosavedangerous command",
 				"Autosavedangerousissafe command",
 				"Autosave command",
-				"Checkpoint flag",
-				"Save flag",
 				"End of game"
 			};
 			ConsoleColor[] colors = {
 				ConsoleColor.DarkYellow,
 				ConsoleColor.DarkYellow,
 				ConsoleColor.DarkYellow,
-				ConsoleColor.Magenta,
-				ConsoleColor.Yellow,
 				ConsoleColor.Green
 			};
 			for (int i = 0; i < regexes.Length; i++) {
@@ -116,11 +110,30 @@ namespace UncraftedDemoParser.Utils {
 					writer.WriteLine($"{names[i]} detected on tick {cmd.Tick}, time {cmd.Tick / sd.DemoSettings.TicksPerSecond:F3}");
 				}
 			}
+			// matches any flag like 'echo #some flag name#`
+			Regex flagMatcher = new Regex(@"^\s*echo\s+#(?<flag_name>\S*?)#\s*$", RegexOptions.IgnoreCase);
+			
+			// gets all flags, then groups them by the flag type, and sorts the ticks of each type
+			// in this case, #flag# is treated the same as #FLAG#
+			var flagGroups = sd.PacketsWhereRegexMatches(flagMatcher)
+				.Select(cmd =>
+					Tuple.Create(flagMatcher.Matches(cmd.Command)[0].Groups["flag_name"].Value.ToUpper(), cmd.Tick))
+				.GroupBy(tuple => tuple.Item1)
+				.ToDictionary(tuples => tuples.Key,
+					tuples => tuples.Select(tuple => tuple.Item2).Distinct().OrderBy(i => i).ToList())
+				.Select(pair => Tuple.Create(pair.Key, pair.Value));
+
+			foreach (Tuple<string, List<int>> flagType in flagGroups) {
+				Console.ForegroundColor = Console.ForegroundColor == ConsoleColor.Yellow ? ConsoleColor.Magenta : ConsoleColor.Yellow;
+				foreach (int i in flagType.Item2) {
+					Console.WriteLine($"'{flagType.Item1}' flag detected on tick {i}, time {i / sd.DemoSettings.TicksPerSecond:F3}");
+				}
+			}
 
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			writer.WriteLine(
-				$"\n{"Calculated total time",   -25}: {(sd.TickCount() - 1) / sd.DemoSettings.TicksPerSecond}" +
-				$"\n{"Calculated total ticks",  -25}: {sd.TickCount() - 1}\n");
+				$"\n{"Last tick time: ",   	-25}: {(sd.TickCount() - 1) / sd.DemoSettings.TicksPerSecond}" +
+				$"\n{"Last tick: ",  		-25}: {sd.TickCount() - 1}\n");
 			Console.ForegroundColor = ConsoleColor.Gray;
 		}
 	}
