@@ -150,9 +150,9 @@ namespace ConsoleParser {
 			Console.WriteLine("Finding cheats...");
 			List<ConsoleCmd> matches = CurrentDemo.FilterForRegexMatches(new Regex(new[] {
 				"host_timescale", "god", "sv_cheats", "buddha", "host_framerate", "sv_accelerate", "gravity", 
-				"sv_airaccelerate", "noclip", "impulse", "ent", "sv_gravity", "upgrade_portalgun", 
+				"sv_airaccelerate", "noclip", "impulse", "ent_", "sv_gravity", "upgrade_portalgun", 
 				"phys_timescale", "notarget", "give", "fire_energy_ball", "_spt_", "plugin_load", 
-				"ent_parent", "!picker"
+				"ent_parent", "!picker", "ch_"
 			}.SequenceToString(")|(", "(", ")"))).ToList();
 			if (matches.Count == 0) {
 				const string s = "no cheats found";
