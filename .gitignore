@@ -4,3 +4,4 @@ obj/
 *.xml
 *.user
 *.DotSettings
+/My Playground/My Playground.csproj
