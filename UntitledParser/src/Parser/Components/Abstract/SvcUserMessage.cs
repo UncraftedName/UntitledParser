@@ -121,7 +121,7 @@ namespace UntitledParser.Parser.Components.Abstract {
 		HudText,
 		SayText,
 		SayText2,
-		TextMsg,    //one of the messages here doesn't actually exist in the leak if tho it registers??
+		TextMsg,    //one of the messages here doesn't actually exist in the leak even tho it registers??
 		HUDMsg,
 		ResetHUD, 		// called every respawn
 		GameTitle, 		// show game title
