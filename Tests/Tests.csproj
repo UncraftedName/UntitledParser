@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\UntitledParser\UntitledParser.csproj" />
+      <ProjectReference Include="..\DemoParser\DemoParser.csproj" />
     </ItemGroup>
 
 </Project>

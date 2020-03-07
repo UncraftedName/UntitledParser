@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SegmentedBot", "SegmentedBot\SegmentedBot.csproj", "{3B0F512C-2064-4358-BADC-8BEC8C11D826}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UntitledParser", "UntitledParser\UntitledParser.csproj", "{C61D7FFB-7CD2-43CC-89DA-B9D8B3803385}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoParser", "DemoParser\DemoParser.csproj", "{C61D7FFB-7CD2-43CC-89DA-B9D8B3803385}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{4B0F5468-9981-4E07-B2CD-DD62BFAF7D1F}"
 EndProject

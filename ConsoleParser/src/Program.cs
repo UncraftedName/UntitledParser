@@ -6,8 +6,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using UntitledParser.Parser;
-using UntitledParser.Utils;
+using DemoParser.Parser;
+using DemoParser.Utils;
 
 namespace ConsoleParser {
 	
@@ -18,7 +18,7 @@ namespace ConsoleParser {
 		
 		public static void Main(string[] args) {
 			
-			Console.WriteLine("UntitledParser by UncraftedName");
+			Console.WriteLine("DemoParser by UncraftedName");
 			
 			switch (args.Length) {
 				case 0:

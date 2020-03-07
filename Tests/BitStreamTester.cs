@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using UntitledParser.Utils;
+using DemoParser.Utils;
 
 namespace Tests {
 	

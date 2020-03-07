@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Version>1.1.0.0</Version>
+        <PackageVersion>1.1.0.0</PackageVersion>
+        <Title>UntitledDemoParser</Title>
+        <Authors>UncraftedName</Authors>
+        <RepositoryUrl>https://github.com/UncraftedName/UncraftedDemoParser</RepositoryUrl>
+        <PackageTags>SourceEngine demo</PackageTags>
+    </PropertyGroup>
+
+</Project>
