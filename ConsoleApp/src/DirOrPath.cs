@@ -1,7 +1,7 @@
 #nullable enable
 using System.IO;
 
-namespace ConsoleParser {
+namespace ConsoleApp {
 	
 	public class DirOrPath : FileSystemInfo {
 

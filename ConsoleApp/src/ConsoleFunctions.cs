@@ -9,7 +9,7 @@ using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
 
-namespace ConsoleParser {
+namespace ConsoleApp {
 	
 	public static partial class ConsoleFunctions {
 

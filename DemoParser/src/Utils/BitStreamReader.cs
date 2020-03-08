@@ -107,10 +107,17 @@ namespace DemoParser.Utils {
 		}
 
 
-		public List<int> FindUIntAllInstances(uint val, int bitCount) {
+		public IEnumerable<int> FindUIntAllInstances(uint val, int bitCount) {
 			var tmp = new BitStreamWriter(4, IsLittleEndian);
 			tmp.WriteUInt(val);
 			return FindBytesAllInstances(tmp.AsArray, bitCount);
+		}
+
+
+		public IEnumerable<int> FindFloatAllInstances(float f) {
+			var tmp = new BitStreamWriter(4, IsLittleEndian);
+			tmp.WriteFloat(f);
+			return FindBytesAllInstances(tmp.AsArray, 32);
 		}
 
 
@@ -139,16 +146,14 @@ namespace DemoParser.Utils {
 		}
 
 
-		public List<int> FindBytesAllInstances(byte[] arr, int bitCount) {
+		public IEnumerable<int> FindBytesAllInstances(byte[] arr, int bitCount) {
 			byte[] resized = new byte[((bitCount - 1) >> 3) + 1]; // ensure that resized is the minimum length
 			Array.Copy(arr, resized, resized.Length);
-			List<int> results = new List<int>();
 			while (BitsRemaining >= bitCount) {
 				if (SubStream().ReadBits(bitCount).SequenceEqual(resized))
-					results.Add(CurrentBitIndex);
+					yield return CurrentBitIndex;
 				AbsoluteBitIndex++;
 			}
-			return results;
 		}
 
 

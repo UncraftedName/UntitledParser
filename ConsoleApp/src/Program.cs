@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using DemoParser.Parser;
 using DemoParser.Utils;
 
-namespace ConsoleParser {
+namespace ConsoleApp {
 	
 	public static partial class ConsoleFunctions {
 		
@@ -149,7 +149,7 @@ namespace ConsoleParser {
 				}
 				
 				if (res[verboseOpt.Aliases[0]] != null && res[folderOpt.Aliases[0]] == null)
-					return "verbose option requires a folder to output to";
+					return "verbose option requires -f";
 				return null;
 			});
 

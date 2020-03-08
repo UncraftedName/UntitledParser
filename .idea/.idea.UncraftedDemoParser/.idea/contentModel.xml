@@ -2,13 +2,13 @@
 <project version="4">
   <component name="ContentModelStore">
     <e p="B:\Projects\Rider\UncraftedDemoParser" t="IncludeFlat">
-      <e p="ConsoleParser" t="IncludeRecursive">
+      <e p="ConsoleApp" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
-        <e p="ConsoleParser.csproj" t="IncludeRecursive" />
+        <e p="ConsoleApp.csproj" t="IncludeRecursive" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp3.1" t="Include">
-              <e p="ConsoleParser.AssemblyInfo.cs" t="Include" />
+              <e p="ConsoleApp.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
         </e>
@@ -143,45 +143,7 @@
           </e>
         </e>
       </e>
-      <e p="My Playground" t="IncludeRecursive">
-        <e p="bin" t="ExcludeRecursive" />
-        <e p="My Playground.csproj" t="IncludeRecursive" />
-        <e p="obj" t="ExcludeRecursive">
-          <e p="Debug" t="Include">
-            <e p="netcoreapp3.1" t="Include">
-              <e p="My Playground.AssemblyInfo.cs" t="Include" />
-            </e>
-          </e>
-        </e>
-        <e p="Program.cs" t="Include" />
-      </e>
       <e p="packages" t="ExcludeRecursive" />
-      <e p="SegmentedBot" t="IncludeRecursive">
-        <e p="bin" t="ExcludeRecursive" />
-        <e p="Commands" t="Include">
-          <e p="AdminModule.cs" t="Include" />
-          <e p="BasicModule.cs" t="Include" />
-        </e>
-        <e p="Handler" t="Include">
-          <e p="CommandHandler.cs" t="Include" />
-        </e>
-        <e p="Manager" t="Include">
-          <e p="DataManager.cs" t="Include" />
-        </e>
-        <e p="obj" t="ExcludeRecursive">
-          <e p="Debug" t="Include">
-            <e p="netcoreapp2.1" t="Include">
-              <e p="SegmentedBot.AssemblyInfo.cs" t="Include" />
-            </e>
-          </e>
-        </e>
-        <e p="Program.cs" t="Include" />
-        <e p="SegmentedBot.csproj" t="IncludeRecursive" />
-        <e p="Utils" t="Include">
-          <e p="Forest.cs" t="Include" />
-          <e p="UniqueTree.cs" t="Include" />
-        </e>
-      </e>
       <e p="Tests" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
         <e p="BitStreamTester.cs" t="Include" />
