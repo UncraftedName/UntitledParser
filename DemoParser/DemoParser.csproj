@@ -11,6 +11,7 @@
         <PackageTags>SourceEngine demo Valve</PackageTags>
         <Description>A parser for Source Engine demos.</Description>
         <PackageIconUrl>https://raw.githubusercontent.com/UncraftedName/UncraftedDemoParser/master/github-resources/investigation.ico</PackageIconUrl>
+        <Platforms>AnyCPU;x64</Platforms>
     </PropertyGroup>
 
 </Project>
