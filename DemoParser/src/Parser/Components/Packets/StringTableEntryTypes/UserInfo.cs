@@ -3,7 +3,7 @@ using DemoParser.Utils;
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 	
 	// a part of each table entry in the "userinfo" string table
-	public class PlayerInfo : StringTableEntryData {
+	public class UserInfo : StringTableEntryData {
 
 		// new engine only
 		public uint? Version;
@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public uint FilesDownloaded;
 		
 		
-		public PlayerInfo(SourceDemo demoRef, BitStreamReader reader, string entryName) : base(demoRef, reader, entryName) {}
+		public UserInfo(SourceDemo demoRef, BitStreamReader reader, string entryName) : base(demoRef, reader, entryName) {}
 
 
 		internal override void ParseStream(BitStreamReader bsr) {

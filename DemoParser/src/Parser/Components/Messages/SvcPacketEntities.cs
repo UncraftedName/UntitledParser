@@ -58,4 +58,23 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.Append($"length in bits: {_data.BitLength}");
 		}
 	}
+	
+	
+	public enum UpdateType { // src_main/common/protocol.h
+		EnterPvs = 0, 	// Entity came back into pvs, create new entity if one doesn't exist
+		LeavePvs, 		// Entity left pvs
+		DeltaEnt,    	// There is a delta for this entity.
+		PreserveEnt, 	// Entity stays alive but no delta ( could be LOD, or just unchanged )
+		Finished, 		// finished parsing entities successfully
+		Failed,   		// parsing error occured while reading entities
+	}
+	
+
+	// Flags for delta encoding header
+	public enum DeltaHeaderFHDR {
+	Zero			= 0x0000,
+	LeavePvs		= 0x0001,
+	Delete			= 0x0002,
+	EnterPvs		= 0x0004,
+	}
 }

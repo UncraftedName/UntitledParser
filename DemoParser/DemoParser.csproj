@@ -8,7 +8,9 @@
         <Title>UntitledDemoParser</Title>
         <Authors>UncraftedName</Authors>
         <RepositoryUrl>https://github.com/UncraftedName/UncraftedDemoParser</RepositoryUrl>
-        <PackageTags>SourceEngine demo</PackageTags>
+        <PackageTags>SourceEngine demo Valve</PackageTags>
+        <Description>A parser for Source Engine demos.</Description>
+        <PackageIconUrl>https://raw.githubusercontent.com/UncraftedName/UncraftedDemoParser/master/github-resources/investigation.ico</PackageIconUrl>
     </PropertyGroup>
 
 </Project>

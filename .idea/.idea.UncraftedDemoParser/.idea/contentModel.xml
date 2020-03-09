@@ -113,9 +113,9 @@
                 <e p="StringTableEntryTypes" t="Include">
                   <e p="GameRulesCreation.cs" t="Include" />
                   <e p="InstanceBaseLine.cs" t="Include" />
-                  <e p="PlayerInfo.cs" t="Include" />
                   <e p="QueryPort.cs" t="Include" />
                   <e p="StringTableEntryData.cs" t="Include" />
+                  <e p="UserInfo.cs" t="Include" />
                 </e>
                 <e p="StringTables.cs" t="Include" />
                 <e p="SyncTick.cs" t="Include" />

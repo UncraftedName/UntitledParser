@@ -93,6 +93,6 @@ namespace DemoParser.Parser.Components.Packets {
 		None 		= 0,
 		UseOrigin2 	= 1,
 		UserAngles2 = 1 << 1,
-		NoInterp 	= 1 << 2  // don't interpolate between this an last view
+		NoInterp 	= 1 << 2  // don't interpolate between this and last view
 	}
 }

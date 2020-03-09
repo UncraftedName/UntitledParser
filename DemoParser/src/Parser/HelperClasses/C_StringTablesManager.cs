@@ -6,12 +6,34 @@ using DemoParser.Utils;
 
 namespace DemoParser.Parser.HelperClasses {
 
+	public static class TableNames {
+		public const string Downloadables 		= "downloadables";
+		public const string ModelPreCache 		= "modelprecache";
+		public const string GenericPreCache 	= "genericprecache";
+		public const string SoundPreCache 		= "soundprecache";
+		public const string DecalPreCache 		= "decalprecache";
+		public const string InstanceBaseLine 	= "instancebaseline";
+		public const string LightStyles 		= "lightstyles";
+		public const string UserInfo 			= "userinfo";
+		public const string ServerQueryInfo 	= "server_query_info";
+		public const string ParticleEffectNames = "ParticleEffectNames";
+		public const string EffectDispatch 		= "EffectDispatch";
+		public const string VGUIScreen 			= "VguiScreen";
+		public const string Materials 			= "Materials";
+		public const string InfoPanel 			= "InfoPanel";
+		public const string Scenes 				= "Scenes";
+		public const string MeleeWeapons 		= "MeleeWeapons";
+		public const string GameRulesCreation 	= "GameRulesCreation";
+		public const string BlackMarket 		= "BlackMarketTable";
+	}
+	
+
 	// Keeps the original string tables passed here untouched, and keeps a separate "current copy"
 	// since the tables can be updated/modified as the demo runs from SvcUpdateStringTable.
 	internal class C_StringTablesManager {
 		
 		// the list here can be updated and is meant to be separate from the list in the stringtables packet
-		private SourceDemo _demoRef;
+		private readonly SourceDemo _demoRef;
 		internal readonly List<C_StringTable> CurrentTables;
 		internal readonly Dictionary<string, C_StringTable> TablesByName;
 
@@ -27,24 +49,24 @@ namespace DemoParser.Parser.HelperClasses {
 			}
 		}
 
-		internal C_StringTable DownloadablesTable 		=> TablesByName["downloadables"];
-		internal C_StringTable ModelsTable 				=> TablesByName["modelprecache"];
-		internal C_StringTable GenericTable 			=> TablesByName["genericprecache"];
-		internal C_StringTable SoundTable 				=> TablesByName["soundprecache"];
-		internal C_StringTable DecalTable 				=> TablesByName["decalprecache"];
-		internal C_StringTable BaselineTableTable 		=> TablesByName["instancebaseline"];
-		internal C_StringTable LightStylesTable 		=> TablesByName["lightstyles"];
-		internal C_StringTable UserInfoTable 			=> TablesByName["userinfo"];
-		internal C_StringTable ServerQueryTable 		=> TablesByName["server_query_info"];
-		internal C_StringTable ParticleEffectsTable 	=> TablesByName["ParticleEffectNames"];
-		internal C_StringTable EffectDispatchTable 		=> TablesByName["EffectDispatch"];
-		internal C_StringTable VguiTable 				=> TablesByName["VguiScreen"];
-		internal C_StringTable MaterialsTable 			=> TablesByName["Materials"];
-		internal C_StringTable InfoPanelTable 			=> TablesByName["InfoPanel"];
-		internal C_StringTable ScenesTable 				=> TablesByName["Scenes"];
-		internal C_StringTable MeleeWeaponsTable 		=> TablesByName["MeleeWeapons"];
-		internal C_StringTable GameRulesCreationTable 	=> TablesByName["GameRulesCreation"];
-		internal C_StringTable BlackMarketTable 		=> TablesByName["BlackMarketTable"];
+		internal C_StringTable DownloadablesTable 		=> TablesByName[TableNames.Downloadables];
+		internal C_StringTable ModelsTable 				=> TablesByName[TableNames.ModelPreCache];
+		internal C_StringTable GenericTable 			=> TablesByName[TableNames.GenericPreCache];
+		internal C_StringTable SoundTable 				=> TablesByName[TableNames.SoundPreCache];
+		internal C_StringTable DecalTable 				=> TablesByName[TableNames.DecalPreCache];
+		internal C_StringTable BaselineTableTable 		=> TablesByName[TableNames.InstanceBaseLine];
+		internal C_StringTable LightStylesTable 		=> TablesByName[TableNames.LightStyles];
+		internal C_StringTable UserInfoTable 			=> TablesByName[TableNames.UserInfo];
+		internal C_StringTable ServerQueryTable 		=> TablesByName[TableNames.ServerQueryInfo];
+		internal C_StringTable ParticleEffectsTable 	=> TablesByName[TableNames.ParticleEffectNames];
+		internal C_StringTable EffectDispatchTable 		=> TablesByName[TableNames.EffectDispatch];
+		internal C_StringTable VGUITable 				=> TablesByName[TableNames.VGUIScreen];
+		internal C_StringTable MaterialsTable 			=> TablesByName[TableNames.Materials];
+		internal C_StringTable InfoPanelTable 			=> TablesByName[TableNames.InfoPanel];
+		internal C_StringTable ScenesTable 				=> TablesByName[TableNames.Scenes];
+		internal C_StringTable MeleeWeaponsTable 		=> TablesByName[TableNames.MeleeWeapons];
+		internal C_StringTable GameRulesCreationTable 	=> TablesByName[TableNames.GameRulesCreation];
+		internal C_StringTable BlackMarketTable 		=> TablesByName[TableNames.BlackMarket];
 
 
 		internal C_StringTablesManager(SourceDemo demoRef) {
@@ -96,7 +118,9 @@ namespace DemoParser.Parser.HelperClasses {
 	}
 
 
-	// a class separate from the StringTables packet for managing updateable tables, c stands for current
+	// classes separate from the StringTables packet for managing updateable tables, c stands for current
+	
+	
 	public class C_StringTable {
 
 		public int ID; // the index in the table list
