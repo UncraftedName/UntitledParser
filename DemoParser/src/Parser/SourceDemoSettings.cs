@@ -29,6 +29,7 @@ namespace DemoParser.Parser {
 		public int UserMessageLengthBits => NewEngine && Game != L4D2_2000 ? 12 : 11;
 		public int MaxEdictBits => 11;
 		public int MaxUserDataBits => 14;
+		public uint NumNetworkedEHandleSerialNumberBits => 10;
 		public float TickInterval; // to be determined while parsing in SvcServerInfo
 
 

@@ -1,15 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 using System.Text;
-using DemoParser.Parser;
-using DemoParser.Parser.Components.Abstract;
 
-namespace DemoParser.Utils {
+namespace DemoParser.Utils.BitStreams {
 	
-	public class BitStreamReader : ICloneable {
+	public partial class BitStreamReader : ICloneable {
 
 		public readonly byte[] Data;
 		public readonly int BitLength;
@@ -94,84 +90,6 @@ namespace DemoParser.Utils {
 		}
 
 
-		// these find functions should only be used for a one time search, they should never be in a release version of the parser
-		// be sure to create a substream before calling this if you want to keep using the same offset later
-		
-		public int FindUInt(uint val) => FindUInt(val, BitUtils.HighestBitIndex(val) + 1);
-		
-		
-		public int FindUInt(uint val, int bitCount) {
-			var tmp = new BitStreamWriter(4, IsLittleEndian);
-			tmp.WriteUInt(val);
-			return FindBytes(tmp.AsArray, bitCount);
-		}
-
-
-		public IEnumerable<int> FindUIntAllInstances(uint val, int bitCount) {
-			var tmp = new BitStreamWriter(4, IsLittleEndian);
-			tmp.WriteUInt(val);
-			return FindBytesAllInstances(tmp.AsArray, bitCount);
-		}
-
-
-		public IEnumerable<int> FindFloatAllInstances(float f) {
-			var tmp = new BitStreamWriter(4, IsLittleEndian);
-			tmp.WriteFloat(f);
-			return FindBytesAllInstances(tmp.AsArray, 32);
-		}
-
-
-		public int FindFloat(float val) {
-			var tmp = new BitStreamWriter(4, IsLittleEndian);
-			tmp.WriteFloat(val);
-			return FindBytes(tmp.AsArray, 32);
-		}
-
-
-		public int FindBytes(byte[] arr, int bitCount) {
-			byte[] resized = new byte[((bitCount - 1) >> 3) + 1]; // ensure that resized is the minimum length
-			Array.Copy(arr, resized, resized.Length);
-			while (BitsRemaining >= bitCount) {
-				if (SubStream().ReadBits(bitCount).SequenceEqual(resized))
-					return CurrentBitIndex;
-				AbsoluteBitIndex++;
-			}
-			return -1;
-		}
-
-
-		public int FindString(string s) {
-			byte[] bytes = ParserTextUtils.StringAsByteArray(s, s.Length);
-			return FindBytes(bytes, bytes.Length << 3);
-		}
-
-
-		public IEnumerable<int> FindBytesAllInstances(byte[] arr, int bitCount) {
-			byte[] resized = new byte[((bitCount - 1) >> 3) + 1]; // ensure that resized is the minimum length
-			Array.Copy(arr, resized, resized.Length);
-			while (BitsRemaining >= bitCount) {
-				if (SubStream().ReadBits(bitCount).SequenceEqual(resized))
-					yield return CurrentBitIndex;
-				AbsoluteBitIndex++;
-			}
-		}
-
-
-		public (int offset, T component) FindComponentWithProperty<T>(Func<T, bool> property, SourceDemo demoRef) where T : DemoComponent {
-			while (BitsRemaining > 0) {
-				T inst = (T)Activator.CreateInstance(typeof(T), demoRef, SubStream());
-				try {
-					inst.ParseStream(SubStream());
-				}
-				catch (Exception) {} // the whole point is to push past exceptions for a brute force search
-				if (property.Invoke(inst))
-					return (CurrentBitIndex, inst);
-				AbsoluteBitIndex++;
-			}
-			return (-1, null);
-		}
-
-
 		public void SkipBytes(uint byteCount) => SkipBytes((int)byteCount);
 
 
@@ -196,7 +114,6 @@ namespace DemoParser.Utils {
 		}
 
 
-		[Conditional("DEBUG")]
 		private void EnsureCapacity(long bitCount) {
 			if (bitCount > BitsRemaining)
 				throw new ArgumentOutOfRangeException(nameof(bitCount),
@@ -304,7 +221,13 @@ namespace DemoParser.Utils {
 				res |= int.MaxValue << bitCount; // can use int here since the leftmost 0 will get shifted away anyway
 			return res;
 		}
+
+
+		public int ReadSingleBitAsSInt() => ReadBool() ? 1 : 0;
 		
+		
+		public uint ReadSingleBitAsUInt() => (uint)(ReadBool() ? 1 : 0);
+
 
 		public string ReadNullTerminatedString() {
 			List<byte> bytes = new List<byte>();
@@ -338,18 +261,6 @@ namespace DemoParser.Utils {
 		public uint ReadUInt() {
 			return ReadPrimitive(BitConverter.ToUInt32, sizeof(uint));
 		}
-		
-		
-		public uint ReadUBitInt() {
-			uint ret = ReadBitsAsUInt(6);
-			ret = (ret & (16 | 32)) switch {
-				16 => ((ret & 15) | (ReadBitsAsUInt(4) << 4)),
-				32 => ((ret & 15) | (ReadBitsAsUInt(8) << 4)),
-				48 => ((ret & 15) | (ReadBitsAsUInt(28) << 4)),
-				_ => ret
-			};
-			return ret;
-		}
 
 
 		public int ReadSInt() {
@@ -374,36 +285,6 @@ namespace DemoParser.Utils {
 
 		public Vector3 ReadVector3() {
 			return new Vector3(ReadFloat(), ReadFloat(), ReadFloat());
-		}
-
-
-		public float ReadBitAngle(int bitCount) {
-			float shift = 1 << bitCount;
-			uint i = ReadBitsAsUInt(bitCount);
-			return i * (360f / shift);
-		}
-
-
-		public float ReadCoord() {
-			float val = 0;
-			int intVal = ReadBool() ? 1 : 0;
-			int fracVal = ReadBool() ? 1 : 0;
-			if (intVal == 1 || fracVal == 1) {
-				bool sign = ReadBool();
-				if (intVal == 1)
-					intVal = (int)ReadBitsAsUInt(14) + 1;
-				if (fracVal == 1)
-					fracVal = (int)ReadBitsAsUInt(5);
-				val = intVal + fracVal * (1f / (1 << 5));
-				val *= sign ? -1 : 1;
-			}
-			return val;
-		}
-
-
-		public Vector3 ReadVectorCoord() {
-			var exists = new {x = ReadBool(), y = ReadBool(), z = ReadBool()};
-			return new Vector3 {X = exists.x ? ReadCoord() : 0, Y = exists.y ? ReadCoord() : 0, Z = exists.z ? ReadCoord() : 0};
 		}
 
 		

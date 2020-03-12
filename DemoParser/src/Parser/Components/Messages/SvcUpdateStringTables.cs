@@ -6,6 +6,7 @@ using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
 	
@@ -43,7 +44,8 @@ namespace DemoParser.Parser.Components.Messages {
 		internal override void AppendToWriter(IndentedWriter iw) {
 			iw.Append(TableName != null ? $"table: {TableName}" : "table id:");
 			iw.AppendLine($" ({TableId})");
-			iw.Append($"number of changed entries: {ChangedEntriesCount}");
+			iw.AppendLine($"number of changed entries: {ChangedEntriesCount}");
+			iw.Append("table update:");
 			iw.AddIndent();
 			iw.AppendLine();
 			TableUpdate.AppendToWriter(iw);
@@ -87,7 +89,7 @@ namespace DemoParser.Parser.Components.Messages {
 					
 					int entryIndex = lastEntry + 1;
 					if (!bsr.ReadBool())
-						entryIndex = (int)bsr.ReadBitsAsUInt(BitUtils.HighestBitIndex(tableToUpdate.Entries.Count) + 1);
+						entryIndex = (int)bsr.ReadBitsAsUInt(BitUtils.HighestBitIndex(tableToUpdate.MaxEntries));
 
 					lastEntry = entryIndex;
 					string entryName = null;
@@ -110,6 +112,7 @@ namespace DemoParser.Parser.Components.Messages {
 						if (tableToUpdate.UserDataFixedSize) {
 							nBytes = tableToUpdate.UserDataSize; // i think this is used in the engine to pass a sub array, but i pass a substream
 							streamLen = tableToUpdate.UserDataSizeBits;
+							//streamLen = nBytes * 8;
 						} else {
 							nBytes = (int)bsr.ReadBitsAsUInt(DemoRef.DemoSettings.MaxUserDataBits);
 							streamLen = nBytes * 8;

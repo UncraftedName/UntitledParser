@@ -6,6 +6,7 @@ using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
 	
@@ -253,7 +254,7 @@ namespace DemoParser.Parser.Components.Packets {
 		Collapsible					= 1 << 12,
 		CoordMp						= 1 << 13,
 		CoordMpLowPrecision			= 1 << 14,
-		CoordMpLowIntegral			= 1 << 15
+		CoordMpIntegral				= 1 << 15
 		// CellCoordMp				= 1 << 16,
 		// CellCoordMpLowPrecision	= 1 << 17,
 		// CellCoordMpLowIntegral	= 1 << 18,

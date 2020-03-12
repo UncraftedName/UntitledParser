@@ -7,6 +7,7 @@ using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser {
 	

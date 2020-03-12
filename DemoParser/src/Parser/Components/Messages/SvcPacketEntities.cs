@@ -1,5 +1,6 @@
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
 	
@@ -36,7 +37,7 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 
 			if (UpdateBaseline) { // server requested to use this snapshot as baseline update
-				// copyEntityBaseline(!BaseLine)  src_main/engine/baseclientstate.cpp   line 1420
+				// src_main/engine/baseclientstate.cpp   line 1420
 			}
 			// se2007/engine/baseclientstate.cpp   line 1247
 		}

@@ -1,6 +1,7 @@
 using System;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
 	

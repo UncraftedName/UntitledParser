@@ -2,6 +2,7 @@ using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
 	

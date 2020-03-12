@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components {
 	

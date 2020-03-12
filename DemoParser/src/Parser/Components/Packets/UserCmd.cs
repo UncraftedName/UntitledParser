@@ -1,6 +1,7 @@
 using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
 	
@@ -71,8 +72,10 @@ namespace DemoParser.Parser.Components.Packets {
 	}
 
 
+	// https://github.com/alliedmodders/hl2sdk/blob/portal2/game/shared/in_buttons.h
+	// se2007/game/shared/in_buttons.h
 	[Flags]
-	public enum Buttons { // se2007/game/shared/in_buttons.h
+	public enum Buttons {
 		None			= 0,
 		Attack 			= 1,
 		Jump 			= 1 << 1,

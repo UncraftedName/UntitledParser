@@ -1,4 +1,6 @@
+using System;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 	
@@ -10,14 +12,14 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public uint? Xuid;
 		
 		public string Name;
-		public uint UserID;
-		public string GUID;
-		public uint FriendsID;
+		public uint UserID; // local server user ID, unique while server is running
+		public string GUID; // global unique player identifer
+		public uint FriendsID; // friends identification number
 		public string FriendsName;
-		public bool FakePlayer;
-		public bool IsHlTV;
-		public uint[] CustomFiles;
-		public uint FilesDownloaded;
+		public bool FakePlayer; // true, if player is a bot controlled by game.dll
+		public bool IsHlTV; // true if player is the HLTV proxy
+		public uint[] CustomFiles; // custom files CRC for this player
+		public uint FilesDownloaded; // this counter increases each time the server downloaded a new file
 		
 		
 		public UserInfo(SourceDemo demoRef, BitStreamReader reader, string entryName) : base(demoRef, reader, entryName) {}
@@ -29,13 +31,29 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 				Xuid = bsr.ReadUInt();
 			}
 			Name = bsr.ReadNullTerminatedString();
+
+			// todo this depends on the game, also idk what those skipped bytes are
+			/*switch (DemoRef.DemoSettings.Game) {
+				case SourceDemoSettings.SourceGame.PORTAL_2:
+					Console.WriteLine(bsr.SubStream(8 * 22).ToHexString());
+					bsr.SkipBytes(18);
+					break;
+				case SourceDemoSettings.SourceGame.L4D2_2000:
+					bsr.SkipBytes(19);
+					break;
+				default:
+					bsr.SkipBytes(18);
+					break;
+			}*/
+			bsr.SkipBytes(18);
+			
 			UserID = bsr.ReadUInt();
 			GUID = bsr.ReadNullTerminatedString();
-			FriendsID = bsr.ReadUInt();
+			FriendsID = bsr.ReadUInt(); // this might also be different
 			FriendsName = bsr.ReadNullTerminatedString();
 			FakePlayer = bsr.ReadBool();
 			IsHlTV = bsr.ReadBool();
-			CustomFiles = new[] {bsr.ReadUInt(), bsr.ReadUInt(), bsr.ReadUInt(), bsr.ReadUInt()};
+			CustomFiles = new [] {bsr.ReadUInt(), bsr.ReadUInt(), bsr.ReadUInt(), bsr.ReadUInt()};
 			FilesDownloaded = bsr.ReadUInt();
 		}
 

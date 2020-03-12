@@ -1,5 +1,6 @@
 using DemoParser.Parser.Components.Packets.CustomDataTypes;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
 	

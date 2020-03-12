@@ -1,6 +1,7 @@
 #nullable enable
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	

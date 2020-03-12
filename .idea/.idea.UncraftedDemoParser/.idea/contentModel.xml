@@ -132,8 +132,12 @@
             <e p="SourceDemoSettings.cs" t="Include" />
           </e>
           <e p="Utils" t="Include">
-            <e p="BitStreamReader.cs" t="Include" />
-            <e p="BitStreamWriter.cs" t="Include" />
+            <e p="BitStreams" t="Include">
+              <e p="BitStreamReader.cs" t="Include" />
+              <e p="BitStreamSearcher.cs" t="Include" />
+              <e p="BitStreamWriter.cs" t="Include" />
+              <e p="PropDecodeReader.cs" t="Include" />
+            </e>
             <e p="BitUtils.cs" t="Include" />
             <e p="CharArray.cs" t="Include" />
             <e p="IndentedWriter.cs" t="Include" />

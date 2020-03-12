@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.HelperClasses {
 
@@ -87,11 +88,9 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 		internal void ClearCurrentTables() {
-			if (!Readable)
-				return;
 			TablesByName.Clear();
-			Readable = false;
 			CurrentTables.Clear();
+			Readable = true;
 		}
 
 

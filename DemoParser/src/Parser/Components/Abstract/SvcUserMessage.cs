@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 using static DemoParser.Parser.SourceDemoSettings.SourceGame;
 
 // this is a two way dict so that i can map the byte to the message type and also know the reverse for debugging and for writing the demo
