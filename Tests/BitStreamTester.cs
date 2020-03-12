@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace Tests {
 	
