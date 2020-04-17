@@ -1,5 +1,6 @@
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -34,10 +35,12 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"position: {Pos:F4}");
-			iw.Append(DemoRef.CStringTablesManager.Readable
-				? $"decal texture: {DemoRef.CStringTablesManager.DecalTable.Entries[DecalTextureIndex]}"
+
+			var mgr = DemoRef.CStringTablesManager;
+			iw.Append(mgr.TableReadable[TableNames.DecalPreCache]
+				? $"decal texture: {mgr.Tables[TableNames.DecalPreCache].Entries[DecalTextureIndex]}"
 				: "decal texture index:");
 			iw.AppendLine($" ({DecalTextureIndex})");
 			if (EntityIndex.HasValue) {

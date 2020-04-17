@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			for (int i = 0; i < ConVars.Count; i++) {
 				iw.Append($"{{name: {ConVars[i].Item1}, value: {ConVars[i].Item2}}}");
 				if (i != ConVars.Count - 1)

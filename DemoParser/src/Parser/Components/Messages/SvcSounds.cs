@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -38,11 +39,11 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"reliable: {Reliable}");
 			for (int i = 0; i < Sounds.Count; i++) {
 				iw.AppendLine();
-				iw += $"sound #{i + 1}:";
+				iw.Append($"sound #{i + 1}:");
 				iw.AddIndent();
 				iw.AppendLine();
 				Sounds[i].AppendToWriter(iw);
@@ -57,7 +58,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public uint EntityIndex;
 		public int SoundIndex;
 		public SoundFlags Flags;
-		private bool HasStopPacket => (Flags & SoundFlags.Stop) != 0;
+		private bool HasStopPacket => Flags.HasFlag(SoundFlags.Stop);
 		public uint Channel;
 		public bool IsAmbient;
 		public bool IsSentence;
@@ -77,8 +78,12 @@ namespace DemoParser.Parser.Components.Messages {
 		internal override void ParseStream(BitStreamReader bsr) {
 			EntityIndex = bsr.ReadBool() ? bsr.ReadBitsAsUInt(bsr.ReadBool() ? 5 : 11) : 0; // MAX_EDICT_BITS
 			SoundIndex = (int)(bsr.ReadBitsAsUIntIfExists(13) ?? 0); // MAX_SOUND_INDEX_BITS
-			if (DemoRef.CStringTablesManager.Readable && SoundIndex >= DemoRef.CStringTablesManager.SoundTable.Entries.Count)
+			if (DemoRef.CStringTablesManager.TableReadable[TableNames.SoundPreCache]
+				&& SoundIndex >= DemoRef.CStringTablesManager.Tables[TableNames.SoundPreCache].Entries.Count) 
+			{
 				DemoRef.AddError($"sound index out of range: {SoundIndex}");
+			}
+
 			Flags = (SoundFlags)(bsr.ReadBitsAsUIntIfExists(9) ?? 0); // SND_FLAG_BITS_ENCODE
 			Channel = bsr.ReadBitsAsUIntIfExists(3) ?? 0;
 			IsAmbient = bsr.ReadBool();
@@ -114,12 +119,13 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"entity index: {EntityIndex}");
-			
-			if (DemoRef.CStringTablesManager.Readable)
-				iw.Append(SoundIndex < DemoRef.CStringTablesManager.SoundTable.Entries.Count
-					? $"sound: {DemoRef.CStringTablesManager.SoundTable.Entries[SoundIndex].EntryName}"
+
+			var mgr = DemoRef.CStringTablesManager;
+			if (mgr.TableReadable[TableNames.SoundPreCache])
+				iw.Append(SoundIndex < mgr.Tables[TableNames.SoundPreCache].Entries.Count
+					? $"sound: {mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName}"
 					: "sound index (out of range):");
 			else
 				iw.Append("sound index:");
@@ -143,7 +149,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		[Flags]
 		public enum SoundFlags : uint {
-			NoFlags 		= 0,
+			None 		= 0,
 			ChangeVol 		= 1,
 			ChangePitch 	= 1 << 1,
 			Stop 			= 1 << 2,

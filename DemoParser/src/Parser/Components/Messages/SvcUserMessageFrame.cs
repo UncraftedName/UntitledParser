@@ -52,7 +52,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append(Enum.IsDefined(typeof(UserMessageType), UserMessageType)
 				? UserMessageType.ToString()
 				: "Unknown");

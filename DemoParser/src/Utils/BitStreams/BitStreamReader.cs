@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DemoParser.Utils.BitStreams {
 	
-	public partial class BitStreamReader : ICloneable {
+	public partial class BitStreamReader {
 
 		public readonly byte[] Data;
 		public readonly int BitLength;
@@ -34,12 +34,7 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		public object Clone() {
-			return MemberwiseClone();
-		}
-
-
-		// splits this stream, and returns a stream which starts at the next readable bit
+		// splits this stream, and returns a stream which starts at the (same) next readable bit
 		public BitStreamReader SubStream() => SubStream(BitsRemaining);
 
 
@@ -124,8 +119,8 @@ namespace DemoParser.Utils.BitStreams {
 		private int BitMask(int bitCount) {
 			return RemainingBitMask & (0xff >> (8 - bitCount - IndexInByte));
 		}
-		
-		
+
+
 		public bool ReadBool() {
 			EnsureCapacity(1);
 			bool result = (CurrentByte & BitMask(1)) != 0;
@@ -158,8 +153,8 @@ namespace DemoParser.Utils.BitStreams {
 		
 
 		public byte[] ReadBytes(int byteCount) {
+			EnsureCapacity(byteCount << 3);
 			if (IsByteAligned) {
-				EnsureCapacity(byteCount << 3);
 				byte[] result = Data[(AbsoluteBitIndex >> 3)..((AbsoluteBitIndex >> 3) + byteCount)];
 				AbsoluteBitIndex += byteCount << 3;
 				return result;
@@ -197,9 +192,9 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		public Tuple<byte[], int> ReadRemainingBits() {
+		public (byte[] bytes, int bitCount) ReadRemainingBits() {
 			int bitsRemaining = BitsRemaining;
-			return Tuple.Create(ReadBits(bitsRemaining), bitsRemaining);
+			return (ReadBits(bitsRemaining), bitsRemaining);
 		}
 
 
@@ -215,6 +210,9 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
+		public uint ReadBitsAsUInt(uint bitCount) => ReadBitsAsUInt((int)bitCount);
+
+
 		public int ReadBitsAsSInt(int bitCount) {
 			int res = (int)ReadBitsAsUInt(bitCount);
 			if ((res & (1 << (bitCount - 1))) != 0) // sign extend, not necessary for primitive types
@@ -223,10 +221,13 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
+		public int ReadBitsAsSInt(uint bitCount) => ReadBitsAsSInt((int)bitCount);
+
+
 		public int ReadSingleBitAsSInt() => ReadBool() ? 1 : 0;
 		
 		
-		public uint ReadSingleBitAsUInt() => (uint)(ReadBool() ? 1 : 0);
+		public uint ReadOneBit() => (uint)(ReadBool() ? 1 : 0);
 
 
 		public string ReadNullTerminatedString() {
@@ -243,6 +244,9 @@ namespace DemoParser.Utils.BitStreams {
 		public string ReadStringOfLength(int strLength) {
 			return Encoding.ASCII.GetString(ReadBytes(strLength));
 		}
+
+
+		public string ReadStringOfLength(uint strLength) => ReadStringOfLength((int)strLength);
 
 
 		public CharArray ReadCharArray(int byteCount) {

@@ -25,8 +25,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"array of length: {Arr.Length}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"array of length: {Arr.Length}");
 		}
 	}
 }

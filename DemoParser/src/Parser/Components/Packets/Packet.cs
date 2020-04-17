@@ -1,11 +1,17 @@
 using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.Components.Messages;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
 	
+	/// <summary>
+	/// Contains client player location and server-side messages.
+	/// </summary>
 	public class Packet : DemoPacket {
 
 		public CmdInfo[] PacketInfo;
@@ -28,15 +34,27 @@ namespace DemoParser.Parser.Components.Packets {
 			MessageStream = new MessageStream(DemoRef, bsr);
 			MessageStream.ParseStream(bsr);
 			SetLocalStreamEnd(bsr);
+			
+			// After we're doing with the packet, we can process all the messages.
+			// Most things should be processed during parsing, but any additional checks should be done here.
+
+			var netTickMessages = MessageStream.Where(tuple => tuple.messageType == MessageType.NetTick).ToList();
+			Debug.Assert(netTickMessages.Count < 2, "there's more than 2 net tick messages in this packet");
+			NetTick tickInfo = (NetTick)netTickMessages.FirstOrDefault().message;
+			if (tickInfo != null) {
+				if (DemoRef.CEntitySnapshot != null)
+					DemoRef.CEntitySnapshot.EngineTick = tickInfo.EngineTick;
+			}
+			// todo fill prop handles with data here
 		}
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			foreach (CmdInfo cmdInfo in PacketInfo) 
 				cmdInfo.AppendToWriter(iw);
 			iw.AppendLine($"in sequence: {InSequence}");
@@ -78,7 +96,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"flags: {Flags}");
 			for (int i = 0; i < _floats.Length; i++) {
 				string dSym = UseDegreeSymbol[i] ? "°" : " ";

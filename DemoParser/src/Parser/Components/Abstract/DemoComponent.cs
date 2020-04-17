@@ -3,12 +3,14 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
 	
-	public abstract class DemoComponent {
+	public abstract class DemoComponent : Appendable {
 
 		public readonly SourceDemo DemoRef; // if null, this IS the SourceDemo class
 		private BitStreamReader _reader;
 		public BitStreamReader Reader => _reader.FromBeginning();
 		public virtual bool MayContainData => true; // used for to string conversions
+		// todo remove reader, just keep absolute offset instead 
+		// todo implemented bits remaining after parsed method. suggestion: setEnd() makes this 0, markEnd() sets to however many left
 		
 		
 		protected DemoComponent(SourceDemo demoRef, BitStreamReader reader) {
@@ -46,15 +48,8 @@ namespace DemoParser.Parser.Components.Abstract {
 		internal abstract void WriteToStreamWriter(BitStreamWriter bsw);
 
 
-		internal virtual void AppendToWriter(IndentedWriter iw) {
-			iw += $"Not Implemented - {GetType().FullName}";
-		}
-		
-		
-		public override string ToString() {
-			IndentedWriter writer = new IndentedWriter();
-			AppendToWriter(writer);
-			return writer.ToString();
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"Not Implemented - {GetType().FullName}");
 		}
 	}
 }

@@ -33,7 +33,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"duration: {Duration}");
 			iw.AppendLine($"hold time: {HoldTime}");
 			iw.AppendLine($"flags: {Flags}");

@@ -6,16 +6,19 @@ using DemoParser.Utils;
 
 namespace DemoParser.Parser.HelperClasses {
 	
-	// temporary probably™
+	/// <summary>
+	/// Constructs a visualizable tree of the server class hierarchy. 
+	/// </summary>
 	public class DataTableTree {
 		
-		public List<TableNode> Roots;
+		public readonly List<TableNode> Roots;
 		
 
 		public DataTableTree(SourceDemo demo, bool sort) {
+			
 			Roots = new List<TableNode>();
 			
-			var tables = demo.FilterForPacketType<DataTables>()
+			List<SendTable> tables = demo.FilterForPacketType<DataTables>()
 				.First()
 				.Tables;
 			
@@ -45,23 +48,23 @@ namespace DemoParser.Parser.HelperClasses {
 
 			if (sort) {
 				Roots.ForEach(node => node.Sort());
-				Roots.Sort((node,  tableNode) => string.Compare(node.Name, tableNode.Name));
+				Roots.Sort((node, tableNode) => string.Compare(node.Name, tableNode.Name));
 			}
 		}
 
 
-		public bool ContainsElement(string name) {
+		private bool ContainsElement(string name) {
 			return Roots.Any(node => node.GetElement(name) != null);
 		}
 
 
-		public void AddRoot(string name) {
-			Roots.Add(new TableNode(name, null));
+		private void AddRoot(string name) {
+			Roots.Add(new TableNode(name));
 			Roots.Sort((node,  tableNode) => string.Compare(node.Name, tableNode.Name));
 		}
 
 
-		public void AddElement(string name, string parent) {
+		private void AddElement(string name, string parent) {
 			Roots.Select(node => node.GetElement(parent)).Single(node => node != null).AddChild(name);
 		}
 
@@ -73,14 +76,12 @@ namespace DemoParser.Parser.HelperClasses {
 		
 		public class TableNode {
 			
-			public string Name;
-			public List<TableNode> Children;
-			public TableNode Parent;
-			
-			
-			public TableNode(string name, TableNode parent) {
+			public readonly string Name;
+			public readonly List<TableNode> Children;
+
+
+			public TableNode(string name) {
 				Name = name;
-				Parent = parent;
 				Children = new List<TableNode>();
 			}
 
@@ -95,16 +96,16 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 			public void AddChild(string name) {
-				Children.Add(new TableNode(name, this));
+				Children.Add(new TableNode(name));
 			}
 
 
 			internal void Sort() {
-				Children.Sort((node,  tableNode) => string.Compare(node.Name, tableNode.Name));
+				Children.Sort((node,  tableNode) => string.CompareOrdinal(node.Name, tableNode.Name));
 			}
 
 
-			public void PrintPretty(string indent, bool last) {
+			internal void PrintPretty(string indent, bool last) {
 				Console.Write(indent);
 				if (!last) {
 					Console.Write("|-");

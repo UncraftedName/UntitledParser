@@ -10,8 +10,8 @@ namespace DemoParser.Parser {
 
 		[SuppressMessage("ReSharper", "InconsistentNaming")]
 		public enum SourceGame {
-			PORTAL_1,
-			PORTAL_1_3420, // might be equivalent to leak
+			PORTAL_1_UNPACK,
+			PORTAL_1_3420,
 			PORTAL_1_STEAMPIPE,
 			PORTAL_2,
 			L4D2_2000,
@@ -29,8 +29,10 @@ namespace DemoParser.Parser {
 		public int UserMessageLengthBits => NewEngine && Game != L4D2_2000 ? 12 : 11;
 		public int MaxEdictBits => 11;
 		public int MaxUserDataBits => 14;
-		public uint NumNetworkedEHandleSerialNumberBits => 10;
+		public uint HandleSerialNumberBits => 10;
 		public float TickInterval; // to be determined while parsing in SvcServerInfo
+		public int MaxEdicts => 1 << MaxEdictBits;
+		public int EntitySentinel => 9999;
 
 
 		public SourceDemoSettings(DemoHeader h) {
@@ -40,7 +42,7 @@ namespace DemoParser.Parser {
 					Game = PORTAL_1_3420;
 					break;
 				case 3 when h.NetworkProtocol == 15:
-					Game = PORTAL_1;
+					Game = PORTAL_1_UNPACK;
 					break;
 				case 3 when h.NetworkProtocol == 24:
 					Game = PORTAL_1_STEAMPIPE;
@@ -58,7 +60,7 @@ namespace DemoParser.Parser {
 			}
 
 			switch (Game) {
-				case PORTAL_1:
+				case PORTAL_1_UNPACK:
 				case PORTAL_1_3420:
 				case PORTAL_1_STEAMPIPE:
 					MaxSplitscreenPlayers = 1;

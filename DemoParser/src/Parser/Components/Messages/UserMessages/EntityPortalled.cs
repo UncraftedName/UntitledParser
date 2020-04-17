@@ -35,7 +35,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"portal entity index: {PortalEntIndex}");
 			iw.AppendLine($"portal serial num: {PortalSerialNum}");
 			iw.AppendLine($"portalled entity index: {PortalledEntIndex}");

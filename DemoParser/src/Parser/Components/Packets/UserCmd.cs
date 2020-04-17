@@ -5,6 +5,9 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
 	
+	/// <summary>
+	/// Contains direct user input info such as mouse delta and buttons pressed.
+	/// </summary>
 	public class UserCmd : DemoPacket {
 		
 		public uint Cmd;
@@ -50,7 +53,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"cmd: {Cmd}\n");
 			iw.Append($"command number: {CommandNumber}\n");
 			iw.Append($"tick count: {TickCount}\n");

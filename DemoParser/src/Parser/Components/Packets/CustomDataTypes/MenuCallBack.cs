@@ -24,7 +24,7 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"unknown: {Unknown}");
 			iw.Append($"callback string: {CallbackStr}");
 		}

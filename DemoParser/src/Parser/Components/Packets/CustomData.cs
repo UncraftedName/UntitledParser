@@ -7,6 +7,9 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
 	
+	/// <summary>
+	/// Contains a single custom game message.
+	/// </summary>
 	public class CustomData : DemoPacket {
 
 		public CustomDataType DataType;
@@ -14,7 +17,6 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		public CustomData(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
-
 
 
 		internal override void ParseStream(BitStreamReader bsr) {
@@ -34,11 +36,11 @@ namespace DemoParser.Parser.Components.Packets {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"type: {DataType}");
 			iw.AddIndent();
 			iw.AppendLine();

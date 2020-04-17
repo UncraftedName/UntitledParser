@@ -22,8 +22,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"achievement ID: {AchievementID}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"achievement ID: {AchievementID}");
 		}
 	}
 }

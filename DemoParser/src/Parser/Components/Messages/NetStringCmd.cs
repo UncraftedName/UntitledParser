@@ -22,8 +22,10 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"Command: {Command.Replace("\n", @"\n")}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			// replace new lines with literal '\n' because every time i've seen it come up the new line
+			// has always been the last character, and it's just annoying to have a blank line
+			iw.Append($"Command: {Command.Replace("\n", @"\n")}");
 		}
 	}
 }

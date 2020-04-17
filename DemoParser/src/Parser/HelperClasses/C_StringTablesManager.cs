@@ -1,8 +1,10 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using DemoParser.Parser.Components.Messages;
+using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
-using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.HelperClasses {
@@ -19,7 +21,7 @@ namespace DemoParser.Parser.HelperClasses {
 		public const string ServerQueryInfo 	= "server_query_info";
 		public const string ParticleEffectNames = "ParticleEffectNames";
 		public const string EffectDispatch 		= "EffectDispatch";
-		public const string VGUIScreen 			= "VguiScreen";
+		public const string VguiScreen 			= "VguiScreen";
 		public const string Materials 			= "Materials";
 		public const string InfoPanel 			= "InfoPanel";
 		public const string Scenes 				= "Scenes";
@@ -31,88 +33,99 @@ namespace DemoParser.Parser.HelperClasses {
 
 	// Keeps the original string tables passed here untouched, and keeps a separate "current copy"
 	// since the tables can be updated/modified as the demo runs from SvcUpdateStringTable.
-	internal class C_StringTablesManager {
+	internal class C_StringTablesManager { // todo any object taken from the tables should not be taken until the tables are updated for that tick
 		
 		// the list here can be updated and is meant to be separate from the list in the stringtables packet
 		private readonly SourceDemo _demoRef;
-		internal readonly List<C_StringTable> CurrentTables;
-		internal readonly Dictionary<string, C_StringTable> TablesByName;
-
-		// if the tables were parsed/updated without errors.
-		// if set to false then anything in this class may be considered invalid
-		private bool _readable;
-		internal bool Readable {
-			get => _readable;
-			set {
-				if (value == false)
-					_demoRef.AddError("current tables set to be non-readable :(");
-				_readable = value;
-			}
-		}
-
-		internal C_StringTable DownloadablesTable 		=> TablesByName[TableNames.Downloadables];
-		internal C_StringTable ModelsTable 				=> TablesByName[TableNames.ModelPreCache];
-		internal C_StringTable GenericTable 			=> TablesByName[TableNames.GenericPreCache];
-		internal C_StringTable SoundTable 				=> TablesByName[TableNames.SoundPreCache];
-		internal C_StringTable DecalTable 				=> TablesByName[TableNames.DecalPreCache];
-		internal C_StringTable BaselineTableTable 		=> TablesByName[TableNames.InstanceBaseLine];
-		internal C_StringTable LightStylesTable 		=> TablesByName[TableNames.LightStyles];
-		internal C_StringTable UserInfoTable 			=> TablesByName[TableNames.UserInfo];
-		internal C_StringTable ServerQueryTable 		=> TablesByName[TableNames.ServerQueryInfo];
-		internal C_StringTable ParticleEffectsTable 	=> TablesByName[TableNames.ParticleEffectNames];
-		internal C_StringTable EffectDispatchTable 		=> TablesByName[TableNames.EffectDispatch];
-		internal C_StringTable VGUITable 				=> TablesByName[TableNames.VGUIScreen];
-		internal C_StringTable MaterialsTable 			=> TablesByName[TableNames.Materials];
-		internal C_StringTable InfoPanelTable 			=> TablesByName[TableNames.InfoPanel];
-		internal C_StringTable ScenesTable 				=> TablesByName[TableNames.Scenes];
-		internal C_StringTable MeleeWeaponsTable 		=> TablesByName[TableNames.MeleeWeapons];
-		internal C_StringTable GameRulesCreationTable 	=> TablesByName[TableNames.GameRulesCreation];
-		internal C_StringTable BlackMarketTable 		=> TablesByName[TableNames.BlackMarket];
-
+		private readonly List<C_StringTable> _privateTables;
+		internal readonly Dictionary<string, C_StringTable> Tables;
+		// before accessing anything, check to see if the respective table is readable first
+		internal readonly Dictionary<string, bool> TableReadable;
+		// I store this for later if there's a string tables packet, so that I can create the tables from this list
+		// and the packet instead of the create message.
+		internal readonly List<SvcCreateStringTable> CreationLookup;
 
 		internal C_StringTablesManager(SourceDemo demoRef) {
 			_demoRef = demoRef;
-			CurrentTables = new List<C_StringTable>();
-			TablesByName = new Dictionary<string, C_StringTable>();
-			Readable = true;
+			_privateTables = new List<C_StringTable>();
+			Tables = new Dictionary<string, C_StringTable>();
+			TableReadable = new Dictionary<string, bool>();
+			CreationLookup = new List<SvcCreateStringTable>();
 		}
 
 
 		internal void CreateStringTable(SvcCreateStringTable creationInfo) {
-			if (!Readable)
-				return;
-			var table = new C_StringTable(CurrentTables.Count, creationInfo);
-			CurrentTables.Add(table);
-			TablesByName[creationInfo.Name] = table;
+			CreationLookup.Add(creationInfo);
+			TableReadable[creationInfo.Name] = true;
+			InitNewTable(_privateTables.Count, creationInfo);
+		}
+
+
+		private C_StringTable InitNewTable(int id, SvcCreateStringTable creationInfo) {
+			var table = new C_StringTable(id, creationInfo);
+			_privateTables.Add(table);
+			Tables[creationInfo.Name] = table;
+			TableReadable[creationInfo.Name] = true;
+			return table;
 		}
 
 
 		internal void ClearCurrentTables() {
-			TablesByName.Clear();
-			CurrentTables.Clear();
-			Readable = true;
+			Tables.Clear();
+			TableReadable.Clear();
+			_privateTables.Clear();
+			CreationLookup.Clear();
 		}
 
 
-		internal C_StringTable TableByID(int id) {
-			return CurrentTables[id]; // should be right™
+		internal C_StringTable TableById(int id) {
+			return _privateTables[id]; // should be right™
 		}
 
 
 		internal C_StringTableEntry AddTableEntry(C_StringTable table, BitStreamReader entryStream, string entryName) {
-			if (!Readable)
+			if (!TableReadable[table.Name])
 				return null;
-			// i assume this gets added to the end, but idk there's a reference to a tree structure or something
 			table.Entries.Add(new C_StringTableEntry(_demoRef, table, entryStream, entryName));
 			return table.Entries[^1];
 		}
 
 
+		private void AddTableClass(C_StringTable table, string name, string? data) {
+			if (!TableReadable[table.Name]) 
+				return;
+			var stc = new C_StringTableClass(name, data);
+			table.Classes.Add(stc);
+		}
+
+
 		internal C_StringTableEntry SetEntryData(C_StringTable table, C_StringTableEntry entry, BitStreamReader entryStream) {
-			if (!Readable)
+			if (!TableReadable[table.Name])
 				return null;
 			entry.EntryData = StringTableEntryDataFactory.CreateData(_demoRef, entryStream, table.Name, entry.EntryName);
 			return entry;
+		}
+
+
+		internal void CreateTablesFromPacket(StringTables tablesPacket) {
+			_privateTables.Clear();
+			TableReadable.Clear();
+			try {
+				foreach (StringTable table in tablesPacket.Tables) {
+					int tableId = CreationLookup.FindIndex(info => info.Name == table.Name);
+					C_StringTable newTable = InitNewTable(tableId, CreationLookup[tableId]);
+					table.MaxEntries = newTable.MaxEntries;
+					if (table.TableEntries != null)
+						foreach (StringTableEntry entry in table.TableEntries)
+							AddTableEntry(newTable, entry?.EntryData?.Reader, entry?.Name);
+					if (table.Classes != null)
+						foreach (C_StringTableClass tableClass in newTable.Classes)
+							AddTableClass(newTable, tableClass.Name, tableClass.Data);
+				}
+			} catch (Exception e) {
+				_demoRef.AddError($"error while converting tables packet to c_tables: {e.Message}");
+				TableReadable.Keys.ToList().ForEach(s => TableReadable[s] = false);
+			}
 		}
 	}
 
@@ -122,21 +135,21 @@ namespace DemoParser.Parser.HelperClasses {
 	
 	public class C_StringTable {
 
-		public int ID; // the index in the table list
+		public int Id; // the index in the table list
 		// flattened fields from SvcCreateStringTable
-		public string Name;
-		public ushort MaxEntries;
-		public bool UserDataFixedSize;
-		public int UserDataSize;
-		public int UserDataSizeBits;
-		public StringTableFlags? Flags;
+		public readonly string Name;
+		public readonly ushort MaxEntries;
+		public readonly bool UserDataFixedSize;
+		public readonly int UserDataSize;
+		public readonly int UserDataSizeBits;
+		public readonly StringTableFlags? Flags;
 		// string table fields
-		public List<C_StringTableEntry> Entries;
-		public List<C_StringTableClass> Classes;
+		public readonly List<C_StringTableEntry> Entries;
+		public readonly List<C_StringTableClass> Classes;
 
 
 		public C_StringTable(int id, SvcCreateStringTable creationInfo) {
-			ID = id;
+			Id = id;
 			Name = creationInfo.Name;
 			MaxEntries = creationInfo.MaxEntries;
 			UserDataFixedSize = creationInfo.UserDataFixedSize;
@@ -145,6 +158,11 @@ namespace DemoParser.Parser.HelperClasses {
 			Flags = creationInfo.Flags;
 			Entries = new List<C_StringTableEntry>();
 			Classes = new List<C_StringTableClass>();
+		}
+
+
+		public override string ToString() {
+			return Name;
 		}
 	}
 
@@ -162,9 +180,14 @@ namespace DemoParser.Parser.HelperClasses {
 			_tableRef = tableRef;
 			EntryName = entryName;
 			if (entryStream != null) {
-				EntryData = StringTableEntryDataFactory.CreateData(demoRef, entryStream, tableRef.Name, entryName);
-				EntryData.ParseOwnStream(); // do i parse now?
+				EntryData = StringTableEntryDataFactory.CreateData(demoRef, entryStream, tableRef.Name, entryName, demoRef?.DataTableParser?.FlattendProps);
+				EntryData.ParseOwnStream();
 			}
+		}
+
+
+		public override string ToString() {
+			return EntryName;
 		}
 	}
 
@@ -173,5 +196,16 @@ namespace DemoParser.Parser.HelperClasses {
 		
 		public string Name;
 		public string? Data;
+		
+		
+		public C_StringTableClass(string name, string? data) {
+			Name = name;
+			Data = data;
+		}
+
+
+		public override string ToString() {
+			return Name;
+		}
 	}
 }

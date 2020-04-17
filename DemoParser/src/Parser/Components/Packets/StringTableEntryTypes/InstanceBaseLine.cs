@@ -1,33 +1,88 @@
 #nullable enable
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using DemoParser.Parser.Components.Messages;
+using DemoParser.Parser.HelperClasses;
+using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 	
-	// i don't know how to parse this yet, just want a lookup to which class this references
+	// this is the baseline in the string tables, each one only holds the baseline for a single server class
 	public class InstanceBaseLine : StringTableEntryData {
 
-		public override bool ContentsKnown => false;
-
+		private readonly string _entryName;
+		private BitStreamReader _bsr;
+		// might not get set until later
+		private PropLookup? _propLookup;
 		public ServerClass? ServerClassRef;
-		
+		public List<(int propIndex, EntityProperty prop)> Properties;
+		private bool _exceptionWhileParsing = false;
 
-		public InstanceBaseLine(SourceDemo demoRef, BitStreamReader reader, string entryName) : base(demoRef, reader, entryName) {}
 
-
-		// todo might just work se2007/engine/sv_packedentities.cpp
-		// src_main/engine/networkstringtable.cpp line 1140
-		internal override void ParseStream(BitStreamReader bsr) {
-			if (DemoRef.DataTableParser != null)
-				ServerClassRef = DemoRef.DataTableParser.DataTablesRef.Classes[int.Parse(EntryName)];
+		public InstanceBaseLine(SourceDemo demoRef, BitStreamReader reader, string entryName,
+			PropLookup? propLookup) : base(demoRef, reader, entryName) 
+		{
+			_entryName = entryName;
+			_propLookup = propLookup;
 		}
 		
+		 // if we're parsing this before the data tables, just leave it for now
+		internal override void ParseStream(BitStreamReader bsr) {
+			_bsr = bsr;
+			if (_propLookup != null)
+				ParseBaseLineData(_propLookup);
+		}
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			base.AppendToWriter(iw);
-			if (ServerClassRef != null)
-				iw.Append($"   class: {ServerClassRef.ClassName} ({ServerClassRef.DataTableName})");
+		
+		// called once 
+		internal void ParseBaseLineData([NotNull]PropLookup propLookup) {
+
+			_propLookup = propLookup;
+			int id = int.Parse(_entryName);
+			ServerClassRef = _propLookup[id].serverClass;
+
+			// I assume in critical parts of the ent code that the server class ID matches the index it's on,
+			// this is where I actually verify this.
+			Debug.Assert(ReferenceEquals(ServerClassRef, _propLookup.Single(tuple => tuple.serverClass.DataTableId == id).serverClass),
+				"the server classes must be searched to match ID; cannot use ID as index");
+			
+			List<FlattenedProp> fProps = propLookup[id].flattenedProps;
+
+			try {
+				Properties = _bsr.ReadEntProps(fProps, DemoRef);
+				// once we're done, update the C_baselines so I can actually use this for prop creation
+				DemoRef.CBaseLines?.UpdateBaseLine(ServerClassRef, Properties, fProps.Count);
+			} catch (Exception e) {
+				DemoRef.AddError($"error while parsing baseline for class {ServerClassRef.ClassName}: {e.Message}");
+				_exceptionWhileParsing = true;
+			}
+		}
+
+
+		public override void AppendToWriter(IndentedWriter iw) {
+			if (ServerClassRef != null) {
+				iw.AppendLine($"class: {ServerClassRef.ClassName} ({ServerClassRef.DataTableName})");
+				if (_exceptionWhileParsing)
+					iw.AppendLine("There was an exception while parsing this baseline, it will not used to update the entity states.");
+				if (Debugger.IsAttached)
+					iw.AppendLine($"[DEBUG_ONLY] bits: {Reader.BitLength}");
+				iw.Append("props:");
+				iw.AddIndent();
+				if (Properties != null) {
+					foreach ((int i, EntityProperty prop) in Properties) {
+						iw.AppendLine();
+						iw.Append($"({i}) ");
+						prop.AppendToWriter(iw);
+					}
+				}
+
+				iw.SubIndent();
+			}
 		}
 	}
 }

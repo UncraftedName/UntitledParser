@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -28,24 +30,28 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			if (ContentsKnown)
 				base.AppendToWriter(iw);
 			else
-				iw += Reader.BitLength > 32
+				iw.Append(Reader.BitLength > 32
 					? $"{Reader.BitLength, 5} bit{(Reader.BitLength > 1 ? "s" : "")}"
-					: $"({Reader.ToBinaryString()})";
+					: $"({Reader.ToBinaryString()})");
 		}
 	}
 
 
 	public static class StringTableEntryDataFactory {
 
-		public static StringTableEntryData CreateData(SourceDemo demoRef, BitStreamReader bsr, string tableName, string entryName) {
+		// if passing the server class, then the baseline gets parsed right away
+		public static StringTableEntryData CreateData(
+			SourceDemo demoRef, BitStreamReader bsr, string tableName, string entryName, // mandatory stuff
+			PropLookup propLookup = null) // if parsing baseline now
+		{
 			return tableName switch {
 				TableNames.UserInfo 			=> new UserInfo(demoRef, bsr, entryName),
 				TableNames.ServerQueryInfo 		=> new QueryPort(demoRef, bsr, entryName),
-				TableNames.InstanceBaseLine 	=> new InstanceBaseLine(demoRef, bsr, entryName),
+				TableNames.InstanceBaseLine 	=> new InstanceBaseLine(demoRef, bsr, entryName, propLookup),
 				TableNames.GameRulesCreation 	=> new GameRulesCreation(demoRef, bsr, entryName),
 				_ => new StringTableEntryData(demoRef, bsr, entryName)
 			};

@@ -14,10 +14,10 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		internal override void ParseStream(BitStreamReader bsr) {
 			Port = bsr.ReadUInt();
 		}
-		
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"port: {Port}";
+
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"port: {Port}");
 		}
 	}
 }

@@ -43,7 +43,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		public static UserMessageType ByteToUserMessageType(SourceDemo demoRef, byte b) {
 			var def = (UserMessageType)b;
 			return demoRef.DemoSettings.Game switch {
-				PORTAL_1 			=> Portal1ReMapper.GetValueOrDefault(b, def),
+				PORTAL_1_UNPACK 			=> Portal1ReMapper.GetValueOrDefault(b, def),
 				PORTAL_1_STEAMPIPE 	=> Portal1SteamPipe.GetValueOrDefault(b, def),
 				L4D2_2000 			=> L4D2ReMapper.GetValueOrDefault(b, def),
 				PORTAL_2 			=> Portal2ReMapper.GetValueOrDefault(b, def),
@@ -55,7 +55,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		public static byte UserMessageTypeToByte(SourceDemo demoRef, UserMessageType m) {
 			var def = (byte)m;
 			return demoRef.DemoSettings.Game switch {
-				PORTAL_1 			=> Portal1ReMapper.GetValueOrDefault(m, def),
+				PORTAL_1_UNPACK 			=> Portal1ReMapper.GetValueOrDefault(m, def),
 				PORTAL_1_STEAMPIPE 	=> Portal1SteamPipe.GetValueOrDefault(m, def),
 				L4D2_2000 			=> L4D2ReMapper.GetValueOrDefault(m, def),
 				PORTAL_2 			=> Portal2ReMapper.GetValueOrDefault(m, def),

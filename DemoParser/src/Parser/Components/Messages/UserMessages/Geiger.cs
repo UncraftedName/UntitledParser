@@ -21,8 +21,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"geiger range: {GeigerRange}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"geiger range: {GeigerRange}");
 		}
 	}
 }

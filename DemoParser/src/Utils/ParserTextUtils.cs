@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -47,10 +48,10 @@ namespace DemoParser.Utils {
 		}
 		
 
-		public static string SequenceToString<T>(this IEnumerable<T> enumerable, string separator = ", ", string start = "[", string end = "]") {
+		public static string SequenceToString(this IEnumerable enumerable, string separator = ", ", string start = "[", string end = "]") {
 			StringBuilder builder = new StringBuilder(start);
 			bool containsElements = false;
-			foreach (T x in enumerable) {
+			foreach (object x in enumerable) {
 				builder.Append($"{x}{separator}");
 				containsElements = true;
 			}

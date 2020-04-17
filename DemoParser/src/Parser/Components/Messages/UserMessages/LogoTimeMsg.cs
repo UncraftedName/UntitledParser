@@ -22,8 +22,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"time: {Time}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"time: {Time}");
 		}
 	}
 }

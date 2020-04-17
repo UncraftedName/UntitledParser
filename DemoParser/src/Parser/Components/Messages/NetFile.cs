@@ -28,7 +28,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"transfer ID: {TransferID}");
 			iw.AppendLine($"file name: {FileName}");
 			iw.Append($"flags: {FileFlags}");

@@ -8,9 +8,12 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components {
 	
-	public class MessageStream : DemoComponent, IEnumerable<(MessageType, DemoMessage)> {
+	/// <summary>
+	/// A special class to handle parsing an arbitrary amount of messages that immediately follow each other.
+	/// </summary>
+	public class MessageStream : DemoComponent, IEnumerable<(MessageType messageType, DemoMessage message)> {
 		
-		public List<(MessageType, DemoMessage)> Messages;
+		public List<(MessageType messageType, DemoMessage message)> Messages;
 		
 		
 		public MessageStream(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
@@ -79,9 +82,9 @@ namespace DemoParser.Parser.Components {
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
 		}
-		
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+
+		public override void AppendToWriter(IndentedWriter iw) {
 			int i = 0;
 			while (i < Messages.Count && Messages[i].Item2 != null) {
 				iw.Append($"message: {Messages[i].Item1} " +

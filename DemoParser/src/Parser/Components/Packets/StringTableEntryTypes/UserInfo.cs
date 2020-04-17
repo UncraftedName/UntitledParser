@@ -33,6 +33,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			Name = bsr.ReadNullTerminatedString();
 
 			// todo this depends on the game, also idk what those skipped bytes are
+			// probably ready string of length for name and friends name hmmmmmmmmm (csgo uses 128 but that's a bit much)
 			/*switch (DemoRef.DemoSettings.Game) {
 				case SourceDemoSettings.SourceGame.PORTAL_2:
 					Console.WriteLine(bsr.SubStream(8 * 22).ToHexString());
@@ -58,7 +59,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"({ParserTextUtils.CamelCaseToUnderscore(GetType().Name)})");
 			if (DemoRef.DemoSettings.NewEngine) {
 				iw.AppendLine($"version: {Version}");

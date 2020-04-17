@@ -24,8 +24,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"data length in bits: {_data.BitLength}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"data length in bits: {_data.BitLength}");
 		}
 	}
 }

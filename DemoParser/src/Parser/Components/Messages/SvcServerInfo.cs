@@ -1,4 +1,5 @@
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -11,7 +12,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool IsHltv;
 		public bool IsDedicated;
 		public uint ClientCrc;
-		public ushort MaxClasses;
+		public ushort MaxServerClasses;
 		public uint MapCrc;
 		public byte PlayerCount;
 		public byte MaxClients;
@@ -34,7 +35,7 @@ namespace DemoParser.Parser.Components.Messages {
 			IsHltv = bsr.ReadBool();
 			IsDedicated = bsr.ReadBool();
 			ClientCrc = bsr.ReadUInt();
-			MaxClasses = bsr.ReadUShort();
+			MaxServerClasses = bsr.ReadUShort();
 			MapCrc = bsr.ReadUInt(); // network protocol < 18
 			PlayerCount = bsr.ReadByte();
 			MaxClients = bsr.ReadByte();
@@ -59,8 +60,11 @@ namespace DemoParser.Parser.Components.Messages {
 
 			DemoRef.DemoSettings.TickInterval = TickInterval;
 			// this packet always(?) appears before the creation of any tables
-			DemoRef.CStringTablesManager.Readable = true;
+			
 			DemoRef.CStringTablesManager.ClearCurrentTables();
+			
+			// init baselines here
+			DemoRef.CBaseLines = new C_BaseLines(MaxServerClasses, DemoRef);
 		}
 		
 
@@ -69,13 +73,13 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"network protocol: {NetworkProtocol}");
 			iw.AppendLine($"server count: {ServerCount}");
 			iw.AppendLine($"is hltv: {IsHltv}");
 			iw.AppendLine($"is dedicated: {IsDedicated}");
-			iw.AppendLine($"sever client CRC: {ClientCrc}"); // change to hex?
-			iw.AppendLine($"max classes: {MaxClasses}");
+			iw.AppendLine($"server client CRC: {ClientCrc}"); // change to hex?
+			iw.AppendLine($"max server classes: {MaxServerClasses}");
 			iw.AppendLine($"server map CRC: {MapCrc}"); // change to hex?
 			iw.AppendLine($"current player count: {PlayerCount}");
 			iw.AppendLine($"max player count: {MaxClients}");

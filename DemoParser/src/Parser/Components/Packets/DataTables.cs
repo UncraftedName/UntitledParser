@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.HelperClasses;
@@ -9,11 +10,23 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
+	/*
+	 * So fuck me this is pretty complicated, but this packet consists of a bunch of tables, each of which contain a
+	 * list of properties and/or references to other tables. See the data tables manager to see how those properties
+	 * are unpacked and flattened. Once they are, they serve as a massive lookup table to decode entity properties.
+	 * For instance, when reading the entity info, it will say something along the lines of 'update the 3rd property
+	 * of the 107th class'. Then you would use the lookup tables to determine that that corresponds to the m_vecOrigin
+	 * property of the 'CProp_Portal' class, which has a corresponding data table called 'DT_Prop_Portal'.
+	 * That property is also a vector 3, and must be read accordingly. Needless to say, it gets a little wack.
+	 */
 	
+	/// <summary>
+	/// Contains all the information needed to decode entity properties.
+	/// </summary>
 	public class DataTables : DemoPacket {
 
 		public List<SendTable> Tables;
-		public List<ServerClass>? Classes;
+		public List<ServerClass>? ServerClasses;
 		
 		
 		public DataTables(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
@@ -30,16 +43,23 @@ namespace DemoParser.Parser.Components.Packets {
 				}
 
 				ushort classCount = bsr.ReadUShort();
-				Classes = new List<ServerClass>(classCount);
+				ServerClasses = new List<ServerClass>(classCount);
 				for (int i = 0; i < classCount; i++) {
-					Classes.Add(new ServerClass(DemoRef, Reader));
-					Classes[^1].ParseStream(bsr);
+					ServerClasses.Add(new ServerClass(DemoRef, Reader));
+					ServerClasses[^1].ParseStream(bsr);
+					// this is an assumption I make in the structure of all the entity stuff, very critical
+					Debug.Assert(i == ServerClasses[i].DataTableId, 
+						"server class ID does not match it's index in the list");
 				}
 				
+				// re-init the baselines if the count doesn't match (maybe I should just init them from here?)
+				if (DemoRef.CBaseLines.ClassBaselines.Length != classCount)
+					DemoRef.CBaseLines.ClearBaseLineState(classCount);
+				
+				// create the prop list for each class
 				DemoRef.DataTableParser = new DataTableParser(DemoRef, this);
 				DemoRef.DataTableParser.FlattenClasses();
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				DemoRef.AddError($"exception while parsing datatables\n\texception: {e.Message}");
 				Debug.WriteLine(e);
 			}
@@ -54,7 +74,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			Debug.Assert(Tables.Count > 0, "there's no tables hmmmmmmmmmmmm");
 			iw.Append($"{Tables.Count} send table{(Tables.Count > 1 ? "s" : "")}:");
 			iw.AddIndent();
@@ -64,10 +84,10 @@ namespace DemoParser.Parser.Components.Packets {
 			}
 			iw.SubIndent();
 			iw.AppendLine();
-			if ((Classes?.Count ?? 0) > 0) {
-				iw.Append($"{Classes.Count} class{(Classes.Count > 1 ? "es" : "")}:");
+			if ((ServerClasses?.Count ?? 0) > 0) {
+				iw.Append($"{ServerClasses.Count} class{(ServerClasses.Count > 1 ? "es" : "")}:");
 				iw.AddIndent();
-				foreach (ServerClass classInfo in Classes) {
+				foreach (ServerClass classInfo in ServerClasses) {
 					iw.AppendLine();
 					classInfo.AppendToWriter(iw);
 				}
@@ -107,7 +127,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"{Name}{(NeedsDecoder ? "*" : "")} (");
 			if (Properties.Count > 0) {
 				iw.Append($"{Properties.Count} prop{(Properties.Count > 1 ? "s" : "")}):");
@@ -124,9 +144,10 @@ namespace DemoParser.Parser.Components.Packets {
 	}
 	
 	
-	public class SendTableProperty : DemoComponent {
+	public class SendTableProperty : DemoComponent, IEquatable<SendTableProperty> {
 		
-		internal readonly SendTable TableRef;
+		public readonly SendTable TableRef;
+		// these fields should only be set once in ParseStream()
 		public SendPropertyType SendPropertyType;
 		public string Name;
 		public SendPropertyFlags Flags;
@@ -156,8 +177,8 @@ namespace DemoParser.Parser.Components.Packets {
 					case SendPropertyType.String:
 					case SendPropertyType.Int:
 					case SendPropertyType.Float:
-					case SendPropertyType.Vector:
-					case SendPropertyType.VectorXY:
+					case SendPropertyType.Vector3:
+					case SendPropertyType.Vector2:
 						LowValue = bsr.ReadFloat();
 						HighValue = bsr.ReadFloat();
 						NumBits = bsr.ReadBitsAsUInt(
@@ -181,7 +202,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"{SendPropertyType.ToString().ToLower(), -10}");
 			if (ExcludeDtName != null) {
 				iw.Append($"{Name}{(ExcludeDtName == null ? "" : $" : {ExcludeDtName}")}".PadRight(50));
@@ -191,8 +212,8 @@ namespace DemoParser.Parser.Components.Packets {
 					case SendPropertyType.String:
 					case SendPropertyType.Int:
 					case SendPropertyType.Float:
-					case SendPropertyType.Vector:
-					case SendPropertyType.VectorXY:
+					case SendPropertyType.Vector3:
+					case SendPropertyType.Vector2:
 						iw.Append($"low: {LowValue, -12} high: {HighValue, -12} {NumBits, 3} bit{(NumBits == 1 ? "" : "s")}");
 						break;
 					case SendPropertyType.Array:
@@ -216,11 +237,61 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		public static SendPropertyType UIntToSendPropertyType(SourceDemo demoRef, uint i) {
-			if (demoRef.Header.NetworkProtocol == 14) {
-				if (i >= 3) // vectorXY doesn't exist in leak/3420 build of portal
+			if (demoRef.Header.NetworkProtocol <= 14) {
+				if (i >= 3) // vectorXY/vec2 doesn't exist in leak/3420 build of portal
 					i++;
 			}
 			return (SendPropertyType)i;
+		}
+
+
+		public bool Equals(SendTableProperty? other) {
+			if (ReferenceEquals(null, other)) return false;
+			if (ReferenceEquals(this, other)) return true;
+			return TableRef.Equals(other.TableRef) 
+				   && SendPropertyType == other.SendPropertyType 
+				   && Name == other.Name 
+				   && Flags == other.Flags 
+				   && Priority == other.Priority 
+				   && ExcludeDtName == other.ExcludeDtName 
+				   && Nullable.Equals(LowValue, other.LowValue) 
+				   && Nullable.Equals(HighValue, other.HighValue) 
+				   && NumBits == other.NumBits 
+				   && Elements == other.Elements;
+		}
+
+
+		public override bool Equals(object? obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			return obj.GetType() == GetType() && Equals((SendTableProperty)obj);
+		}
+
+
+		[SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")] // fields should only be set once
+		public override int GetHashCode() {
+			var hashCode = new HashCode();
+			hashCode.Add(TableRef);
+			hashCode.Add((int)SendPropertyType);
+			hashCode.Add(Name);
+			hashCode.Add((int)Flags);
+			hashCode.Add(Priority);
+			hashCode.Add(ExcludeDtName);
+			hashCode.Add(LowValue);
+			hashCode.Add(HighValue);
+			hashCode.Add(NumBits);
+			hashCode.Add(Elements);
+			return hashCode.ToHashCode();
+		}
+
+
+		public static bool operator ==(SendTableProperty left, SendTableProperty right) {
+			return Equals(left, right);
+		}
+
+
+		public static bool operator !=(SendTableProperty left, SendTableProperty right) {
+			return !Equals(left, right);
 		}
 	}
 
@@ -228,8 +299,8 @@ namespace DemoParser.Parser.Components.Packets {
 	public enum SendPropertyType : uint {
 		Int,
 		Float,
-		Vector,
-		VectorXY,
+		Vector3,
+		Vector2, // called VectorXY internally
 		String,
 		Array,
 		DataTable
@@ -238,7 +309,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 	[Flags]
 	public enum SendPropertyFlags : uint { // https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/SendTableProperty.cs
-		NoFlags						= 0,
+		None						= 0,
 		Unsigned 					= 1,
 		Coord 						= 1 << 1,
 		NoScale 					= 1 << 2,
@@ -255,6 +326,9 @@ namespace DemoParser.Parser.Components.Packets {
 		CoordMp						= 1 << 13,
 		CoordMpLowPrecision			= 1 << 14,
 		CoordMpIntegral				= 1 << 15
+		
+		// we read 16 bits, so there's probably an additional flag that i'm missing, but these are only used in csg
+		
 		// CellCoordMp				= 1 << 16,
 		// CellCoordMpLowPrecision	= 1 << 17,
 		// CellCoordMpLowIntegral	= 1 << 18,

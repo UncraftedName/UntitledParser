@@ -23,7 +23,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append("string: ");
 			iw.AddIndent();
 			iw.Append(Str.TrimEnd());

@@ -7,7 +7,7 @@ using System.Text;
 namespace DemoParser.Utils.BitStreams {
 	
 	// because I don't use this nearly as much as the reader atm, some of the methods may be poorly or incorrectly implemented
-	public class BitStreamWriter {
+	public partial class BitStreamWriter {
 		public int CurrentBitLength {get; private set;}
 		private readonly List<byte> _data;
 		public byte[] AsArray => _data.ToArray();

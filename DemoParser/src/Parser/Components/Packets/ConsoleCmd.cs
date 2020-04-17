@@ -4,6 +4,9 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
 	
+	/// <summary>
+	/// Contains a command entered in the console or in-game.
+	/// </summary>
 	public class ConsoleCmd : DemoPacket {
 		
 		public string Command;
@@ -24,8 +27,8 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += Command;
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append(Command);
 		}
 	}
 }

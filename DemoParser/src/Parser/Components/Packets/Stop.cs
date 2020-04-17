@@ -4,6 +4,9 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
 	
+	/// <summary>
+	/// Signifies the last packet. Contains no data.
+	/// </summary>
 	public class Stop : DemoPacket {
 
 		public override bool MayContainData => false;

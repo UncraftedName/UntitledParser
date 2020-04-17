@@ -20,8 +20,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw +=  $"{Reader.BitLength / 8} bytes: {Reader.ToHexString()}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"{Reader.BitLength / 8} bytes: {Reader.ToHexString()}");
 		}
 	}
 }

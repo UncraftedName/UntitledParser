@@ -126,6 +126,15 @@
               <e p="C_StringTablesManager.cs" t="Include" />
               <e p="DataTableParser.cs" t="Include" />
               <e p="DataTableTree.cs" t="Include" />
+              <e p="EntityStuff" t="Include">
+                <e p="C_BaseLines.cs" t="Include" />
+                <e p="C_EntitySnapshot.cs" t="Include" />
+                <e p="Entity.cs" t="Include" />
+                <e p="EntityProperty.cs" t="Include" />
+                <e p="EntityPropertyEnumManager.cs" t="Include" />
+                <e p="EntityPropertyToStringHelper.cs" t="Include" />
+                <e p="EntityUpdate.cs" t="Include" />
+              </e>
               <e p="GameEventManager.cs" t="Include" />
             </e>
             <e p="SourceDemo.cs" t="Include" />
@@ -137,6 +146,7 @@
               <e p="BitStreamSearcher.cs" t="Include" />
               <e p="BitStreamWriter.cs" t="Include" />
               <e p="PropDecodeReader.cs" t="Include" />
+              <e p="PropDecodeWriter.cs" t="Include" />
             </e>
             <e p="BitUtils.cs" t="Include" />
             <e p="CharArray.cs" t="Include" />

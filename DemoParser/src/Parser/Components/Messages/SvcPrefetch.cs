@@ -1,4 +1,5 @@
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -23,10 +24,11 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			if (DemoRef.CStringTablesManager.Readable)
-				iw.Append(SoundIndex < DemoRef.CStringTablesManager.SoundTable.Entries.Count
-					? $"sound: {DemoRef.CStringTablesManager.SoundTable.Entries[SoundIndex].EntryName}"
+		public override void AppendToWriter(IndentedWriter iw) {
+			var mgr = DemoRef.CStringTablesManager;
+			if (mgr.TableReadable[TableNames.SoundPreCache])
+				iw.Append(SoundIndex < mgr.Tables[TableNames.SoundPreCache].Entries.Count
+					? $"sound: {mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName}"
 					: "sound index (out of range):");
 			else
 				iw.Append("sound index:");

@@ -31,7 +31,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"entry count: {EntryCount}");
 			iw.Append($"length in bits: {_data.BitLength}");
 			if (Unknown.HasValue)

@@ -16,8 +16,8 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
         }
 
 
-        internal override void AppendToWriter(IndentedWriter iw) {
-            iw += ClassName;
+        public override void AppendToWriter(IndentedWriter iw) {
+            iw.Append(ClassName);
         }
     }
 }

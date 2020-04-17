@@ -27,7 +27,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"count: {Count}");
 			iw.Append($"str: {KeyString}");
 		}

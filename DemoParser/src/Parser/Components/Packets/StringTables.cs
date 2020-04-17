@@ -1,14 +1,27 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
 	
+	/*
+	 * This packet consists of a bunch of various tables most of which are used by other messages. This includes decals,
+	 * default entity states, player info, etc. Since my main goal is to create a valid toString() representation
+	 * of the entire demo, once I parse this packet I do not change it. However, the tables can be changed by
+	 * special messages, so I keep a copy of the tables in the string tables manager which are mutable and contain
+	 * minimal parsing code.
+	 */
+	
+	/// <summary>
+	/// Contains lookup tables for messages such as sounds and models.
+	/// </summary>
 	public class StringTables : DemoPacket {
 		
 		public List<StringTable> Tables;
@@ -29,6 +42,9 @@ namespace DemoParser.Parser.Components.Packets {
 
 			bsr.CurrentBitIndex = indexBeforeTables + (int)(dataLen << 3);
 			SetLocalStreamEnd(bsr);
+			
+			// if this packet exists make sure to create the C_tables after we parse this
+			DemoRef.CStringTablesManager.CreateTablesFromPacket(this);
 		}
 		
 
@@ -37,7 +53,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			foreach (StringTable table in Tables) {
 				table.AppendToWriter(iw);
 				iw.AppendLine();
@@ -50,9 +66,9 @@ namespace DemoParser.Parser.Components.Packets {
 	public class StringTable : DemoComponent {
 
 		public string Name;
-		public List<StringTableEntry> TableEntries;
-		public List<StringTableClass> Classes;
-		internal ushort? MaxEntries;
+		public List<StringTableEntry>? TableEntries;
+		public List<StringTableClass>? Classes;
+		internal ushort? MaxEntries; // initialized in the manager
 
 
 		public StringTable(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
@@ -76,9 +92,6 @@ namespace DemoParser.Parser.Components.Packets {
 				}
 			}
 			SetLocalStreamEnd(bsr);
-			
-			if (DemoRef.CStringTablesManager.Readable)
-				MaxEntries = DemoRef.CStringTablesManager.TablesByName[Name].MaxEntries;
 		}
 		
 
@@ -87,7 +100,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"table name: {Name}");
 			iw.AddIndent();
 			iw.AppendLine();
@@ -142,8 +155,15 @@ namespace DemoParser.Parser.Components.Packets {
 			Name = bsr.ReadNullTerminatedString();
 			if (bsr.ReadBool()) {
 				ushort dataLen = bsr.ReadUShort();
-				EntryData = StringTableEntryDataFactory.CreateData(DemoRef, bsr.SubStream(dataLen << 3), TableRef.Name, Name);
-				//EntryData.ParseStream(bsr.SubStream()); // use substream since data won't be read if i don't know how to read it
+				
+				Debug.Assert(DemoRef.DataTableParser.FlattendProps != null);
+				EntryData = StringTableEntryDataFactory.CreateData(
+					DemoRef, 
+					bsr.SubStream(dataLen << 3), 
+					TableRef.Name, 
+					Name, 
+					DemoRef.DataTableParser.FlattendProps);
+				
 				EntryData.ParseOwnStream();
 				bsr.SkipBytes(dataLen);
 				SetLocalStreamEnd(bsr);
@@ -156,20 +176,20 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			if (EntryData != null) {
 				if (EntryData.ContentsKnown) {
-					iw += Name;
+					iw.Append(Name);
 					iw.AddIndent();
 					iw.AppendLine();
 					EntryData.AppendToWriter(iw);
 					iw.SubIndent();
 				} else {
-					iw += Name.PadRight(PadLength + 2, '.');
+					iw.Append(Name.PadRight(PadLength + 2, '.'));
 					EntryData.AppendToWriter(iw);
 				}
 			} else {
-				iw += Name;
+				iw.Append(Name);
 			}
 		}
 	}
@@ -200,10 +220,10 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"name: {Name}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"name: {Name}");
 			if (Data != null)
-				iw += $", data: {Data}";
+				iw.Append($", data: {Data}");
 		}
 	}
 }

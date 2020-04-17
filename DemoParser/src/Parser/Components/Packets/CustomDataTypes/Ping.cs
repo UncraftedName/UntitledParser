@@ -22,7 +22,7 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"ping screen location (x, y): ({X}, {Y})");
 		}
 	}

@@ -22,8 +22,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"Battery: {BatteryVal}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"Battery: {BatteryVal}");
 		}
 	}
 }

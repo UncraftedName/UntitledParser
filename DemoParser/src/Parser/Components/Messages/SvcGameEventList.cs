@@ -39,7 +39,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"{EventCount} events:");
 			iw.AddIndent();
 			foreach (GameEventDescription descriptor in Descriptors) {
@@ -76,7 +76,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"ID: {EventID}, name: {Name}");
 			iw.AddIndent();
 			iw.AppendLine();

@@ -4,8 +4,8 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
 	
+	// used in the custom data packet which can contain different kinds of data
 	public abstract class CustomDataMessage : DemoComponent {
-		
 		protected CustomDataMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 	}
 
@@ -20,9 +20,8 @@ namespace DemoParser.Parser.Components.Abstract {
 				_ => new UnknownCustomDataMessage(demoRef, bsr)
 			};
 			
-			if (result.GetType() == typeof(UnknownCustomDataMessage)) {
+			if (result.GetType() == typeof(UnknownCustomDataMessage))
 				demoRef.AddError($"unknown or unimplemented custom data type: {type}");
-			}
 			return result;
 		}
 	}

@@ -25,9 +25,9 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
 		}
-		
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"token name: {TokenName}");
 			iw.AppendLine($"duration: {Duration}");
 			iw.Append($"flags: {Flags}");

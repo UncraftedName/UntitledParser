@@ -38,7 +38,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"sign on state: {SignOnState}");
 			iw.Append($"spawn count: {SpawnCount}");
 			if (DemoRef.DemoSettings.NewEngine) {

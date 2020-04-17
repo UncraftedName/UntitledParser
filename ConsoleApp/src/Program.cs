@@ -15,7 +15,9 @@ namespace ConsoleApp {
 		
 		private static string UsageStr => $"Usage: \"{AppDomain.CurrentDomain.FriendlyName}\" <demos/dirs> [options]";
 		
-		
+		// todo add prop table dump
+		// todo add prop tracker
+		// todo add buttons pressed
 		public static void Main(string[] args) {
 			
 			Console.WriteLine("DemoParser by UncraftedName");

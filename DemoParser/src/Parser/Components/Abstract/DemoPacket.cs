@@ -58,7 +58,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		
 		public static DemoPacket CreatePacket(SourceDemo demoRef, BitStreamReader reader, int tick, PacketType packetType) {
 			return packetType switch {
-				PacketType.SignOn 		=> (DemoPacket)new SignOn(demoRef, reader, tick),
+				PacketType.SignOn 		=> new SignOn(demoRef, reader, tick),
 				PacketType.Packet 		=> new Packet(demoRef, reader, tick),
 				PacketType.SyncTick 	=> new SyncTick(demoRef, reader, tick),
 				PacketType.ConsoleCmd 	=> new ConsoleCmd(demoRef, reader, tick),

@@ -1,6 +1,9 @@
 #nullable enable
+using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -9,41 +12,48 @@ namespace DemoParser.Parser.Components.Messages {
 	public class SvcClassInfo : DemoMessage {
 
 		public bool CreateOnClient;
-		public ServerClass[] ServerClasses;
-		private ushort _classCount;
+		public ServerClass[]? ServerClasses;
+		public ushort ClassCount;
 		
 		
 		public SvcClassInfo(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			_classCount = bsr.ReadUShort();
+			ClassCount = bsr.ReadUShort();
 			CreateOnClient = bsr.ReadBool();
 			if (!CreateOnClient) {
 				
 				// if this ever gets used then it should update the C_tables
-				string s = $"I haven't implemented {GetType().Name} to update the C_tables.";
+				string s = $"I haven't implemented {GetType().Name} to update the C_string tables.";
 				DemoRef.AddError(s);
 				Debug.WriteLine(s);
 				
-				ServerClasses = new ServerClass[_classCount];
+				ServerClasses = new ServerClass[ClassCount];
 				for (int i = 0; i < ServerClasses.Length; i++) {
 					ServerClasses[i] = new ServerClass(DemoRef, bsr, this);
 					ServerClasses[i].ParseStream(bsr);
+					// this is an assumption I make in the structure of all the entity stuff
+					Debug.Assert(i == ServerClasses[i].DataTableId, 
+						"server class ID does not match it's index in the list");
 				}
 			}
 			SetLocalStreamEnd(bsr);
+			
+			if (DemoRef.CBaseLines == null) // init baselines here if still null
+				DemoRef.CBaseLines = new C_BaseLines(ClassCount, DemoRef);
 		}
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw.Append($"{ServerClasses?.Length ?? _classCount} server classes{(CreateOnClient ? "\n" : ":")}");
-			if (!CreateOnClient) {
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.AppendLine($"create on client: {CreateOnClient}");
+			iw.Append($"{ServerClasses?.Length ?? ClassCount} server classes{(CreateOnClient ? "" : ":")}");
+			if (!CreateOnClient && ServerClasses != null) {
 				iw.AddIndent();
 				foreach (ServerClass serverClass in ServerClasses) {
 					iw.AppendLine();
@@ -51,15 +61,15 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 				iw.SubIndent();
 			}
-			iw.Append($"create on client: {CreateOnClient}");
 		}
 	}
 	
 	
-	public class ServerClass : DemoComponent {
+	// a very important part of the demo - corresponds to an entity class. used extensively in data tables and ent parsing
+	public class ServerClass : DemoComponent, IEquatable<ServerClass> {
 
-		private readonly SvcClassInfo? _classInfoRef; // needed to get the length of the array
-		public uint DataTableID; // this references the nth data table this class refers to
+		private readonly SvcClassInfo? _classInfoRef; // needed to get the length of the array for toString()
+		public int DataTableId; // this references the nth data table this class refers to
 		public string ClassName;
 		public string DataTableName; // this is the name of the data table this class refers to
 		
@@ -70,9 +80,9 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			DataTableID = _classInfoRef == null
+			DataTableId = _classInfoRef == null
 				? bsr.ReadUShort()
-				: bsr.ReadBitsAsUInt(BitUtils.HighestBitIndex((uint)_classInfoRef.ServerClasses.Length) + 1);
+				: (int)bsr.ReadBitsAsUInt(DemoRef.DataTableParser.ServerClassBits);
 			ClassName = bsr.ReadNullTerminatedString();
 			DataTableName = bsr.ReadNullTerminatedString();
 			SetLocalStreamEnd(bsr);
@@ -80,12 +90,45 @@ namespace DemoParser.Parser.Components.Messages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"[{DataTableID}] {ClassName} ({DataTableName})";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"[{DataTableId}] {ClassName} ({DataTableName})");
+		}
+
+		// I don't think I'll need these hashcode methods if the the ID always matches the index
+
+		public bool Equals(ServerClass? other) {
+			if (ReferenceEquals(null, other)) return false;
+			if (ReferenceEquals(this, other)) return true;
+			return DataTableId == other.DataTableId 
+				   && ClassName == other.ClassName 
+				   && DataTableName == other.DataTableName;
+		}
+
+
+		public override bool Equals(object? obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			return obj.GetType() == GetType() && Equals((ServerClass)obj);
+		}
+
+
+		[SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
+		public override int GetHashCode() {
+			return HashCode.Combine(DataTableId, ClassName, DataTableName);
+		}
+
+
+		public static bool operator ==(ServerClass left, ServerClass right) {
+			return Equals(left, right);
+		}
+
+
+		public static bool operator !=(ServerClass left, ServerClass right) {
+			return !Equals(left, right);
 		}
 	}
 }

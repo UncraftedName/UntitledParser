@@ -40,18 +40,19 @@ namespace DemoParser.Parser.Components {
 			throw new System.NotImplementedException();
 		}
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"file stamp: {FileStamp}\n";
-			iw += $"demo protocol: {DemoProtocol}\n";
-			iw += $"network protocol: {NetworkProtocol}\n";
-			iw += $"server name: {ServerName}\n";
-			iw += $"client name: {ClientName}\n";
-			iw += $"map name: {MapName}\n";
-			iw += $"game directory: {GameDirectory}\n";
-			iw += $"playback time: {PlaybackTime}\n";
-			iw += $"tick count: {TickCount}\n";
-			iw += $"frame count: {FrameCount}\n";
-			iw += $"sign on length: {SignOnLength}\n";
+
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.AppendLine($"file stamp: {FileStamp}");
+			iw.AppendLine($"demo protocol: {DemoProtocol}");
+			iw.AppendLine($"network protocol: {NetworkProtocol}");
+			iw.AppendLine($"server name: {ServerName}");
+			iw.AppendLine($"client name: {ClientName}");
+			iw.AppendLine($"map name: {MapName}");
+			iw.AppendLine($"game directory: {GameDirectory}");
+			iw.AppendLine($"playback time: {PlaybackTime}");
+			iw.AppendLine($"tick count: {TickCount}");
+			iw.AppendLine($"frame count: {FrameCount}");
+			iw.Append($"sign on length: {SignOnLength}");
 		}
 	}
 }

@@ -34,7 +34,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"armor: {Armor}");
 			iw.AppendLine($"damage taken: {DamageTaken}");
 			iw.AppendLine($"bits damage: {BitsDamage}");

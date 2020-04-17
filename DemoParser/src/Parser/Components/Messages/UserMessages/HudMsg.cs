@@ -50,7 +50,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append("channel: " + Channel);
 			if (X.HasValue) { // assume all the others are defined
 				iw.AppendLine($"\nx: {X}, y: {Y}");

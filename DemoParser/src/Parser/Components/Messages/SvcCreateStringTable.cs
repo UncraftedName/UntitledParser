@@ -8,7 +8,7 @@ namespace DemoParser.Parser.Components.Messages {
 	public class SvcCreateStringTable : DemoMessage {
 
 		public string Name;
-		public ushort MaxEntries; // todo pass to string tables (count/max)
+		public ushort MaxEntries;
 		public int NumEntries;
 		public bool UserDataFixedSize;
 		public int UserDataSize;
@@ -45,7 +45,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"name: {Name}");
 			iw.AppendLine($"max entries: {MaxEntries}");
 			iw.AppendLine($"number of entries: {NumEntries}");
@@ -57,7 +57,10 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.Append("table update:");
 			iw.AddIndent();
 			iw.AppendLine();
-			TableUpdate.AppendToWriter(iw);
+			if (TableUpdate == null)
+				iw.Append("table update could not be parsed");
+			else
+				TableUpdate.AppendToWriter(iw);
 			iw.SubIndent();
 		}
 	}
@@ -66,7 +69,7 @@ namespace DemoParser.Parser.Components.Messages {
 	[Flags]
 	public enum StringTableFlags : uint { // hl2sdk-portal2  public/networkstringtabledefs.h   line 60
 		None 				= 0,
-		DictionaryEnabled 	= 1, // probably for lookup
-		// idk what 2 is yet
+		DictionaryEnabled 	= 1,
+		Unknown
 	} 
 }

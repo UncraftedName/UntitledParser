@@ -23,8 +23,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"unknown bool: {Bool}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"unknown bool: {Bool}");
 		}
 	}
 }

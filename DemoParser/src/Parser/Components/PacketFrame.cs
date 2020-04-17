@@ -5,6 +5,9 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components {
 	
+	/// <summary>
+	/// Serves as a wrapper for all packets.
+	/// </summary>
 	public class PacketFrame : DemoComponent {
 		
 		public byte? PlayerSlot; // new engine only
@@ -22,20 +25,19 @@ namespace DemoParser.Parser.Components {
 
 
 		internal override void ParseStream(BitStreamReader bsr) {
-			bsr.EnsureByteAlignment();
 			Type = DemoPacket.ByteToPacketType(DemoRef, bsr.ReadByte());
 			
 			int tick = Type == PacketType.Stop && !DemoRef.DemoSettings.NewEngine
 				? (int)bsr.ReadBitsAsUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24)) // stop tick is cut off in portal demos, not that it really matters
 				: bsr.ReadSInt();
 			
-			if (DemoRef.DemoSettings.HasPlayerSlot && bsr.BitsRemaining > 0)
+			if (DemoRef.DemoSettings.HasPlayerSlot && bsr.BitsRemaining > 0) // last player slot byte is cut off in l4d2 demos
 				PlayerSlot = bsr.ReadByte();
 			
 			
 			Packet = PacketFactory.CreatePacket(DemoRef, bsr, tick, Type);
 			Packet.ParseStream(bsr);
-			bsr.EnsureByteAlignment();
+			bsr.EnsureByteAlignment(); // make sure the next frame starts on a byte boundary
 			SetLocalStreamEnd(bsr);
 		}
 		
@@ -45,7 +47,7 @@ namespace DemoParser.Parser.Components {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			if (Packet != null) {
 				iw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(Type, DemoRef.DemoSettings)})");
 				if (DemoRef.DemoSettings.NewEngine && PlayerSlot.HasValue)
@@ -57,7 +59,7 @@ namespace DemoParser.Parser.Components {
 					iw.SubIndent();
 				}
 			} else {
-				iw += "demo parsing failed here, packet type doesn't correspond with any known packet";
+				iw.Append("demo parsing failed here, packet type doesn't correspond with any known packet");
 			}
 		}
 	}

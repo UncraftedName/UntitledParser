@@ -22,8 +22,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"is paused: {IsPaused}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"is paused: {IsPaused}");
 		}
 	}
 }

@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"engine tick: {EngineTick}");
 			iw.AppendLine($"host frame time: {HostFrameTime}");
 			iw.Append($"host frame time std dev: {HostFrameTimeStdDev}");

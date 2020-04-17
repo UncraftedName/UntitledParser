@@ -33,7 +33,7 @@ namespace ConsoleApp {
 		private static void VerboseOutput() {
 			SetWriter();
 			Console.WriteLine("Dumping verbose output...");
-			_currentWriter.Write(CurrentDemo.ToString());
+			_currentWriter.Write(CurrentDemo.ToVerboseString());
 		}
 
 
@@ -92,11 +92,19 @@ namespace ConsoleApp {
 			// gets all flags, then groups them by the flag type, and sorts the ticks of each type
 			// in this case, #flag# is treated the same as #FLAG#
 			var flagGroups = CurrentDemo.FilterForRegexMatches(flagMatcher)
-				.Select(cmd =>
-					Tuple.Create(flagMatcher.Matches(cmd.Command)[0].Groups["flag_name"].Value.ToUpper(), cmd.Tick))
-				.GroupBy(tuple => tuple.Item1)
+				.Select(cmd => (
+						Matches: flagMatcher.Matches(cmd.Command)[0].Groups["flag_name"].Value.ToUpper(), 
+						cmd.Tick)
+					)
+				.GroupBy(tuple => tuple.Matches)
 				.ToDictionary(tuples => tuples.Key,
-					tuples => tuples.Select(tuple => tuple.Item2).Distinct().OrderBy(i => i).ToList())
+					tuples => 
+						tuples
+						.Select(tuple => tuple.Tick)
+						.Distinct()
+						.OrderBy(i => i)
+						.ToList()
+						)
 				.Select(pair => Tuple.Create(pair.Key, pair.Value));
  
 			foreach ((string flagName, List<int> ticks) in flagGroups) {

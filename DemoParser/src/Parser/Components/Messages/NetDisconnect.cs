@@ -23,8 +23,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void AppendToWriter(IndentedWriter iw) {
-			iw += $"text: {Text}";
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"text: {Text}");
 		}
 	}
 }
