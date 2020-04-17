@@ -161,12 +161,25 @@
       <e p="Tests" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
         <e p="BitStreamTester.cs" t="Include" />
+        <e p="DemoTester.cs" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp3.1" t="Include">
               <e p="Tests.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
+        </e>
+        <e p="sample demos" t="Include">
+          <e p="l4d2 2000.dem" t="Include" />
+          <e p="l4d2 2042.dem" t="Include" />
+          <e p="l4d2 2042_2.dem" t="Include" />
+          <e p="portal 1 3420.dem" t="Include" />
+          <e p="portal 1 leak.dem" t="Include" />
+          <e p="portal 1 steampipe.dem" t="Include" />
+          <e p="portal 1 unpack.dem" t="Include" />
+          <e p="portal 2 coop long.dem" t="Include" />
+          <e p="portal 2 coop.dem" t="Include" />
+          <e p="portal 2 sp.dem" t="Include" />
         </e>
         <e p="Tests.csproj" t="IncludeRecursive" />
       </e>

@@ -18,4 +18,8 @@
       <ProjectReference Include="..\DemoParser\DemoParser.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="sample demos" />
+    </ItemGroup>
+
 </Project>
