@@ -176,6 +176,7 @@
           <e p="portal 1 3420.dem" t="Include" />
           <e p="portal 1 leak.dem" t="Include" />
           <e p="portal 1 steampipe.dem" t="Include" />
+          <e p="portal 1 unpack spliced.dem" t="Include" />
           <e p="portal 1 unpack.dem" t="Include" />
           <e p="portal 2 coop long.dem" t="Include" />
           <e p="portal 2 coop.dem" t="Include" />

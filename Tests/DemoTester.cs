@@ -70,5 +70,11 @@ namespace Tests {
             ParseDemo($"{ProjectDir}/sample demos/l4d2 2000.dem");
             ParseDemo($"{ProjectDir}/sample demos/l4d2 2000_2.dem");
         }
+
+
+        [Test]
+        public void Portal1UnpackSpliced() {
+            ParseDemo($"{ProjectDir}/sample demos/portal 1 unpack spliced.dem");
+        }
     }
 }
