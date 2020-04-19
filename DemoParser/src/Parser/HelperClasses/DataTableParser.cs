@@ -15,60 +15,64 @@ namespace DemoParser.Parser.HelperClasses {
 	public class DataTableParser {
 
 		private readonly SourceDemo _demoRef;
-		private readonly DataTables _dataTablesRef;
+		private readonly DataTables _dtRef;
 		private readonly ImmutableDictionary<string, SendTable> _tableLookup;
-		public int ServerClassBits => BitUtils.HighestBitIndex((uint)_dataTablesRef.ServerClasses.Count) + 1; // this might be off for powers of 2
+		public int ServerClassBits => BitUtils.HighestBitIndex((uint)_dtRef.ServerClasses.Count) + 1; // this might be off for powers of 2
 		public readonly PropLookup? FlattendProps; // not initialized during the server class info
 		
 		
 		
-		public DataTableParser(SourceDemo demoRef, DataTables dataTablesRef) {
+		public DataTableParser(SourceDemo demoRef, DataTables dtRef) {
 			_demoRef = demoRef;
-			_dataTablesRef = dataTablesRef;
+			_dtRef = dtRef;
 			FlattendProps = new PropLookup();
 			// fill up the lookup table so we can quickly reference the tables by name later
-			_tableLookup = dataTablesRef.Tables.ToImmutableDictionary(table => table.Name, table => table);
+			_tableLookup = dtRef.Tables.ToImmutableDictionary(table => table.Name, table => table);
 		}
 		
 
 		public void FlattenClasses() {
-			for (int serverClassIndex = 0; serverClassIndex < _dataTablesRef.ServerClasses.Count; serverClassIndex++) {
-				ServerClass currentServerClass = _dataTablesRef.ServerClasses[serverClassIndex];
+			for (int classIndex = 0; classIndex < _dtRef.ServerClasses.Count; classIndex++) {
+				ServerClass currentClass = _dtRef.ServerClasses[classIndex];
 				
-				HashSet<(string, string)> currentExcludes = new HashSet<(string, string)>(); // table name, prop name
-				List<ServerClass> currentBaseClasses = new List<ServerClass>();
-				SendTable table = _dataTablesRef.Tables[currentServerClass.DataTableId];
+				HashSet<(string, string)> excludes = new HashSet<(string, string)>(); // table name, prop name
+				List<ServerClass> baseClasses = new List<ServerClass>();
+				SendTable table = _dtRef.Tables[currentClass.DataTableId];
 
-				GatherExcludesAndBaseClasses(currentExcludes, currentBaseClasses, table, true);
-				GatherProps(currentExcludes, table, serverClassIndex, "");
+				GatherExcludesAndBaseClasses(excludes, baseClasses, table, true);
+				GatherProps(excludes, table, classIndex, "");
 				
-				List<FlattenedProp> flattenedProps = FlattendProps[currentServerClass.DataTableId].flattenedProps;
+				List<FlattenedProp> fProps = FlattendProps[currentClass.DataTableId].flattenedProps;
 
 				// Now we have the props, rearrange them so that props that are marked with 'changes often' get a
 				// smaller index. In new engine the priority of the props is also taken into account.
 				if (_demoRef.DemoSettings.NewEngine) {
-					List<int> priorities = new List<int> {};
-					priorities.AddRange(flattenedProps.Select(entry => entry.Property.Priority.Value).Distinct());
+					List<int> priorities = new List<int>(); // csgo parser inits this with 64, literally no clue why
+					priorities.AddRange(fProps.Select(entry => entry.Prop.Priority.Value).Distinct());
 					priorities.Sort();
+					// csgo parser doesn't reverse here, portal 2 seems to require it
 					priorities.Reverse();
+					// So this might actually start at 0, but that kinda breaks for portal 2 demos for 
+					// flAnimTimeMustBeFirst or whatever, and starting at 1 doesn't seem to effect portal 1 demos.
 					int start = 1;
 					foreach (int priority in priorities) {
 						while (true) {
 							int currentProp = start;
-							while (currentProp < flattenedProps.Count) {
-								SendTableProperty prop = flattenedProps[currentProp].Property;
-								if (prop.Priority.Value == priority || (prop.Flags & SendPropertyFlags.ChangesOften) != 0/* || prop.Name == "m_flAnimTime"*/) {
+							while (currentProp < fProps.Count) {
+								SendTableProp prop = fProps[currentProp].Prop;
+								// in csgo parser, check for ChangesOften is accompanied by a check for priority a of 64 
+								if (prop.Priority.Value == priority || (prop.Flags & SendPropFlags.ChangesOften) != 0) {
 									if (start != currentProp) {
-										FlattenedProp tmp = flattenedProps[start];
-										flattenedProps[start] = flattenedProps[currentProp];
-										flattenedProps[currentProp] = tmp;
+										FlattenedProp tmp = fProps[start];
+										fProps[start] = fProps[currentProp];
+										fProps[currentProp] = tmp;
 									}
 									start++;
 									break;
 								}
 								currentProp++;
 							}
-							if (currentProp == flattenedProps.Count)
+							if (currentProp == fProps.Count)
 								break;
 						}
 					}
@@ -76,28 +80,26 @@ namespace DemoParser.Parser.HelperClasses {
 					int start = 0;
 					while (true) {
 						int i;
-						for (i = start; i < flattenedProps.Count; i++) {
-							FlattenedProp p = flattenedProps[i];
-							if ((p.Property.Flags & SendPropertyFlags.ChangesOften) != 0) {
-								flattenedProps[i] = flattenedProps[start];
-								flattenedProps[start] = p;
+						for (i = start; i < fProps.Count; i++) {
+							FlattenedProp p = fProps[i];
+							if ((p.Prop.Flags & SendPropFlags.ChangesOften) != 0) {
+								fProps[i] = fProps[start];
+								fProps[start] = p;
 								start++;
 								break;
 							}
 						}
-						if (i == flattenedProps.Count)
+						if (i == fProps.Count)
 							break;
 					}
 				}
 			}
 			
-			// now I know how the order of the props, I will go through and update the baselines.
-			// (the engine stores the byte array and parses it every time (I think), I do it once so I can call ToString() later)
-			
-			/*_demoRef.FilterForPacketType<StringTables>().LastOrDefault()?.Tables
-				.First(table => table.Name == TableNames.InstanceBaseLine).TableEntries.ToList()
-				.ForEach(entry => ((InstanceBaseLine)entry.EntryData).ParseBaseLineData(FlattendProps));*/
-			
+			// Now that I know the order of the props, I will parse the baselines of any SvcCreateMessages that
+			// appeared BEFORE the datatables (valve really do be like that). In game, the baselines are stored as an
+			// array and reparsed every time they're updated during demo playback. I just parse them once and store
+			// them in a more accessible format.
+
 			if (_demoRef.CStringTablesManager.TableReadable[TableNames.InstanceBaseLine]) {
 				_demoRef.CStringTablesManager.Tables[TableNames.InstanceBaseLine]
 					.Entries.ToList()
@@ -107,33 +109,33 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 		private void GatherExcludesAndBaseClasses(
-			ISet<(string, string)> currentExcludes, 
-			ICollection<ServerClass> currentBaseClasses, 
+			ISet<(string, string)> excludes, 
+			ICollection<ServerClass> baseClasses, 
 			SendTable table, 
 			bool collectBaseClasses) 
 		{
-			currentExcludes.UnionWith(
+			excludes.UnionWith(
 				table.Properties
-					.Where(property => (property.Flags & SendPropertyFlags.Exclude) != 0)
+					.Where(property => (property.Flags & SendPropFlags.Exclude) != 0)
 					.Select(property => (property.ExcludeDtName, property.Name))
 				);
 			
-			foreach (SendTableProperty property in table.Properties.Where(property => property.SendPropertyType == SendPropertyType.DataTable)) {
+			foreach (SendTableProp property in table.Properties.Where(property => property.SendPropType == SendPropType.DataTable)) {
 				if (collectBaseClasses && property.Name == "baseclass") {
-					GatherExcludesAndBaseClasses(currentExcludes, currentBaseClasses, _tableLookup[property.ExcludeDtName], true);
-					currentBaseClasses.Add(GetClassByDtName(table.Name)); // should be the same as the properties table
+					GatherExcludesAndBaseClasses(excludes, baseClasses, _tableLookup[property.ExcludeDtName], true);
+					baseClasses.Add(GetClassByDtName(table.Name)); // should be the same as the properties table
 				} else {
-					GatherExcludesAndBaseClasses(currentExcludes, currentBaseClasses, _tableLookup[property.ExcludeDtName], false);
+					GatherExcludesAndBaseClasses(excludes, baseClasses, _tableLookup[property.ExcludeDtName], false);
 				}
 			}
 		}
 
 
-		private void GatherProps(HashSet<(string, string)> currentExcludes, SendTable table, int serverClassIndex, string prefix) {
+		private void GatherProps(HashSet<(string, string)> excludes, SendTable table, int classIndex, string prefix) {
 			List<FlattenedProp> tmpFlattedProps = new List<FlattenedProp>();
-			GatherProps_IterateProps(currentExcludes, table, serverClassIndex, tmpFlattedProps, prefix);
+			IterateProps(excludes, table, classIndex, tmpFlattedProps, prefix);
 
-			ServerClass classRef = _dataTablesRef.ServerClasses[serverClassIndex];
+			ServerClass classRef = _dtRef.ServerClasses[classIndex];
 			int tmpIndex = classRef.DataTableId;
 			// in theory the class ID's should always be in consecutive order, although demos seem to imply otherwise
 			Debug.Assert(tmpIndex <= FlattendProps.Count, "server class names are not in consecutive order");
@@ -145,33 +147,34 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 
 
-		private void GatherProps_IterateProps(
-			HashSet<(string, string)> currentExcludes, 
+		private void IterateProps(
+			HashSet<(string, string)> excludes, 
 			SendTable table, 
-			int serverClassIndex, 
-			ICollection<FlattenedProp> flattenedProps, 
+			int classIndex, 
+			ICollection<FlattenedProp> fProps, 
 			string prefix) 
 		{
 			for (int i = 0; i < table.Properties.Count; i++) {
-				SendTableProperty property = table.Properties[i];
-				if ((property.Flags & (SendPropertyFlags.InsideArray | SendPropertyFlags.Exclude)) != 0 || currentExcludes.Contains((table.Name, property.Name)))
+				SendTableProp prop = table.Properties[i];
+				if ((prop.Flags & (SendPropFlags.InsideArray | SendPropFlags.Exclude)) != 0 || excludes.Contains((table.Name, prop.Name)))
 					continue;
-				if (property.SendPropertyType == SendPropertyType.DataTable) {
-					SendTable subTable = _tableLookup[property.ExcludeDtName];
-					if ((property.Flags & SendPropertyFlags.Collapsible) != 0)
-						GatherProps_IterateProps(currentExcludes, subTable, serverClassIndex, flattenedProps, prefix); // we don't prefix Collapsible stuff, since it is just derived mostly
+				if (prop.SendPropType == SendPropType.DataTable) {
+					SendTable subTable = _tableLookup[prop.ExcludeDtName];
+					// we don't prefix Collapsible stuff, since it is just derived mostly
+					if ((prop.Flags & SendPropFlags.Collapsible) != 0)
+						IterateProps(excludes, subTable, classIndex, fProps, prefix); 
 					else
-						GatherProps(currentExcludes, subTable, serverClassIndex, property.Name.Length > 0 ? $"{property.Name}." : "");
+						GatherProps(excludes, subTable, classIndex, prop.Name.Length > 0 ? $"{prop.Name}." : "");
 				} else {
-					flattenedProps.Add(new FlattenedProp(prefix + property.Name, property, 
-						property.SendPropertyType == SendPropertyType.Array ? table.Properties[i - 1] : null));
+					fProps.Add(new FlattenedProp(prefix + prop.Name, prop, 
+						prop.SendPropType == SendPropType.Array ? table.Properties[i - 1] : null));
 				}
 			}
 		}
 
 
 		public ServerClass GetClassByDtName(string dtName) {
-			return _dataTablesRef.ServerClasses.Single(serverClass => serverClass.DataTableName == dtName);
+			return _dtRef.ServerClasses.Single(serverClass => serverClass.DataTableName == dtName);
 		}
 	}
 	
@@ -179,39 +182,39 @@ namespace DemoParser.Parser.HelperClasses {
 	public class FlattenedProp : IEquatable<FlattenedProp> {
 		
 		public readonly string Name;
-		public readonly SendTableProperty Property;
-		public readonly SendTableProperty? ArrayElementProp;
+		public readonly SendTableProp Prop;
+		public readonly SendTableProp? ArrayElementProp;
 		
 
-		public FlattenedProp(string name, SendTableProperty property, SendTableProperty? arrayElementProp) {
-			Property = property;
+		public FlattenedProp(string name, SendTableProp prop, SendTableProp? arrayElementProp) {
+			Prop = prop;
 			ArrayElementProp = arrayElementProp;
 			Name = name;
 		}
 		
 
 		public override string ToString() {
-			SendTableProperty displayProp = (Property.Flags & SendPropertyFlags.InsideArray) != 0 ? ArrayElementProp : Property;
+			SendTableProp displayProp = (Prop.Flags & SendPropFlags.InsideArray) != 0 ? ArrayElementProp : Prop;
 			return $"{TypeString()} {Name}, " +
 				   $"{displayProp.NumBits} bit{(displayProp.NumBits == 1 ? "" : "s")}, " +
 				   $"flags: {displayProp.Flags}";
 		}
 		
 		public string TypeString() => TypeStringFromProp(
-			Property.SendPropertyType,
-			ArrayElementProp?.SendPropertyType,
-			Property.Elements);
+			Prop.SendPropType,
+			ArrayElementProp?.SendPropType,
+			Prop.Elements);
 
 
-		private static string TypeStringFromProp(SendPropertyType propertyType, SendPropertyType? elementsType, uint? elements) {
-			string str = propertyType switch {
-				SendPropertyType.Int 		=> "int",
-				SendPropertyType.Float 		=> "float",
-				SendPropertyType.Vector3 	=> "vector3",
-				SendPropertyType.Vector2 	=> "vector2",
-				SendPropertyType.String 	=> "string",
-				SendPropertyType.Array 		=> null,
-				_ => throw new ArgumentOutOfRangeException(nameof(propertyType), $"unknown property type: {propertyType}")
+		private static string TypeStringFromProp(SendPropType propType, SendPropType? elementsType, uint? elements) {
+			string str = propType switch {
+				SendPropType.Int 		=> "int",
+				SendPropType.Float 		=> "float",
+				SendPropType.Vector3 	=> "vector3",
+				SendPropType.Vector2 	=> "vector2",
+				SendPropType.String 	=> "string",
+				SendPropType.Array 		=> null,
+				_ => throw new ArgumentOutOfRangeException(nameof(propType), $"unknown property type: {propType}")
 			};
 			// if elements are of array type, converts from something like "int" to something like "int[32]"
 			return str ?? $"{TypeStringFromProp(elementsType.Value, default, default)}[{elements}]";
@@ -221,7 +224,7 @@ namespace DemoParser.Parser.HelperClasses {
 		public bool Equals(FlattenedProp? other) {
 			if (ReferenceEquals(null, other)) return false;
 			if (ReferenceEquals(this, other)) return true;
-			return Name == other.Name && Property.Equals(other.Property) && Equals(ArrayElementProp, other.ArrayElementProp);
+			return Name == other.Name && Prop.Equals(other.Prop) && Equals(ArrayElementProp, other.ArrayElementProp);
 		}
 
 
@@ -233,7 +236,7 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 		public override int GetHashCode() {
-			return HashCode.Combine(Name, Property, ArrayElementProp);
+			return HashCode.Combine(Name, Prop, ArrayElementProp);
 		}
 
 

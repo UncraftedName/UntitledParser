@@ -17,7 +17,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		private static readonly Regex BoolMatcher = new Regex("^(m_)?b[A-Z]", RegexOptions.Compiled);
 
 
-		internal static DisplayType IdentifyTypeForInt(string name, SendTableProperty propInfo) {
+		internal static DisplayType IdentifyTypeForInt(string name, SendTableProp propInfo) {
 			if (propInfo.NumBits == 32 && name.Contains("color", StringComparison.OrdinalIgnoreCase))
 				return DisplayType.Color;
 			string[] split = name.Split('.');

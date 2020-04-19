@@ -30,7 +30,7 @@ namespace DemoParser.Parser.HelperClasses {
 					if (checkedStrs.Contains(sendTable.Name))
 						continue;
 					string inheritName = null;
-					if (sendTable.Properties.Count > 0 && sendTable.Properties[0].SendPropertyType == SendPropertyType.DataTable)
+					if (sendTable.Properties.Count > 0 && sendTable.Properties[0].SendPropType == SendPropType.DataTable)
 						inheritName = sendTable.Properties[0].ExcludeDtName;
 					if (inheritName == null) {
 						AddRoot(sendTable.Name);

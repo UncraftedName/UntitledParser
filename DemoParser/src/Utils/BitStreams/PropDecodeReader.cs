@@ -13,10 +13,10 @@ namespace DemoParser.Utils.BitStreams {
     // mostly just an extra class to keep this nasty unusual stuff separate
     public partial class BitStreamReader  {
 
-        public void DecodeVector3(SendTableProperty propInfo, ref Vector3 vec3) { // src_main\engine\dt_encode.cpp line 158
+        public void DecodeVector3(SendTableProp propInfo, ref Vector3 vec3) { // src_main\engine\dt_encode.cpp line 158
             vec3.X = DecodeFloat(propInfo);
             vec3.Y = DecodeFloat(propInfo);
-            if ((propInfo.Flags & SendPropertyFlags.Normal) == 0) { 
+            if ((propInfo.Flags & SendPropFlags.Normal) == 0) { 
                 vec3.Z = DecodeFloat(propInfo);
             } else { // Don't read in the third component for normals
                 bool sign = ReadBool();
@@ -31,30 +31,30 @@ namespace DemoParser.Utils.BitStreams {
         }
 
 
-        public void DecodeVector2(SendTableProperty propInfo, ref Vector2 vec2) { // nice and easy
+        public void DecodeVector2(SendTableProp propInfo, ref Vector2 vec2) { // nice and easy
             vec2.X = DecodeFloat(propInfo);
             vec2.Y = DecodeFloat(propInfo);
         }
         
 
-        public bool DecodeSpecialFloat(SendTableProperty propInfo, ref float val) {
-            SendPropertyFlags flags = propInfo.Flags;
-            if ((flags & SendPropertyFlags.Coord) != 0) {
+        public bool DecodeSpecialFloat(SendTableProp propInfo, ref float val) {
+            SendPropFlags flags = propInfo.Flags;
+            if ((flags & SendPropFlags.Coord) != 0) {
                 val = ReadBitCoord();
                 return true;
-            } else if ((flags & SendPropertyFlags.CoordMp) != 0) {
+            } else if ((flags & SendPropFlags.CoordMp) != 0) {
                 val = ReadBitCoordMp(false, false);
                 return true;
-            } else if ((flags & SendPropertyFlags.CoordMpLowPrecision) != 0) {
+            } else if ((flags & SendPropFlags.CoordMpLowPrecision) != 0) {
                 val = ReadBitCoordMp(false, true);
                 return true;
-            } else if ((flags & SendPropertyFlags.CoordMpIntegral) != 0) {
+            } else if ((flags & SendPropFlags.CoordMpIntegral) != 0) {
                 val = ReadBitCoordMp(true, false);
                 return true;
-            } else if ((flags & SendPropertyFlags.NoScale) != 0) {
+            } else if ((flags & SendPropFlags.NoScale) != 0) {
                 val = ReadBitFloat();
                 return true;
-            } else if ((flags & SendPropertyFlags.Normal) != 0) {
+            } else if ((flags & SendPropFlags.Normal) != 0) {
                 val = ReadBitNormal();
                 return true;
             }
@@ -76,7 +76,7 @@ namespace DemoParser.Utils.BitStreams {
         public float ReadBitFloat() => BitConverter.Int32BitsToSingle((int)ReadUInt());
 
 
-        public float DecodeFloat(SendTableProperty propInfo) {
+        public float DecodeFloat(SendTableProp propInfo) {
             float val = default;
             if (DecodeSpecialFloat(propInfo, ref val)) // check for special flags
                 return val;
@@ -137,8 +137,8 @@ namespace DemoParser.Utils.BitStreams {
         }
 
 
-        public int DecodeInt(SendTableProperty propInfo) {
-            return (propInfo.Flags & SendPropertyFlags.Unsigned) != 0
+        public int DecodeInt(SendTableProp propInfo) {
+            return (propInfo.Flags & SendPropFlags.Unsigned) != 0
                 ? (int)ReadBitsAsUInt(propInfo.NumBits.Value)
                 : ReadBitsAsSInt(propInfo.NumBits.Value);
         }
@@ -150,7 +150,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
         public List<int> DecodeIntArr(FlattenedProp propInfo) {
-            int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Property.Elements.Value) + 1);
+            int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.Elements.Value) + 1);
             List<int> result = new List<int>(count);
             for (int i = 0; i < count; i++) 
                 result.Add(DecodeInt(propInfo.ArrayElementProp));
@@ -159,7 +159,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
         public List<float> DecodeFloatArr(FlattenedProp propInfo) {
-            int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Property.Elements.Value) + 1);
+            int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.Elements.Value) + 1);
             List<float> result = new List<float>(count);
             for (int i = 0; i < count; i++) 
                 result.Add(DecodeFloat(propInfo.ArrayElementProp));
@@ -168,7 +168,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
         public List<string> DecodeStringArr(FlattenedProp propInfo) {
-            int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Property.Elements.Value) + 1);
+            int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.Elements.Value) + 1);
             List<string> result = new List<string>(count);
             for (int i = 0; i < count; i++) 
                 result.Add(DecodeString());
@@ -177,7 +177,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
         public List<Vector3> DecodeVector3Arr(FlattenedProp propInfo) {
-            int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Property.Elements.Value) + 1);
+            int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.Elements.Value) + 1);
             List<Vector3> result = new List<Vector3>(count);
             for (int i = 0; i < count; i++) {
                 Vector3 v3 = default;
@@ -189,7 +189,7 @@ namespace DemoParser.Utils.BitStreams {
         
         
         public List<Vector2> DecodeVector2Arr(FlattenedProp propInfo) {
-            int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Property.Elements.Value) + 1);
+            int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.Elements.Value) + 1);
             List<Vector2> result = new List<Vector2>(count);
             for (int i = 0; i < count; i++) {
                 Vector2 v2 = default;

@@ -103,7 +103,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 		public bool NeedsDecoder;
 		public string Name;
-		public List<SendTableProperty> Properties;
+		public List<SendTableProp> Properties;
 		
 		
 		public SendTable(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
@@ -113,9 +113,9 @@ namespace DemoParser.Parser.Components.Packets {
 			NeedsDecoder = bsr.ReadBool();
 			Name = bsr.ReadNullTerminatedString();
 			uint propCount = bsr.ReadBitsAsUInt(10);
-			Properties = new List<SendTableProperty>((int)propCount);
+			Properties = new List<SendTableProp>((int)propCount);
 			for (int i = 0; i < propCount; i++) {
-				Properties.Add(new SendTableProperty(DemoRef, bsr, this));
+				Properties.Add(new SendTableProp(DemoRef, bsr, this));
 				Properties[^1].ParseStream(bsr);
 			}
 			SetLocalStreamEnd(bsr);
@@ -132,7 +132,7 @@ namespace DemoParser.Parser.Components.Packets {
 			if (Properties.Count > 0) {
 				iw.Append($"{Properties.Count} prop{(Properties.Count > 1 ? "s" : "")}):");
 				iw.AddIndent();
-				foreach (SendTableProperty sendProp in Properties) {
+				foreach (SendTableProp sendProp in Properties) {
 					iw.AppendLine();
 					sendProp.AppendToWriter(iw);
 				}
@@ -144,13 +144,13 @@ namespace DemoParser.Parser.Components.Packets {
 	}
 	
 	
-	public class SendTableProperty : DemoComponent, IEquatable<SendTableProperty> {
+	public class SendTableProp : DemoComponent, IEquatable<SendTableProp> {
 		
 		public readonly SendTable TableRef;
 		// these fields should only be set once in ParseStream()
-		public SendPropertyType SendPropertyType;
+		public SendPropType SendPropType;
 		public string Name;
-		public SendPropertyFlags Flags;
+		public SendPropFlags Flags;
 		public int? Priority;
 		public string? ExcludeDtName;
 		public float? LowValue;
@@ -159,26 +159,26 @@ namespace DemoParser.Parser.Components.Packets {
 		public uint? Elements;
 		
 
-		public SendTableProperty(SourceDemo demoRef, BitStreamReader reader, SendTable tableRef) : base(demoRef, reader) {
+		public SendTableProp(SourceDemo demoRef, BitStreamReader reader, SendTable tableRef) : base(demoRef, reader) {
 			TableRef = tableRef;
 		}
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			SendPropertyType = UIntToSendPropertyType(DemoRef, bsr.ReadBitsAsUInt(5));
+			SendPropType = UIntToSendPropertyType(DemoRef, bsr.ReadBitsAsUInt(5));
 			Name = bsr.ReadNullTerminatedString();
-			Flags = (SendPropertyFlags)bsr.ReadBitsAsUInt(DemoRef.Header.DemoProtocol == 2 ? 11 : 16);
+			Flags = (SendPropFlags)bsr.ReadBitsAsUInt(DemoRef.Header.DemoProtocol == 2 ? 11 : 16);
 			if (DemoRef.DemoSettings.NewEngine)
 				Priority = bsr.ReadBitsAsSInt(11);
-			if (SendPropertyType == SendPropertyType.DataTable || (Flags & SendPropertyFlags.Exclude) != 0) {
+			if (SendPropType == SendPropType.DataTable || (Flags & SendPropFlags.Exclude) != 0) {
 				ExcludeDtName = bsr.ReadNullTerminatedString();
 			} else {
-				switch (SendPropertyType) {
-					case SendPropertyType.String:
-					case SendPropertyType.Int:
-					case SendPropertyType.Float:
-					case SendPropertyType.Vector3:
-					case SendPropertyType.Vector2:
+				switch (SendPropType) {
+					case SendPropType.String:
+					case SendPropType.Int:
+					case SendPropType.Float:
+					case SendPropType.Vector3:
+					case SendPropType.Vector2:
 						LowValue = bsr.ReadFloat();
 						HighValue = bsr.ReadFloat();
 						NumBits = bsr.ReadBitsAsUInt(
@@ -186,12 +186,12 @@ namespace DemoParser.Parser.Components.Packets {
 							DemoRef.DemoSettings.Game == SourceDemoSettings.SourceGame.L4D2_2000 
 								? 6 : 7);
 						break;
-					case SendPropertyType.Array:
+					case SendPropType.Array:
 						Elements = bsr.ReadBitsAsUInt(10);
 						break;
 					default:
-						throw new ArgumentOutOfRangeException(nameof(SendPropertyType),
-							$"Invalid prop type: {SendPropertyType}");
+						throw new ArgumentOutOfRangeException(nameof(SendPropType),
+							$"Invalid prop type: {SendPropType}");
 				}
 			}
 		}
@@ -203,24 +203,24 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append($"{SendPropertyType.ToString().ToLower(), -10}");
+			iw.Append($"{SendPropType.ToString().ToLower(), -10}");
 			if (ExcludeDtName != null) {
 				iw.Append($"{Name}{(ExcludeDtName == null ? "" : $" : {ExcludeDtName}")}".PadRight(50));
 			} else {
 				iw.Append($"{Name}".PadRight(60, '.'));
-				switch (SendPropertyType) {
-					case SendPropertyType.String:
-					case SendPropertyType.Int:
-					case SendPropertyType.Float:
-					case SendPropertyType.Vector3:
-					case SendPropertyType.Vector2:
+				switch (SendPropType) {
+					case SendPropType.String:
+					case SendPropType.Int:
+					case SendPropType.Float:
+					case SendPropType.Vector3:
+					case SendPropType.Vector2:
 						iw.Append($"low: {LowValue, -12} high: {HighValue, -12} {NumBits, 3} bit{(NumBits == 1 ? "" : "s")}");
 						break;
-					case SendPropertyType.Array:
+					case SendPropType.Array:
 						iw.Append($"elements: {Elements}");
 						break;
 					default:
-						iw.Append($"unknown prop type: {SendPropertyType}");
+						iw.Append($"unknown prop type: {SendPropType}");
 						break;
 				}
 				iw.PadLastLine(130, ' ');
@@ -236,20 +236,20 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public static SendPropertyType UIntToSendPropertyType(SourceDemo demoRef, uint i) {
+		public static SendPropType UIntToSendPropertyType(SourceDemo demoRef, uint i) {
 			if (demoRef.Header.NetworkProtocol <= 14) {
 				if (i >= 3) // vectorXY/vec2 doesn't exist in leak/3420 build of portal
 					i++;
 			}
-			return (SendPropertyType)i;
+			return (SendPropType)i;
 		}
 
 
-		public bool Equals(SendTableProperty? other) {
+		public bool Equals(SendTableProp? other) {
 			if (ReferenceEquals(null, other)) return false;
 			if (ReferenceEquals(this, other)) return true;
 			return TableRef.Equals(other.TableRef) 
-				   && SendPropertyType == other.SendPropertyType 
+				   && SendPropType == other.SendPropType 
 				   && Name == other.Name 
 				   && Flags == other.Flags 
 				   && Priority == other.Priority 
@@ -264,7 +264,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public override bool Equals(object? obj) {
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
-			return obj.GetType() == GetType() && Equals((SendTableProperty)obj);
+			return obj.GetType() == GetType() && Equals((SendTableProp)obj);
 		}
 
 
@@ -272,7 +272,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public override int GetHashCode() {
 			var hashCode = new HashCode();
 			hashCode.Add(TableRef);
-			hashCode.Add((int)SendPropertyType);
+			hashCode.Add((int)SendPropType);
 			hashCode.Add(Name);
 			hashCode.Add((int)Flags);
 			hashCode.Add(Priority);
@@ -285,18 +285,18 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public static bool operator ==(SendTableProperty left, SendTableProperty right) {
+		public static bool operator ==(SendTableProp left, SendTableProp right) {
 			return Equals(left, right);
 		}
 
 
-		public static bool operator !=(SendTableProperty left, SendTableProperty right) {
+		public static bool operator !=(SendTableProp left, SendTableProp right) {
 			return !Equals(left, right);
 		}
 	}
 
 
-	public enum SendPropertyType : uint {
+	public enum SendPropType : uint {
 		Int,
 		Float,
 		Vector3,
@@ -308,7 +308,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 	[Flags]
-	public enum SendPropertyFlags : uint { // https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/SendTableProperty.cs
+	public enum SendPropFlags : uint { // https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/SendTableProperty.cs
 		None						= 0,
 		Unsigned 					= 1,
 		Coord 						= 1 << 1,

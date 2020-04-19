@@ -60,7 +60,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 		public override string PropToString() {
-			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.Property);
+			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.Prop);
 			return EntPropToStringHelper.CreateIntPropStr(Value, tmp);
 		}
 	}
@@ -341,32 +341,32 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			
 			const string exceptionMsg = "an impossible entity type has appeared while creating/reading props ";
 			try {
-				switch (prop.Property.SendPropertyType) {
-					case SendPropertyType.Int:
-						return new IntEntProp(prop, bsr.DecodeInt(prop.Property));
-					case SendPropertyType.Float:
-						return new FloatEntProp(prop, bsr.DecodeFloat(prop.Property));
-					case SendPropertyType.Vector3:
+				switch (prop.Prop.SendPropType) {
+					case SendPropType.Int:
+						return new IntEntProp(prop, bsr.DecodeInt(prop.Prop));
+					case SendPropType.Float:
+						return new FloatEntProp(prop, bsr.DecodeFloat(prop.Prop));
+					case SendPropType.Vector3:
 						Vector3 v3 = default;
-						bsr.DecodeVector3(prop.Property, ref v3);
+						bsr.DecodeVector3(prop.Prop, ref v3);
 						return new Vec3EntProp(prop, v3);
-					case SendPropertyType.Vector2:
+					case SendPropType.Vector2:
 						Vector2 v2 = default;
-						bsr.DecodeVector2(prop.Property, ref v2);
+						bsr.DecodeVector2(prop.Prop, ref v2);
 						return new Vec2EntProp(prop, v2);
-					case SendPropertyType.String:
+					case SendPropType.String:
 						return new StringEntProp(prop, bsr.DecodeString());
-					case SendPropertyType.Array:
-						return prop.ArrayElementProp.SendPropertyType switch {
-							SendPropertyType.Int 		=> new IntArrEntProp(prop, bsr.DecodeIntArr(prop)),
-							SendPropertyType.Float 		=> new FloatArrEntProp(prop, bsr.DecodeFloatArr(prop)),
-							SendPropertyType.Vector3 	=> new Vec3ArrEntProp(prop, bsr.DecodeVector3Arr(prop)),
-							SendPropertyType.Vector2 	=> new Vec2ArrEntProp(prop, bsr.DecodeVector2Arr(prop)),
-							SendPropertyType.String 	=> new StringArrEntProp(prop, bsr.DecodeStringArr(prop)),
-							_ => throw new ArgumentException(exceptionMsg, nameof(prop.Property.SendPropertyType))
+					case SendPropType.Array:
+						return prop.ArrayElementProp.SendPropType switch {
+							SendPropType.Int 		=> new IntArrEntProp(prop, bsr.DecodeIntArr(prop)),
+							SendPropType.Float 		=> new FloatArrEntProp(prop, bsr.DecodeFloatArr(prop)),
+							SendPropType.Vector3 	=> new Vec3ArrEntProp(prop, bsr.DecodeVector3Arr(prop)),
+							SendPropType.Vector2 	=> new Vec2ArrEntProp(prop, bsr.DecodeVector2Arr(prop)),
+							SendPropType.String 	=> new StringArrEntProp(prop, bsr.DecodeStringArr(prop)),
+							_ => throw new ArgumentException(exceptionMsg, nameof(prop.Prop.SendPropType))
 						};
 				}
-				throw new ArgumentException(exceptionMsg, nameof(prop.Property.SendPropertyType));
+				throw new ArgumentException(exceptionMsg, nameof(prop.Prop.SendPropType));
 			} catch (ArgumentOutOfRangeException) { // catch errors during parsing
 				return new UnparsedProperty(prop);
 			}
@@ -387,7 +387,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				while ((i = bsr.ReadFieldIndex(i, newWay)) != -1) {
 					props.Add((i, CreateAndReadProp(fProps[i], bsr)));
 					// temporary fix
-					if ((fProps[i].Property.Flags & SendPropertyFlags.CoordMpIntegral) != 0)
+					if ((fProps[i].Prop.Flags & SendPropFlags.CoordMpIntegral) != 0)
 						bsr.SkipBits(24);
 				}
 			} else {
