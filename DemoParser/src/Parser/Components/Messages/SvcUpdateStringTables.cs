@@ -1,7 +1,6 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
@@ -70,7 +69,6 @@ namespace DemoParser.Parser.Components.Messages {
 			TableUpdates = new List<C_TableUpdate>(_updatedEntries);
 		}
 		
-		
 		internal override void ParseStream(BitStreamReader bsr) { 
 			
 			C_StringTablesManager manager = DemoRef.CStringTablesManager;
@@ -127,11 +125,13 @@ namespace DemoParser.Parser.Components.Messages {
 						if (j == -1) {
 							TableUpdates.Add(new C_TableUpdate(
 								manager.AddTableEntry(tableToUpdate, entryStream, entryName), 
-								C_TableUpdateType.NewEntry));
+								C_TableUpdateType.NewEntry,
+								tableToUpdate.Entries.Count - 1)); // sub 1 since we update the table 2 lines up
 						} else {
 							TableUpdates.Add(new C_TableUpdate(
 								manager.SetEntryData(tableToUpdate, tableToUpdate.Entries[j], entryStream), 
-								C_TableUpdateType.ChangeEntryData));
+								C_TableUpdateType.ChangeEntryData,
+								j));
 						}
 						bsr.SkipBits(streamLen);
 					}
@@ -183,18 +183,20 @@ namespace DemoParser.Parser.Components.Messages {
 	public class C_TableUpdate {
 
 		internal int PadCount; // just for toString()
+		public readonly int Index;
 		public readonly C_StringTableEntry TableEntry;
 		public readonly C_TableUpdateType UpdateType;
 
 
-		public C_TableUpdate(C_StringTableEntry tableEntry, C_TableUpdateType updateType) {
+		public C_TableUpdate(C_StringTableEntry tableEntry, C_TableUpdateType updateType, int index) {
 			TableEntry = tableEntry;
 			UpdateType = updateType;
+			Index = index;
 		}
 		
 		
 		public void AppendToWriter(IndentedWriter iw) { // similar logic to that in string tables
-			iw.Append($"{ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
+			iw.Append($"({Index}) {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
 			if (TableEntry.EntryData != null) {
 				iw.AddIndent();
 				if (TableEntry.EntryData.ContentsKnown)
