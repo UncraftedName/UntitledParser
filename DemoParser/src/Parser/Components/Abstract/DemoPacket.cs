@@ -1,6 +1,5 @@
 using System;
 using DemoParser.Parser.Components.Packets;
-using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
@@ -28,7 +27,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			if (byteValue == 8)
 				return PacketType.StringTables;
 			if (byteValue == 0) {
-				if (demo.DemoSettings.Game == SourceDemoSettings.SourceGame.PORTAL_1_3420)
+				if (demo.DemoSettings.Game == SourceGame.PORTAL_1_3420)
 					return PacketType.StringTables;
 			}
 			string e = $"unknown packet type. Value: {byteValue}";
@@ -40,7 +39,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		// gets the byte value associated with this packet type
 		public static byte PacketTypeToByte(PacketType packetType, SourceDemoSettings demoSettings) {
 			if (packetType == PacketType.StringTables &&
-				demoSettings.Game == SourceDemoSettings.SourceGame.PORTAL_1_3420)
+				demoSettings.Game == SourceGame.PORTAL_1_3420)
 				return 0;
 			byte byteVal = (byte)packetType;
 			if (byteVal < 8)

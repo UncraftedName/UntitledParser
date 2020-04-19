@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
-using static DemoParser.Parser.SourceDemoSettings.SourceGame;
+using static DemoParser.Parser.SourceGame;
 
 // this is a two way dict so that i can map the byte to the message type and also know the reverse for debugging and for writing the demo
 using TypeReMapper = DemoParser.Utils.TwoWayDict<byte, DemoParser.Parser.Components.Abstract.UserMessageType>;
@@ -25,15 +25,15 @@ namespace DemoParser.Parser.Components.Abstract {
 		#region lookup tables
 
 		// these are mostly offset by one from the leak, many that i don't technically know for sure tho
-		private static readonly TwoWayDict<byte,UserMessageType> Portal1ReMapper = new TwoWayDict<byte,UserMessageType> {
+		private static readonly TypeReMapper Portal1ReMapper = new TypeReMapper {
 			[30] = UserMessageType.KillCam, // idk if this is correct
 			[33] = UserMessageType.LogoTimeMsg // 34 is related to picking up/dropping items
 		};
-		private static readonly TwoWayDict<byte,UserMessageType> Portal1SteamPipe = new TwoWayDict<byte,UserMessageType> {};
-		private static readonly TwoWayDict<byte,UserMessageType> L4D2ReMapper = new TwoWayDict<byte,UserMessageType> {};
+		private static readonly TypeReMapper Portal1SteamPipe = new TypeReMapper {};
+		private static readonly TypeReMapper L4D2ReMapper = new TypeReMapper {};
 		// 48 is something related to shooting/failing to place portals
 		// 59 is spammed in one packet, seems to be when entering disassembly machine
-		private static readonly TwoWayDict<byte,UserMessageType> Portal2ReMapper = new TwoWayDict<byte,UserMessageType> {};
+		private static readonly TypeReMapper Portal2ReMapper = new TypeReMapper {};
 		
 		#endregion
 

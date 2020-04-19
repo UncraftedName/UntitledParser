@@ -131,11 +131,11 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 		
 		
-		private void NextOldEntIndex(ref int index, IReadOnlyList<Entity?> oldEnts) {
+		private static void NextOldEntIndex(ref int index, IReadOnlyList<Entity?> oldEnts) {
 			do {
 				index++;
 				if (index >= oldEnts.Count) {
-					index = DemoRef.DemoSettings.EntitySentinel;
+					index = int.MaxValue; // entity sentinel, something bigger than the number of entities
 					return;
 				}
 			} while (oldEnts[index] == null);

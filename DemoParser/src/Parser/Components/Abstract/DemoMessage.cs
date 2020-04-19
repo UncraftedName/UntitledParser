@@ -1,6 +1,5 @@
 using System;
 using DemoParser.Parser.Components.Messages;
-using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
@@ -24,7 +23,7 @@ namespace DemoParser.Parser.Components.Abstract {
 					case 7:
 						return MessageType.SvcPrint;
 					case 16:
-						if (demoSettings.Game == SourceDemoSettings.SourceGame.PORTAL_1_STEAMPIPE)
+						if (demoSettings.Game == SourceGame.PORTAL_1_STEAMPIPE)
 							return MessageType.NetSignOnState;
 						return MessageType.Unknown;
 					case 22:
@@ -46,7 +45,7 @@ namespace DemoParser.Parser.Components.Abstract {
 					case MessageType.NetSetConVar:
 						return 5;
 					case MessageType.NetSignOnState:
-						return demoSettings.Game == SourceDemoSettings.SourceGame.PORTAL_1_STEAMPIPE ? (byte)16 : (byte)6;
+						return demoSettings.Game == SourceGame.PORTAL_1_STEAMPIPE ? (byte)16 : (byte)6;
 					case MessageType.SvcPrint:
 						return 7;
 					case MessageType.NetSplitScreenUser:

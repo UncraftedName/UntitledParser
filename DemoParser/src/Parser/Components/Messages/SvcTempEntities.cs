@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages {
 			uint bitLen = bsr.ReadBitsAsUInt(17);
 			_data = bsr.SubStream(bitLen);
 			bsr.SkipBits(bitLen);
-			if (DemoRef.DemoSettings.Game == SourceDemoSettings.SourceGame.L4D2_2000)
+			if (DemoRef.DemoSettings.Game == SourceGame.L4D2_2000)
 				Unknown = bsr.ReadBool();
 			SetLocalStreamEnd(bsr);
 			
