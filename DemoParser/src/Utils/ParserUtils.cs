@@ -28,7 +28,7 @@ namespace DemoParser.Utils {
 		public static IEnumerable<T> FilterForMessageType<T>(this Packet packet) where T : DemoMessage {
 			return packet
 				.MessageStream
-				.Select(tuple => tuple.Item2)
+				.Select(tuple => tuple.message)
 				.Where(message => message != null && message.GetType() == typeof(T))
 				.Cast<T>();
 		}
@@ -43,7 +43,7 @@ namespace DemoParser.Utils {
 		public static IEnumerable<T> FilterForMessageType<T>(this SignOn signOn) where T : DemoMessage {
 			return signOn
 				.MessageStream
-				.Select(tuple => tuple.Item2)
+				.Select(tuple => tuple.message)
 				.Where(message => message != null && message.GetType() == typeof(T))
 				.Cast<T>();
 		}
