@@ -15,7 +15,7 @@ namespace DemoParser.Parser.HelperClasses {
 	public class DataTableParser {
 
 		private readonly SourceDemo _demoRef;
-		private readonly DataTables _dataTablesRef; // todo should I create a separate table parser when new data tables come up?
+		private readonly DataTables _dataTablesRef;
 		private readonly ImmutableDictionary<string, SendTable> _tableLookup;
 		public int ServerClassBits => BitUtils.HighestBitIndex((uint)_dataTablesRef.ServerClasses.Count) + 1; // this might be off for powers of 2
 		public readonly PropLookup? FlattendProps; // not initialized during the server class info

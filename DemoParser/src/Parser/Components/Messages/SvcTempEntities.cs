@@ -23,6 +23,8 @@ namespace DemoParser.Parser.Components.Messages {
 			if (DemoRef.DemoSettings.Game == SourceDemoSettings.SourceGame.L4D2_2000)
 				Unknown = bsr.ReadBool();
 			SetLocalStreamEnd(bsr);
+			
+			// todo
 		}
 		
 

@@ -28,7 +28,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
         }
 
 
-        public C_EntitySnapshot Duplicate() => 
+        public C_EntitySnapshot DeepCopy() => 
             new C_EntitySnapshot(_demoRef, Entities.Select(entity => entity?.Duplicate()).ToArray(), EngineTick);
 
 
@@ -53,11 +53,11 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
         }
 
 
-        internal void ProcessLeavePvs(LeavePvs update) {
-            if (update.Delete)
-                Entities[update.Index] = null;
+        internal void ProcessLeavePvs(LeavePvs u) {
+            if (u.Delete)
+                Entities[u.Index] = null;
             else
-                Entities[update.Index].InPvs = false;
+                Entities[u.Index].InPvs = false;
         }
 
 

@@ -10,14 +10,10 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
     public abstract class EntityProperty : Appendable {
 		
-		// i keep this here so I can access it from outside
-		internal static readonly ArgumentException BadTypeException = 
-			new ArgumentException("an impossible property type appeared while cloning a property");
-		
         public readonly FlattenedProp PropInfo;
-		
-		
-        protected EntityProperty(FlattenedProp propInfo) {
+
+
+		protected EntityProperty(FlattenedProp propInfo) {
             PropInfo = propInfo;
         }
 
