@@ -142,6 +142,7 @@
           </e>
           <e p="Utils" t="Include">
             <e p="BitStreams" t="Include">
+              <e p="BitStreamEditor.cs" t="Include" />
               <e p="BitStreamReader.cs" t="Include" />
               <e p="BitStreamSearcher.cs" t="Include" />
               <e p="BitStreamWriter.cs" t="Include" />

@@ -8,19 +8,19 @@ namespace DemoParser.Utils.BitStreams {
 	
 	// because I don't use this nearly as much as the reader atm, some of the methods may be poorly or incorrectly implemented
 	public partial class BitStreamWriter {
-		public int CurrentBitLength {get; private set;}
+		public int BitLength {get; private set;}
 		private readonly List<byte> _data;
 		public byte[] AsArray => _data.ToArray();
-		private int IndexInByte => CurrentBitLength & 0x07;
+		private int IndexInByte => BitLength & 0x07;
 		private bool IsByteAligned => IndexInByte == 0;
-		public int SizeInBytes => CurrentBitLength >> 3;
+		public int SizeInBytes => BitLength >> 3;
 		public bool IsLittleEndian; // this doesn't work w/ big endian atm, probably won't try to fix it since it's not necessary
 		
 		
 		public BitStreamWriter(int initialByteCapacity, bool isLittleEndian = true) {
 			_data = new List<byte>(initialByteCapacity);
 			IsLittleEndian = isLittleEndian;
-			CurrentBitLength = 0;
+			BitLength = 0;
 		}
 		
 
@@ -33,7 +33,7 @@ namespace DemoParser.Utils.BitStreams {
 		
 		
 
-		public string ToBinary() {
+		public string ToBinaryString() {
 			if (IsByteAligned)
 				return ParserTextUtils.BytesToBinaryString(_data);
 			else
@@ -51,44 +51,10 @@ namespace DemoParser.Utils.BitStreams {
 
 		public void WriteUntilByteBoundary() {
 			if (!IsByteAligned)
-				CurrentBitLength += 8 - IndexInByte; // maybe wrong idk
+				BitLength += 8 - IndexInByte; // maybe wrong idk
 		}
 
 
-		public void EditBitsAtIndex(int bitIndex, byte[] bytes) => EditBitsAtIndex(bitIndex, bytes, bytes.Length << 3);
-
-
-		// doesn't take into account starting inside the list and finishing outside
-		public void EditBitsAtIndex(int bitIndex, byte[] bytes, int bitCount) {
-			int byteIndex = bitIndex >> 3;
-			byte remainingBitMaskFirstByte = (byte)(0xff >> (8 - (bitIndex & 0x07)));
-			int bytesModified = 1;
-			// zero out bits that are going to be overriden
-			if (8 - (bitIndex & 0x07) >= bitCount) { // all bits can be written to in a single byte, bitCount <= 8
-				remainingBitMaskFirstByte |= (byte)(0xff << bitCount << (bitIndex & 0x07));
-				_data[byteIndex] &= remainingBitMaskFirstByte;
-			} else {
-				_data[byteIndex++] &= remainingBitMaskFirstByte;
-				int bitsRemaining = bitCount - (8 - (bitIndex & 0x07));
-				while (bitsRemaining >= 8) {
-					_data[byteIndex++] = 0;
-					bitsRemaining -= 8;
-					bytesModified++;
-				}
-				if (bitsRemaining > 0) {
-					_data[byteIndex] &= (byte)(0xff << bitsRemaining);
-					bytesModified++;
-				}
-			}
-			BitStreamWriter writer = new BitStreamWriter((bitCount << 3) + 1);
-			writer.WriteBitsFromInt(0, bitIndex & 0x07);
-			writer.WriteBits(bytes, bitCount);
-			byte[] arr = writer.AsArray;
-			for (int i = 0; i < bytesModified; i++) 
-				_data[(bitIndex >> 3) + i] |= arr[i];
-		}
-		
-		
 		public void WriteBits(byte[] bytes, int bitCount) { // size of bytes will be reduced to bitCount / 8 if bitCount % 8 == 0
 			if (bitCount < 0)
 				throw new ArgumentOutOfRangeException(nameof(bitCount), $"{nameof(bitCount)} cannot be less than 0");
@@ -111,7 +77,7 @@ namespace DemoParser.Utils.BitStreams {
 					_data[^1] |= (byte)(((0xff >> IndexInByte) & lastByteToWrite) << IndexInByte);
 					_data.Add((byte)((lastByteToWrite >> (8 - shiftingOffset)) & (0xff >> (16 - shiftingOffset - (bitCount & 0x07)))));
 				}
-				CurrentBitLength += bitCount & 0x07;
+				BitLength += bitCount & 0x07;
 			}
 		}
 
@@ -130,7 +96,7 @@ namespace DemoParser.Utils.BitStreams {
 		public void WriteBytes(byte[] bytes) {
 			if (IsByteAligned) {
 				_data.AddRange(bytes);
-				CurrentBitLength += bytes.Length << 3;
+				BitLength += bytes.Length << 3;
 			} else {
 				foreach (byte b in bytes)
 					WriteByte(b);
@@ -147,7 +113,7 @@ namespace DemoParser.Utils.BitStreams {
 				_data[^1] |= (byte)(((0xff >> bitsInNextByte) & b) << bitsInNextByte);
 				_data.Add((byte)(((0xff << bitsInCurrentByte) & b) >> bitsInCurrentByte));
 			}
-			CurrentBitLength += 8;
+			BitLength += 8;
 		}
 		
 
@@ -156,7 +122,7 @@ namespace DemoParser.Utils.BitStreams {
 				_data.Add((byte)(b ? 1 : 0));
 			else
 				_data[^1] |= (byte)((1 << IndexInByte) & (b ? 0xff : 0));
-			CurrentBitLength++;
+			BitLength++;
 		}
 		
 
