@@ -46,12 +46,15 @@ namespace DemoParser.Parser {
 				case 4 when h.NetworkProtocol == 2001:
 					Game = PORTAL_2;
 					break;
+				case 4 when h.NetworkProtocol == 2000:
+					Game = L4D2_2000;
+					break;
 				case 4 when h.NetworkProtocol == 2042:
 					Game = L4D2_2042;
 					break;
 				default:
 					Game = UNKNOWN;
-					Console.WriteLine($"\nUnknown game, demo might not parse properly. Update in {GetType().FullName}.\n");
+					Console.WriteLine($"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n");
 					break;
 			}
 
@@ -66,6 +69,7 @@ namespace DemoParser.Parser {
 					MaxSplitscreenPlayers = 2;
 					SignOnGarbageBytes = 160;
 					break;
+				case L4D2_2000:
 				case L4D2_2042:
 					MaxSplitscreenPlayers = 4;
 					SignOnGarbageBytes = 312;
@@ -87,6 +91,7 @@ namespace DemoParser.Parser {
 		PORTAL_1_3420,
 		PORTAL_1_STEAMPIPE,
 		PORTAL_2,
+		L4D2_2000,
 		L4D2_2042,
 		UNKNOWN
 	}
