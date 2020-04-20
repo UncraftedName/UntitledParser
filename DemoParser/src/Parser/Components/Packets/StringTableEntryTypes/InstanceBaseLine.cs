@@ -21,7 +21,6 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		private PropLookup? _propLookup;
 		public ServerClass? ServerClassRef;
 		public List<(int propIndex, EntityProperty prop)> Properties;
-		private bool _exceptionWhileParsing;
 
 
 		public InstanceBaseLine(SourceDemo demoRef, BitStreamReader reader, string entryName,
@@ -59,7 +58,6 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 				DemoRef.CBaseLines?.UpdateBaseLine(ServerClassRef, Properties, fProps.Count);
 			} catch (Exception e) {
 				DemoRef.AddError($"error while parsing baseline for class {ServerClassRef.ClassName}: {e.Message}");
-				_exceptionWhileParsing = true;
 			}
 		}
 
@@ -67,8 +65,6 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public override void AppendToWriter(IndentedWriter iw) {
 			if (ServerClassRef != null) {
 				iw.AppendLine($"class: {ServerClassRef.ClassName} ({ServerClassRef.DataTableName})");
-				if (_exceptionWhileParsing)
-					iw.AppendLine("There was an exception while parsing this baseline, it will not used to update the entity states.");
 				if (Debugger.IsAttached)
 					iw.AppendLine($"[DEBUG_ONLY] bits: {Reader.BitLength}");
 				iw.Append("props:");
@@ -79,6 +75,8 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 						iw.Append($"({i}) ");
 						prop.AppendToWriter(iw);
 					}
+				} else {
+					iw.Append("\nerror during parsing");
 				}
 				iw.SubIndent();
 			}

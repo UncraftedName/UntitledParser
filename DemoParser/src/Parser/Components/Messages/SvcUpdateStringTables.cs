@@ -72,7 +72,7 @@ namespace DemoParser.Parser.Components.Messages {
 		internal override void ParseStream(BitStreamReader bsr) { 
 			
 			C_StringTablesManager manager = DemoRef.CStringTablesManager;
-			if (!manager.TableReadable[_tableName]) {
+			if (!manager.TableReadable.GetValueOrDefault(_tableName)) {
 				DemoRef.AddError($"{_tableName} table is marked as non-readable, can't update :/");
 				_exceptionWhileParsing = true;
 				return;

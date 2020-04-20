@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
@@ -26,7 +27,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			var mgr = DemoRef.CStringTablesManager;
-			if (mgr.TableReadable[TableNames.SoundPreCache])
+			if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache))
 				iw.Append(SoundIndex < mgr.Tables[TableNames.SoundPreCache].Entries.Count
 					? $"sound: {mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName}"
 					: "sound index (out of range):");

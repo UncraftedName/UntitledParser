@@ -39,8 +39,12 @@ namespace DemoParser.Parser.HelperClasses {
 		private readonly SourceDemo _demoRef;
 		private readonly List<C_StringTable> _privateTables;
 		internal readonly Dictionary<string, C_StringTable> Tables;
-		// before accessing anything, check to see if the respective table is readable first
+		
+		// Before accessing any values in the tables, check to see if the respective table is readable first,
+		// make sure to use GetValueOrDefault() - this will ensure that even if the corresponding SvcCreationStringTable
+		// message didn't parse there won't be an exception.
 		internal readonly Dictionary<string, bool> TableReadable;
+		
 		// I store this for later if there's a string tables packet, so that I can create the tables from this list
 		// and the packet instead of the create message.
 		internal readonly List<SvcCreateStringTable> CreationLookup;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
@@ -39,7 +40,7 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.AppendLine($"position: {Pos:F4}");
 
 			var mgr = DemoRef.CStringTablesManager;
-			iw.Append(mgr.TableReadable[TableNames.DecalPreCache]
+			iw.Append(mgr.TableReadable.GetValueOrDefault(TableNames.DecalPreCache)
 				? $"decal texture: {mgr.Tables[TableNames.DecalPreCache].Entries[DecalTextureIndex]}"
 				: "decal texture index:");
 			iw.AppendLine($" ({DecalTextureIndex})");
