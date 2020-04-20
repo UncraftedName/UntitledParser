@@ -92,7 +92,7 @@ namespace DemoParser.Parser.Components.Packets {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

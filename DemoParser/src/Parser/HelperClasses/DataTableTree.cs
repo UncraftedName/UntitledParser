@@ -48,7 +48,7 @@ namespace DemoParser.Parser.HelperClasses {
 
 			if (sort) {
 				Roots.ForEach(node => node.Sort());
-				Roots.Sort((node, tableNode) => string.Compare(node.Name, tableNode.Name));
+				Roots.Sort((node, tableNode) => string.CompareOrdinal(node.Name, tableNode.Name));
 			}
 		}
 
@@ -60,7 +60,7 @@ namespace DemoParser.Parser.HelperClasses {
 
 		private void AddRoot(string name) {
 			Roots.Add(new TableNode(name));
-			Roots.Sort((node,  tableNode) => string.Compare(node.Name, tableNode.Name));
+			Roots.Sort((node,  tableNode) => string.CompareOrdinal(node.Name, tableNode.Name));
 		}
 
 

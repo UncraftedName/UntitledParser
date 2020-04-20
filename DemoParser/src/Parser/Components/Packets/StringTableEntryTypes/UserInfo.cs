@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 

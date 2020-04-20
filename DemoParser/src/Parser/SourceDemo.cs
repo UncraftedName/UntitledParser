@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;

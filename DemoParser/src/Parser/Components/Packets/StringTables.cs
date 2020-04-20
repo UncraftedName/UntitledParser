@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;

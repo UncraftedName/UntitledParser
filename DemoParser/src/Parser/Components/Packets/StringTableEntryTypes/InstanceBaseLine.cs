@@ -21,7 +21,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		private PropLookup? _propLookup;
 		public ServerClass? ServerClassRef;
 		public List<(int propIndex, EntityProperty prop)> Properties;
-		private bool _exceptionWhileParsing = false;
+		private bool _exceptionWhileParsing;
 
 
 		public InstanceBaseLine(SourceDemo demoRef, BitStreamReader reader, string entryName,
@@ -80,7 +80,6 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 						prop.AppendToWriter(iw);
 					}
 				}
-
 				iw.SubIndent();
 			}
 		}

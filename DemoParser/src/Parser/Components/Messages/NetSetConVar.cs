@@ -25,7 +25,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 
