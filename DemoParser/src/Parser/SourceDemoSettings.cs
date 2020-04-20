@@ -19,7 +19,7 @@ namespace DemoParser.Parser {
 		// initialized below
 		public readonly SourceGame Game;
 		public readonly int MaxSplitscreenPlayers;
-		public readonly int SignOnGarbageBytes; // this includes the size of remaining data
+		public readonly int SignOnGarbageBytes; // this includes the two unknown ints
 		public float TickInterval; // to be determined while parsing in SvcServerInfo
 		
 		// these can be evaluated using simple expressions

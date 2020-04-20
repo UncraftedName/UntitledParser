@@ -11,11 +11,17 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
     public abstract class EntityProperty : Appendable {
 		
         public readonly FlattenedProp PropInfo;
+		// To be able to find the props later, technically might not
+		// work with arrays but I probably won't worry about that for now.
+		public int Offset;
+		public int BitLength;
 
 
-		protected EntityProperty(FlattenedProp propInfo) {
-            PropInfo = propInfo;
-        }
+		protected EntityProperty(FlattenedProp propInfo, int offset, int bitLength) {
+			PropInfo = propInfo;
+			Offset = offset;
+			BitLength = bitLength;
+		}
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
@@ -47,16 +53,21 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public int Value;
 		
-		public IntEntProp(FlattenedProp propInfo, int value) : base(propInfo) {
+		public IntEntProp(FlattenedProp propInfo, int value, int offset, int bitLength) 
+			: base(propInfo, offset, bitLength) 
+		{
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new IntEntProp(PropInfo, Value);
+			return new IntEntProp(PropInfo, Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
-			((IntEntProp)other).Value = Value;
+			var casted = (IntEntProp)other;
+			casted.Value = Value;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
 		}
 		
 		public override string PropToString() {
@@ -71,16 +82,19 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public float Value;
 		
-		public FloatEntProp(FlattenedProp propInfo, float value) : base(propInfo) {
+		public FloatEntProp(FlattenedProp propInfo, float value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new FloatEntProp(PropInfo, Value);
+			return new FloatEntProp(PropInfo, Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
-			((FloatEntProp)other).Value = Value;
+			var casted = (FloatEntProp)other;
+			casted.Value = Value;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
 		}
 
 		public override string PropToString() {
@@ -95,16 +109,19 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public Vector3 Value;
 		
-		public Vec3EntProp(FlattenedProp propInfo, Vector3 value) : base(propInfo) {
+		public Vec3EntProp(FlattenedProp propInfo, Vector3 value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new Vec3EntProp(PropInfo, Value);
+			return new Vec3EntProp(PropInfo, Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
-			((Vec3EntProp)other).Value = Value;
+			var casted = (Vec3EntProp)other;
+			casted.Value = Value;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
 		}
 		
 		public override string PropToString() {
@@ -119,16 +136,19 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public Vector2 Value;
 		
-		public Vec2EntProp(FlattenedProp propInfo, Vector2 value) : base(propInfo) {
+		public Vec2EntProp(FlattenedProp propInfo, Vector2 value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new Vec2EntProp(PropInfo, Value);
+			return new Vec2EntProp(PropInfo, Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
-			((Vec2EntProp)other).Value = Value;
+			var casted = (Vec2EntProp)other;
+			casted.Value = Value;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
 		}
 
 		public override string PropToString() {
@@ -143,16 +163,19 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public string Value;
 		
-		public StringEntProp(FlattenedProp propInfo, string value) : base(propInfo) {
+		public StringEntProp(FlattenedProp propInfo, string value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new StringEntProp(PropInfo, Value);
+			return new StringEntProp(PropInfo, Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
-			((StringEntProp)other).Value = Value;
+			var casted = (StringEntProp)other;
+			casted.Value = Value;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
 		}
 
 		public override string PropToString() {
@@ -167,16 +190,18 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public List<int> Value;
 		
-		public IntArrEntProp(FlattenedProp propInfo, List<int> value) : base(propInfo) {
+		public IntArrEntProp(FlattenedProp propInfo, List<int> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new IntArrEntProp(PropInfo, new List<int>(Value));
+			return new IntArrEntProp(PropInfo, new List<int>(Value), Offset, BitLength);
 		}
 		
 		public override void CopyPropertyTo(EntityProperty other) {
 			IntArrEntProp casted = (IntArrEntProp)other;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
 			for (int i = 0; i < Value.Count; i++) {
 				if (i >= casted.Value.Count)
 					casted.Value.Add(Value[i]);
@@ -197,16 +222,18 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public List<float> Value;
 		
-		public FloatArrEntProp(FlattenedProp propInfo, List<float> value) : base(propInfo) {
+		public FloatArrEntProp(FlattenedProp propInfo, List<float> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new FloatArrEntProp(PropInfo, new List<float>(Value));
+			return new FloatArrEntProp(PropInfo, new List<float>(Value), Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
 			FloatArrEntProp casted = (FloatArrEntProp)other;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
 			for (int i = 0; i < Value.Count; i++) {
 				if (i >= casted.Value.Count)
 					casted.Value.Add(Value[i]);
@@ -227,16 +254,18 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public List<Vector3> Value;
 		
-		public Vec3ArrEntProp(FlattenedProp propInfo, List<Vector3> value) : base(propInfo) {
+		public Vec3ArrEntProp(FlattenedProp propInfo, List<Vector3> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new Vec3ArrEntProp(PropInfo, new List<Vector3>(Value));
+			return new Vec3ArrEntProp(PropInfo, new List<Vector3>(Value), Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
 			Vec3ArrEntProp casted = (Vec3ArrEntProp)other;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
 			for (int i = 0; i < Value.Count; i++) {
 				if (i >= casted.Value.Count)
 					casted.Value.Add(Value[i]);
@@ -257,16 +286,18 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public List<Vector2> Value;
 		
-		public Vec2ArrEntProp(FlattenedProp propInfo, List<Vector2> value) : base(propInfo) {
+		public Vec2ArrEntProp(FlattenedProp propInfo, List<Vector2> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new Vec2ArrEntProp(PropInfo, new List<Vector2>(Value));
+			return new Vec2ArrEntProp(PropInfo, new List<Vector2>(Value), Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
 			Vec2ArrEntProp casted = (Vec2ArrEntProp)other;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
 			for (int i = 0; i < Value.Count; i++) {
 				if (i >= casted.Value.Count)
 					casted.Value.Add(Value[i]);
@@ -287,16 +318,18 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public List<string> Value;
 		
-		public StringArrEntProp(FlattenedProp propInfo, List<string> value) : base(propInfo) {
+		public StringArrEntProp(FlattenedProp propInfo, List<string> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new StringArrEntProp(PropInfo, new List<string>(Value));
+			return new StringArrEntProp(PropInfo, new List<string>(Value), Offset, BitLength);
 		}
 		
 		public override void CopyPropertyTo(EntityProperty other) {
 			StringArrEntProp casted = (StringArrEntProp)other;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
 			for (int i = 0; i < Value.Count; i++) {
 				if (i >= casted.Value.Count)
 					casted.Value.Add(Value[i]);
@@ -317,7 +350,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	// used to suppress some exceptions that might happen during prop parsing
 	public class UnparsedProperty : EntityProperty { 
 		
-		internal UnparsedProperty(FlattenedProp propInfo) : base(propInfo) {}
+		internal UnparsedProperty(FlattenedProp propInfo) : base(propInfo, -1, -1) {}
 		
 		public override EntityProperty CopyProperty() {
 			return new UnparsedProperty(PropInfo);
@@ -341,28 +374,32 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			
 			const string exceptionMsg = "an impossible entity type has appeared while creating/reading props ";
 			try {
+				int offset = bsr.AbsoluteBitIndex;
 				switch (prop.Prop.SendPropType) {
 					case SendPropType.Int:
-						return new IntEntProp(prop, bsr.DecodeInt(prop.Prop));
+						int i = bsr.DecodeInt(prop.Prop);
+						return new IntEntProp(prop, i, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Float:
-						return new FloatEntProp(prop, bsr.DecodeFloat(prop.Prop));
+						float f = bsr.DecodeFloat(prop.Prop);
+						return new FloatEntProp(prop, f, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Vector3:
 						Vector3 v3 = default;
 						bsr.DecodeVector3(prop.Prop, ref v3);
-						return new Vec3EntProp(prop, v3);
+						return new Vec3EntProp(prop, v3, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Vector2:
 						Vector2 v2 = default;
 						bsr.DecodeVector2(prop.Prop, ref v2);
-						return new Vec2EntProp(prop, v2);
+						return new Vec2EntProp(prop, v2, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.String:
-						return new StringEntProp(prop, bsr.DecodeString());
+						string s = bsr.DecodeString();
+						return new StringEntProp(prop, s, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Array:
 						return prop.ArrayElementProp.SendPropType switch {
-							SendPropType.Int 		=> new IntArrEntProp(prop, bsr.DecodeIntArr(prop)),
-							SendPropType.Float 		=> new FloatArrEntProp(prop, bsr.DecodeFloatArr(prop)),
-							SendPropType.Vector3 	=> new Vec3ArrEntProp(prop, bsr.DecodeVector3Arr(prop)),
-							SendPropType.Vector2 	=> new Vec2ArrEntProp(prop, bsr.DecodeVector2Arr(prop)),
-							SendPropType.String 	=> new StringArrEntProp(prop, bsr.DecodeStringArr(prop)),
+							SendPropType.Int 		=> new IntArrEntProp(prop, bsr.DecodeIntArr(prop), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.Float 		=> new FloatArrEntProp(prop, bsr.DecodeFloatArr(prop), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.Vector3 	=> new Vec3ArrEntProp(prop, bsr.DecodeVector3Arr(prop), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.Vector2 	=> new Vec2ArrEntProp(prop, bsr.DecodeVector2Arr(prop), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.String 	=> new StringArrEntProp(prop, bsr.DecodeStringArr(prop), offset, bsr.AbsoluteBitIndex - offset),
 							_ => throw new ArgumentException(exceptionMsg, nameof(prop.Prop.SendPropType))
 						};
 				}
