@@ -45,7 +45,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			return demoRef.DemoSettings.Game switch {
 				PORTAL_1_UNPACK 			=> Portal1ReMapper.GetValueOrDefault(b, def),
 				PORTAL_1_STEAMPIPE 	=> Portal1SteamPipe.GetValueOrDefault(b, def),
-				L4D2_2000 			=> L4D2ReMapper.GetValueOrDefault(b, def),
+				L4D2_2042 			=> L4D2ReMapper.GetValueOrDefault(b, def),
 				PORTAL_2 			=> Portal2ReMapper.GetValueOrDefault(b, def),
 				_ => def
 			};
@@ -57,7 +57,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			return demoRef.DemoSettings.Game switch {
 				PORTAL_1_UNPACK 			=> Portal1ReMapper.GetValueOrDefault(m, def),
 				PORTAL_1_STEAMPIPE 	=> Portal1SteamPipe.GetValueOrDefault(m, def),
-				L4D2_2000 			=> L4D2ReMapper.GetValueOrDefault(m, def),
+				L4D2_2042 			=> L4D2ReMapper.GetValueOrDefault(m, def),
 				PORTAL_2 			=> Portal2ReMapper.GetValueOrDefault(m, def),
 				_ => def
 			};

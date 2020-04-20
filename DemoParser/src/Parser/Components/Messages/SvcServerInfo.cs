@@ -39,7 +39,7 @@ namespace DemoParser.Parser.Components.Messages {
 			MapCrc = bsr.ReadUInt(); // network protocol < 18
 			PlayerCount = bsr.ReadByte();
 			MaxClients = bsr.ReadByte();
-			if (DemoRef.DemoSettings.Game == SourceGame.L4D2_2000) {
+			if (DemoRef.DemoSettings.Game == SourceGame.L4D2_2042) {
 				_unknown = bsr.SubStream(33);
 				bsr.SkipBits(33);
 			} else if (DemoRef.DemoSettings.NewEngine) {

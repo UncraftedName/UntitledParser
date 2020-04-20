@@ -18,14 +18,14 @@ namespace DemoParser.Parser.HelperClasses {
 		private readonly DataTables _dtRef;
 		private readonly ImmutableDictionary<string, SendTable> _tableLookup;
 		public int ServerClassBits => BitUtils.HighestBitIndex((uint)_dtRef.ServerClasses.Count) + 1; // this might be off for powers of 2
-		public readonly PropLookup? FlattendProps; // not initialized during the server class info
+		public readonly PropLookup? FlattenedProps; // not initialized during the server class info
 		
 		
 		
 		public DataTableParser(SourceDemo demoRef, DataTables dtRef) {
 			_demoRef = demoRef;
 			_dtRef = dtRef;
-			FlattendProps = new PropLookup();
+			FlattenedProps = new PropLookup();
 			// fill up the lookup table so we can quickly reference the tables by name later
 			_tableLookup = dtRef.Tables.ToImmutableDictionary(table => table.Name, table => table);
 		}
@@ -42,7 +42,7 @@ namespace DemoParser.Parser.HelperClasses {
 				GatherExcludesAndBaseClasses(excludes, baseClasses, table, true);
 				GatherProps(excludes, table, classIndex, "");
 				
-				List<FlattenedProp> fProps = FlattendProps[currentClass.DataTableId].flattenedProps;
+				List<FlattenedProp> fProps = FlattenedProps[currentClass.DataTableId].flattenedProps;
 
 				// Now we have the props, rearrange them so that props that are marked with 'changes often' get a
 				// smaller index. In new engine the priority of the props is also taken into account.
@@ -100,10 +100,10 @@ namespace DemoParser.Parser.HelperClasses {
 			// array and reparsed every time they're updated during demo playback. I just parse them once and store
 			// them in a more accessible format.
 
-			if (_demoRef.CStringTablesManager.TableReadable[TableNames.InstanceBaseLine]) {
+			if (_demoRef.CStringTablesManager.TableReadable.GetValueOrDefault(TableNames.InstanceBaseLine)) {
 				_demoRef.CStringTablesManager.Tables[TableNames.InstanceBaseLine]
 					.Entries.ToList()
-					.ForEach(entry => ((InstanceBaseLine)entry.EntryData).ParseBaseLineData(FlattendProps));
+					.ForEach(entry => ((InstanceBaseLine)entry.EntryData).ParseBaseLineData(FlattenedProps));
 			}
 		}
 
@@ -138,12 +138,12 @@ namespace DemoParser.Parser.HelperClasses {
 			ServerClass classRef = _dtRef.ServerClasses[classIndex];
 			int tmpIndex = classRef.DataTableId;
 			// in theory the class ID's should always be in consecutive order, although demos seem to imply otherwise
-			Debug.Assert(tmpIndex <= FlattendProps.Count, "server class names are not in consecutive order");
+			Debug.Assert(tmpIndex <= FlattenedProps.Count, "server class names are not in consecutive order");
 			
-			if (tmpIndex == FlattendProps.Count) // never greater, assert checks for that
-				FlattendProps.Add((classRef, new List<FlattenedProp>()));
+			if (tmpIndex == FlattenedProps.Count) // never greater, assert checks for that
+				FlattenedProps.Add((classRef, new List<FlattenedProp>()));
 			
-			FlattendProps[tmpIndex].flattenedProps.AddRange(tmpFlattedProps);
+			FlattenedProps[tmpIndex].flattenedProps.AddRange(tmpFlattedProps);
 		}
 
 

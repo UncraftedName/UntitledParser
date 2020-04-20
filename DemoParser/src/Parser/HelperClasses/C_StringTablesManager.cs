@@ -184,7 +184,7 @@ namespace DemoParser.Parser.HelperClasses {
 			_tableRef = tableRef;
 			EntryName = entryName;
 			if (entryStream != null) {
-				EntryData = StringTableEntryDataFactory.CreateData(demoRef, entryStream, tableRef.Name, entryName, demoRef?.DataTableParser?.FlattendProps);
+				EntryData = StringTableEntryDataFactory.CreateData(demoRef, entryStream, tableRef.Name, entryName, demoRef?.DataTableParser?.FlattenedProps);
 				EntryData.ParseOwnStream();
 			}
 		}

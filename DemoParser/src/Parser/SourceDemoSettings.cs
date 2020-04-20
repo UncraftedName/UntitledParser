@@ -26,7 +26,7 @@ namespace DemoParser.Parser {
 		public bool NewEngine => _header.DemoProtocol == 4;
 		public bool HasPlayerSlot => NewEngine; // "alignment byte" in nekz' parser
 		public int NetMsgTypeBits => _header.NetworkProtocol == 14 ? 5 : 6;
-		public int UserMessageLengthBits => NewEngine && Game != L4D2_2000 ? 12 : 11;
+		public int UserMessageLengthBits => NewEngine && Game != L4D2_2042 ? 12 : 11;
 		public int MaxUserDataBits => 14;
 		public uint HandleSerialNumberBits => 10;
 
@@ -47,7 +47,7 @@ namespace DemoParser.Parser {
 					Game = PORTAL_2;
 					break;
 				case 4 when h.NetworkProtocol == 2042:
-					Game = L4D2_2000;
+					Game = L4D2_2042;
 					break;
 				default:
 					Game = UNKNOWN;
@@ -66,7 +66,7 @@ namespace DemoParser.Parser {
 					MaxSplitscreenPlayers = 2;
 					SignOnGarbageBytes = 160;
 					break;
-				case L4D2_2000:
+				case L4D2_2042:
 					MaxSplitscreenPlayers = 4;
 					SignOnGarbageBytes = 312;
 					break;
@@ -87,7 +87,7 @@ namespace DemoParser.Parser {
 		PORTAL_1_3420,
 		PORTAL_1_STEAMPIPE,
 		PORTAL_2,
-		L4D2_2000,
+		L4D2_2042,
 		UNKNOWN
 	}
 }

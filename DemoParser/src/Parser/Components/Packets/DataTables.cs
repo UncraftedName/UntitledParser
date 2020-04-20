@@ -183,7 +183,7 @@ namespace DemoParser.Parser.Components.Packets {
 						HighValue = bsr.ReadFloat();
 						NumBits = bsr.ReadBitsAsUInt(
 							DemoRef.Header.NetworkProtocol == 14 || 
-							DemoRef.DemoSettings.Game == SourceGame.L4D2_2000 
+							DemoRef.DemoSettings.Game == SourceGame.L4D2_2042 
 								? 6 : 7);
 						break;
 					case SendPropType.Array:

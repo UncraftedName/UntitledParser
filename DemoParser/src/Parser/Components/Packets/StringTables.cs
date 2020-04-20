@@ -155,13 +155,13 @@ namespace DemoParser.Parser.Components.Packets {
 			if (bsr.ReadBool()) {
 				ushort dataLen = bsr.ReadUShort();
 				
-				Debug.Assert(DemoRef.DataTableParser.FlattendProps != null);
+				Debug.Assert(DemoRef.DataTableParser.FlattenedProps != null);
 				EntryData = StringTableEntryDataFactory.CreateData(
 					DemoRef, 
 					bsr.SubStream(dataLen << 3), 
 					TableRef.Name, 
 					Name, 
-					DemoRef.DataTableParser.FlattendProps);
+					DemoRef.DataTableParser.FlattenedProps);
 				
 				EntryData.ParseOwnStream();
 				bsr.SkipBytes(dataLen);

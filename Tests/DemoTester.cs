@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using DemoParser.Parser;
 using NUnit.Framework;
@@ -17,6 +18,8 @@ namespace Tests {
                 SourceDemo demo = new SourceDemo(path);
                 demo.Parse();
             } catch (Exception e) {
+                Debug.WriteLine(e);
+                Console.WriteLine(e);
                 Assert.Fail($"{path} failed to parse: {e.Message}");
             }
         }
@@ -67,8 +70,8 @@ namespace Tests {
         
         [Test]
         public void L4D2_2042() {
-            ParseDemo($"{ProjectDir}/sample demos/l4d2 2000.dem");
-            ParseDemo($"{ProjectDir}/sample demos/l4d2 2000_2.dem");
+            ParseDemo($"{ProjectDir}/sample demos/l4d2 2042.dem");
+            ParseDemo($"{ProjectDir}/sample demos/l4d2 2042_2.dem");
         }
 
 

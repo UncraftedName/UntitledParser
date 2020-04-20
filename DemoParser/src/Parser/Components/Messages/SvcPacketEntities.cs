@@ -97,7 +97,7 @@ namespace DemoParser.Parser.Components.Messages {
 						case UpdateType.EnterPvs:
 							iClass = (int)_entBsr.ReadBitsAsUInt(tableParser.ServerClassBits);
 							uint iSerial = _entBsr.ReadBitsAsUInt(DemoRef.DemoSettings.HandleSerialNumberBits);
-							(entClass, fProps) = tableParser.FlattendProps[iClass];
+							(entClass, fProps) = tableParser.FlattenedProps[iClass];
 							bool bNew = ents[newI] == null || ents[newI].Serial != iSerial;
 							update = new EnterPvs(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);
 							snapshot.ProcessEnterPvs(this, (EnterPvs)update); // update baseline check in here
@@ -108,7 +108,7 @@ namespace DemoParser.Parser.Components.Messages {
 							//Debug.Assert(oldI == newI, "oldEntSlot != newEntSlot");
 							Entity e = snapshot.Entities[newI];
 							iClass = e.ServerClass.DataTableId;
-							(entClass, fProps) = tableParser.FlattendProps[iClass];
+							(entClass, fProps) = tableParser.FlattenedProps[iClass];
 							update = new Delta(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef));
 							snapshot.ProcessDelta((Delta)update);
 							NextOldEntIndex(ref oldI, ents);

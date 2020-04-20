@@ -67,7 +67,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
                 _demoRef.AddError("attempted to create entity from a non-existing baseline, " +
                                   $"creating new empty baseline for class: ({serverClass.ToString()})");
                 
-                (_, List<FlattenedProp> fProps) = _demoRef.DataTableParser.FlattendProps[classIndex];
+                (_, List<FlattenedProp> fProps) = _demoRef.DataTableParser.FlattenedProps[classIndex];
                 props = new EntityProperty?[fProps.Count];
                 ClassBaselines[classIndex].serverClass = serverClass;
             }
