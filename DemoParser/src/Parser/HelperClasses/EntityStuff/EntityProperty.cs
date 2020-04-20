@@ -11,6 +11,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
     public abstract class EntityProperty : Appendable {
 		
         public readonly FlattenedProp PropInfo;
+		public string Name => PropInfo.Name;
 		// To be able to find the props later, technically might not
 		// work with arrays but I probably won't worry about that for now.
 		public int Offset;

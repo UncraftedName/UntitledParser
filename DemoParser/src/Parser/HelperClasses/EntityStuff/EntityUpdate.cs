@@ -3,20 +3,28 @@ using DemoParser.Parser.Components.Messages;
 using DemoParser.Utils;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
-    
-    public abstract class EntityUpdate : Appendable {} // base class
+
+    // base class
+    public abstract class EntityUpdate : Appendable {
+        
+        public readonly ServerClass ServerClass;
+        
+        protected EntityUpdate(ServerClass serverClass) {
+            ServerClass = serverClass;
+        }
+    }
     
 
     public class Delta : EntityUpdate {
 		
         public readonly int EntIndex;
-        public readonly ServerClass ServerClass;
         public readonly IReadOnlyList<(int propIndex, EntityProperty prop)> Props;
         
 		
-        public Delta(int entIndex, ServerClass serverClass, IReadOnlyList<(int propIndex, EntityProperty prop)> props) {
+        public Delta(int entIndex, ServerClass serverClass, IReadOnlyList<(int propIndex, EntityProperty prop)> props) 
+            : base(serverClass)
+        {
             EntIndex = entIndex;
-            ServerClass = serverClass;
             Props = props;
         }
         
@@ -70,13 +78,11 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
     public class LeavePvs : EntityUpdate {
 		
         public readonly int Index;
-        public readonly ServerClass ServerClass;
         public readonly bool Delete;
         
 		
-        public LeavePvs(int index, ServerClass serverClass, bool delete) {
+        public LeavePvs(int index, ServerClass serverClass, bool delete) : base(serverClass) {
             Index = index;
-            ServerClass = serverClass;
             Delete = delete;
         }
         
