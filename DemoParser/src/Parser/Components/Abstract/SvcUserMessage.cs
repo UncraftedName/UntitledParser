@@ -43,7 +43,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		public static UserMessageType ByteToUserMessageType(SourceDemo demoRef, byte b) {
 			var def = (UserMessageType)b;
 			return demoRef.DemoSettings.Game switch {
-				PORTAL_1_UNPACK 			=> Portal1ReMapper.GetValueOrDefault(b, def),
+				PORTAL_1_UNPACK 	=> Portal1ReMapper.GetValueOrDefault(b, def),
 				PORTAL_1_STEAMPIPE 	=> Portal1SteamPipe.GetValueOrDefault(b, def),
 				L4D2_2042 			=> L4D2ReMapper.GetValueOrDefault(b, def),
 				PORTAL_2 			=> Portal2ReMapper.GetValueOrDefault(b, def),
@@ -55,7 +55,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		public static byte UserMessageTypeToByte(SourceDemo demoRef, UserMessageType m) {
 			var def = (byte)m;
 			return demoRef.DemoSettings.Game switch {
-				PORTAL_1_UNPACK 			=> Portal1ReMapper.GetValueOrDefault(m, def),
+				PORTAL_1_UNPACK 	=> Portal1ReMapper.GetValueOrDefault(m, def),
 				PORTAL_1_STEAMPIPE 	=> Portal1SteamPipe.GetValueOrDefault(m, def),
 				L4D2_2042 			=> L4D2ReMapper.GetValueOrDefault(m, def),
 				PORTAL_2 			=> Portal2ReMapper.GetValueOrDefault(m, def),
@@ -88,6 +88,7 @@ namespace DemoParser.Parser.Components.Abstract {
 				UserMessageType.HUDMsg				=> new HudMsg(demoRef, reader),
 				UserMessageType.KeyHintText			=> new KeyHintText(demoRef, reader),
 				UserMessageType.Train				=> new Train(demoRef, reader),
+				UserMessageType.VGUIMenu			=> new VguiMenu(demoRef, reader),
 				_ => null
 			};
 			
@@ -111,9 +112,9 @@ namespace DemoParser.Parser.Components.Abstract {
 	}
 	
 
-	// these types are very different and very shuffled depending on the game.
-	// for portal it's in src_main/game/shared/portal/portal_usermessages.cpp
-	// for other sdk's it's in similar locations, the csgo values can be found at
+	// These types may be different and shuffled depending on the game.
+	// For portal it's in src_main/game/shared/portal/portal_usermessages.cpp.
+	// For other sdk's it's in similar locations, the csgo values can be found at
 	// https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/Messages/EnumConstants.cs
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum UserMessageType : byte {

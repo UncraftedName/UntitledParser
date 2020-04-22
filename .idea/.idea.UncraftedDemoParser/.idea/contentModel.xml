@@ -171,6 +171,7 @@
           </e>
         </e>
         <e p="sample demos" t="Include">
+          <e p="client.dem" t="Include" />
           <e p="l4d2 2000.dem" t="Include" />
           <e p="l4d2 2042.dem" t="Include" />
           <e p="l4d2 2042_2.dem" t="Include" />
@@ -182,6 +183,7 @@
           <e p="portal 2 coop long.dem" t="Include" />
           <e p="portal 2 coop.dem" t="Include" />
           <e p="portal 2 sp.dem" t="Include" />
+          <e p="server.dem" t="Include" />
         </e>
         <e p="Tests.csproj" t="IncludeRecursive" />
       </e>

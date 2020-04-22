@@ -48,6 +48,7 @@ namespace DemoParser.Parser.HelperClasses {
 		// I store this for later if there's a string tables packet, so that I can create the tables from this list
 		// and the packet instead of the create message.
 		internal readonly List<SvcCreateStringTable> CreationLookup;
+		
 
 		internal C_StringTablesManager(SourceDemo demoRef) {
 			_demoRef = demoRef;
@@ -198,8 +199,8 @@ namespace DemoParser.Parser.HelperClasses {
 
 	public class C_StringTableClass {
 		
-		public string Name;
-		public string? Data;
+		public readonly string Name;
+		public readonly string? Data;
 		
 		
 		public C_StringTableClass(string name, string? data) {
