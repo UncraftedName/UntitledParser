@@ -43,10 +43,10 @@ namespace DemoParser.Parser.Components.Abstract {
 		public static UserMessageType ByteToUserMessageType(SourceDemo demoRef, byte b) {
 			var def = (UserMessageType)b;
 			return demoRef.DemoSettings.Game switch {
-				PORTAL_1_UNPACK 	=> Portal1ReMapper.GetValueOrDefault(b, def),
-				PORTAL_1_STEAMPIPE 	=> Portal1SteamPipe.GetValueOrDefault(b, def),
-				L4D2_2042 			=> L4D2ReMapper.GetValueOrDefault(b, def),
-				PORTAL_2 			=> Portal2ReMapper.GetValueOrDefault(b, def),
+				PORTAL_1_UNPACK    => Portal1ReMapper.GetValueOrDefault(b, def),
+				PORTAL_1_STEAMPIPE => Portal1SteamPipe.GetValueOrDefault(b, def),
+				L4D2_2042          => L4D2ReMapper.GetValueOrDefault(b, def),
+				PORTAL_2           => Portal2ReMapper.GetValueOrDefault(b, def),
 				_ => def
 			};
 		}
@@ -55,10 +55,10 @@ namespace DemoParser.Parser.Components.Abstract {
 		public static byte UserMessageTypeToByte(SourceDemo demoRef, UserMessageType m) {
 			var def = (byte)m;
 			return demoRef.DemoSettings.Game switch {
-				PORTAL_1_UNPACK 	=> Portal1ReMapper.GetValueOrDefault(m, def),
-				PORTAL_1_STEAMPIPE 	=> Portal1SteamPipe.GetValueOrDefault(m, def),
-				L4D2_2042 			=> L4D2ReMapper.GetValueOrDefault(m, def),
-				PORTAL_2 			=> Portal2ReMapper.GetValueOrDefault(m, def),
+				PORTAL_1_UNPACK    => Portal1ReMapper.GetValueOrDefault(m, def),
+				PORTAL_1_STEAMPIPE => Portal1SteamPipe.GetValueOrDefault(m, def),
+				L4D2_2042          => L4D2ReMapper.GetValueOrDefault(m, def),
+				PORTAL_2           => Portal2ReMapper.GetValueOrDefault(m, def),
 				_ => def
 			};
 		}
@@ -69,26 +69,26 @@ namespace DemoParser.Parser.Components.Abstract {
 		// make sure to pass in a substream
 		public static SvcUserMessage CreateUserMessage(SourceDemo demoRef, BitStreamReader reader, UserMessageType messageType) {
 			SvcUserMessage msgResult = messageType switch {
-				UserMessageType.CloseCaption 		=> new CloseCaption(demoRef, reader),
-				UserMessageType.AchievementEvent 	=> new AchievementEvent(demoRef, reader),
-				UserMessageType.SayText2 			=> new SayText2(demoRef, reader),
-				UserMessageType.SquadMemberDied 	=> new SquadMemberDied(demoRef, reader),
-				UserMessageType.GameTitle			=> new GameTitle(demoRef, reader),
-				UserMessageType.RequestState 		=> new RequestState(demoRef, reader),
-				UserMessageType.Shake 				=> new Shake(demoRef, reader),
-				UserMessageType.Fade 				=> new Fade(demoRef, reader),
-				UserMessageType.Damage 				=> new Damage(demoRef, reader),
-				UserMessageType.Rumble 				=> new Rumble(demoRef, reader),
-				UserMessageType.ResetHUD 			=> new ResetHUD(demoRef, reader),
-				UserMessageType.LogoTimeMsg 		=> new LogoTimeMsg(demoRef, reader),
-				UserMessageType.Battery 			=> new Battery(demoRef, reader),
-				UserMessageType.Geiger				=> new Geiger(demoRef, reader),
-				UserMessageType.KillCam				=> new KillCam(demoRef, reader),
-				UserMessageType.EntityPortalled		=> new EntityPortalled(demoRef, reader),
-				UserMessageType.HUDMsg				=> new HudMsg(demoRef, reader),
-				UserMessageType.KeyHintText			=> new KeyHintText(demoRef, reader),
-				UserMessageType.Train				=> new Train(demoRef, reader),
-				UserMessageType.VGUIMenu			=> new VguiMenu(demoRef, reader),
+				UserMessageType.CloseCaption     => new CloseCaption(demoRef, reader),
+				UserMessageType.AchievementEvent => new AchievementEvent(demoRef, reader),
+				UserMessageType.SayText2         => new SayText2(demoRef, reader),
+				UserMessageType.SquadMemberDied  => new SquadMemberDied(demoRef, reader),
+				UserMessageType.GameTitle        => new GameTitle(demoRef, reader),
+				UserMessageType.RequestState     => new RequestState(demoRef, reader),
+				UserMessageType.Shake            => new Shake(demoRef, reader),
+				UserMessageType.Fade             => new Fade(demoRef, reader),
+				UserMessageType.Damage           => new Damage(demoRef, reader),
+				UserMessageType.Rumble           => new Rumble(demoRef, reader),
+				UserMessageType.ResetHUD         => new ResetHUD(demoRef, reader),
+				UserMessageType.LogoTimeMsg      => new LogoTimeMsg(demoRef, reader),
+				UserMessageType.Battery          => new Battery(demoRef, reader),
+				UserMessageType.Geiger           => new Geiger(demoRef, reader),
+				UserMessageType.KillCam          => new KillCam(demoRef, reader),
+				UserMessageType.EntityPortalled  => new EntityPortalled(demoRef, reader),
+				UserMessageType.HUDMsg           => new HudMsg(demoRef, reader),
+				UserMessageType.KeyHintText      => new KeyHintText(demoRef, reader),
+				UserMessageType.Train            => new Train(demoRef, reader),
+				UserMessageType.VGUIMenu         => new VguiMenu(demoRef, reader),
 				_ => null
 			};
 			
@@ -125,16 +125,16 @@ namespace DemoParser.Parser.Components.Abstract {
 		SayText2,
 		TextMsg,    //one of the messages here doesn't actually exist in the leak even tho it registers??
 		HUDMsg,
-		ResetHUD, 		// called every respawn
-		GameTitle, 		// show game title
-		ItemPickup, 	// for item history on screen
+		ResetHUD,   // called every respawn
+		GameTitle,  // show game title
+		ItemPickup, // for item history on screen
 		ShowMenu,
 		Shake,
 		Fade,
 		VGUIMenu,
-		Rumble, 		// Send a rumble to a controller
+		Rumble,     // Send a rumble to a controller
 		Battery,
-		Damage, 		// for HUD damage indicators
+		Damage,     // for HUD damage indicators
 		VoiceMask,
 		RequestState,
 		CloseCaption,

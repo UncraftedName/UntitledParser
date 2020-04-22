@@ -4,91 +4,91 @@ using DemoParser.Utils;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
-    // base class
-    public abstract class EntityUpdate : Appendable {
-        
-        public readonly ServerClass ServerClass;
-        
-        protected EntityUpdate(ServerClass serverClass) {
-            ServerClass = serverClass;
-        }
-    }
-    
-
-    public class Delta : EntityUpdate {
+	// base class
+	public abstract class EntityUpdate : Appendable {
 		
-        public readonly int EntIndex;
-        public readonly IReadOnlyList<(int propIndex, EntityProperty prop)> Props;
-        
+		public readonly ServerClass ServerClass;
 		
-        public Delta(int entIndex, ServerClass serverClass, IReadOnlyList<(int propIndex, EntityProperty prop)> props) 
-            : base(serverClass)
-        {
-            EntIndex = entIndex;
-            Props = props;
-        }
-        
-		
-        public override void AppendToWriter(IndentedWriter iw) {
-            iw.Append($"({EntIndex}) DELTA - class: ({ServerClass.ToString()})");
-            iw.AddIndent();
-            foreach ((int propIndex, EntityProperty prop) in Props) {
-                iw.AppendLine();
-                iw.Append($"({propIndex}) {prop.ToString()}");
-            }
-            iw.SubIndent();
-        }
-    }
+		protected EntityUpdate(ServerClass serverClass) {
+			ServerClass = serverClass;
+		}
+	}
 	
-    
-    // After creating the ent if necessary and marking it as in the PVS, this IS a delta.
-    public class EnterPvs : Delta {
 
-        public readonly uint Serial;
-        public readonly bool New;
-
-
-        public EnterPvs(
-            int entIndex, 
-            ServerClass serverClass, 
-            IReadOnlyList<(int propIndex, EntityProperty prop)> props, 
-            uint serial, 
-            bool @new) 
-            : base(entIndex, serverClass, props) 
-        {
-            Serial = serial;
-            New = @new;
-        }
-        
-
-        public override void AppendToWriter(IndentedWriter iw) {
-            iw.Append($"({EntIndex}) {(New ? "CREATE" : "ENTER_PVS")} {ServerClass.ToString()}");
-            if (New)
-                iw.Append($", serial: {Serial}");
-            iw.AddIndent();
-            foreach ((int propIndex, EntityProperty prop) in Props) {
-                iw.AppendLine();
-                iw.Append($"({propIndex}) {prop.ToString()}");
-            }
-            iw.SubIndent();
-        }
-    }
+	public class Delta : EntityUpdate {
+		
+		public readonly int EntIndex;
+		public readonly IReadOnlyList<(int propIndex, EntityProperty prop)> Props;
+		
+		
+		public Delta(int entIndex, ServerClass serverClass, IReadOnlyList<(int propIndex, EntityProperty prop)> props) 
+			: base(serverClass)
+		{
+			EntIndex = entIndex;
+			Props = props;
+		}
+		
+		
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"({EntIndex}) DELTA - class: ({ServerClass.ToString()})");
+			iw.AddIndent();
+			foreach ((int propIndex, EntityProperty prop) in Props) {
+				iw.AppendLine();
+				iw.Append($"({propIndex}) {prop.ToString()}");
+			}
+			iw.SubIndent();
+		}
+	}
 	
-    
-    public class LeavePvs : EntityUpdate {
-		
-        public readonly int Index;
-        public readonly bool Delete;
-        
-		
-        public LeavePvs(int index, ServerClass serverClass, bool delete) : base(serverClass) {
-            Index = index;
-            Delete = delete;
-        }
-        
+	
+	// After creating the ent if necessary and marking it as in the PVS, this IS a delta.
+	public class EnterPvs : Delta {
 
-        public override void AppendToWriter(IndentedWriter iw) {
-            iw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - class: ({ServerClass.ToString()})");
-        }
-    }
+		public readonly uint Serial;
+		public readonly bool New;
+
+
+		public EnterPvs(
+			int entIndex, 
+			ServerClass serverClass, 
+			IReadOnlyList<(int propIndex, EntityProperty prop)> props, 
+			uint serial, 
+			bool @new) 
+			: base(entIndex, serverClass, props) 
+		{
+			Serial = serial;
+			New = @new;
+		}
+		
+
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"({EntIndex}) {(New ? "CREATE" : "ENTER_PVS")} {ServerClass.ToString()}");
+			if (New)
+				iw.Append($", serial: {Serial}");
+			iw.AddIndent();
+			foreach ((int propIndex, EntityProperty prop) in Props) {
+				iw.AppendLine();
+				iw.Append($"({propIndex}) {prop.ToString()}");
+			}
+			iw.SubIndent();
+		}
+	}
+	
+	
+	public class LeavePvs : EntityUpdate {
+		
+		public readonly int Index;
+		public readonly bool Delete;
+		
+		
+		public LeavePvs(int index, ServerClass serverClass, bool delete) : base(serverClass) {
+			Index = index;
+			Delete = delete;
+		}
+		
+
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - class: ({ServerClass.ToString()})");
+		}
+	}
 }
