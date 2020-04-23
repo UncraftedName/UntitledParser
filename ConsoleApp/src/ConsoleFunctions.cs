@@ -33,7 +33,7 @@ namespace ConsoleApp {
 		private static void VerboseOutput() {
 			SetWriter();
 			Console.WriteLine("Dumping verbose output...");
-			_currentWriter.Write(CurrentDemo.ToVerboseString());
+			CurrentDemo.WriteVerboseString(_currentWriter);
 		}
 
 

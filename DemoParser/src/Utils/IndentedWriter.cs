@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 
 namespace DemoParser.Utils {
@@ -23,8 +24,6 @@ namespace DemoParser.Utils {
 			}
 		}
 		public int LastLineLength => _lines[^1].Length;
-		
-		public string IndentStr = "\t"; // dabs or spaces or whatever your heart desires, only gets used in the toString() call
 
 
 		public IndentedWriter() {
@@ -91,20 +90,25 @@ namespace DemoParser.Utils {
 
 
 		public override string ToString() {
+			return ToString("\t");
+		}
+
+
+		public string ToString(string indentStr) {
 			Debug.Assert(_indentCount.TrueForAll(i => i >= 0), "indent count is negative");
 			
 			// I have literally no reason to optimize this, I was just curious how to use this stuff. (but it is pretty fast now :p)
 			
 			// calculate the total length of the string
 			int outLen = (_lines.Count - 1) * Environment.NewLine.Length;
-			int indentLen = IndentStr.Length;
+			int indentLen = indentStr.Length;
 			for (int i = 0; i < _lines.Count; i++) {
 				outLen += _lines[i].Length;
 				outLen += _indentCount[i] * indentLen;
 			}
 			
 			return string.Create<object>(outLen, null, (chars, _) => {
-				ReadOnlySpan<char> indent = new ReadOnlySpan<char>(string.Concat(Enumerable.Repeat(IndentStr, _maxIndent)).ToCharArray());
+				ReadOnlySpan<char> indent = new ReadOnlySpan<char>(string.Concat(Enumerable.Repeat(indentStr, _maxIndent)).ToCharArray());
 				ReadOnlySpan<char> newLine = Environment.NewLine.AsSpan();
 
 				int index = 0; // index in entire string
@@ -112,7 +116,7 @@ namespace DemoParser.Utils {
 				for (int i = 0; i < _lines.Count; i++) {
 					// copy indent
 					indent.Slice(0, _indentCount[i]).CopyTo(chars.Slice(index));
-					index += _indentCount[i] * IndentStr.Length;
+					index += _indentCount[i] * indentStr.Length;
 					// copy line
 					_lines[i].AsSpan().CopyTo(chars.Slice(index));
 					index += _lines[i].Length;
@@ -123,6 +127,15 @@ namespace DemoParser.Utils {
 					}
 				}
 			});
+		}
+
+
+		public void WriteLines(TextWriter textWriter, string indentStr) {
+			for (int i = 0; i < _lines.Count(); i++) {
+				for (int j = 0; j < _indentCount[i]; j++) 
+					textWriter.Write(indentStr);
+				textWriter.WriteLine(_lines[i]);
+			}
 		}
 	}
 

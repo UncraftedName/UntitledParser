@@ -180,7 +180,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 	// todo this was a C_update before, it should really be a demo component
-	public class TableUpdate {
+	public class TableUpdate : Appendable {
 
 		internal int PadCount; // just for toString()
 		internal readonly C_StringTableEntry TableEntry;
@@ -195,7 +195,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 		
 		
-		public void AppendToWriter(IndentedWriter iw) { // similar logic to that in string tables
+		public override void AppendToWriter(IndentedWriter iw) { // similar logic to that in string tables
 			iw.Append($"({Index}) {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
 			if (TableEntry.EntryData != null) {
 				iw.AddIndent();
@@ -206,13 +206,6 @@ namespace DemoParser.Parser.Components.Messages {
 				TableEntry.EntryData.AppendToWriter(iw);
 				iw.SubIndent();
 			}
-		}
-
-
-		public override string ToString() {
-			var iw = new IndentedWriter();
-			AppendToWriter(iw);
-			return iw.ToString();
 		}
 	}
 

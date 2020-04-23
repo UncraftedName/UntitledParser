@@ -118,8 +118,10 @@ namespace DemoParser.Parser {
 		}
 
 
-		public string ToVerboseString() {
-			return base.ToString();
+		public void WriteVerboseString(TextWriter textWriter, string indentStr = "\t") {
+			IndentedWriter iw = new IndentedWriter();
+			AppendToWriter(iw);
+			iw.WriteLines(textWriter, indentStr);
 		}
 		
 		
