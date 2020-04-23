@@ -17,9 +17,8 @@ namespace Tests {
             try {
                 SourceDemo demo = new SourceDemo(path);
                 demo.Parse();
-                File.WriteAllText(
-                    $"{ProjectDir}/sample demos/verbose output/{demo.FileName[..^4]}.txt", 
-                    demo.ToVerboseString());
+                demo.WriteVerboseString(new StreamWriter(
+                    $"{ProjectDir}/sample demos/verbose output/{demo.FileName[..^4]}.txt"));
             } catch (Exception e) {
                 Debug.WriteLine(e);
                 Console.WriteLine(e);
