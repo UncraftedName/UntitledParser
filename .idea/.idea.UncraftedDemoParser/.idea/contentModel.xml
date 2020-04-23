@@ -37,6 +37,7 @@
                 <e p="DemoComponent.cs" t="Include" />
                 <e p="DemoMessage.cs" t="Include" />
                 <e p="DemoPacket.cs" t="Include" />
+                <e p="StringTableEntryData.cs" t="Include" />
                 <e p="SvcUserMessage.cs" t="Include" />
               </e>
               <e p="DemoHeader.cs" t="Include" />
@@ -116,7 +117,7 @@
                   <e p="GameRulesCreation.cs" t="Include" />
                   <e p="InstanceBaseLine.cs" t="Include" />
                   <e p="QueryPort.cs" t="Include" />
-                  <e p="StringTableEntryData.cs" t="Include" />
+                  <e p="UnknownStringTableEntryData.cs" t="Include" />
                   <e p="UserInfo.cs" t="Include" />
                 </e>
                 <e p="StringTables.cs" t="Include" />

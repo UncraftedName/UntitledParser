@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
-using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.HelperClasses {

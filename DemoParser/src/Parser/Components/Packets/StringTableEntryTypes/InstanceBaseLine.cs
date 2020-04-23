@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.EntityStuff;
@@ -24,7 +25,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 
 		public InstanceBaseLine(SourceDemo demoRef, BitStreamReader reader, string entryName,
-			PropLookup? propLookup) : base(demoRef, reader, entryName) 
+			PropLookup? propLookup) : base(demoRef, reader) 
 		{
 			_entryName = entryName;
 			_propLookup = propLookup;
@@ -60,6 +61,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			} catch (Exception e) {
 				DemoRef.AddError($"error while parsing baseline for class {ServerClassRef.ClassName}: {e.Message}");
 			}
+		}
+
+
+		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
+			throw new NotImplementedException();
 		}
 
 

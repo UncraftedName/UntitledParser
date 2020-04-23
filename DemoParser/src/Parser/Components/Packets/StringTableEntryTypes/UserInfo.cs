@@ -1,3 +1,4 @@
+using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -11,17 +12,17 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public uint? Xuid;
 		
 		public string Name;
-		public uint UserID; // local server user ID, unique while server is running
-		public string GUID; // global unique player identifer
-		public uint FriendsID; // friends identification number
+		public uint UserId;          // local server user ID, unique while server is running
+		public string Guid;          // global unique player identifier
+		public uint FriendsId;       // friends identification number
 		public string FriendsName;
-		public bool FakePlayer; // true, if player is a bot controlled by game.dll
-		public bool IsHlTV; // true if player is the HLTV proxy
-		public uint[] CustomFiles; // custom files CRC for this player
+		public bool FakePlayer;      // true, if player is a bot controlled by game.dll
+		public bool IsHlTv;          // true if player is the HLTV proxy
+		public uint[] CustomFiles;   // custom files CRC for this player
 		public uint FilesDownloaded; // this counter increases each time the server downloaded a new file
 		
 		
-		public UserInfo(SourceDemo demoRef, BitStreamReader reader, string entryName) : base(demoRef, reader, entryName) {}
+		public UserInfo(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 
 
 		internal override void ParseStream(BitStreamReader bsr) {
@@ -47,14 +48,19 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			}*/
 			bsr.SkipBytes(18);
 			
-			UserID = bsr.ReadUInt();
-			GUID = bsr.ReadNullTerminatedString();
-			FriendsID = bsr.ReadUInt(); // this might also be different
+			UserId = bsr.ReadUInt();
+			Guid = bsr.ReadNullTerminatedString();
+			FriendsId = bsr.ReadUInt(); // this might also be different
 			FriendsName = bsr.ReadNullTerminatedString();
 			FakePlayer = bsr.ReadBool();
-			IsHlTV = bsr.ReadBool();
+			IsHlTv = bsr.ReadBool();
 			CustomFiles = new [] {bsr.ReadUInt(), bsr.ReadUInt(), bsr.ReadUInt(), bsr.ReadUInt()};
 			FilesDownloaded = bsr.ReadUInt();
+		}
+
+
+		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
+			throw new System.NotImplementedException();
 		}
 
 
@@ -65,12 +71,12 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 				iw.AppendLine($"XUID: {Xuid}");
 			}
 			iw.AppendLine($"name: {Name}");
-			iw.AppendLine($"user ID: {UserID}");
-			iw.AppendLine($"GUID: {GUID}");
-			iw.AppendLine($"friends ID: {FriendsID}");
+			iw.AppendLine($"user ID: {UserId}");
+			iw.AppendLine($"GUID: {Guid}");
+			iw.AppendLine($"friends ID: {FriendsId}");
 			iw.AppendLine($"friends name: {FriendsName}");
 			iw.AppendLine($"fake player: {FakePlayer}");
-			iw.AppendLine($"is hltv: {IsHlTV}");
+			iw.AppendLine($"is hltv: {IsHlTv}");
 			iw.AppendLine($"custom files: {CustomFiles.SequenceToString()}");
 			iw.Append($"files downloaded: {FilesDownloaded}");
 		}

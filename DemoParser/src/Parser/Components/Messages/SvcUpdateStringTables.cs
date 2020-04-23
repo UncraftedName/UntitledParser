@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -59,14 +58,14 @@ namespace DemoParser.Parser.Components.Messages {
 		private readonly int _updatedEntries; // just used when parsing
 		private readonly string _tableName;
 		private bool _exceptionWhileParsing;
-		public readonly List<C_TableUpdate> TableUpdates;
+		public readonly List<TableUpdate> TableUpdates;
 		
 		
 		
 		public StringTableUpdate(SourceDemo demoRef, BitStreamReader reader, string tableName, int updatedEntries) : base(demoRef, reader) {
 			_tableName = tableName;
 			_updatedEntries = updatedEntries;
-			TableUpdates = new List<C_TableUpdate>(_updatedEntries);
+			TableUpdates = new List<TableUpdate>(_updatedEntries);
 		}
 		
 		internal override void ParseStream(BitStreamReader bsr) { 
@@ -123,14 +122,14 @@ namespace DemoParser.Parser.Components.Messages {
 						entryName ??= ""; // avoid crash because of NULL strings
 						int j = tableToUpdate.Entries.FindIndex(tableEntry => tableEntry.EntryName == entryName);
 						if (j == -1) {
-							TableUpdates.Add(new C_TableUpdate(
+							TableUpdates.Add(new TableUpdate(
 								manager.AddTableEntry(tableToUpdate, entryStream, entryName), 
-								C_TableUpdateType.NewEntry,
+								TableUpdateType.NewEntry,
 								tableToUpdate.Entries.Count - 1)); // sub 1 since we update the table 2 lines up
 						} else {
-							TableUpdates.Add(new C_TableUpdate(
+							TableUpdates.Add(new TableUpdate(
 								manager.SetEntryData(tableToUpdate, tableToUpdate.Entries[j], entryStream), 
-								C_TableUpdateType.ChangeEntryData,
+								TableUpdateType.ChangeEntryData,
 								j));
 						}
 						bsr.SkipBits(streamLen);
@@ -164,7 +163,7 @@ namespace DemoParser.Parser.Components.Messages {
 			} else {
 				int padCount = TableUpdates
 					.Select(update => (Name: update.TableEntry.EntryName, Data: update.TableEntry.EntryData))
-					.Where(t => t.Data != null && t.Data.GetType() == typeof(StringTableEntryData))
+					.Where(t => !(t.Data?.ContentsKnown ?? true))
 					.Select(t => t.Name.Length + 2)
 					.DefaultIfEmpty(2)
 					.Max();
@@ -180,15 +179,16 @@ namespace DemoParser.Parser.Components.Messages {
 	}
 
 
-	public class C_TableUpdate {
+	// todo this was a C_update before, it should really be a demo component
+	public class TableUpdate {
 
 		internal int PadCount; // just for toString()
+		internal readonly C_StringTableEntry TableEntry;
 		public readonly int Index;
-		public readonly C_StringTableEntry TableEntry;
-		public readonly C_TableUpdateType UpdateType;
+		public readonly TableUpdateType UpdateType;
 
 
-		public C_TableUpdate(C_StringTableEntry tableEntry, C_TableUpdateType updateType, int index) {
+		public TableUpdate(C_StringTableEntry tableEntry, TableUpdateType updateType, int index) {
 			TableEntry = tableEntry;
 			UpdateType = updateType;
 			Index = index;
@@ -217,7 +217,7 @@ namespace DemoParser.Parser.Components.Messages {
 	}
 
 
-	public enum C_TableUpdateType {
+	public enum TableUpdateType {
 		NewEntry,
 		ChangeEntryData
 	}

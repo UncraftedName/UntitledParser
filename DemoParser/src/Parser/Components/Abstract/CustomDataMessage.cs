@@ -3,7 +3,9 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
 	
-	// used in the custom data packet which can contain different kinds of data
+	/// <summary>
+	/// A 'sub-packet' in the CustomData packet.
+	/// </summary>
 	public abstract class CustomDataMessage : DemoComponent {
 		protected CustomDataMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 	}

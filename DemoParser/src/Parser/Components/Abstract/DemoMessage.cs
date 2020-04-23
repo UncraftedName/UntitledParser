@@ -4,6 +4,9 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
 	
+	/// <summary>
+	/// A 'sub-packet' in the Packet or SignOn packets.
+	/// </summary>
 	public abstract class DemoMessage : DemoComponent {
 
 		protected DemoMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}

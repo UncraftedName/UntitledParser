@@ -19,6 +19,9 @@ namespace DemoParser.Parser.Components.Abstract {
 	 * The lookup tables are just me guessing for the most part.
 	 */
 	
+	/// <summary>
+	/// The payload in the SvcUserMessageFrame message. 
+	/// </summary>
 	public abstract class SvcUserMessage : DemoComponent {
 
 		#region lookup tables

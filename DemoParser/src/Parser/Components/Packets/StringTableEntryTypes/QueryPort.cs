@@ -1,3 +1,4 @@
+using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -8,11 +9,16 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public uint Port;
 		
 		
-		public QueryPort(SourceDemo demoRef, BitStreamReader reader, string entryName) : base(demoRef, reader, entryName) {}
+		public QueryPort(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 		
 
 		internal override void ParseStream(BitStreamReader bsr) {
 			Port = bsr.ReadUInt();
+		}
+
+
+		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
+			throw new System.NotImplementedException();
 		}
 
 

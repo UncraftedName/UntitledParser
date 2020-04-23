@@ -3,6 +3,9 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
 	
+	/// <summary>
+	/// Represents a well-defined 'chunk' of data in the demo.
+	/// </summary>
 	public abstract class DemoComponent : Appendable {
 
 		public readonly SourceDemo DemoRef; // if null, this IS the SourceDemo class
