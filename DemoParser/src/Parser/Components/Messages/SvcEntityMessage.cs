@@ -7,7 +7,7 @@ namespace DemoParser.Parser.Components.Messages {
 	public class SvcEntityMessage : DemoMessage {
 
 		public uint EntityIndex;
-		public uint ClassID;
+		public uint ClassId;
 		private BitStreamReader _data;
 		public BitStreamReader Data => _data.FromBeginning();
 		
@@ -17,7 +17,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		internal override void ParseStream(BitStreamReader bsr) {
 			EntityIndex = bsr.ReadBitsAsUInt(11);
-			ClassID = bsr.ReadBitsAsUInt(9);
+			ClassId = bsr.ReadBitsAsUInt(9);
 			_data = bsr.SubStream(bsr.ReadBitsAsUInt(11));
 			SetLocalStreamEnd(bsr);
 		}
@@ -30,7 +30,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"entity index: {EntityIndex}");
-			iw.AppendLine($"class ID: {ClassID}");
+			iw.AppendLine($"class ID: {ClassId}");
 			iw.Append($"data length in bits: {_data.BitLength}");
 		}
 	}

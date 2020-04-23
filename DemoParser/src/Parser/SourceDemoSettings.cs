@@ -19,7 +19,7 @@ namespace DemoParser.Parser {
 		// initialized below
 		public readonly SourceGame Game;
 		public readonly int MaxSplitscreenPlayers;
-		public readonly int SignOnGarbageBytes; // this includes the two unknown ints TODO
+		public readonly int SignOnGarbageBytes;
 		public float TickInterval; // to be determined while parsing in SvcServerInfo
 		public readonly bool ProcessEnts; // don't try to do entity stuff unless I'm testing or have explicit support
 		
@@ -66,20 +66,20 @@ namespace DemoParser.Parser {
 					goto case PORTAL_1_STEAMPIPE;
 				case PORTAL_1_STEAMPIPE:
 					MaxSplitscreenPlayers = 1;
-					SignOnGarbageBytes = 84;
+					SignOnGarbageBytes = 76;
 					break;
 				case PORTAL_2:
 					MaxSplitscreenPlayers = 2;
-					SignOnGarbageBytes = 160;
+					SignOnGarbageBytes = 152;
 					break;
 				case L4D2_2000:
 				case L4D2_2042:
 					MaxSplitscreenPlayers = 4;
-					SignOnGarbageBytes = 312;
+					SignOnGarbageBytes = 304;
 					break;
 				case UNKNOWN:
 					MaxSplitscreenPlayers = 4;
-					SignOnGarbageBytes = 160;
+					SignOnGarbageBytes = 152;
 					break;
 				default:
 					throw new Exception("You fool, you absolute buffoon! " +

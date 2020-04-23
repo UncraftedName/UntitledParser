@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -23,6 +24,7 @@ namespace DemoParser.Parser.Components.Packets {
 	/// </summary>
 	public class SignOn : DemoPacket {
 
+		public int Unknown1, Unknown2;
 		public MessageStream MessageStream;
 		
 		
@@ -30,7 +32,11 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		internal override void ParseStream(BitStreamReader bsr) {
-			bsr.SkipBytes(DemoRef.DemoSettings.SignOnGarbageBytes);
+			byte[] garbage = bsr.ReadBytes(DemoRef.DemoSettings.SignOnGarbageBytes);
+			Unknown1 = bsr.ReadSInt();
+			Unknown2 = bsr.ReadSInt();
+			if (garbage.Any(b => b != 0))
+				DemoRef.AddError("SignOn garbage data is not all 0's! Data: " + garbage.SequenceToString());
 			MessageStream = new MessageStream(DemoRef, bsr);
 			MessageStream.ParseStream(bsr);
 			SetLocalStreamEnd(bsr);
@@ -43,8 +49,8 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.AppendLine($"{DemoRef.DemoSettings.SignOnGarbageBytes} bytes of unknown data: " +
-						  $"{Reader.SubStream(DemoRef.DemoSettings.SignOnGarbageBytes * 8).ToHexString()}");
+			iw.AppendLine(DemoRef.DemoSettings.SignOnGarbageBytes + " bytes with no data");
+			iw.AppendLine($"2 unknown ints: {Unknown1}, {Unknown2}");
 			MessageStream.AppendToWriter(iw);
 		}
 	}

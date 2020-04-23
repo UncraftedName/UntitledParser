@@ -66,8 +66,6 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public override void AppendToWriter(IndentedWriter iw) {
 			if (ServerClassRef != null) {
 				iw.AppendLine($"class: {ServerClassRef.ClassName} ({ServerClassRef.DataTableName})");
-				if (Debugger.IsAttached)
-					iw.AppendLine($"[DEBUG_ONLY] bits: {Reader.BitLength}");
 				iw.Append("props:");
 				iw.AddIndent();
 				if (Properties != null) {

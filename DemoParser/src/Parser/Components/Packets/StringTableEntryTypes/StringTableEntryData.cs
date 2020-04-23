@@ -32,7 +32,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			if (ContentsKnown)
 				base.AppendToWriter(iw);
 			else
-				iw.Append(Reader.BitLength > 32
+				iw.Append(Reader.BitLength > 64
 					? $"{Reader.BitLength, 5} bit{(Reader.BitLength > 1 ? "s" : "")}"
 					: $"({Reader.ToBinaryString()})");
 		}
