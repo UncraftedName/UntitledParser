@@ -12,6 +12,15 @@
         <Description>A parser for Source Engine demos.</Description>
         <PackageIconUrl>https://raw.githubusercontent.com/UncraftedName/UncraftedDemoParser/master/github-resources/investigation.ico</PackageIconUrl>
         <Platforms>AnyCPU;x64</Platforms>
+        <Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DefineConstants>TRACE</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug_ProcessEnts' ">
+      <DefineConstants>TRACE;FORCE_PROCESS_ENTS</DefineConstants>
     </PropertyGroup>
 
 </Project>

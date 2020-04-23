@@ -19,8 +19,9 @@ namespace DemoParser.Parser {
 		// initialized below
 		public readonly SourceGame Game;
 		public readonly int MaxSplitscreenPlayers;
-		public readonly int SignOnGarbageBytes; // this includes the two unknown ints
+		public readonly int SignOnGarbageBytes; // this includes the two unknown ints TODO
 		public float TickInterval; // to be determined while parsing in SvcServerInfo
+		public readonly bool ProcessEnts; // don't try to do entity stuff unless I'm testing or have explicit support
 		
 		// these can be evaluated using simple expressions
 		public bool NewEngine => _header.DemoProtocol == 4;
@@ -61,6 +62,8 @@ namespace DemoParser.Parser {
 			switch (Game) {
 				case PORTAL_1_UNPACK:
 				case PORTAL_1_3420:
+					ProcessEnts = true;
+					goto case PORTAL_1_STEAMPIPE;
 				case PORTAL_1_STEAMPIPE:
 					MaxSplitscreenPlayers = 1;
 					SignOnGarbageBytes = 84;
@@ -82,6 +85,9 @@ namespace DemoParser.Parser {
 					throw new Exception("You fool, you absolute buffoon! " +
 										"You added a game type but didn't add a case for it!");
 			}
+#if FORCE_PROCESS_ENTS
+			ProcessEnts = true; // be prepared for lots of exceptions
+#endif
 		}
 	}
 	

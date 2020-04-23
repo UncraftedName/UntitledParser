@@ -55,7 +55,8 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			try {
 				Properties = _bsr.ReadEntProps(fProps, DemoRef);
 				// once we're done, update the C_baselines so I can actually use this for prop creation
-				DemoRef.CBaseLines?.UpdateBaseLine(ServerClassRef, Properties, fProps.Count);
+				if (DemoRef.DemoSettings.ProcessEnts)
+					DemoRef.CBaseLines?.UpdateBaseLine(ServerClassRef, Properties, fProps.Count);
 			} catch (Exception e) {
 				DemoRef.AddError($"error while parsing baseline for class {ServerClassRef.ClassName}: {e.Message}");
 			}

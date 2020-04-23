@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.EntityStuff;
@@ -16,8 +17,8 @@ namespace DemoParser.Parser.Components.Messages {
 		public int DeltaFrom;
 		public uint BaseLine; // which baseline we read from
 		public ushort UpdatedEntries;
-		// server requested to use this snapshot as baseline update
-		// any time this happens, we swap the baseline to read from starting on the next packet (hopefully)
+		// Server requested to use this snapshot as baseline update.
+		// Any time this happens, the game swaps the baseline to read from starting on the next packet (hopefully).
 		public bool UpdateBaseline;
 		private BitStreamReader _entBsr;
 		public BitStreamReader EntStream => _entBsr.FromBeginning();
@@ -40,6 +41,9 @@ namespace DemoParser.Parser.Components.Messages {
 			_entBsr = bsr.SubStream(dataLen);
 			bsr.SkipBits(dataLen);
 			SetLocalStreamEnd(bsr);
+
+			if (!DemoRef.DemoSettings.ProcessEnts)
+				return;
 			
 			// now, we do some setup for ent parsing
 			ref C_EntitySnapshot snapshot = ref DemoRef.CEntitySnapshot;
@@ -105,7 +109,7 @@ namespace DemoParser.Parser.Components.Messages {
 								NextOldEntIndex(ref oldI, ents);
 							break;
 						case UpdateType.Delta:
-							//Debug.Assert(oldI == newI, "oldEntSlot != newEntSlot");
+							Debug.Assert(oldI == newI, "oldEntSlot != newEntSlot");
 							Entity e = snapshot.Entities[newI];
 							iClass = e.ServerClass.DataTableId;
 							(entClass, fProps) = tableParser.FlattenedProps[iClass];
@@ -155,17 +159,20 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.AppendLine($"baseline: {BaseLine}");
 			iw.AppendLine($"updated baseline: {UpdateBaseline}");
 			iw.AppendLine($"length in bits: {_entBsr.BitLength}");
-			iw.Append($"{UpdatedEntries} updated entries:");
-			iw.AddIndent();
-			if (Updates == null) {
-				iw.Append("\nupdates could not be parsed");
-			} else {
-				foreach (EntityUpdate update in Updates) {
-					iw.AppendLine();
-					update.AppendToWriter(iw);
+			iw.Append($"{UpdatedEntries} updated entries");
+			if (DemoRef.DemoSettings.ProcessEnts) {
+				iw.Append(":");
+				iw.AddIndent();
+				if (Updates == null) {
+					iw.Append("\nupdates could not be parsed");
+				} else {
+					foreach (EntityUpdate update in Updates) {
+						iw.AppendLine();
+						update.AppendToWriter(iw);
+					}
 				}
+				iw.SubIndent();
 			}
-			iw.SubIndent();
 		}
 	}
 	
