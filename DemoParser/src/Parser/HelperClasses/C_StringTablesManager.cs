@@ -10,24 +10,24 @@ using DemoParser.Utils.BitStreams;
 namespace DemoParser.Parser.HelperClasses {
 
 	public static class TableNames {
-		public const string Downloadables 		= "downloadables";
-		public const string ModelPreCache 		= "modelprecache";
-		public const string GenericPreCache 	= "genericprecache";
-		public const string SoundPreCache 		= "soundprecache";
-		public const string DecalPreCache 		= "decalprecache";
-		public const string InstanceBaseLine 	= "instancebaseline";
-		public const string LightStyles 		= "lightstyles";
-		public const string UserInfo 			= "userinfo";
-		public const string ServerQueryInfo 	= "server_query_info";
+		public const string Downloadables       = "downloadables";
+		public const string ModelPreCache       = "modelprecache";
+		public const string GenericPreCache     = "genericprecache";
+		public const string SoundPreCache       = "soundprecache";
+		public const string DecalPreCache       = "decalprecache";
+		public const string InstanceBaseLine    = "instancebaseline";
+		public const string LightStyles         = "lightstyles";
+		public const string UserInfo            = "userinfo";
+		public const string ServerQueryInfo     = "server_query_info";
 		public const string ParticleEffectNames = "ParticleEffectNames";
-		public const string EffectDispatch 		= "EffectDispatch";
-		public const string VguiScreen 			= "VguiScreen";
-		public const string Materials 			= "Materials";
-		public const string InfoPanel 			= "InfoPanel";
-		public const string Scenes 				= "Scenes";
-		public const string MeleeWeapons 		= "MeleeWeapons";
-		public const string GameRulesCreation 	= "GameRulesCreation";
-		public const string BlackMarket 		= "BlackMarketTable";
+		public const string EffectDispatch      = "EffectDispatch";
+		public const string VguiScreen          = "VguiScreen";
+		public const string Materials           = "Materials";
+		public const string InfoPanel           = "InfoPanel";
+		public const string Scenes              = "Scenes";
+		public const string MeleeWeapons        = "MeleeWeapons";
+		public const string GameRulesCreation   = "GameRulesCreation";
+		public const string BlackMarket         = "BlackMarketTable";
 	}
 	
 
