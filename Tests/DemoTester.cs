@@ -17,6 +17,9 @@ namespace Tests {
             try {
                 SourceDemo demo = new SourceDemo(path);
                 demo.Parse();
+                File.WriteAllText(
+                    $"{ProjectDir}/sample demos/verbose output/{demo.FileName[..^4]}.txt", 
+                    demo.ToVerboseString());
             } catch (Exception e) {
                 Debug.WriteLine(e);
                 Console.WriteLine(e);
@@ -34,6 +37,14 @@ namespace Tests {
         [Test]
         public void Portal1Unpack() {
             ParseDemo($"{ProjectDir}/sample demos/portal 1 unpack.dem");
+            ParseDemo($"{ProjectDir}/sample demos/portal 1 unpack hltv client.dem");
+            ParseDemo($"{ProjectDir}/sample demos/portal 1 unpack hltv server.dem");
+        }
+
+
+        [Test]
+        public void Portal1UnpackSpliced() {
+            ParseDemo($"{ProjectDir}/sample demos/portal 1 unpack spliced.dem");
         }
         
         
@@ -72,12 +83,6 @@ namespace Tests {
         public void L4D2_2042() {
             ParseDemo($"{ProjectDir}/sample demos/l4d2 2042.dem");
             ParseDemo($"{ProjectDir}/sample demos/l4d2 2042_2.dem");
-        }
-
-
-        [Test]
-        public void Portal1UnpackSpliced() {
-            ParseDemo($"{ProjectDir}/sample demos/portal 1 unpack spliced.dem");
         }
     }
 }

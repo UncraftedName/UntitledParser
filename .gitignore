@@ -4,3 +4,4 @@ obj/
 *.xml
 *.user
 *.DotSettings
+/Tests/sample demos/verbose output/

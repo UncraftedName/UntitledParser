@@ -22,4 +22,16 @@
       <Folder Include="sample demos" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="sample demos\verbose output\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="sample demos\verbose output\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="sample demos\verbose output\**" />
+    </ItemGroup>
+
 </Project>
