@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components.Messages.UserMessages;
-using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 using static DemoParser.Parser.SourceGame;
 
@@ -98,13 +97,12 @@ namespace DemoParser.Parser.Components.Abstract {
 				#region error logging
 				
 				bool defined = Enum.IsDefined(typeof(UserMessageType), messageType);
-				string s =  defined ? "unimplemented" : "unknown";
+				string s = defined ? "unimplemented" : "unknown";
 				s += $" SvcUserMessage: {messageType}";
 				if (defined)
 					s += $" ({SvcUserMessage.UserMessageTypeToByte(demoRef, messageType)})";
-				demoRef.AddError(
-					$"{s} ({ParserTextUtils.PluralIfNotOne(reader.BitsRemaining / 8, "byte", "s")})" +
-					$" - {reader.FromBeginning().ToHexString()}");
+				int rem = reader.BitsRemaining / 8;
+				demoRef.AddError($"{s} ({rem} byte{(rem == 1 ? "" : "s")}) - {reader.FromBeginning().ToHexString()}");
 				
 				#endregion
 				return new UnknownSvcUserMessage(demoRef, reader);
