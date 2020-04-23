@@ -62,21 +62,6 @@ namespace DemoParser.Utils {
 		}
 
 
-		public static string PluralIfNotOne(int num, string s, string pluralSuffix, string sep = " ") {
-			return num == 1 // this is pretty bad ngl
-				? $"{num}{sep}{s}" 
-				: $"{num}{sep}{s}{pluralSuffix}";
-		}
-		
-		
-		/*public static string GetPathRelativeTo(this string relativeTo, string path) {
-			return Uri.UnescapeDataString(
-				new Uri(Path.GetFullPath(path))
-					.MakeRelativeUri(new Uri(Path.GetFullPath(relativeTo)))
-					.ToString());
-		}*/
-
-
 		public static string SharedSubstring(string s1, string s2) {
 			int i = 0;
 			for (; i < s1.Length && i < s2.Length && s1[i] == s2[i]; i++);
