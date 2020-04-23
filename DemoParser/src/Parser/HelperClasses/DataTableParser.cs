@@ -200,24 +200,12 @@ namespace DemoParser.Parser.HelperClasses {
 				   $"flags: {displayProp.Flags}";
 		}
 		
-		public string TypeString() => TypeStringFromProp(
-			Prop.SendPropType,
-			ArrayElementProp?.SendPropType,
-			Prop.Elements);
-
-
-		private static string TypeStringFromProp(SendPropType propType, SendPropType? elementsType, uint? elements) {
-			string str = propType switch {
-				SendPropType.Int 		=> "int",
-				SendPropType.Float 		=> "float",
-				SendPropType.Vector3 	=> "vector3",
-				SendPropType.Vector2 	=> "vector2",
-				SendPropType.String 	=> "string",
-				SendPropType.Array 		=> null,
-				_ => throw new ArgumentOutOfRangeException(nameof(propType), $"unknown property type: {propType}")
-			};
-			// if elements are of array type, converts from something like "int" to something like "int[32]"
-			return str ?? $"{TypeStringFromProp(elementsType.Value, default, default)}[{elements}]";
+		
+		// if elements are of array type, converts from something like "int" to something like "int[32]"
+		public string TypeString() {
+			return Prop.SendPropType == SendPropType.Array
+				? $"{ArrayElementProp?.SendPropType.ToString().ToLower()}[{Prop.Elements}]" 
+				: Prop.SendPropType.ToString().ToLower();
 		}
 
 
