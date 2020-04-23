@@ -109,9 +109,9 @@ namespace DemoParser.Parser.Components.Packets {
 
 	[Flags]
 	public enum InterpFlags: uint {
-		None 		= 0,
-		UseOrigin2 	= 1,
+		None        = 0,
+		UseOrigin2  = 1,
 		UserAngles2 = 1 << 1,
-		NoInterp 	= 1 << 2  // don't interpolate between this and last view
+		NoInterp    = 1 << 2  // don't interpolate between this and last view
 	}
 }

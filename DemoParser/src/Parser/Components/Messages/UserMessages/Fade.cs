@@ -5,7 +5,7 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	// might be useful: #define SCREENFADE_FRACBITS		9
+	// might be useful: #define SCREENFADE_FRACBITS 9
 	public class Fade : SvcUserMessage {
 
 		public float Duration;
@@ -42,13 +42,13 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 	}
 
 
-	[Flags]
+	[Flags] 
 	public enum FadeFlags : ushort {
-		None 		= 0,
-		FadeIn 		= 1,
-		FadeOut		= 1 << 1, 
-		Modulate	= 1 << 2, // Modulate (don't blend)
-		StayOut		= 1 << 3, // ignores the duration, stays faded out until new ScreenFade message received
-		Purge		= 1 << 4  // Purges all other fades, replacing them with this one
+		None     = 0,
+		FadeIn   = 1,
+		FadeOut  = 1 << 1, 
+		Modulate = 1 << 2, // Modulate (don't blend)
+		StayOut  = 1 << 3, // ignores the duration, stays faded out until new ScreenFade message received
+		Purge    = 1 << 4  // Purges all other fades, replacing them with this one
 	}
 }

@@ -310,30 +310,30 @@ namespace DemoParser.Parser.Components.Packets {
 
 	[Flags]
 	public enum SendPropFlags : uint { // https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/SendTableProperty.cs
-		None						= 0,
-		Unsigned 					= 1,
-		Coord 						= 1 << 1,
-		NoScale 					= 1 << 2,
-		RoundDown					= 1 << 3,
-		RoundUp						= 1 << 4,
-		Normal						= 1 << 5,
-		Exclude						= 1 << 6,
-		XYZE						= 1 << 7,
-		InsideArray					= 1 << 8,
-		ProxyAlwaysYes				= 1 << 9,
-		ChangesOften				= 1 << 10,
-		IsAVectorElement			= 1 << 11,
-		Collapsible					= 1 << 12,
-		CoordMp						= 1 << 13,
-		CoordMpLowPrecision			= 1 << 14,
-		CoordMpIntegral				= 1 << 15
+		None                = 0,
+		Unsigned            = 1,
+		Coord               = 1 << 1,
+		NoScale             = 1 << 2,
+		RoundDown           = 1 << 3,
+		RoundUp             = 1 << 4,
+		Normal              = 1 << 5,
+		Exclude             = 1 << 6,
+		XYZE                = 1 << 7,
+		InsideArray         = 1 << 8,
+		ProxyAlwaysYes      = 1 << 9,
+		ChangesOften        = 1 << 10,
+		IsAVectorElement    = 1 << 11,
+		Collapsible         = 1 << 12,
+		CoordMp             = 1 << 13,
+		CoordMpLowPrecision = 1 << 14,
+		CoordMpIntegral     = 1 << 15
 		
 		// we read 16 bits, so there's probably an additional flag that i'm missing, but these are only used in csg
 		
-		// CellCoordMp				= 1 << 16,
-		// CellCoordMpLowPrecision	= 1 << 17,
-		// CellCoordMpLowIntegral	= 1 << 18,
-		// ChangesOften				= 1 << 18,
-		// VarInt					= 1 << 19
+		// CellCoordMp             = 1 << 16,
+		// CellCoordMpLowPrecision = 1 << 17,
+		// CellCoordMpLowIntegral  = 1 << 18,
+		// ChangesOften            = 1 << 18,
+		// VarInt                  = 1 << 19
 	}
 }

@@ -47,10 +47,10 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			PropLookup propLookup = null) // if parsing baseline now
 		{
 			return tableName switch {
-				TableNames.UserInfo 			=> new UserInfo(demoRef, bsr, entryName),
-				TableNames.ServerQueryInfo 		=> new QueryPort(demoRef, bsr, entryName),
-				TableNames.InstanceBaseLine 	=> new InstanceBaseLine(demoRef, bsr, entryName, propLookup),
-				TableNames.GameRulesCreation 	=> new GameRulesCreation(demoRef, bsr, entryName),
+				TableNames.UserInfo          => new UserInfo(demoRef, bsr, entryName),
+				TableNames.ServerQueryInfo   => new QueryPort(demoRef, bsr, entryName),
+				TableNames.InstanceBaseLine  => new InstanceBaseLine(demoRef, bsr, entryName, propLookup),
+				TableNames.GameRulesCreation => new GameRulesCreation(demoRef, bsr, entryName),
 				_ => new StringTableEntryData(demoRef, bsr, entryName)
 			};
 		}

@@ -96,15 +96,16 @@ namespace DemoParser.Parser.Components.Abstract {
 				return msgResult;
 			} else {
 				#region error logging
-					
+				
 				bool defined = Enum.IsDefined(typeof(UserMessageType), messageType);
 				string s =  defined ? "unimplemented" : "unknown";
 				s += $" SvcUserMessage: {messageType}";
 				if (defined)
 					s += $" ({SvcUserMessage.UserMessageTypeToByte(demoRef, messageType)})";
-				demoRef.AddError($"{s} ({ParserTextUtils.PluralIfNotOne(reader.BitsRemaining / 8, "byte", "s")})" +
-								 $" - {reader.FromBeginning().ToHexString()}");
-					
+				demoRef.AddError(
+					$"{s} ({ParserTextUtils.PluralIfNotOne(reader.BitsRemaining / 8, "byte", "s")})" +
+					$" - {reader.FromBeginning().ToHexString()}");
+				
 				#endregion
 				return new UnknownSvcUserMessage(demoRef, reader);
 			}

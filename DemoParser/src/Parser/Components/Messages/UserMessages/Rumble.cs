@@ -37,7 +37,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 	public enum RumbleLookup : sbyte {
 		RumbleInvalid = -1,
-		RumbleStopAll	= 0, // cease all current rumbling effects.
+		RumbleStopAll = 0, // cease all current rumbling effects.
 
 		// Weapons
 		Pistol,
@@ -84,13 +84,13 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 	[Flags]
 	public enum RumbleFlags : byte {
-		None				= 0,
-		Stop				= 1,
-		Loop				= 1 << 1,
-		Restart				= 1 << 2,
-		UpdateScale			= 1 << 3, // Apply DATA to this effect if already playing, but don't restart.   <-- DATA is scale * 100
-		OnlyOne				= 1 << 4, // Don't play this effect if it is already playing.
-		RandomAmplitude		= 1 << 5, // Amplitude scale will be randomly chosen. Between 10% and 100%
-		InitialScale		= 1 << 6  // Data is the initial scale to start this effect ( * 100 )
+		None            = 0,
+		Stop            = 1,
+		Loop            = 1 << 1,
+		Restart         = 1 << 2,
+		UpdateScale     = 1 << 3, // Apply DATA to this effect if already playing, but don't restart.   <-- DATA is scale * 100
+		OnlyOne         = 1 << 4, // Don't play this effect if it is already playing.
+		RandomAmplitude = 1 << 5, // Amplitude scale will be randomly chosen. Between 10% and 100%
+		InitialScale    = 1 << 6  // Data is the initial scale to start this effect ( * 100 )
 	}
 }

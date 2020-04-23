@@ -7,7 +7,7 @@ namespace ConsoleApp {
 
 		public readonly DirectoryInfo? DirectoryInfo;
 		public readonly FileInfo? FileInfo;
-		public bool IsDir => Attributes.HasFlag(FileAttributes.Directory);
+		public bool IsDir => (Attributes & FileAttributes.Directory) != 0;
 		public override bool Exists => IsDir ? DirectoryInfo.Exists : FileInfo.Exists;
 		public override string Name => IsDir ? DirectoryInfo.Name : FileInfo.Name;
 		

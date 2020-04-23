@@ -38,7 +38,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 
 	// these are compared to new mode, but I don't think that's what it corresponds to
-	public enum SpectatorMode: byte {
+	public enum SpectatorMode : byte {
 		OBS_MODE_NONE = 0,  // not in spectator mode
 		OBS_MODE_DEATHCAM,  // special mode for death cam animation
 		OBS_MODE_FREEZECAM, // zooms to a target, and freeze-frames on them

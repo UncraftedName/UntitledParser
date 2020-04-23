@@ -15,7 +15,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		public static CustomDataMessage CreateCustomDataMessage(SourceDemo demoRef, BitStreamReader bsr, CustomDataType type) {
 			CustomDataMessage result = type switch {
 				CustomDataType.MenuCallback => new MenuCallBack(demoRef, bsr),
-				CustomDataType.Ping 		=> new Ping(demoRef, bsr),
+				CustomDataType.Ping         => new Ping(demoRef, bsr),
 				_ => new UnknownCustomDataMessage(demoRef, bsr)
 			};
 			
@@ -27,7 +27,7 @@ namespace DemoParser.Parser.Components.Abstract {
 
 
 	public enum CustomDataType {
-		MenuCallback 	= -1,
-		Ping			= 0
+		MenuCallback = -1,
+		Ping         = 0
 	}
 }

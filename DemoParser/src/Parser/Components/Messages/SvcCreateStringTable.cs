@@ -68,8 +68,8 @@ namespace DemoParser.Parser.Components.Messages {
 	
 	[Flags]
 	public enum StringTableFlags : uint { // hl2sdk-portal2  public/networkstringtabledefs.h   line 60
-		None 				= 0,
-		DictionaryEnabled 	= 1,
+		None              = 0,
+		DictionaryEnabled = 1,
 		Unknown
 	} 
 }

@@ -38,8 +38,8 @@ namespace DemoParser.Parser.Components.Messages {
 
 	[Flags]
 	public enum NetFileFlags : uint {
-		None			= 0,
-		FileRequested 	= 1,
-		Unknown 		= 1 << 1
+		None          = 0,
+		FileRequested = 1,
+		Unknown       = 1 << 1
 	}
 }

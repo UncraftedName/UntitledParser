@@ -396,11 +396,11 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 						return new StringEntProp(prop, s, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Array:
 						return prop.ArrayElementProp.SendPropType switch {
-							SendPropType.Int 		=> new IntArrEntProp(prop, bsr.DecodeIntArr(prop), offset, bsr.AbsoluteBitIndex - offset),
-							SendPropType.Float 		=> new FloatArrEntProp(prop, bsr.DecodeFloatArr(prop), offset, bsr.AbsoluteBitIndex - offset),
-							SendPropType.Vector3 	=> new Vec3ArrEntProp(prop, bsr.DecodeVector3Arr(prop), offset, bsr.AbsoluteBitIndex - offset),
-							SendPropType.Vector2 	=> new Vec2ArrEntProp(prop, bsr.DecodeVector2Arr(prop), offset, bsr.AbsoluteBitIndex - offset),
-							SendPropType.String 	=> new StringArrEntProp(prop, bsr.DecodeStringArr(prop), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.Int     => new IntArrEntProp(prop, bsr.DecodeIntArr(prop), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.Float   => new FloatArrEntProp(prop, bsr.DecodeFloatArr(prop), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.Vector3 => new Vec3ArrEntProp(prop, bsr.DecodeVector3Arr(prop), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.Vector2 => new Vec2ArrEntProp(prop, bsr.DecodeVector2Arr(prop), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.String  => new StringArrEntProp(prop, bsr.DecodeStringArr(prop), offset, bsr.AbsoluteBitIndex - offset),
 							_ => throw new ArgumentException(exceptionMsg, nameof(prop.Prop.SendPropType))
 						};
 				}

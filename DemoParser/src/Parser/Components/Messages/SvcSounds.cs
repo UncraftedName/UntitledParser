@@ -58,7 +58,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public uint EntityIndex;
 		public int SoundIndex;
 		public SoundFlags Flags;
-		private bool HasStopPacket => Flags.HasFlag(SoundFlags.Stop);
+		private bool HasStopPacket => (Flags & SoundFlags.Stop) != 0;
 		public uint Channel;
 		public bool IsAmbient;
 		public bool IsSentence;
@@ -149,17 +149,17 @@ namespace DemoParser.Parser.Components.Messages {
 
 		[Flags]
 		public enum SoundFlags : uint {
-			None 		= 0,
-			ChangeVol 		= 1,
-			ChangePitch 	= 1 << 1,
-			Stop 			= 1 << 2,
-			Spawning 		= 1 << 3,
-			Delay 			= 1 << 4,
-			StopLooping 	= 1 << 5,
-			Speaker 		= 1 << 6,
-			ShouldPause 	= 1 << 7,
-			IgnorePhonemes 	= 1 << 8,
-			IgnoreName 		= 1 << 9,
+			None           = 0,
+			ChangeVol      = 1,
+			ChangePitch    = 1 << 1,
+			Stop           = 1 << 2,
+			Spawning       = 1 << 3,
+			Delay          = 1 << 4,
+			StopLooping    = 1 << 5,
+			Speaker        = 1 << 6,
+			ShouldPause    = 1 << 7,
+			IgnorePhonemes = 1 << 8,
+			IgnoreName     = 1 << 9,
 		}
 	} 
 }

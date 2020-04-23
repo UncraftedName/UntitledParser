@@ -171,9 +171,9 @@ namespace DemoParser.Parser.Components.Messages {
 	
 	
 	public enum UpdateType { // src_main/common/protocol.h
-		EnterPvs = 0, 	// New entity or entity reentered PVS (potentially visible system)
-		LeavePvs, 		// Entity left PVS
-		Delete,			// This is a LeavePVS message, but with a delete flag
-		Delta    		// There is a delta for this entity
+		EnterPvs = 0, // New entity or entity reentered PVS (potentially visible system)
+		LeavePvs,     // Entity left PVS
+		Delete,       // This is a LeavePVS message, but with a delete flag
+		Delta         // There is a delta for this entity
 	}
 }
