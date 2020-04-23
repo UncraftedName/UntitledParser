@@ -92,6 +92,7 @@
                   <e p="SayText2.cs" t="Include" />
                   <e p="Shake.cs" t="Include" />
                   <e p="SquadMemberDied.cs" t="Include" />
+                  <e p="TextMsg.cs" t="Include" />
                   <e p="Train.cs" t="Include" />
                   <e p="UnknownSvcUserMessage.cs" t="Include" />
                   <e p="VguiMenu.cs" t="Include" />

@@ -88,6 +88,7 @@ namespace DemoParser.Parser.Components.Abstract {
 				UserMessageType.KeyHintText      => new KeyHintText(demoRef, reader),
 				UserMessageType.Train            => new Train(demoRef, reader),
 				UserMessageType.VGUIMenu         => new VguiMenu(demoRef, reader),
+				UserMessageType.TextMsg          => new TextMsg(demoRef, reader),
 				_ => null
 			};
 			
