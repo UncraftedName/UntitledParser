@@ -95,7 +95,7 @@ namespace DemoParser.Parser.Components.Messages {
 					if (bsr.ReadBool()) {
 						if (bsr.ReadBool()) { // the first part of the string may be the same as for other entries
 							int index = (int)bsr.ReadBitsAsUInt(5);
-							int subStrLen = (int)bsr.ReadBitsAsUInt(SourceDemoSettings.SubStringBits);
+							int subStrLen = (int)bsr.ReadBitsAsUInt(DemoSettings.SubStringBits);
 							entryName = history[index].Substring(0, subStrLen);
 							entryName += bsr.ReadNullTerminatedString();
 						} else {
@@ -110,7 +110,7 @@ namespace DemoParser.Parser.Components.Messages {
 						if (tableToUpdate.UserDataFixedSize)
 							streamLen = tableToUpdate.UserDataSizeBits;
 						else
-							streamLen = (int)bsr.ReadBitsAsUInt(DemoRef.DemoSettings.MaxUserDataBits) * 8;
+							streamLen = (int)bsr.ReadBitsAsUInt(DemoSettings.MaxUserDataBits) * 8;
 						entryStream = bsr.SubStream(streamLen);
 					}
 

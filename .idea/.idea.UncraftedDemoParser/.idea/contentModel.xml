@@ -125,6 +125,7 @@
                 <e p="UserCmd.cs" t="Include" />
               </e>
             </e>
+            <e p="DemoSettings.cs" t="Include" />
             <e p="HelperClasses" t="Include">
               <e p="C_StringTablesManager.cs" t="Include" />
               <e p="DataTableParser.cs" t="Include" />
@@ -141,7 +142,6 @@
               <e p="GameEventManager.cs" t="Include" />
             </e>
             <e p="SourceDemo.cs" t="Include" />
-            <e p="SourceDemoSettings.cs" t="Include" />
           </e>
           <e p="Utils" t="Include">
             <e p="BitStreams" t="Include">

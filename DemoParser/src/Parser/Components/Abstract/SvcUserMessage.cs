@@ -42,9 +42,9 @@ namespace DemoParser.Parser.Components.Abstract {
 		protected SvcUserMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 
 
-		public static UserMessageType ByteToUserMessageType(SourceDemo demoRef, byte b) {
+		public static UserMessageType ByteToUserMessageType(DemoSettings demoSettings, byte b) {
 			var def = (UserMessageType)b;
-			return demoRef.DemoSettings.Game switch {
+			return demoSettings.Game switch {
 				PORTAL_1_UNPACK    => Portal1ReMapper.GetValueOrDefault(b, def),
 				PORTAL_1_STEAMPIPE => Portal1SteamPipe.GetValueOrDefault(b, def),
 				L4D2_2042          => L4D2ReMapper.GetValueOrDefault(b, def),
@@ -54,9 +54,9 @@ namespace DemoParser.Parser.Components.Abstract {
 		}
 
 
-		public static byte UserMessageTypeToByte(SourceDemo demoRef, UserMessageType m) {
+		public static byte UserMessageTypeToByte(DemoSettings demoSettings, UserMessageType m) {
 			var def = (byte)m;
-			return demoRef.DemoSettings.Game switch {
+			return demoSettings.Game switch {
 				PORTAL_1_UNPACK    => Portal1ReMapper.GetValueOrDefault(m, def),
 				PORTAL_1_STEAMPIPE => Portal1SteamPipe.GetValueOrDefault(m, def),
 				L4D2_2042          => L4D2ReMapper.GetValueOrDefault(m, def),
@@ -104,7 +104,7 @@ namespace DemoParser.Parser.Components.Abstract {
 				string s = defined ? "unimplemented" : "unknown";
 				s += $" SvcUserMessage: {messageType}";
 				if (defined)
-					s += $" ({SvcUserMessage.UserMessageTypeToByte(demoRef, messageType)})";
+					s += $" ({SvcUserMessage.UserMessageTypeToByte(demoRef.DemoSettings, messageType)})";
 				int rem = reader.BitsRemaining / 8;
 				demoRef.AddError($"{s} ({rem} byte{(rem == 1 ? "" : "s")}) - {reader.FromBeginning().ToHexString()}");
 				

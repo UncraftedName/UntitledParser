@@ -28,17 +28,17 @@ namespace DemoParser.Parser.Components {
 			Exception e = null;
 			try {
 				do {
-					messageValue = (byte)messageBsr.ReadBitsAsUInt(DemoRef.DemoSettings.NetMsgTypeBits);
+					messageValue = (byte)messageBsr.ReadBitsAsUInt(DemoSettings.NetMsgTypeBits);
 					MessageType messageType =
-						DemoMessage.ByteToSvcMessageType(messageValue, DemoRef.DemoSettings);
+						DemoMessage.ByteToSvcMessageType(messageValue, DemoSettings);
 					DemoMessage demoMessage = MessageFactory.CreateMessage(DemoRef, messageBsr, messageType);
 					demoMessage?.ParseStream(messageBsr);
 					Messages.Add((messageType, demoMessage));
-				} while (Messages[^1].Item2 != null && messageBsr.BitsRemaining >= DemoRef.DemoSettings.NetMsgTypeBits);
+				} while (Messages[^1].Item2 != null && messageBsr.BitsRemaining >= DemoSettings.NetMsgTypeBits);
 			} catch (Exception ex) {
 				Debug.WriteLine(e = ex);
 				// if the stream goes out of bounds, that's not a big deal since the messages are skipped over at the end anyway
-				(MessageType, DemoMessage) pair = (DemoMessage.ByteToSvcMessageType(messageValue, DemoRef.DemoSettings), null);
+				(MessageType, DemoMessage) pair = (DemoMessage.ByteToSvcMessageType(messageValue, DemoSettings), null);
 				if (Messages.Count == 0)
 					Messages.Add(pair);
 				else
@@ -88,7 +88,7 @@ namespace DemoParser.Parser.Components {
 			int i = 0;
 			while (i < Messages.Count && Messages[i].Item2 != null) {
 				iw.Append($"message: {Messages[i].Item1} " +
-						  $"({DemoMessage.MessageTypeToByte(Messages[i].Item1, DemoRef.DemoSettings)})");
+						  $"({DemoMessage.MessageTypeToByte(Messages[i].Item1, DemoSettings)})");
 				if (Messages[i].Item2.MayContainData) {
 					iw.AddIndent();
 					iw.AppendLine();

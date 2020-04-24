@@ -25,13 +25,13 @@ namespace DemoParser.Parser.Components {
 
 
 		internal override void ParseStream(BitStreamReader bsr) {
-			Type = DemoPacket.ByteToPacketType(DemoRef.DemoSettings, bsr.ReadByte());
+			Type = DemoPacket.ByteToPacketType(DemoSettings, bsr.ReadByte());
 			
-			int tick = Type == PacketType.Stop && !DemoRef.DemoSettings.NewEngine
+			int tick = Type == PacketType.Stop && !DemoSettings.NewEngine
 				? (int)bsr.ReadBitsAsUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24)) // stop tick is cut off in portal demos, not that it really matters
 				: bsr.ReadSInt();
 			
-			if (DemoRef.DemoSettings.HasPlayerSlot && bsr.BitsRemaining > 0) // last player slot byte is cut off in l4d2 demos
+			if (DemoSettings.HasPlayerSlot && bsr.BitsRemaining > 0) // last player slot byte is cut off in l4d2 demos
 				PlayerSlot = bsr.ReadByte();
 			
 			
@@ -49,8 +49,8 @@ namespace DemoParser.Parser.Components {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			if (Packet != null) {
-				iw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(DemoRef.DemoSettings, Type)})");
-				if (DemoRef.DemoSettings.NewEngine && PlayerSlot.HasValue)
+				iw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(DemoSettings, Type)})");
+				if (DemoSettings.NewEngine && PlayerSlot.HasValue)
 					iw.Append($"\nplayer slot: {PlayerSlot.Value}");
 				if (Packet.MayContainData) {
 					iw.AddIndent();

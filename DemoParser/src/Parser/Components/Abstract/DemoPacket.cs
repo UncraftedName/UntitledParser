@@ -24,7 +24,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		
 		
 		// gets the packet type associated with this byte value
-		public static PacketType ByteToPacketType(SourceDemoSettings demoSettings, byte byteValue) {
+		public static PacketType ByteToPacketType(DemoSettings demoSettings, byte byteValue) {
 			var def = (PacketType)byteValue;
 			if (demoSettings.NewEngine)
 				return NewEngineMapper.GetValueOrDefault(byteValue, def);
@@ -35,7 +35,7 @@ namespace DemoParser.Parser.Components.Abstract {
 
 
 		// gets the byte value associated with this packet type
-		public static byte PacketTypeToByte(SourceDemoSettings demoSettings, PacketType packetType) {
+		public static byte PacketTypeToByte(DemoSettings demoSettings, PacketType packetType) {
 			var def = (byte)packetType;
 			if (demoSettings.NewEngine)
 				return NewEngineMapper.GetValueOrDefault(packetType, def);

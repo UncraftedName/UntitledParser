@@ -12,7 +12,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		protected DemoMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 		
 		
-		public static MessageType ByteToSvcMessageType(byte b, SourceDemoSettings demoSettings) {
+		public static MessageType ByteToSvcMessageType(byte b, DemoSettings demoSettings) {
 			if (!demoSettings.NewEngine) {
 				switch (b) {
 					case 3:
@@ -38,7 +38,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		}
 
 
-		public static byte MessageTypeToByte(MessageType messageType, SourceDemoSettings demoSettings) {
+		public static byte MessageTypeToByte(MessageType messageType, DemoSettings demoSettings) {
 			if (!demoSettings.NewEngine) {
 				switch (messageType) {
 					case MessageType.NetTick:

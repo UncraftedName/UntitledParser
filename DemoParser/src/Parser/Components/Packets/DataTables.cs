@@ -168,7 +168,7 @@ namespace DemoParser.Parser.Components.Packets {
 			SendPropType = UIntToSendPropertyType(DemoRef, bsr.ReadBitsAsUInt(5));
 			Name = bsr.ReadNullTerminatedString();
 			Flags = (SendPropFlags)bsr.ReadBitsAsUInt(DemoRef.Header.DemoProtocol == 2 ? 11 : 16);
-			if (DemoRef.DemoSettings.NewEngine)
+			if (DemoSettings.NewEngine)
 				Priority = bsr.ReadBitsAsSInt(11);
 			if (SendPropType == SendPropType.DataTable || (Flags & SendPropFlags.Exclude) != 0) {
 				ExcludeDtName = bsr.ReadNullTerminatedString();
@@ -183,8 +183,8 @@ namespace DemoParser.Parser.Components.Packets {
 						HighValue = bsr.ReadFloat();
 						NumBits = bsr.ReadBitsAsUInt(
 							DemoRef.Header.NetworkProtocol == 14 || 
-							DemoRef.DemoSettings.Game == SourceGame.L4D2_2000 ||
-							DemoRef.DemoSettings.Game == SourceGame.L4D2_2042
+							DemoSettings.Game == SourceGame.L4D2_2000 ||
+							DemoSettings.Game == SourceGame.L4D2_2042
 								? 6 : 7);
 						break;
 					case SendPropType.Array:
@@ -228,7 +228,7 @@ namespace DemoParser.Parser.Components.Packets {
 			}
 			iw.Append($"flags: {Flags}");
 			iw.AddIndent();
-			if (DemoRef.DemoSettings.NewEngine) {
+			if (DemoSettings.NewEngine) {
 				iw.PadLastLine(170, ' ');
 				iw.Append($" priority: {Priority}");
 			}

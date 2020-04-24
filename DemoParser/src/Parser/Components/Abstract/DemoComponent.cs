@@ -7,8 +7,9 @@ namespace DemoParser.Parser.Components.Abstract {
 	/// Represents a well-defined 'chunk' of data in the demo.
 	/// </summary>
 	public abstract class DemoComponent : Appendable {
-
-		public readonly SourceDemo DemoRef; // if null, this IS the SourceDemo class
+		
+		protected readonly SourceDemo DemoRef; // if null, this IS the SourceDemo class
+		protected DemoSettings DemoSettings => DemoRef.DemoSettings;
 		private BitStreamReader _reader;
 		public BitStreamReader Reader => _reader.FromBeginning();
 		public virtual bool MayContainData => true; // used for to string conversions

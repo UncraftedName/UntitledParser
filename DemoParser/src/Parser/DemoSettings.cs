@@ -8,7 +8,7 @@ namespace DemoParser.Parser {
 	/// <summary>
 	/// A class containing several useful constants used while parsing the demo.
 	/// </summary>
-	public class SourceDemoSettings {
+	public class DemoSettings {
 
 		private readonly DemoHeader _header;
 		
@@ -33,7 +33,7 @@ namespace DemoParser.Parser {
 		public uint HandleSerialNumberBits => 10;
 
 
-		public SourceDemoSettings(DemoHeader h) {
+		public DemoSettings(DemoHeader h) {
 			_header = h;
 			switch (h.DemoProtocol) {
 				case 3 when h.NetworkProtocol == 14:

@@ -39,10 +39,10 @@ namespace DemoParser.Parser.Components.Messages {
 			MapCrc = bsr.ReadUInt(); // network protocol < 18
 			PlayerCount = bsr.ReadByte();
 			MaxClients = bsr.ReadByte();
-			if (DemoRef.DemoSettings.Game == SourceGame.L4D2_2042) {
+			if (DemoSettings.Game == SourceGame.L4D2_2042) {
 				_unknown = bsr.SubStream(33);
 				bsr.SkipBits(33);
-			} else if (DemoRef.DemoSettings.NewEngine) {
+			} else if (DemoSettings.NewEngine) {
 				_unknown = bsr.SubStream(32);
 				bsr.SkipBytes(4);
 			} else if (DemoRef.Header.NetworkProtocol == 24) {
@@ -58,7 +58,7 @@ namespace DemoParser.Parser.Components.Messages {
 			//HasReplay = bsr.ReadBool(); // protocol version ?
 			SetLocalStreamEnd(bsr);
 
-			DemoRef.DemoSettings.TickInterval = TickInterval;
+			DemoSettings.TickInterval = TickInterval;
 			// this packet always(?) appears before the creation of any tables
 			
 			DemoRef.CStringTablesManager.ClearCurrentTables();

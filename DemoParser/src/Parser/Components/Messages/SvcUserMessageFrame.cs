@@ -18,8 +18,8 @@ namespace DemoParser.Parser.Components.Messages {
 
 		internal override void ParseStream(BitStreamReader bsr) {
 			byte typeVal = bsr.ReadByte();
-			UserMessageType = SvcUserMessage.ByteToUserMessageType(DemoRef, typeVal);
-			uint messageLength = bsr.ReadBitsAsUInt(DemoRef.DemoSettings.UserMessageLengthBits);
+			UserMessageType = SvcUserMessage.ByteToUserMessageType(DemoSettings, typeVal);
+			uint messageLength = bsr.ReadBitsAsUInt(DemoSettings.UserMessageLengthBits);
 			// since i pass in a substream, i don't want to call SetLocalStreamEnd() in any of the user messages
 			SvcUserMessage = SvcUserMessageFactory.CreateUserMessage(
 				DemoRef, bsr.SubStream(messageLength),UserMessageType);
@@ -56,7 +56,7 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.Append(Enum.IsDefined(typeof(UserMessageType), UserMessageType)
 				? UserMessageType.ToString()
 				: "Unknown");
-			iw.Append($" ({SvcUserMessage.UserMessageTypeToByte(DemoRef, UserMessageType)})");
+			iw.Append($" ({SvcUserMessage.UserMessageTypeToByte(DemoSettings, UserMessageType)})");
 			if (SvcUserMessage.MayContainData) {
 				iw.AddIndent();
 				iw.AppendLine();

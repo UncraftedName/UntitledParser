@@ -18,7 +18,7 @@ namespace DemoParser.Parser {
 	public class SourceDemo : DemoComponent {
 
 		public readonly string? FileName;
-		public SourceDemoSettings DemoSettings;
+		public DemoSettings DemoSettings;
 		public DemoHeader Header;
 		public List<PacketFrame> Frames;
 		private bool _exceptionDuringParsing;
@@ -52,7 +52,7 @@ namespace DemoParser.Parser {
 			// make sure we set the demo settings first
 			Header = new DemoHeader(DemoRef, bsr);
 			Header.ParseStream(bsr);
-			DemoSettings = new SourceDemoSettings(Header);
+			DemoSettings = new DemoSettings(Header);
 			// it might be worth it to implement updating helper classes with listeners, but it's not a huge deal atm
 			CStringTablesManager = new C_StringTablesManager(this); 
 			ErrorList = new List<string>();
