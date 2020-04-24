@@ -117,7 +117,8 @@ namespace DemoParser.Parser {
 			return $"{FileName}, {Reader.BitLength / 8} bytes long";
 		}
 
-
+		
+		// close the writer yourself
 		public void WriteVerboseString(TextWriter textWriter, string indentStr = "\t") {
 			IndentedWriter iw = new IndentedWriter();
 			AppendToWriter(iw);

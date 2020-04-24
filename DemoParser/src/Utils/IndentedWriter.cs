@@ -130,18 +130,20 @@ namespace DemoParser.Utils {
 		}
 
 
+		// close the writer yourself
 		public void WriteLines(TextWriter textWriter, string indentStr) {
-			for (int i = 0; i < _lines.Count(); i++) {
+			for (int i = 0; i < _lines.Count; i++) {
 				for (int j = 0; j < _indentCount[i]; j++) 
 					textWriter.Write(indentStr);
 				textWriter.WriteLine(_lines[i]);
 			}
+			textWriter.Flush();
 		}
 	}
 
 
-	// this lets me see the toString() representation by just using the append function that I implemented for every
-	// demo component anyway
+	// This lets me see the toString() representation by just using the append function that I implemented for every
+	// demo component anyway.
 	public abstract class Appendable {
 		
 		public abstract void AppendToWriter(IndentedWriter iw);

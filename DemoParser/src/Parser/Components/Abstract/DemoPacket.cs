@@ -1,13 +1,22 @@
 using System;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils.BitStreams;
+using TypeReMapper = DemoParser.Utils.TwoWayDict<byte, DemoParser.Parser.Components.Abstract.PacketType>;
 
 namespace DemoParser.Parser.Components.Abstract {
 	
 	public abstract class DemoPacket : DemoComponent {
 		
 		public int Tick;
-
+		// special cases
+		private static readonly TypeReMapper Portal3420Mapper = new TypeReMapper {
+			[(byte)0] = PacketType.StringTables
+		};
+		private static readonly TypeReMapper NewEngineMapper = new TypeReMapper {
+			[8] = PacketType.CustomData,
+			[9] = PacketType.StringTables
+		};
+		
 
 		protected DemoPacket(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader) {
 			Tick = tick;
@@ -15,40 +24,24 @@ namespace DemoParser.Parser.Components.Abstract {
 		
 		
 		// gets the packet type associated with this byte value
-		public static PacketType ByteToPacketType(SourceDemo demo, byte byteValue) {
-			if (byteValue > 0 && byteValue < 8)
-				return (PacketType)byteValue;
-			if (demo.DemoSettings.NewEngine) {
-				if (byteValue == 8)
-					return PacketType.CustomData;
-				if (byteValue == 9)
-					return PacketType.StringTables;
-			}
-			if (byteValue == 8)
-				return PacketType.StringTables;
-			if (byteValue == 0) {
-				if (demo.DemoSettings.Game == SourceGame.PORTAL_1_3420)
-					return PacketType.StringTables;
-			}
-			string e = $"unknown packet type. Value: {byteValue}";
-			demo.AddError(e);
-			throw new ArgumentException(e, nameof(byteValue));
+		public static PacketType ByteToPacketType(SourceDemoSettings demoSettings, byte byteValue) {
+			var def = (PacketType)byteValue;
+			if (demoSettings.NewEngine)
+				return NewEngineMapper.GetValueOrDefault(byteValue, def);
+			else if (demoSettings.Game == SourceGame.PORTAL_1_3420)
+				return Portal3420Mapper.GetValueOrDefault(byteValue, def);
+			return def;
 		}
 
 
 		// gets the byte value associated with this packet type
-		public static byte PacketTypeToByte(PacketType packetType, SourceDemoSettings demoSettings) {
-			if (packetType == PacketType.StringTables &&
-				demoSettings.Game == SourceGame.PORTAL_1_3420)
-				return 0;
-			byte byteVal = (byte)packetType;
-			if (byteVal < 8)
-				return byteVal;
-			if (packetType == PacketType.StringTables)
-				return (byte)(demoSettings.NewEngine ? 9 : 8);
-			if (demoSettings.NewEngine && packetType == PacketType.CustomData)
-				return 8;
-			throw new ArgumentException($"unknown packet type: {packetType}", nameof(packetType));
+		public static byte PacketTypeToByte(SourceDemoSettings demoSettings, PacketType packetType) {
+			var def = (byte)packetType;
+			if (demoSettings.NewEngine)
+				return NewEngineMapper.GetValueOrDefault(packetType, def);
+			else if (demoSettings.Game == SourceGame.PORTAL_1_3420)
+				return Portal3420Mapper.GetValueOrDefault(packetType, def);
+			return def;
 		}
 	}
 
@@ -64,9 +57,9 @@ namespace DemoParser.Parser.Components.Abstract {
 				PacketType.UserCmd      => new UserCmd(demoRef, reader, tick),
 				PacketType.DataTables   => new DataTables(demoRef, reader, tick),
 				PacketType.Stop         => new Stop(demoRef, reader, tick),
-				PacketType.CustomData   => new CustomData(demoRef, reader, tick),
 				PacketType.StringTables => new StringTables(demoRef, reader, tick),
-				_ => throw new NotImplementedException($"unknown or unsupported packet type: {packetType}")
+				PacketType.CustomData   => new CustomData(demoRef, reader, tick),
+				_ => throw new NotSupportedException($"unknown or unsupported packet type: {packetType}")
 			};
 		}
 	}
@@ -80,7 +73,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		UserCmd,
 		DataTables,
 		Stop,
-		CustomData,
-		StringTables
+		StringTables,
+		CustomData 
 	}
 }
