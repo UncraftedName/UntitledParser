@@ -15,6 +15,7 @@ namespace DemoParser.Parser {
 		// these seem to be constant in all games
 		public const int MaxEdictBits = 11;
 		public const int MaxEdicts = 1 << MaxEdictBits;
+		public const int SubStringBits = 5;
 		
 		// initialized below
 		public readonly SourceGame Game;

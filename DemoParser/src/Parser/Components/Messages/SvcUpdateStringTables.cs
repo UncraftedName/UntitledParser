@@ -95,7 +95,7 @@ namespace DemoParser.Parser.Components.Messages {
 					if (bsr.ReadBool()) {
 						if (bsr.ReadBool()) { // the first part of the string may be the same as for other entries
 							int index = (int)bsr.ReadBitsAsUInt(5);
-							int subStrLen = (int)bsr.ReadBitsAsUInt(5); // SUBSTRING_BITS
+							int subStrLen = (int)bsr.ReadBitsAsUInt(SourceDemoSettings.SubStringBits);
 							entryName = history[index].Substring(0, subStrLen);
 							entryName += bsr.ReadNullTerminatedString();
 						} else {
