@@ -8,52 +8,50 @@ namespace Tests {
 	public class BitStreamTester {
 
 		private const int Count = 10000;
-		private BitStreamReader _reader;
-		private BitStreamWriter _writer;
 		private Random _random;
 		
 
 		[SetUp]
 		public void Setup() {
-			_writer = new BitStreamWriter();
 			_random = new Random(4);
 		}
 		
 
 		[Test]
 		public void WriteBools() {
+			BitStreamWriter bsw = new BitStreamWriter();
 			List<bool> bools = new List<bool>();
 			for (int _ = 0; _ < Count; _++)  {
 				bool r = _random.NextDouble() >= .5;
 				bools.Add(r);
-				_writer.WriteBool(r);
+				bsw.WriteBool(r);
 			}
-			_reader = new BitStreamReader(_writer.AsArray);
+			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
 			for (int i = 0; i < Count; i++) 
-				Assert.AreEqual(bools[i], _reader.ReadBool());
-			Assert.Pass();
+				Assert.AreEqual(bools[i], bsr.ReadBool(), "index: " + i);
 		}
 		
 
 		[Test]
 		public void WriteUBits() {
+			BitStreamWriter bsw = new BitStreamWriter();
 			List<(uint val, int size)> bits = new List<(uint val, int size)>();
 			
 			for (int _ = 0; _ < Count; _++)  {
 				(uint val, int size) r = ((uint)_random.Next(), _random.Next(1, 33));
 				r.val &= uint.MaxValue >> (32 - r.size);
 				bits.Add(r);
-				_writer.WriteBitsFromInt(r.val, r.size);
+				bsw.WriteBitsFromInt(r.val, r.size);
 			}
-			_reader = new BitStreamReader(_writer.AsArray);
+			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
 			for (int i = 0; i < Count; i++) 
-				Assert.AreEqual(bits[i].val, _reader.ReadBitsAsUInt(bits[i].size));
-			Assert.Pass();
+				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsUInt(bits[i].size), "index: " + i);
 		}
 		
 		
 		[Test]
 		public void WriteSInts() {
+			BitStreamWriter bsw = new BitStreamWriter();
 			List<(int val, int size)> bits = new List<(int val, int size)>();
 			
 			for (int _ = 0; _ < Count; _++)  {
@@ -62,17 +60,17 @@ namespace Tests {
 				if ((r.val & (1 << (r.size - 1))) != 0) // sign extend, not necessary for primitive types
 					r.val |= int.MaxValue << r.size;    // can use int here since the leftmost 0 will get shifted away anyway
 				bits.Add(r);
-				_writer.WriteBitsFromInt(r.val, r.size);
+				bsw.WriteBitsFromInt(r.val, r.size);
 			}
-			_reader = new BitStreamReader(_writer.AsArray);
+			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
 			for (int i = 0; i < Count; i++) 
-				Assert.AreEqual(bits[i].val, _reader.ReadBitsAsSInt(bits[i].size));
-			Assert.Pass();
+				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsSInt(bits[i].size), "index: " + i);
 		}
 
 
 		[Test]
 		public void WriteUIntsIfExists() {
+			BitStreamWriter bsw = new BitStreamWriter();
 			List<(uint? val, int size)> bits = new List<(uint? val, int size)>();
 			
 			for (int _ = 0; _ < Count; _++)  {
@@ -80,19 +78,18 @@ namespace Tests {
 				(uint? val, int size) r = (rBool ? (uint?)null : (uint)_random.Next(), _random.Next(1, 33));
 				r.val &= uint.MaxValue >> (32 - r.size);
 				bits.Add(r);
-				_writer.WriteBitsFromUIntIfExists(r.val, r.size);
+				bsw.WriteBitsFromUIntIfExists(r.val, r.size);
 			}
-			_reader = new BitStreamReader(_writer.AsArray);
+			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
 			for (int i = 0; i < Count; i++) 
-				Assert.AreEqual(bits[i].val, _reader.ReadBitsAsUIntIfExists(bits[i].size));
-			Assert.Pass();
+				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsUIntIfExists(bits[i].size), "index: " + i);
 		}
 
 
 		[Test]
 		public void WriteBitCoord() {
 			for (int i = 0; i < Count; i++) {
-				int skip = i % 8;
+				int skip = i % 16;
 				BitStreamWriter bsw = new BitStreamWriter();
 				bsw.WriteBitsFromInt(_random.Next(), skip);
 				bsw.WriteBitCoord((float)((_random.NextDouble() - 0.5) * 100000));
@@ -107,7 +104,51 @@ namespace Tests {
 				bsw.WriteBitCoord(f);
 				bsr = new BitStreamReader(bsw.AsArray);
 				bsr.SkipBits(skip);
-				Assert.AreEqual(bsr.ReadBitCoord(), f);
+				Assert.AreEqual(bsr.ReadBitCoord(), f, "index: " + i);
+			}
+		}
+
+
+		[Test]
+		public void WriteBits() {
+			for (int i = 0; i < Count; i++) {
+				int skip = i % 16;
+				BitStreamWriter bsw = new BitStreamWriter();
+				bsw.WriteBitsFromInt(_random.Next(), skip);
+				int bitLen = _random.Next(1, 100);
+				byte[] rand = new byte[(bitLen >> 3) + ((bitLen & 0x07) == 0 ? 0 : 1)];
+				_random.NextBytes(rand);
+				bsw.WriteBits(rand, bitLen);
+				if ((bitLen & 0x07) != 0)
+					rand[^1] &= (byte)(0xff >> (8 - (bitLen & 0x07))); // get rid of unused bits
+				BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
+				bsr.SkipBits(skip);
+				CollectionAssert.AreEqual(rand, bsr.ReadBits(bitLen), $"index: {i}, bitlen: {bitLen}");
+			}
+		}
+
+
+		[Test]
+		public void EditBits() {
+			for (int i = 0; i < Count; i++) {
+				int skipBefore = i % 16;
+				int skipAfter = i % 17 % 16;
+				BitStreamWriter bsw = new BitStreamWriter();
+				bsw.WriteBitsFromInt(_random.Next(), skipBefore);
+				int bitLen = _random.Next(1, 100);
+				byte[] rand = new byte[(bitLen >> 3) + ((bitLen & 0x07) == 0 ? 0 : 1)];
+				_random.NextBytes(rand);
+				bsw.WriteBits(rand, bitLen);
+				bsw.WriteBitsFromInt(_random.Next(), skipAfter);
+				// now we have written some random data to a fixed location, let's edit it
+				_random.NextBytes(rand);
+				bsw.EditBitsAtIndex(skipBefore, rand, bitLen);
+				if ((bitLen & 0x07) != 0)
+					rand[^1] &= (byte)(0xff >> (8 - (bitLen & 0x07))); // get rid of unused bits
+				// okay, now lets read and compare to the rand array
+				BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
+				bsr.SkipBits(skipBefore);
+				CollectionAssert.AreEqual(rand, bsr.ReadBits(bitLen), $"index: {i}, bitlen: {bitLen}");
 			}
 		}
 	}
