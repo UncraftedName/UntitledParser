@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -7,8 +8,7 @@ namespace DemoParser.Utils.BitStreams {
 	
 	public partial class BitStreamReader {
 		
-		private readonly byte[] _data;
-		public ReadOnlySpan<byte> FullArray => _data;
+		public readonly IReadOnlyList<byte> Data;
 		public readonly int BitLength;
 		public int ByteLength => BitLength >> 3;
 		private readonly int _start; // index of first readable bit
@@ -19,17 +19,17 @@ namespace DemoParser.Utils.BitStreams {
 		}
 		public int BitsRemaining => _start + BitLength - AbsoluteBitIndex;
 		internal bool IsLittleEndian; // this doesn't work w/ big endian atm, probably won't try to fix it since it's not necessary
-		private byte CurrentByte => _data[AbsoluteBitIndex >> 3];  // same as Pointer / 8
+		private byte CurrentByte => Data[AbsoluteBitIndex >> 3];  // same as Pointer / 8
 		private byte IndexInByte => (byte)(AbsoluteBitIndex & 0x07); // same as Pointer % 8
 		private int RemainingBitMask => 0xff << IndexInByte;         // mask to get remaining bits in this byte
 		private bool IsByteAligned => IndexInByte == 0;
 		
 
-		public BitStreamReader(byte[] data, bool isLittleEndian = true) : this(data, data.Length << 3, 0, isLittleEndian) {}
+		public BitStreamReader(IReadOnlyList<byte> data, bool isLittleEndian = true) : this(data, data.Count << 3, 0, isLittleEndian) {}
 
 
-		private BitStreamReader(byte[] data, int bitLength, int start, bool isLittleEndian) {
-			_data = data;
+		private BitStreamReader(IReadOnlyList<byte> data, int bitLength, int start, bool isLittleEndian) {
+			Data = data;
 			BitLength = bitLength;
 			AbsoluteBitIndex = _start = start;
 			IsLittleEndian = isLittleEndian;
@@ -54,17 +54,17 @@ namespace DemoParser.Utils.BitStreams {
 			if (fromBitIndex + bitCount > CurrentBitIndex + BitsRemaining)
 				throw new ArgumentOutOfRangeException(nameof(bitCount),
 					$"{BitsRemaining} bits remaining, attempted to create a substream with {fromBitIndex + bitCount - BitsRemaining} too many bits");
-			return new BitStreamReader(_data, bitCount, _start + fromBitIndex, IsLittleEndian);
+			return new BitStreamReader(Data, bitCount, _start + fromBitIndex, IsLittleEndian);
 		}
 		
 
 		public BitStreamReader FromBeginning() {
-			return new BitStreamReader(_data, BitLength, _start, IsLittleEndian);
+			return new BitStreamReader(Data, BitLength, _start, IsLittleEndian);
 		}
 
 		
 		public BitStreamReader WithEndAt(BitStreamReader reader) {
-			return new BitStreamReader(_data, reader.AbsoluteBitIndex - _start, _start, IsLittleEndian);
+			return new BitStreamReader(Data, reader.AbsoluteBitIndex - _start, _start, IsLittleEndian);
 		}
 
 
@@ -157,7 +157,7 @@ namespace DemoParser.Utils.BitStreams {
 		public byte[] ReadBytes(int byteCount) {
 			EnsureCapacity(byteCount << 3);
 			if (IsByteAligned) {
-				byte[] result = _data[(AbsoluteBitIndex >> 3)..((AbsoluteBitIndex >> 3) + byteCount)];
+				byte[] result = Data.Skip(AbsoluteBitIndex >> 3).Take(byteCount).ToArray();
 				AbsoluteBitIndex += byteCount << 3;
 				return result;
 			}

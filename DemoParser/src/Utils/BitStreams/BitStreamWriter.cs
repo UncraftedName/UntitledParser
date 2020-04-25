@@ -8,13 +8,14 @@ namespace DemoParser.Utils.BitStreams {
 	
 	// because I don't use this nearly as much as the reader atm, some of the methods may be poorly or incorrectly implemented
 	public partial class BitStreamWriter {
+		
 		public int BitLength {get; private set;}
-		private readonly List<byte> _data;
+		private List<byte> _data;
 		public byte[] AsArray => _data.ToArray();
 		private int IndexInByte => BitLength & 0x07;
 		private bool IsByteAligned => IndexInByte == 0;
 		public int SizeInBytes => BitLength >> 3;
-		public bool IsLittleEndian; // this doesn't work w/ big endian atm, probably won't try to fix it since it's not necessary
+		internal bool IsLittleEndian; // this doesn't work w/ big endian atm, probably won't try to fix it since it's not necessary
 		
 		
 		public BitStreamWriter(int initialByteCapacity, bool isLittleEndian = true) {
@@ -80,6 +81,9 @@ namespace DemoParser.Utils.BitStreams {
 				BitLength += bitCount & 0x07;
 			}
 		}
+
+
+		public void WriteBits((byte[] bytes, int bitCount) t) => WriteBits(t.bytes, t.bitCount);
 
 
 		public void WriteBitsFromInt(int i, int bitCount) {
