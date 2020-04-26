@@ -54,7 +54,7 @@ namespace ConsoleApp {
 		private static void ConsFunc_ListDemo(ListdemoOption listdemoOption) {
 			SetTextWriter("listdemo++");
 			ConsoleColor originalColor = Console.ForegroundColor;
-			if (!CurDemo.FilterForPacketType<Packet>().Any()) {
+			if (!CurDemo.FilterForPacket<Packet>().Any()) {
 				Console.WriteLine("this demo is janked yo, it doesn't have any packets");
 				return;
 			}
@@ -194,14 +194,15 @@ namespace ConsoleApp {
 		}
 
 
+		// todo simplify
 		private static void ConsFunc_RemoveCaptions() {
 			SetBinaryWriter("captions_removed", "dem");
 			Console.WriteLine("Removing captions...");
 			
 			int nMsgTypeBits = CurDemo.DemoSettings.NetMsgTypeBits;
 			
-			var closeCaptionPackets = CurDemo.FilterForPacketType<Packet>()
-				.Where(packet => packet.FilterForMessageType<SvcUserMessageFrame>()
+			var closeCaptionPackets = CurDemo.FilterForPacket<Packet>()
+				.Where(packet => packet.FilterForMessage<SvcUserMessageFrame>()
 					.Any(frame => frame.UserMessageType == UserMessageType.CloseCaption)).ToArray();
 			
 			int changedPackets = 0;

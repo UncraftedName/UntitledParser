@@ -30,7 +30,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append($"({EntIndex}) DELTA - class: ({ServerClass.ToString()})");
+			iw.Append($"({EntIndex}) DELTA - ({ServerClass.ToString()})");
 			iw.AddIndent();
 			foreach ((int propIndex, EntityProperty prop) in Props) {
 				iw.AppendLine();
@@ -88,7 +88,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - class: ({ServerClass.ToString()})");
+			iw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - ({ServerClass.ToString()})");
 		}
 	}
 }

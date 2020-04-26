@@ -18,7 +18,7 @@ namespace DemoParser.Parser.HelperClasses {
 			
 			Roots = new List<TableNode>();
 			
-			List<SendTable> tables = demo.FilterForPacketType<DataTables>()
+			List<SendTable> tables = demo.FilterForPacket<DataTables>()
 				.First()
 				.Tables;
 			

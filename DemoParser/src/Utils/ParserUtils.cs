@@ -5,56 +5,59 @@ using System.Text.RegularExpressions;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
 
 namespace DemoParser.Utils {
 	
 	public static class ParserUtils {
 		
-		public static IEnumerable<T> FilterForPacketType<T>(this SourceDemo demo) where T : DemoPacket {
+		public static IEnumerable<T> FilterForPacket<T>(this SourceDemo demo) where T : DemoPacket {
 			return demo.Frames
 				.Select(frame => frame.Packet)
 				.Where(packet => packet.GetType() == typeof(T))
 				.Cast<T>();
 		}
-
+		
 
 		/// <summary>
 		/// Filters for a specific kind of message from a Packet packet.
 		/// </summary>
-		/// <param name="packet"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		public static IEnumerable<T> FilterForMessageType<T>(this Packet packet) where T : DemoMessage {
+		public static IEnumerable<T> FilterForMessage<T>(this Packet packet) where T : DemoMessage {
 			return packet
 				.MessageStream
 				.Select(tuple => tuple.message)
 				.Where(message => message != null && message.GetType() == typeof(T))
 				.Cast<T>();
 		}
+		
 
-
+		/// <summary>
+		/// Filters for a specific kind of user message from a Packet packet.
+		/// </summary>
+		public static IEnumerable<T> FilterForUserMessage<T>(this Packet packet) where T : SvcUserMessage {
+			return packet.FilterForMessage<SvcUserMessageFrame>()
+				.Where(frame => frame.SvcUserMessage.GetType() == typeof(T))
+				.Select(frame => (T)frame.SvcUserMessage);
+		}
+		
+		
 		/// <summary>
 		/// Filters for a specific type of message from a SignOn packet.
 		/// </summary>
-		/// <param name="signOn"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		public static IEnumerable<T> FilterForMessageType<T>(this SignOn signOn) where T : DemoMessage {
+		public static IEnumerable<T> FilterForMessage<T>(this SignOn signOn) where T : DemoMessage {
 			return signOn
 				.MessageStream
 				.Select(tuple => tuple.message)
 				.Where(message => message != null && message.GetType() == typeof(T))
 				.Cast<T>();
 		}
-
+		
 
 		/// <summary>
 		/// Gets all message in the demo stored in the Packet packet or the SignOn packet,
 		/// as well as the tick on which each message occured on.
 		/// </summary>
-		/// <param name="demo"></param>
-		/// <returns></returns>
 		public static IEnumerable<(MessageType messageType, DemoMessage message, int tick)> FilterForMessages(this SourceDemo demo) {
 			foreach (DemoPacket packet in demo.Frames.Select(frame => frame.Packet)) {
 				MessageStream m;
@@ -69,24 +72,24 @@ namespace DemoParser.Utils {
 					yield return (messageType, demoMessage, packet.Tick);
 			}
 		}
-
-
-		public static IEnumerable<(T message, int tick)> FilterForMessageType<T>(this SourceDemo demo) where T : DemoMessage {
+		
+		
+		public static IEnumerable<(T message, int tick)> FilterForMessage<T>(this SourceDemo demo) where T : DemoMessage {
 			return FilterForMessages(demo)
 				.Where(tuple => tuple.message != null && tuple.message.GetType() == typeof(T))
 				.Select(tuple => ((T)tuple.message, tuple.tick));
 		}
-
-
-		public static IEnumerable<(DemoMessage message, int tick)> FilterForMessageType(this SourceDemo demo, MessageType messageType) {
-			return FilterForMessages(demo)
-				.Where(tuple => tuple.message != null && tuple.messageType == messageType)
-				.Select(tuple => (tuple.message, tuple.tick));
+		
+		
+		public static IEnumerable<(T userMessage, int tick)> FilterForUserMessage<T>(this SourceDemo demo) where T : SvcUserMessage {
+			return demo.FilterForMessage<SvcUserMessageFrame>()
+				.Where(tuple => tuple.message.SvcUserMessage.GetType() == typeof(T))
+				.Select(tuple => ((T)tuple.message.SvcUserMessage, tuple.tick));
 		}
-
-
+		
+		
 		public static IEnumerable<ConsoleCmd> FilterForRegexMatches(this SourceDemo demo, Regex regex) {
-			return demo.FilterForPacketType<ConsoleCmd>().Where(cmd => regex.IsMatch(cmd.Command));
+			return demo.FilterForPacket<ConsoleCmd>().Where(cmd => regex.IsMatch(cmd.Command));
 		}
 		
 		
@@ -101,7 +104,7 @@ namespace DemoParser.Utils {
 		
 		public static int TickCount(this SourceDemo demo) {
 			List<int> packetTicks = demo
-				.FilterForPacketType<Packet>()
+				.FilterForPacket<Packet>()
 				.Select(packet => packet.Tick)
 				.Where(i => i >= 0)
 				.ToList();
