@@ -61,7 +61,7 @@ namespace DemoParser.Parser.HelperClasses {
 
 		internal void CreateStringTable(SvcCreateStringTable creationInfo) {
 			CreationLookup.Add(creationInfo);
-			TableReadable[creationInfo.Name] = true;
+			TableReadable[creationInfo.TableName] = true;
 			InitNewTable(_privateTables.Count, creationInfo);
 		}
 
@@ -69,8 +69,8 @@ namespace DemoParser.Parser.HelperClasses {
 		private C_StringTable InitNewTable(int id, SvcCreateStringTable creationInfo) {
 			var table = new C_StringTable(id, creationInfo);
 			_privateTables.Add(table);
-			Tables[creationInfo.Name] = table;
-			TableReadable[creationInfo.Name] = true;
+			Tables[creationInfo.TableName] = table;
+			TableReadable[creationInfo.TableName] = true;
 			return table;
 		}
 
@@ -117,7 +117,7 @@ namespace DemoParser.Parser.HelperClasses {
 			TableReadable.Clear();
 			try {
 				foreach (StringTable table in tablesPacket.Tables) {
-					int tableId = CreationLookup.FindIndex(info => info.Name == table.Name);
+					int tableId = CreationLookup.FindIndex(info => info.TableName == table.Name);
 					C_StringTable newTable = InitNewTable(tableId, CreationLookup[tableId]);
 					table.MaxEntries = newTable.MaxEntries;
 					if (table.TableEntries != null)
@@ -155,7 +155,7 @@ namespace DemoParser.Parser.HelperClasses {
 
 		public C_StringTable(int id, SvcCreateStringTable creationInfo) {
 			Id = id;
-			Name = creationInfo.Name;
+			Name = creationInfo.TableName;
 			MaxEntries = creationInfo.MaxEntries;
 			UserDataFixedSize = creationInfo.UserDataFixedSize;
 			UserDataSize = creationInfo.UserDataSize;

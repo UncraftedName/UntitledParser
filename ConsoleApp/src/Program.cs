@@ -14,6 +14,7 @@ namespace ConsoleApp {
 	public static partial class ConsoleFunctions {
 		
 		private static string UsageStr => $"Usage: \"{AppDomain.CurrentDomain.FriendlyName}\" <demos/dirs> [options]";
+		private static readonly List<Option> OptionsRequiringFolder = new List<Option>(); 
 		
 		// todo add prop table dump
 		// todo add prop tracker
@@ -31,8 +32,8 @@ namespace ConsoleApp {
 				case 1 when args[0].EndsWith(".dem") && File.Exists(args[0]): // just behave like listdemo+
 					Demos.Add(new SourceDemo(args[0]));
 					try {
-						CurrentDemo.Parse();
-						ListDemo(default);
+						CurDemo.Parse();
+						ConsFunc_ListDemo(default);
 					} catch (Exception e) {
 						Console.WriteLine($"there was a problem while parsing... {e.Message}");
 						Console.Read();
@@ -76,6 +77,7 @@ namespace ConsoleApp {
 				"dump all parsable info in the demo to a text file (needs -f)") {
 				Required = false
 			};
+			OptionsRequiringFolder.Add(verboseOpt);
 			
 			
 			var folderOpt = new Option(new [] {"-f", "--folder"},
@@ -118,11 +120,19 @@ namespace ConsoleApp {
 			};
 			
 			
-			var linkOption = new Option(new [] {"--link"},
+			var linkOpt = new Option(new [] {"--link"},
 				"attempt to link demos together to check if they are part of a continuous run (not implemented)") {
 					Required = false
 			};
-			linkOption.AddValidator(_ => "link option not implemented yet");
+			linkOpt.AddValidator(_ => "link option not implemented yet");
+			OptionsRequiringFolder.Add(linkOpt);
+			
+			
+			var removeCaptionOpt = new Option(new [] {"--remove-captions"}, 
+				"creates a copy of the original demo(s) without captions (needs -f)") {
+				Required = false
+			};
+			OptionsRequiringFolder.Add(removeCaptionOpt);
 
 
 			var rootCommand = new RootCommand {
@@ -133,39 +143,44 @@ namespace ConsoleApp {
 				listDemoOpt,
 				cheatOpt,
 				jumpOpt,
-				recursiveOpt
+				recursiveOpt,
+				removeCaptionOpt
 			};
 			
 			if (Debugger.IsAttached) // link option not implemented yet
-				rootCommand.AddOption(linkOption);
+				rootCommand.AddOption(linkOpt);
 			
 			
 			rootCommand.AddValidator(res => {
 				if (!res.Children.Any(
-					result => result.GetType() != typeof(ArgumentResult) 			// don't care about arguments
-							  && result.Name != folderOpt.Name 						// don't care about --folder option
-							  && result.Name != recursiveOpt.Name					// don't care about --recursive option
-							  && !((result as OptionResult)?.IsImplicit ?? true))) 	// don't care about implicit options (like listdemo can be)
+					result => result.GetType() != typeof(ArgumentResult)           // don't care about arguments
+							  && result.Name != folderOpt.Name                     // don't care about --folder option
+							  && result.Name != recursiveOpt.Name                  // don't care about --recursive option
+							  && !((result as OptionResult)?.IsImplicit ?? true))) // don't care about implicit options (like listdemo can be)
 				{
 					return "no runnable options given"; // if there are no options left after those ^ conditions, then none have been provided
 				}
-				
-				if (res[verboseOpt.Aliases[0]] != null && res[folderOpt.Aliases[0]] == null)
-					return "verbose option requires -f";
+
+				// if no -f but something like -v is set, cry
+				if (res[folderOpt.Aliases[0]] == null) {
+					return OptionsRequiringFolder.Where(option => res[option.Name] != null)
+						.Select(option => $"{option.Name} option requires -f").FirstOrDefault();
+				}
 				return null;
 			});
 
 
 			void CommandAction(
-				DirOrPath[] paths, 
-				string regex, 
-				bool verbose, 
-				DirectoryInfo folder, 
-				ListdemoOption listdemo, 
-				bool cheats, 
-				bool recursive, 
+				DirOrPath[] paths,
+				string regex,
+				bool verbose,
+				DirectoryInfo folder,
+				ListdemoOption listdemo,
+				bool cheats,
+				bool recursive,
 				bool link,
 				bool jumps,
+				bool removeCaptions,
 				ParseResult parseResult) // this is part of System.CommandLine - it will automatically put the result in here
 			{
 				// add paths to set to make sure i don't parse the same demo several times
@@ -214,36 +229,43 @@ namespace ConsoleApp {
 							if (!link)
 								Demos.Clear();
 							Demos.Add(new SourceDemo(demoPath, progressBar));
-							CurrentDemo.Parse();
+							CurDemo.Parse();
 						}
 						Console.WriteLine("done.");
 						// run all the standard options
 						if (parseResult.Tokens.Any(token => listDemoOpt.HasAlias(token.Value))) {
 							Console.WriteLine("Writing listdemo output...");
-							ListDemo(listdemo);
+							ConsFunc_ListDemo(listdemo);
 						}
 						if (regex != null)
-							RegexSearch(regex);
+							ConsFunc_RegexSearch(regex);
 						if (cheats)
-							Cheats();
+							ConsFunc_DumpCheats();
 						if (jumps)
-							Jumps();
+							ConsFunc_DumpJumps();
+						if (removeCaptions)
+							ConsFunc_RemoveCaptions();
 					} catch (Exception e) {
 						Console.WriteLine("failed.");
 						Console.WriteLine($"Message: {e.Message}");
 					}
 					if (verbose && Demos.Count > 0)
-						VerboseOutput(); // verbose output can still recover from an exception
+						ConsFunc_VerboseDump(); // verbose output can still recover from an exception
 				}
 				if (link)
-					LinkDemos();
+					ConsFunc_LinkDemos();
 				
-				_currentWriter?.Flush();
-				_currentWriter?.Dispose();
+				// set to null after so that I can't flush it again, cuz that would cause a crash
+				_curTextWriter?.Flush();
+				_curTextWriter?.Dispose();
+				_curTextWriter = null;
+				_curBinWriter?.Flush();
+				_curBinWriter?.Dispose();
+				_curBinWriter = null;
 			}
 
 
-			rootCommand.Handler = CommandHandler.Create((Action<DirOrPath[],string,bool,DirectoryInfo,ListdemoOption,bool,bool,bool,bool,ParseResult>)CommandAction);
+			rootCommand.Handler = CommandHandler.Create((Action<DirOrPath[],string,bool,DirectoryInfo,ListdemoOption,bool,bool,bool,bool,bool,ParseResult>)CommandAction);
 
 			
 			rootCommand.Invoke(args);

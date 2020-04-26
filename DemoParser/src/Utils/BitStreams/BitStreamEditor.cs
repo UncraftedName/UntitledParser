@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DemoParser.Utils.BitStreams {
     
@@ -56,6 +58,25 @@ namespace DemoParser.Utils.BitStreams {
             newWriter.WriteBits(bsr.ReadBits(bitIndex), bitIndex);
             bsr.SkipBits(bitCount);
             newWriter.WriteBits(bsr.ReadRemainingBits());
+            _data = newWriter._data;
+            BitLength = newWriter.BitLength;
+        }
+
+
+        // todo test
+        public void RemoveBitsAtIndices(IEnumerable<(int bitIndex, int bitCount)> removals) {
+            var orderedRemovals = removals.OrderBy(tuple => tuple.bitIndex);
+            BitStreamReader bsr = new BitStreamReader(_data);
+            BitStreamWriter newWriter = new BitStreamWriter(_data.Capacity);
+            int curOffset = 0;
+            foreach ((int bitIndex, int bitCount) in orderedRemovals) {
+                if (bitIndex < curOffset)
+                    throw new ArgumentOutOfRangeException(nameof(removals), "there are overlapping slices");
+                int len = bitIndex - curOffset;
+                newWriter.WriteBits(bsr.ReadBits(len), len);
+                bsr.SkipBits(bitCount);
+                curOffset += len + bitCount;
+            }
             _data = newWriter._data;
             BitLength = newWriter.BitLength;
         }

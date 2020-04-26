@@ -27,13 +27,13 @@ namespace DemoParser.Parser.Components {
 		internal override void ParseStream(BitStreamReader bsr) {
 			Type = DemoPacket.ByteToPacketType(DemoSettings, bsr.ReadByte());
 			
+			// stop tick is cut off in portal demos, not that it really matters
 			int tick = Type == PacketType.Stop && !DemoSettings.NewEngine
-				? (int)bsr.ReadBitsAsUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24)) // stop tick is cut off in portal demos, not that it really matters
+				? (int)bsr.ReadBitsAsUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24))
 				: bsr.ReadSInt();
 			
 			if (DemoSettings.HasPlayerSlot && bsr.BitsRemaining > 0) // last player slot byte is cut off in l4d2 demos
 				PlayerSlot = bsr.ReadByte();
-			
 			
 			Packet = PacketFactory.CreatePacket(DemoRef, bsr, tick, Type);
 			Packet.ParseStream(bsr);

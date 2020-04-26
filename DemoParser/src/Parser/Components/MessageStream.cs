@@ -39,10 +39,7 @@ namespace DemoParser.Parser.Components {
 				Debug.WriteLine(e = ex);
 				// if the stream goes out of bounds, that's not a big deal since the messages are skipped over at the end anyway
 				(MessageType, DemoMessage) pair = (DemoMessage.ByteToSvcMessageType(messageValue, DemoSettings), null);
-				if (Messages.Count == 0)
-					Messages.Add(pair);
-				else
-					Messages[^1] = pair;
+				Messages.Add(pair);
 			}
 			
 			#region error logging

@@ -7,7 +7,7 @@ namespace DemoParser.Parser.Components.Messages {
 	
 	public class SvcCreateStringTable : DemoMessage {
 
-		public string Name;
+		public string TableName;
 		public ushort MaxEntries;
 		public int NumEntries;
 		public bool UserDataFixedSize;
@@ -21,7 +21,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			Name = bsr.ReadNullTerminatedString();
+			TableName = bsr.ReadNullTerminatedString();
 			MaxEntries = bsr.ReadUShort();
 			NumEntries = (int)bsr.ReadBitsAsUInt(BitUtils.HighestBitIndex(MaxEntries) + 1);
 			uint dataLen = bsr.ReadBitsAsUInt(20);
@@ -32,7 +32,7 @@ namespace DemoParser.Parser.Components.Messages {
 				Flags = (StringTableFlags)bsr.ReadBitsAsUInt(DemoSettings.NewEngine ? 2 : 1);
 			
 			DemoRef.CStringTablesManager.CreateStringTable(this);
-			TableUpdate = new StringTableUpdate(DemoRef, bsr.SubStream(dataLen), Name, NumEntries);
+			TableUpdate = new StringTableUpdate(DemoRef, bsr.SubStream(dataLen), TableName, NumEntries);
 			TableUpdate.ParseOwnStream();
 			
 			bsr.SkipBits(dataLen);
@@ -46,7 +46,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.AppendLine($"name: {Name}");
+			iw.AppendLine($"name: {TableName}");
 			iw.AppendLine($"max entries: {MaxEntries}");
 			iw.AppendLine($"number of entries: {NumEntries}");
 			iw.AppendLine($"user data fixed size: {UserDataFixedSize}");

@@ -183,7 +183,7 @@ namespace DemoParser.Parser.Components.Messages {
 	public class TableUpdate : Appendable {
 
 		internal int PadCount; // just for toString()
-		internal readonly C_StringTableEntry TableEntry;
+		public readonly C_StringTableEntry TableEntry;
 		public readonly int Index;
 		public readonly TableUpdateType UpdateType;
 

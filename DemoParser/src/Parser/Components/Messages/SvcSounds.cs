@@ -12,8 +12,6 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool Reliable;
 		public List<SoundInfo> Sounds;
 
-		private static bool _searched; // if the lookup table wasn't found, don't look again 
-
 
 		public SvcSounds(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 		

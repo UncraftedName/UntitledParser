@@ -14,7 +14,7 @@ namespace DemoParser.Utils.BitStreams {
 		public byte[] AsArray => _data.ToArray();
 		private int IndexInByte => BitLength & 0x07;
 		private bool IsByteAligned => IndexInByte == 0;
-		public int SizeInBytes => BitLength >> 3;
+		public int SizeInBytes => (BitLength >> 3) + (IsByteAligned ? 0 : 1);
 		internal bool IsLittleEndian; // this doesn't work w/ big endian atm, probably won't try to fix it since it's not necessary
 		
 		
@@ -235,6 +235,12 @@ namespace DemoParser.Utils.BitStreams {
 
 		public override string ToString() {
 			return ParserTextUtils.BytesToBinaryString(_data);
+			/*if (IsByteAligned) {
+				return ParserTextUtils.BytesToBinaryString(_data);
+			} else {
+				return ParserTextUtils.BytesToBinaryString(_data.Take(_data.Count - 1)) 
+					   + " " + ParserTextUtils.ByteToBinaryString(_data.Last(), IndexInByte);
+			}*/
 		}
 	}
 }
