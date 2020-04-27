@@ -33,6 +33,7 @@ namespace ConsoleApp {
 		}
 
 
+		// if changing how the output is named, change the tests as well
 		private static void SetBinaryWriter(string suffix, string fileFormat) {
 			if (_folderPath == null)
 				throw new InvalidOperationException($"The option for '{suffix}' requires the folder option to be set.");

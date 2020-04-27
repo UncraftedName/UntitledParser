@@ -1,7 +1,12 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using ConsoleApp;
 using DemoParser.Parser;
+using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.Components.Messages;
+using DemoParser.Utils;
 using NUnit.Framework;
 
 namespace Tests {
@@ -82,6 +87,32 @@ namespace Tests {
         public void L4D2_2042() {
             ParseDemo($"{ProjectDir}/sample demos/l4d2 2042.dem");
             ParseDemo($"{ProjectDir}/sample demos/l4d2 2042_2.dem");
+        }
+
+
+        [Test]
+        public void RemoveCaptions() {
+            string demoDir = $"{ProjectDir}/sample demos";
+            ConsoleFunctions.Main(new [] {
+                $"{demoDir}/captions.dem", "--remove-captions", "-f", $"{demoDir}/demo output"
+            });
+            SourceDemo before = new SourceDemo($"{demoDir}/captions.dem");
+            SourceDemo after = new SourceDemo($"{demoDir}/demo output/captions-captions_removed.dem");
+            before.Parse();
+            after.Parse();
+            // assert that all the packets are still the same
+            CollectionAssert.AreEqual(
+                before.Frames.Select(frame => frame.Type),
+                after.Frames.Select(frame => frame.Type));
+            
+            // assert that all the non-caption and non-nop messages are the same
+            CollectionAssert.AreEqual(
+                before.FilterForMessages().Where(tuple => tuple.messageType != MessageType.NetNop)
+                    .Where(tuple => (tuple.message as SvcUserMessageFrame)?.UserMessageType != UserMessageType.CloseCaption)
+                    .Select(tuple => tuple.messageType),
+                after.FilterForMessages().Where(tuple => tuple.messageType != MessageType.NetNop)
+                    .Select(tuple => tuple.messageType)
+            );
         }
     }
 }

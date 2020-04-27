@@ -5,3 +5,4 @@ obj/
 *.user
 *.DotSettings
 /Tests/sample demos/verbose output/
+/Tests/sample demos/demo output/

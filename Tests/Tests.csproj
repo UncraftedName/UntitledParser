@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\ConsoleApp\ConsoleApp.csproj" />
       <ProjectReference Include="..\DemoParser\DemoParser.csproj" />
     </ItemGroup>
 
@@ -24,14 +25,17 @@
 
     <ItemGroup>
       <Compile Remove="sample demos\verbose output\**" />
+      <Compile Remove="sample demos\demo output\**" />
     </ItemGroup>
 
     <ItemGroup>
       <EmbeddedResource Remove="sample demos\verbose output\**" />
+      <EmbeddedResource Remove="sample demos\demo output\**" />
     </ItemGroup>
 
     <ItemGroup>
       <None Remove="sample demos\verbose output\**" />
+      <None Remove="sample demos\demo output\**" />
     </ItemGroup>
 
 </Project>
