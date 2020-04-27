@@ -37,22 +37,17 @@ namespace DemoParser.Utils.BitStreams {
         }
 
 
-        public void EditBitsAtIndex(byte[] bytes, int bitIndex) => EditBitsAtIndex(bytes, bitIndex, bytes.Length << 3);
+        public void EditBitsAtIndex(byte[] bytes, int bitIndex) 
+            => EditBitsAtIndex(bytes, bitIndex, bytes.Length << 3);
 
 
-        public void EditIntAtIndex(int i, int bitIndex, int bitCount) {
-            byte[] b = BitConverter.GetBytes(i);
-            if (IsLittleEndian ^ BitConverter.IsLittleEndian)
-                Array.Reverse(b);
-            EditBitsAtIndex(b, bitIndex, bitCount);
-        }
-        
+        public void EditIntAtIndex(int i, int bitIndex, int bitCount) 
+            => EditBitsAtIndex(IntToBytes(i), bitIndex, bitCount);
 
 
         public void RemoveBitsAtIndex(int bitIndex, int bitCount) {
             if (bitIndex + bitCount > BitLength)
                 throw new ArgumentOutOfRangeException(nameof(bitIndex), "the removed bits extend outside of the existing array");
-            // it's way easier to just write the data to a new list, should work just fine for now
             BitStreamReader bsr = new BitStreamReader(_data);
             BitStreamWriter newWriter = new BitStreamWriter(_data.Capacity);
             newWriter.WriteBits(bsr.ReadBits(bitIndex), bitIndex);
@@ -63,7 +58,6 @@ namespace DemoParser.Utils.BitStreams {
         }
 
 
-        // todo test
         public void RemoveBitsAtIndices(IEnumerable<(int bitIndex, int bitCount)> removals) {
             var orderedRemovals = removals.OrderBy(tuple => tuple.bitIndex);
             BitStreamReader bsr = new BitStreamReader(_data);
@@ -77,8 +71,31 @@ namespace DemoParser.Utils.BitStreams {
                 bsr.SkipBits(bitCount);
                 curOffset += len + bitCount;
             }
+            newWriter.WriteBits(bsr.ReadRemainingBits());
             _data = newWriter._data;
             BitLength = newWriter.BitLength;
+        }
+
+
+        public void InsertBitsAtIndex(byte[] bytes, int bitIndex, int bitCount) {
+            BitStreamReader bsr = new BitStreamReader(_data);
+            BitStreamWriter newWriter = new BitStreamWriter(_data.Capacity + bytes.Length);
+            newWriter.WriteBits(bsr.ReadBits(bitIndex), bitIndex);
+            newWriter.WriteBits(bytes, bitCount);
+            newWriter.WriteBits(bsr.ReadRemainingBits());
+            _data = newWriter._data;
+            BitLength = newWriter.BitLength;
+        }
+
+
+        public void InsertIntAtIndex(int i, int bitIndex, int bitCount) 
+            => InsertBitsAtIndex(IntToBytes(i), bitIndex, bitCount);
+
+
+        private byte[] IntToBytes(int i) {
+            BitStreamWriter bsw = new BitStreamWriter(4);
+            bsw.WriteSInt(i);
+            return bsw.AsArray;
         }
     }
 }

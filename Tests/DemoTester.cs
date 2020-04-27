@@ -104,7 +104,6 @@ namespace Tests {
             CollectionAssert.AreEqual(
                 before.Frames.Select(frame => frame.Type),
                 after.Frames.Select(frame => frame.Type));
-            
             // assert that all the non-caption and non-nop messages are the same
             CollectionAssert.AreEqual(
                 before.FilterForMessages().Where(tuple => tuple.messageType != MessageType.NetNop)

@@ -35,15 +35,15 @@ namespace DemoParser.Parser {
 		private readonly IProgress<double>? _parseProgress;
 
 		
-		public SourceDemo(FileInfo info, IProgress<double> parseProgress = null) : this(info.FullName, parseProgress) {}
+		public SourceDemo(FileInfo info, IProgress<double>? parseProgress = null) : this(info.FullName, parseProgress) {}
 		
 		
-		public SourceDemo(string fileDir, IProgress<double> parseProgress = null) : this(File.ReadAllBytes(fileDir), parseProgress) {
+		public SourceDemo(string fileDir, IProgress<double>? parseProgress = null) : this(File.ReadAllBytes(fileDir), parseProgress) {
 			FileName = Path.GetFileName(fileDir);
 		}
 
 
-		public SourceDemo(byte[] data, IProgress<double> parseProgress = null) : base(null, new BitStreamReader(data)) {
+		public SourceDemo(IReadOnlyList<byte> data, IProgress<double>? parseProgress = null) : base(null, new BitStreamReader(data)) {
 			_parseProgress = parseProgress;
 		}
 

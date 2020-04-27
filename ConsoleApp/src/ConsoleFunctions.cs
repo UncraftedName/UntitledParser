@@ -7,6 +7,7 @@ using DemoParser.Parser;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
+using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -200,8 +201,6 @@ namespace ConsoleApp {
 			SetBinaryWriter("captions_removed", "dem");
 			Console.WriteLine("Removing captions...");
 			
-			int nMsgTypeBits = CurDemo.DemoSettings.NetMsgTypeBits;
-			
 			var closeCaptionPackets = CurDemo.FilterForPacket<Packet>()
 				.Where(packet => packet.FilterForMessage<SvcUserMessageFrame>()
 					.Any(frame => frame.UserMessageType == UserMessageType.CloseCaption)).ToArray();
@@ -210,31 +209,23 @@ namespace ConsoleApp {
 			_curBinWriter.Write(CurDemo.Header.Reader.ReadRemainingBits().bytes);
 			
 			foreach (PacketFrame frame in CurDemo.Frames) {
-				if (frame?.Packet != closeCaptionPackets[changedPackets]) {
+				if (frame.Packet != closeCaptionPackets[changedPackets]) {
 					_curBinWriter.Write(frame.Reader.ReadRemainingBits().bytes); // write frames that aren't changed
 				} else {
 					Packet p = (Packet)frame.Packet;
-					BitStreamReader bsr = frame.Reader;
 					BitStreamWriter bsw = new BitStreamWriter(frame.Reader.ByteLength);
-					bsw.WriteBytes(bsr.ReadBytes((p.MessageStream.Reader.Start - bsr.Start) >> 3));
-					int msgSizeOffset = bsw.BitLength;
-					bsw.WriteUInt(0);
-					bsr.SkipBytes(4);
-					foreach ((MessageType type, DemoMessage message) in p.MessageStream) {
-						int len = message.Reader.BitLength + nMsgTypeBits;
-						if (type == MessageType.SvcUserMessageFrame
-							&& ((SvcUserMessageFrame)message).UserMessageType == UserMessageType.CloseCaption) 
-						{
-							bsr.SkipBits(len);
-						} else {
-							bsw.WriteBits(bsr.ReadBits(len), len);
-						}
-					}
-
+					var last = p.MessageStream.Last().message;
+					int len = last.Reader.Start - frame.Reader.Start + last.Reader.BitLength;
+					bsw.WriteBits(frame.Reader.ReadBits(len), len);
+					int msgSizeOffset = p.MessageStream.Reader.Start - frame.Reader.Start;
+					int typeInfoLen = CurDemo.DemoSettings.NetMsgTypeBits + CurDemo.DemoSettings.UserMessageLengthBits + 8;
+					bsw.RemoveBitsAtIndices(p.FilterForUserMessage<CloseCaption>()
+						.Select(caption => (caption.Reader.Start - frame.Reader.Start - typeInfoLen, 
+							caption.Reader.BitLength + typeInfoLen)));
 					bsw.WriteUntilByteBoundary();
-					bsw.EditIntAtIndex(((bsw.BitLength - msgSizeOffset) >> 3) - 4, msgSizeOffset, 32);
+					bsw.EditIntAtIndex((bsw.BitLength - msgSizeOffset - 32) >> 3, msgSizeOffset, 32);
 					_curBinWriter.Write(bsw.AsArray);
-
+					
 					// if we've edited all the packets, write the rest of the data in the demo
 					if (++changedPackets == closeCaptionPackets.Length) {
 						BitStreamReader tmp = CurDemo.Reader;
