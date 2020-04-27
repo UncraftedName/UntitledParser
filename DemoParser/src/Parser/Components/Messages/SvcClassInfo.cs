@@ -7,6 +7,8 @@ using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
+Utils.BitStreams;
+
 namespace DemoParser.Parser.Components.Messages {
 	
 	public class SvcClassInfo : DemoMessage {
@@ -33,9 +35,9 @@ namespace DemoParser.Parser.Components.Messages {
 				for (int i = 0; i < ServerClasses.Length; i++) {
 					ServerClasses[i] = new ServerClass(DemoRef, bsr, this);
 					ServerClasses[i].ParseStream(bsr);
-					// this is an assumption I make in the structure of all the entity stuff
-					Debug.Assert(i == ServerClasses[i].DataTableId, 
-						"server class ID does not match it's index in the list");
+					// this is an assumption I make in the structure of all the entity stuff, very critical
+					if (i != ServerClasses[i].DataTableId)
+						throw new ConstraintException("server class ID does not match it's index in the list");
 				}
 			}
 			SetLocalStreamEnd(bsr);

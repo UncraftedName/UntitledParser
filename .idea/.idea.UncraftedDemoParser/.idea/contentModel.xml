@@ -200,7 +200,7 @@
     <e p="C:\Users\UncraftedName\.nuget\packages\nunit3testadapter\3.15.1\build\netcoreapp2.0\nunit.engine.dll" t="Include" />
     <e p="C:\Users\UncraftedName\.nuget\packages\nunit3testadapter\3.15.1\build\netcoreapp2.0\NUnit3.TestAdapter.dll" t="Include" />
     <e p="C:\Users\UncraftedName\.nuget\packages\nunit3testadapter\3.15.1\build\netcoreapp2.0\NUnit3.TestAdapter.pdb" t="Include" />
-    <e p="C:\Users\UncraftedName\AppData\local\JetBrains\Rider2020.1\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\UncraftedName\AppData\local\JetBrains\Rider2020.1\resharper-host\local\Transient\ReSharperHost\v201\SolutionCaches\_UncraftedDemoParser.1619730632.00" t="ExcludeRecursive" />
+    <e p="C:\Users\UncraftedName\.Rider2019.3\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\UncraftedName\.Rider2019.3\system\resharper-host\local\Transient\ReSharperHost\v193\SolutionCaches\_UncraftedDemoParser.1619730632.00" t="ExcludeRecursive" />
   </component>
 </project>

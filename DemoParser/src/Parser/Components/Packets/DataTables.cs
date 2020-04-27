@@ -9,6 +9,8 @@ using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
+Utils.BitStreams;
+
 namespace DemoParser.Parser.Components.Packets {
 	/*
 	 * So fuck me this is pretty complicated, but this packet consists of a bunch of tables, each of which contain a
@@ -48,8 +50,8 @@ namespace DemoParser.Parser.Components.Packets {
 					ServerClasses.Add(new ServerClass(DemoRef, Reader));
 					ServerClasses[^1].ParseStream(bsr);
 					// this is an assumption I make in the structure of all the entity stuff, very critical
-					Debug.Assert(i == ServerClasses[i].DataTableId, 
-						"server class ID does not match it's index in the list");
+					if (i != ServerClasses[i].DataTableId)
+						throw new ConstraintException("server class ID does not match it's index in the list");
 				}
 				
 				// re-init the baselines if the count doesn't match (maybe I should just init them from here?)
