@@ -172,6 +172,8 @@ namespace DemoParser.Parser.Components.Messages {
 					}
 				}
 				iw.SubIndent();
+			} else {
+				iw.Append("\n(entity parsing not supported for this game)");
 			}
 		}
 	}

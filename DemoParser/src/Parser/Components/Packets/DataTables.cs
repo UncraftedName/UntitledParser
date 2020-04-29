@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components.Abstract;
@@ -8,8 +9,6 @@ using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
-
-Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
 	/*

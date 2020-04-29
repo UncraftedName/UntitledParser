@@ -89,15 +89,14 @@ namespace DemoParser.Utils.BitStreams {
 
 		public float ReadBitCoord() {
 			float val = 0;
-			uint intVal = ReadOneBit();
-			uint fracVal = ReadOneBit();
-			if (intVal == 1 || fracVal == 1) {
+			bool hasInt = ReadBool();
+			bool hasFrac = ReadBool();
+			if (hasInt || hasFrac) {
 				bool sign = ReadBool();
-				if (intVal == 1)
-					intVal = ReadBitsAsUInt(CoordIntBits) + 1;
-				if (fracVal == 1)
-					fracVal = ReadBitsAsUInt(CoordFracBits);
-				val = intVal + fracVal * CoordRes;
+				if (hasInt)
+					val += ReadBitsAsUInt(CoordIntBits) + 1;
+				if (hasFrac)
+					val += ReadBitsAsUInt(CoordFracBits) * CoordRes;
 				if (sign)
 					val = -val;
 			}
@@ -106,13 +105,11 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public float ReadBitCoordMp(bool bIntegral, bool bLowPrecision) { // src_main\tier1\newbitbuf.cpp line 578
-			uint intval;
 			bool sign = false;
 			float val = 0;
 			bool bInBounds = ReadBool();
 			if (bIntegral) {
-				intval = ReadOneBit();
-				if (intval != 0) {
+				if (ReadBool()) {
 					sign = ReadBool();
 					if (bInBounds)
 						val = ReadBitsAsUInt(CoordIntBitsMp) + 1;
@@ -120,7 +117,7 @@ namespace DemoParser.Utils.BitStreams {
 						val = ReadBitsAsUInt(CoordIntBits) + 1;
 				}
 			} else {
-				intval = ReadOneBit();
+				uint intval = (uint)(ReadBool() ? 1 : 0);
 				sign = ReadBool();
 				if (intval != 0) {
 					if (bInBounds)

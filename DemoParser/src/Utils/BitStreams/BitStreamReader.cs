@@ -121,7 +121,7 @@ namespace DemoParser.Utils.BitStreams {
 		private int BitMask(int bitCount) {
 			return RemainingBitMask & (0xff >> (8 - bitCount - IndexInByte));
 		}
-
+		
 
 		public bool ReadBool() {
 			EnsureCapacity(1);
@@ -224,12 +224,6 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public int ReadBitsAsSInt(uint bitCount) => ReadBitsAsSInt((int)bitCount);
-
-
-		public int ReadSingleBitAsSInt() => ReadBool() ? 1 : 0;
-		
-		
-		public uint ReadOneBit() => (uint)(ReadBool() ? 1 : 0);
 
 
 		public string ReadNullTerminatedString() {
