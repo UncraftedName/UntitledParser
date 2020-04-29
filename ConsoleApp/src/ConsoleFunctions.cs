@@ -196,7 +196,6 @@ namespace ConsoleApp {
 		}
 
 
-		// todo simplify
 		private static void ConsFunc_RemoveCaptions() {
 			SetBinaryWriter("captions_removed", "dem");
 			Console.WriteLine("Removing captions...");
@@ -234,6 +233,19 @@ namespace ConsoleApp {
 						break;
 					}
 				}
+			}
+		}
+
+
+		private static void ConsFunc_DumpDataTables() {
+			SetTextWriter("data tables dump");
+			Console.WriteLine("Dumping data tables...");
+			foreach ((DataTables tables, int j) in CurDemo.FilterForPacket<DataTables>().Select((tables, i) => (tables, i))) {
+				if (j > 0)
+					_curTextWriter.Write("\n\n\n");
+				_curTextWriter.WriteLine(tables.ToString());
+				_curTextWriter.Write("\n\nClass hierarchy:\n\n");
+				_curTextWriter.Write(new DataTableTree(tables, true));
 			}
 		}
 

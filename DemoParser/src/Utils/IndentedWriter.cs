@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace DemoParser.Utils {
 	
+	// todo option to write to file immediately 
 	public class IndentedWriter {
 
 		private readonly List<string> _lines;

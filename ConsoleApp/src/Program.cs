@@ -16,7 +16,6 @@ namespace ConsoleApp {
 		private static string UsageStr => $"Usage: \"{AppDomain.CurrentDomain.FriendlyName}\" <demos/dirs> [options]";
 		private static readonly List<Option> OptionsRequiringFolder = new List<Option>(); 
 		
-		// todo add prop table dump
 		// todo add prop tracker
 		// todo add buttons pressed
 		public static void Main(string[] args) {
@@ -133,6 +132,13 @@ namespace ConsoleApp {
 				Required = false
 			};
 			OptionsRequiringFolder.Add(removeCaptionOpt);
+			
+			
+			var dTableDumpOpt = new Option(new [] {"-d", "--dump-datatables"},
+				"dumps the data tables packet and creates a tree of the server class hierarchy") {
+				Required = false
+			};
+			OptionsRequiringFolder.Add(dTableDumpOpt);
 
 
 			var rootCommand = new RootCommand {
@@ -144,7 +150,8 @@ namespace ConsoleApp {
 				cheatOpt,
 				jumpOpt,
 				recursiveOpt,
-				removeCaptionOpt
+				removeCaptionOpt,
+				dTableDumpOpt
 			};
 			
 			if (Debugger.IsAttached) // link option not implemented yet
@@ -181,6 +188,7 @@ namespace ConsoleApp {
 				bool link,
 				bool jumps,
 				bool removeCaptions,
+				bool dumpDatatables,
 				ParseResult parseResult) // this is part of System.CommandLine - it will automatically put the result in here
 			{
 				// add paths to set to make sure i don't parse the same demo several times
@@ -245,6 +253,8 @@ namespace ConsoleApp {
 							ConsFunc_DumpJumps();
 						if (removeCaptions)
 							ConsFunc_RemoveCaptions();
+						if (dumpDatatables)
+							ConsFunc_DumpDataTables();
 					} catch (Exception e) {
 						Console.WriteLine("failed.");
 						Console.WriteLine($"Message: {e.Message}");
@@ -265,7 +275,7 @@ namespace ConsoleApp {
 			}
 
 
-			rootCommand.Handler = CommandHandler.Create((Action<DirOrPath[],string,bool,DirectoryInfo,ListdemoOption,bool,bool,bool,bool,bool,ParseResult>)CommandAction);
+			rootCommand.Handler = CommandHandler.Create((Action<DirOrPath[],string,bool,DirectoryInfo,ListdemoOption,bool,bool,bool,bool,bool,bool,ParseResult>)CommandAction);
 
 			
 			rootCommand.Invoke(args);

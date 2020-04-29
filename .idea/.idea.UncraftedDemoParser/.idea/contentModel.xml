@@ -129,7 +129,6 @@
             <e p="HelperClasses" t="Include">
               <e p="C_StringTablesManager.cs" t="Include" />
               <e p="DataTableParser.cs" t="Include" />
-              <e p="DataTableTree.cs" t="Include" />
               <e p="EntityStuff" t="Include">
                 <e p="C_BaseLines.cs" t="Include" />
                 <e p="C_EntitySnapshot.cs" t="Include" />
@@ -154,6 +153,7 @@
             </e>
             <e p="BitUtils.cs" t="Include" />
             <e p="CharArray.cs" t="Include" />
+            <e p="DataTableTree.cs" t="Include" />
             <e p="IndentedWriter.cs" t="Include" />
             <e p="ParserTextUtils.cs" t="Include" />
             <e p="ParserUtils.cs" t="Include" />
