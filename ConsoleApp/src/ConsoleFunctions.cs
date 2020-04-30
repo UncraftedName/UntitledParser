@@ -53,8 +53,10 @@ namespace ConsoleApp {
 
 
 		// this is basically copied from the old parser, i'll think about improving this
-		private static void ConsFunc_ListDemo(ListdemoOption listdemoOption) {
+		private static void ConsFunc_ListDemo(ListdemoOption listdemoOption, bool printWriteMsg) {
 			SetTextWriter("listdemo++");
+			if (printWriteMsg)
+				Console.WriteLine("Writing listdemo+ output...");
 			ConsoleColor originalColor = Console.ForegroundColor;
 			if (!CurDemo.FilterForPacket<Packet>().Any()) {
 				Console.WriteLine("this demo is janked yo, it doesn't have any packets");
@@ -246,6 +248,33 @@ namespace ConsoleApp {
 				_curTextWriter.WriteLine(tables.ToString());
 				_curTextWriter.Write("\n\nClass hierarchy:\n\n");
 				_curTextWriter.Write(new DataTableTree(tables, true));
+			}
+		}
+
+
+		private static void ConsFunc_DumpActions(ActPressedDispType opt) {
+			SetTextWriter("buttons pressed");
+			Console.WriteLine("Getting buttons pressed...");
+			foreach (UserCmd userCmd in CurDemo.FilterForPacket<UserCmd>()) {
+				_curTextWriter.Write($"[{userCmd.Tick}] ");
+				if (!userCmd.Buttons.HasValue) {
+					_curTextWriter.WriteLine("null");
+					continue;
+				}
+				Buttons b = userCmd.Buttons.Value;
+				switch (opt) {
+					case ActPressedDispType.AsTextFlags:
+						_curTextWriter.WriteLine(b.ToString());
+						break;
+					case ActPressedDispType.AsInt:
+						_curTextWriter.WriteLine((uint)b);
+						break;
+					case ActPressedDispType.AsBinaryFlags:
+						_curTextWriter.WriteLine(Convert.ToString((uint)b, 2).PadLeft(32, '0'));
+						break;
+					default:
+						throw new ArgumentOutOfRangeException(nameof(opt), opt, "unsupported buttons pressed option");
+				}
 			}
 		}
 

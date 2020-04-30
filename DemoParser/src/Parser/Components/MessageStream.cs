@@ -25,12 +25,12 @@ namespace DemoParser.Parser.Components {
 			BitStreamReader messageBsr = bsr.SubStream(messagesByteLength << 3);
 			Messages = new List<(MessageType, DemoMessage)>();
 			byte messageValue = 0;
+			MessageType messageType = MessageType.Unknown;
 			Exception e = null;
 			try {
 				do {
 					messageValue = (byte)messageBsr.ReadBitsAsUInt(DemoSettings.NetMsgTypeBits);
-					MessageType messageType =
-						DemoMessage.ByteToSvcMessageType(messageValue, DemoSettings);
+					messageType = DemoMessage.ByteToSvcMessageType(messageValue, DemoSettings);
 					DemoMessage demoMessage = MessageFactory.CreateMessage(DemoRef, messageBsr, messageType);
 					demoMessage?.ParseStream(messageBsr);
 					Messages.Add((messageType, demoMessage));
@@ -38,7 +38,7 @@ namespace DemoParser.Parser.Components {
 			} catch (Exception ex) {
 				Debug.WriteLine(e = ex);
 				// if the stream goes out of bounds, that's not a big deal since the messages are skipped over at the end anyway
-				(MessageType, DemoMessage) pair = (DemoMessage.ByteToSvcMessageType(messageValue, DemoSettings), null);
+				(MessageType, DemoMessage) pair = (messageType, null);
 				Messages.Add(pair);
 			}
 			

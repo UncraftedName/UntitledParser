@@ -32,7 +32,7 @@ namespace ConsoleApp {
 					Demos.Add(new SourceDemo(args[0]));
 					try {
 						CurDemo.Parse();
-						ConsFunc_ListDemo(default);
+						ConsFunc_ListDemo(default, false);
 					} catch (Exception e) {
 						Console.WriteLine($"there was a problem while parsing... {e.Message}");
 						Console.Read();
@@ -139,6 +139,16 @@ namespace ConsoleApp {
 				Required = false
 			};
 			OptionsRequiringFolder.Add(dTableDumpOpt);
+			
+			
+			var actionsPressedOpt = new Option(new [] {"-a", "--actions-pressed"},
+				"displays when game actions (attack, use, etc.) were pressed during the demo") {
+				Required = false,
+				Argument = new Argument<ActPressedDispType>("actionsPressedOption", default) {
+					Arity = ArgumentArity.ZeroOrOne,
+					Description = "determines how to display the actions pressed"
+				}
+			};
 
 
 			var rootCommand = new RootCommand {
@@ -151,7 +161,8 @@ namespace ConsoleApp {
 				jumpOpt,
 				recursiveOpt,
 				removeCaptionOpt,
-				dTableDumpOpt
+				dTableDumpOpt,
+				actionsPressedOpt
 			};
 			
 			if (Debugger.IsAttached) // link option not implemented yet
@@ -189,6 +200,7 @@ namespace ConsoleApp {
 				bool jumps,
 				bool removeCaptions,
 				bool dumpDatatables,
+				ActPressedDispType actionsPressed,
 				ParseResult parseResult) // this is part of System.CommandLine - it will automatically put the result in here
 			{
 				// add paths to set to make sure i don't parse the same demo several times
@@ -240,11 +252,14 @@ namespace ConsoleApp {
 							CurDemo.Parse();
 						}
 						Console.WriteLine("done.");
+						
 						// run all the standard options
-						if (parseResult.Tokens.Any(token => listDemoOpt.HasAlias(token.Value))) {
-							Console.WriteLine("Writing listdemo output...");
-							ConsFunc_ListDemo(listdemo);
-						}
+						
+						// the check for options with arguments is pretty dumb, not sure of a better way tho
+						if (parseResult.Tokens.Any(token => listDemoOpt.HasAlias(token.Value)))
+							ConsFunc_ListDemo(listdemo, true);
+						if (parseResult.Tokens.Any(token => actionsPressedOpt.HasAlias(token.Value)))
+							ConsFunc_DumpActions(actionsPressed);
 						if (regex != null)
 							ConsFunc_RegexSearch(regex);
 						if (cheats)
@@ -275,7 +290,9 @@ namespace ConsoleApp {
 			}
 
 
-			rootCommand.Handler = CommandHandler.Create((Action<DirOrPath[],string,bool,DirectoryInfo,ListdemoOption,bool,bool,bool,bool,bool,bool,ParseResult>)CommandAction);
+			// this is getting a tiny bit out of hand
+			rootCommand.Handler = CommandHandler.Create((
+				Action<DirOrPath[],string,bool,DirectoryInfo,ListdemoOption,bool,bool,bool,bool,bool,bool,ActPressedDispType,ParseResult>)CommandAction);
 
 			
 			rootCommand.Invoke(args);
@@ -324,10 +341,18 @@ namespace ConsoleApp {
 			Environment.Exit(1);
 		}
 	}
-
-
+	
+	// keep these in order unless you want to change the default values
+	
 	public enum ListdemoOption {
 		DisplayHeader,
 		SuppressHeader
+	}
+
+
+	public enum ActPressedDispType {
+		AsTextFlags,
+		AsInt,
+		AsBinaryFlags
 	}
 }
