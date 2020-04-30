@@ -17,7 +17,6 @@ namespace ConsoleApp {
 		private static readonly List<Option> OptionsRequiringFolder = new List<Option>(); 
 		
 		// todo add prop tracker
-		// todo add buttons pressed
 		public static void Main(string[] args) {
 			
 			Console.WriteLine("DemoParser by UncraftedName");
