@@ -154,6 +154,16 @@ namespace ConsoleApp {
 					Description = "determines how to display the actions pressed"
 				}
 			};
+			
+			
+			var passThroughPortalsOpt = new Option(new [] {"-p", "--portals-passed"},
+				"shows any time an entity passes through a portal") {
+				Required = false,
+				Argument = new Argument<PtpFilterType>("filterType", default) {
+					Arity = ArgumentArity.ZeroOrOne,
+					Description = "determines what information to display about the entities"
+				}
+			};
 
 
 			var rootCommand = new RootCommand {
@@ -167,7 +177,8 @@ namespace ConsoleApp {
 				recursiveOpt,
 				removeCaptionOpt,
 				dTableDumpOpt,
-				actionsPressedOpt
+				actionsPressedOpt,
+				passThroughPortalsOpt
 			};
 			
 			if (Debugger.IsAttached) // link option not implemented yet
@@ -193,6 +204,7 @@ namespace ConsoleApp {
 			});
 
 
+			// make sure the order here is the same as below (the names of the params must match the option names)
 			void CommandAction(
 				DirOrPath[] paths,
 				string regex,
@@ -206,6 +218,7 @@ namespace ConsoleApp {
 				bool removeCaptions,
 				bool dumpDatatables,
 				ActPressedDispType actionsPressed,
+				PtpFilterType portalsPassed,
 				ParseResult parseResult) // this is part of System.CommandLine - it will automatically put the result in here
 			{
 				if (paths == null) // provides more detailed message 
@@ -268,6 +281,8 @@ namespace ConsoleApp {
 							ConsFunc_ListDemo(listdemo, true);
 						if (parseResult.Tokens.Any(token => actionsPressedOpt.HasAlias(token.Value)))
 							ConsFunc_DumpActions(actionsPressed);
+						if (parseResult.Tokens.Any(token => passThroughPortalsOpt.HasAlias(token.Value)))
+							ConsFunc_PortalsPassed(portalsPassed);
 						if (regex != null)
 							ConsFunc_RegexSearch(regex);
 						if (cheats)
@@ -300,7 +315,7 @@ namespace ConsoleApp {
 
 			// this is getting a tiny bit out of hand
 			rootCommand.Handler = CommandHandler.Create((
-				Action<DirOrPath[],string,bool,DirectoryInfo,ListdemoOption,bool,bool,bool,bool,bool,bool,ActPressedDispType,ParseResult>)CommandAction);
+				Action<DirOrPath[],string,bool,DirectoryInfo,ListdemoOption,bool,bool,bool,bool,bool,bool,ActPressedDispType,PtpFilterType,ParseResult>)CommandAction);
 
 			
 			rootCommand.Invoke(args);
@@ -362,5 +377,13 @@ namespace ConsoleApp {
 		AsTextFlags,
 		AsInt,
 		AsBinaryFlags
+	}
+
+
+	public enum PtpFilterType { // pass through portals
+		PlayerOnly,
+		PlayerOnlyVerbose,
+		AllEntities,
+		AllEntitiesVerbose,
 	}
 }

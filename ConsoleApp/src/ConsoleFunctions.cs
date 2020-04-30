@@ -279,6 +279,33 @@ namespace ConsoleApp {
 		}
 
 
+		// todo when I store references to entities, add portal color info here as well
+		private static void ConsFunc_PortalsPassed(PtpFilterType filterType) {
+			SetTextWriter("portals passed");
+			Console.Write("Finding passing through portals...");
+			bool playerOnly = filterType == PtpFilterType.PlayerOnly || filterType == PtpFilterType.PlayerOnlyVerbose;
+			bool verbose = filterType == PtpFilterType.PlayerOnlyVerbose || filterType == PtpFilterType.AllEntitiesVerbose;
+			var msgList = CurDemo.FilterForUserMessage<EntityPortalled>().ToList();
+			if (playerOnly)
+				msgList = msgList.Where(tuple => tuple.userMessage.PortalledEntIndex == 1).ToList();
+			if (!msgList.Any()) {
+				string s = playerOnly ? "player never went through a portal" : "no entities went through portals";
+				Console.WriteLine($" {s}");
+				if (_curTextWriter != Console.Out)
+					_curTextWriter.WriteLine(s);
+			} else {
+				if (_curTextWriter == Console.Out)
+					_curTextWriter.WriteLine();
+				foreach ((EntityPortalled userMessage, int tick) in msgList) {
+					_curTextWriter.Write($"[{tick}]");
+					_curTextWriter.WriteLine(verbose
+						? $"\n{userMessage.ToString()}"
+						: $" entity {userMessage.PortalledEntIndex} went through portal {userMessage.PortalEntIndex}");
+				}
+			}
+		}
+
+
 		private static void ConsFunc_LinkDemos() { // todo when this sets the writer, give it a custom name
 			Console.WriteLine("Link demos feature not implemented yet.");
 		}
