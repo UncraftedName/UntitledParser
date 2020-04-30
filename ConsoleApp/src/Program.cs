@@ -137,7 +137,7 @@ namespace ConsoleApp {
 			
 			
 			var dTableDumpOpt = new Option(new [] {"-d", "--dump-datatables"},
-				"dumps the data tables packet and creates a tree of the server class hierarchy") {
+				"dumps the data tables packet and creates a tree of the server class hierarchy (needs -f)") {
 				Required = false
 			};
 			OptionsRequiringFolder.Add(dTableDumpOpt);
