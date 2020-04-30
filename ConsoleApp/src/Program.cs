@@ -45,7 +45,7 @@ namespace ConsoleApp {
 			// directory info should work here, will probably change to something better in the future™
 			var pathsArg = new Argument<DirOrPath[]>("paths") {
 				Description = "demo paths or folders",
-				Arity = ArgumentArity.OneOrMore
+				Arity = ArgumentArity.ZeroOrMore // I check for none later because the default help message is unhelpful
 			};
 			pathsArg.AddValidator(symbol => {
 				string s = symbol.Tokens[0].Value;
@@ -68,7 +68,10 @@ namespace ConsoleApp {
 					Description = "regex used to find console commands",
 				}
 			};
-			regexOpt.AddValidator(symbol => CheckIfValidRegex(symbol.Tokens[0].Value));
+			regexOpt.AddValidator(symbol => 
+				symbol.Tokens.Count == 0 
+					? "try '.*' to print all console commands" 
+					: CheckIfValidRegex(symbol.Tokens[0].Value));
 			
 			
 			var verboseOpt = new Option(new [] {"-v", "--verbose"},
@@ -126,7 +129,7 @@ namespace ConsoleApp {
 			OptionsRequiringFolder.Add(linkOpt);
 			
 			
-			var removeCaptionOpt = new Option(new [] {"--remove-captions"}, 
+			var removeCaptionOpt = new Option(new [] {"-rc", "--remove-captions"}, 
 				"creates a copy of the original demo(s) without captions (needs -f)") {
 				Required = false
 			};
@@ -202,6 +205,9 @@ namespace ConsoleApp {
 				ActPressedDispType actionsPressed,
 				ParseResult parseResult) // this is part of System.CommandLine - it will automatically put the result in here
 			{
+				if (paths == null) // provides more detailed message 
+					PrintErrorAndExit("you must provide at least one demo or folder with demos");
+				
 				// add paths to set to make sure i don't parse the same demo several times
 				HashSet<FileInfo> demoPaths = new HashSet<FileInfo>();
 				foreach (DirOrPath dirOrPath in paths) {

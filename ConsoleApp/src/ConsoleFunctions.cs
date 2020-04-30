@@ -253,8 +253,8 @@ namespace ConsoleApp {
 
 
 		private static void ConsFunc_DumpActions(ActPressedDispType opt) {
-			SetTextWriter("buttons pressed");
-			Console.WriteLine("Getting buttons pressed...");
+			SetTextWriter("actions pressed");
+			Console.WriteLine("Getting actions pressed...");
 			foreach (UserCmd userCmd in CurDemo.FilterForPacket<UserCmd>()) {
 				_curTextWriter.Write($"[{userCmd.Tick}] ");
 				if (!userCmd.Buttons.HasValue) {
