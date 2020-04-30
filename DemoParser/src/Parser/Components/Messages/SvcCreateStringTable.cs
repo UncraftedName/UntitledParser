@@ -55,13 +55,13 @@ namespace DemoParser.Parser.Components.Messages {
 			if (DemoRef.Header.NetworkProtocol >= 15)
 				iw.AppendLine($"flags: {Flags}");
 			iw.Append("table update:");
-			iw.AddIndent();
+			iw.FutureIndent++;
 			iw.AppendLine();
 			if (TableUpdate == null)
 				iw.Append("table update could not be parsed");
 			else
 				TableUpdate.AppendToWriter(iw);
-			iw.SubIndent();
+			iw.FutureIndent--;
 		}
 	}
 	

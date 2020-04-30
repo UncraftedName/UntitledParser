@@ -87,10 +87,10 @@ namespace DemoParser.Parser.Components {
 				iw.Append($"message: {Messages[i].Item1} " +
 						  $"({DemoMessage.MessageTypeToByte(Messages[i].Item1, DemoSettings)})");
 				if (Messages[i].Item2.MayContainData) {
-					iw.AddIndent();
+					iw.FutureIndent++;
 					iw.AppendLine();
 					Messages[i].Item2.AppendToWriter(iw);
-					iw.SubIndent();
+					iw.FutureIndent--;
 				}
 				if (i != Messages.Count - 1)
 					iw.AppendLine();

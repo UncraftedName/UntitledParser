@@ -55,12 +55,12 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.AppendLine($"create on client: {CreateOnClient}");
 			iw.Append($"{ServerClasses?.Length ?? ClassCount} server classes{(CreateOnClient ? "" : ":")}");
 			if (!CreateOnClient && ServerClasses != null) {
-				iw.AddIndent();
+				iw.FutureIndent++;
 				foreach (ServerClass serverClass in ServerClasses) {
 					iw.AppendLine();
 					serverClass.AppendToWriter(iw);
 				}
-				iw.SubIndent();
+				iw.FutureIndent--;
 			}
 		}
 	}

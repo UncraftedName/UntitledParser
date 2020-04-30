@@ -73,7 +73,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			if (ServerClassRef != null) {
 				iw.AppendLine($"class: {ServerClassRef.ClassName} ({ServerClassRef.DataTableName})");
 				iw.Append("props:");
-				iw.AddIndent();
+				iw.FutureIndent++;
 				if (Properties != null) {
 					foreach ((int i, EntityProperty prop) in Properties) {
 						iw.AppendLine();
@@ -83,7 +83,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 				} else {
 					iw.Append("\nerror during parsing");
 				}
-				iw.SubIndent();
+				iw.FutureIndent--;
 			}
 		}
 	}

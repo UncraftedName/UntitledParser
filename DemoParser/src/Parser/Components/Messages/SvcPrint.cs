@@ -25,9 +25,9 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append("string: ");
-			iw.AddIndent();
+			iw.FutureIndent++;
 			iw.Append(Str.TrimEnd());
-			iw.SubIndent();
+			iw.FutureIndent--;
 		}
 	}
 }

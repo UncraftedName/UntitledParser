@@ -100,36 +100,36 @@ namespace DemoParser.Parser.Components.Packets {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"table name: {Name}");
-			iw.AddIndent();
+			iw.FutureIndent++;
 			iw.AppendLine();
 			if (TableEntries != null) {
 				iw.Append($"{TableEntries.Count}/{MaxEntries ?? -1}");
 				iw.Append($" table {(TableEntries.Count > 1 ? "entries" : "entry")}:");
-				iw.AddIndent();
+				iw.FutureIndent++;
 				int longestName = TableEntries.Max(entry => entry.Name.Length); // for padding and stuff
 				foreach (StringTableEntry tableEntry in TableEntries) {
 					tableEntry.PadLength = longestName;
 					iw.AppendLine();
 					tableEntry.AppendToWriter(iw);
 				}
-				iw.SubIndent();
+				iw.FutureIndent--;
 			} else {
 				iw.Append("no table entries");
 			}
 			iw.AppendLine();
 			if (Classes != null) {
 				iw.Append($"{Classes.Count} {(Classes.Count > 1 ? "classes" : "class")}:");
-				iw.AddIndent();
+				iw.FutureIndent++;
 				foreach (StringTableClass tableClass in Classes) {
 					iw.AppendLine();
 					tableClass.AppendToWriter(iw);
 				}
-				iw.SubIndent();
+				iw.FutureIndent--;
 			}
 			else {
 				iw.Append("no table classes");
 			}
-			iw.SubIndent();
+			iw.FutureIndent--;
 		}
 	}
 	
@@ -178,10 +178,10 @@ namespace DemoParser.Parser.Components.Packets {
 			if (EntryData != null) {
 				if (EntryData.ContentsKnown) {
 					iw.Append(Name);
-					iw.AddIndent();
+					iw.FutureIndent++;
 					iw.AppendLine();
 					EntryData.AppendToWriter(iw);
-					iw.SubIndent();
+					iw.FutureIndent--;
 				} else {
 					iw.Append(Name.PadRight(PadLength + 2, '.'));
 					EntryData.AppendToWriter(iw);

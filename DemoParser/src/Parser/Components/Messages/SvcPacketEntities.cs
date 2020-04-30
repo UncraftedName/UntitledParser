@@ -162,7 +162,7 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.Append($"{UpdatedEntries} updated entries");
 			if (DemoSettings.ProcessEnts) {
 				iw.Append(":");
-				iw.AddIndent();
+				iw.FutureIndent++;
 				if (Updates == null) {
 					iw.Append("\nupdates could not be parsed");
 				} else {
@@ -171,7 +171,7 @@ namespace DemoParser.Parser.Components.Messages {
 						update.AppendToWriter(iw);
 					}
 				}
-				iw.SubIndent();
+				iw.FutureIndent--;
 			} else {
 				iw.Append("\n(entity parsing not supported for this game)");
 			}

@@ -50,12 +50,12 @@ namespace DemoParser.Parser.Components.Messages {
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"{EventDescription.Name} ({EventID}):");
 			if (EventDescriptors != null && EventDescriptors.Count > 0) {
-				iw.AddIndent();
+				iw.FutureIndent++;
 				foreach ((var key, object value) in EventDescriptors) {
 					iw.AppendLine();
 					iw.Append($"{key}: {value}");
 				}
-				iw.SubIndent();
+				iw.FutureIndent--;
 			} else {
 				iw.Append(" (no descriptors)");
 			}

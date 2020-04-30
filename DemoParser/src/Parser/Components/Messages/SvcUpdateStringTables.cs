@@ -44,10 +44,10 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.AppendLine($" ({TableId})");
 			iw.AppendLine($"number of changed entries: {ChangedEntriesCount}");
 			iw.Append("table update:");
-			iw.AddIndent();
+			iw.FutureIndent++;
 			iw.AppendLine();
 			TableUpdate.AppendToWriter(iw);
-			iw.SubIndent();
+			iw.FutureIndent--;
 		}
 	}
 	
@@ -198,13 +198,13 @@ namespace DemoParser.Parser.Components.Messages {
 		public override void AppendToWriter(IndentedWriter iw) { // similar logic to that in string tables
 			iw.Append($"({Index}) {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
 			if (TableEntry.EntryData != null) {
-				iw.AddIndent();
+				iw.FutureIndent++;
 				if (TableEntry.EntryData.ContentsKnown)
 					iw.AppendLine();
 				else
 					iw.PadLastLine(PadCount + 15, '.');
 				TableEntry.EntryData.AppendToWriter(iw);
-				iw.SubIndent();
+				iw.FutureIndent--;
 			}
 		}
 	}

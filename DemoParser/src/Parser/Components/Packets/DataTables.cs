@@ -78,21 +78,21 @@ namespace DemoParser.Parser.Components.Packets {
 		public override void AppendToWriter(IndentedWriter iw) {
 			Debug.Assert(Tables.Count > 0, "there's no tables hmmmmmmmmmmmm");
 			iw.Append($"{Tables.Count} send table{(Tables.Count > 1 ? "s" : "")}:");
-			iw.AddIndent();
+			iw.FutureIndent++;
 			foreach (SendTable sendTable in Tables) {
 				iw.AppendLine();
 				sendTable.AppendToWriter(iw);
 			}
-			iw.SubIndent();
+			iw.FutureIndent--;
 			iw.AppendLine();
 			if ((ServerClasses?.Count ?? 0) > 0) {
 				iw.Append($"{ServerClasses.Count} class{(ServerClasses.Count > 1 ? "es" : "")}:");
-				iw.AddIndent();
+				iw.FutureIndent++;
 				foreach (ServerClass classInfo in ServerClasses) {
 					iw.AppendLine();
 					classInfo.AppendToWriter(iw);
 				}
-				iw.SubIndent();
+				iw.FutureIndent--;
 			} else {
 				iw.Append("no classes");
 			}
@@ -132,12 +132,12 @@ namespace DemoParser.Parser.Components.Packets {
 			iw.Append($"{Name}{(NeedsDecoder ? "*" : "")} (");
 			if (Properties.Count > 0) {
 				iw.Append($"{Properties.Count} prop{(Properties.Count > 1 ? "s" : "")}):");
-				iw.AddIndent();
+				iw.FutureIndent++;
 				foreach (SendTableProp sendProp in Properties) {
 					iw.AppendLine();
 					sendProp.AppendToWriter(iw);
 				}
-				iw.SubIndent();
+				iw.FutureIndent--;
 			} else {
 				iw.Append("no props)");
 			}
@@ -228,13 +228,13 @@ namespace DemoParser.Parser.Components.Packets {
 				iw.PadLastLine(130, ' ');
 			}
 			iw.Append($"flags: {Flags}");
-			iw.AddIndent();
+			iw.FutureIndent++;
 			if (DemoSettings.NewEngine) {
 				iw.PadLastLine(170, ' ');
 				iw.Append($" priority: {Priority}");
 			}
 
-			iw.SubIndent();
+			iw.FutureIndent--;
 		}
 
 

@@ -38,7 +38,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			iw.AppendLine("show: " + Show);
 			if (KeyValues.Count > 0) {
 				iw.Append($"{KeyValues.Count} key value pair{(KeyValues.Count > 1 ? "s" : "")}: ");
-				iw.AddIndent();
+				iw.FutureIndent++;
 				foreach ((string key, string value) in KeyValues)
 					iw.Append($"\n{{{key}, {value}}}");
 			} else {

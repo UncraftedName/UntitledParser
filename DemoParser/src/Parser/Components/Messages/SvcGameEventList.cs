@@ -41,12 +41,12 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"{EventCount} events:");
-			iw.AddIndent();
+			iw.FutureIndent++;
 			foreach (GameEventDescription descriptor in Descriptors) {
 				iw.AppendLine();
 				descriptor.AppendToWriter(iw);
 			}
-			iw.SubIndent();
+			iw.FutureIndent--;
 		}
 	}
 
@@ -78,10 +78,10 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"ID: {EventID}, name: {Name}");
-			iw.AddIndent();
+			iw.FutureIndent++;
 			iw.AppendLine();
 			iw.Append($"keys: {Keys.SequenceToString()}");
-			iw.SubIndent();
+			iw.FutureIndent--;
 		}
 	}
 

@@ -42,10 +42,10 @@ namespace DemoParser.Parser.Components.Messages {
 			for (int i = 0; i < Sounds.Count; i++) {
 				iw.AppendLine();
 				iw.Append($"sound #{i + 1}:");
-				iw.AddIndent();
+				iw.FutureIndent++;
 				iw.AppendLine();
 				Sounds[i].AppendToWriter(iw);
-				iw.SubIndent();
+				iw.FutureIndent--;
 			}
 		}
 	}

@@ -19,9 +19,8 @@ namespace DemoParser.Utils {
 		public int FutureIndent {
 			get => _futureIndent;
 			set {
-				if (_futureIndent > _maxIndent)
-					_maxIndent = _futureIndent;
-				_futureIndent = value;
+				_maxIndent = Math.Max(_maxIndent, _futureIndent);
+				_futureIndent = Math.Max(value, 0);
 			}
 		}
 		public int LastLineLength => _lines[^1].Length;
@@ -31,15 +30,6 @@ namespace DemoParser.Utils {
 			_lines = new List<string> {""};
 			_indentCount = new List<int>{0};
 			FutureIndent = 0;
-		}
-
-
-		public void AddIndent() => FutureIndent++;
-
-
-		public void SubIndent() {
-			if (FutureIndent != 0)
-				FutureIndent--;
 		}
 
 

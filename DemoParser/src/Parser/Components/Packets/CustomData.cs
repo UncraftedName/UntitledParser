@@ -42,10 +42,10 @@ namespace DemoParser.Parser.Components.Packets {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"type: {DataType}");
-			iw.AddIndent();
+			iw.FutureIndent++;
 			iw.AppendLine();
 			DataMessage.AppendToWriter(iw);
-			iw.SubIndent();
+			iw.FutureIndent--;
 		}
 	}
 }

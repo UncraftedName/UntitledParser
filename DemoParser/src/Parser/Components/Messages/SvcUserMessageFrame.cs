@@ -58,10 +58,10 @@ namespace DemoParser.Parser.Components.Messages {
 				: "Unknown");
 			iw.Append($" ({SvcUserMessage.UserMessageTypeToByte(DemoSettings, UserMessageType)})");
 			if (SvcUserMessage.MayContainData) {
-				iw.AddIndent();
+				iw.FutureIndent++;
 				iw.AppendLine();
 				SvcUserMessage.AppendToWriter(iw);
-				iw.SubIndent();
+				iw.FutureIndent--;
 			}
 		}
 	}

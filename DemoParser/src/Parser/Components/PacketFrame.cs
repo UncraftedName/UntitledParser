@@ -53,10 +53,10 @@ namespace DemoParser.Parser.Components {
 				if (DemoSettings.NewEngine && PlayerSlot.HasValue)
 					iw.Append($"\nplayer slot: {PlayerSlot.Value}");
 				if (Packet.MayContainData) {
-					iw.AddIndent();
+					iw.FutureIndent++;
 					iw.AppendLine();
 					Packet.AppendToWriter(iw);
-					iw.SubIndent();
+					iw.FutureIndent--;
 				}
 			} else {
 				iw.Append("demo parsing failed here, packet type doesn't correspond with any known packet");

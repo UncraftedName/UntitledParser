@@ -31,12 +31,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"({EntIndex}) DELTA - ({ServerClass.ToString()})");
-			iw.AddIndent();
+			iw.FutureIndent++;
 			foreach ((int propIndex, EntityProperty prop) in Props) {
 				iw.AppendLine();
 				iw.Append($"({propIndex}) {prop.ToString()}");
 			}
-			iw.SubIndent();
+			iw.FutureIndent--;
 		}
 	}
 	
@@ -65,12 +65,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			iw.Append($"({EntIndex}) {(New ? "CREATE" : "ENTER_PVS")} {ServerClass.ToString()}");
 			if (New)
 				iw.Append($", serial: {Serial}");
-			iw.AddIndent();
+			iw.FutureIndent++;
 			foreach ((int propIndex, EntityProperty prop) in Props) {
 				iw.AppendLine();
 				iw.Append($"({propIndex}) {prop.ToString()}");
 			}
-			iw.SubIndent();
+			iw.FutureIndent--;
 		}
 	}
 	
