@@ -19,7 +19,7 @@ namespace ConsoleApp {
 		// todo add prop tracker
 		public static void Main(string[] args) {
 			
-			Console.WriteLine("DemoParser by UncraftedName");
+			Console.WriteLine("UntitledParser by UncraftedName");
 			
 			switch (args.Length) {
 				case 0:
@@ -89,7 +89,10 @@ namespace ConsoleApp {
 					Description = "the folder to dump the parser output to"
 				}
 			};
-			folderOpt.AddValidator(symbol => CheckIfValidFolderName(symbol.Tokens[0].Value));
+			folderOpt.AddValidator(symbol => 
+				symbol.Tokens.Count == 0 
+					? "requires a folder name"
+					: CheckIfValidFolderName(symbol.Tokens[0].Value));
 			
 
 			// probs should figure out how to use separate commands, since i want to determine when the option is triggered

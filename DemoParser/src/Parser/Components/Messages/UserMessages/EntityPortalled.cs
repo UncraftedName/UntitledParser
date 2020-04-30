@@ -19,12 +19,12 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			uint EHandle = bsr.ReadUInt();
-			PortalEntIndex = (int)(EHandle & ((1 << DemoSettings.MaxEdictBits) - 1));
-			PortalSerialNum = (int)(EHandle >> DemoSettings.MaxEdictBits);
-			EHandle = bsr.ReadUInt();
-			PortalledEntIndex = (int)(EHandle & ((1 << DemoSettings.MaxEdictBits) - 1));
-			PortalledEntSerialNum = (int)(EHandle >> DemoSettings.MaxEdictBits);
+			uint eHandle = bsr.ReadUInt();
+			PortalEntIndex = (int)(eHandle & ((1 << DemoSettings.MaxEdictBits) - 1));
+			PortalSerialNum = (int)(eHandle >> DemoSettings.MaxEdictBits);
+			eHandle = bsr.ReadUInt();
+			PortalledEntIndex = (int)(eHandle & ((1 << DemoSettings.MaxEdictBits) - 1));
+			PortalledEntSerialNum = (int)(eHandle >> DemoSettings.MaxEdictBits);
 			NewPosition = bsr.ReadVector3();
 			NewAngles = bsr.ReadVector3();
 		}

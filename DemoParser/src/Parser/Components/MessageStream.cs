@@ -83,7 +83,7 @@ namespace DemoParser.Parser.Components {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			int i = 0;
-			while (i < Messages.Count && Messages[i].Item2 != null) {
+			while (i < Messages?.Count && Messages[i].Item2 != null) {
 				iw.Append($"message: {Messages[i].Item1} " +
 						  $"({DemoMessage.MessageTypeToByte(Messages[i].Item1, DemoSettings)})");
 				if (Messages[i].Item2.MayContainData) {
@@ -96,7 +96,7 @@ namespace DemoParser.Parser.Components {
 					iw.AppendLine();
 				i++;
 			}
-			if (i < Messages.Count) {
+			if (i < Messages?.Count) {
 				iw.Append("more messages remaining... ");
 				iw.Append(Enum.IsDefined(typeof(MessageType), Messages[i].Item1)
 					? $"type: {Messages[i].Item1}"
