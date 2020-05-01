@@ -164,6 +164,12 @@ namespace ConsoleApp {
 					Description = "determines what information to display about the entities"
 				}
 			};
+			
+			
+			var errorsOpt = new Option(new [] {"-e", "--errors"}, 
+				"display all errors that occured during parsing") {
+				Required = false
+			};
 
 
 			var rootCommand = new RootCommand {
@@ -178,7 +184,8 @@ namespace ConsoleApp {
 				removeCaptionOpt,
 				dTableDumpOpt,
 				actionsPressedOpt,
-				passThroughPortalsOpt
+				passThroughPortalsOpt,
+				errorsOpt
 			};
 			
 			if (Debugger.IsAttached) // link option not implemented yet
@@ -207,16 +214,17 @@ namespace ConsoleApp {
 			// make sure the order here is the same as below (the names of the params must match the option names)
 			void CommandAction(
 				DirOrPath[] paths,
-				string regex,
 				bool verbose,
-				DirectoryInfo folder,
-				ListdemoOption listdemo,
 				bool cheats,
 				bool recursive,
 				bool link,
 				bool jumps,
 				bool removeCaptions,
 				bool dumpDatatables,
+				bool errors,
+				string regex,
+				DirectoryInfo folder,
+				ListdemoOption listdemo,
 				ActPressedDispType actionsPressed,
 				PtpFilterType portalsPassed,
 				ParseResult parseResult) // this is part of System.CommandLine - it will automatically put the result in here
@@ -293,6 +301,8 @@ namespace ConsoleApp {
 							ConsFunc_RemoveCaptions();
 						if (dumpDatatables)
 							ConsFunc_DumpDataTables();
+						if (errors)
+							ConsFunc_Errors();
 					} catch (Exception e) {
 						Console.WriteLine("failed.");
 						Console.WriteLine($"Message: {e.Message}");
@@ -314,8 +324,10 @@ namespace ConsoleApp {
 
 
 			// this is getting a tiny bit out of hand
-			rootCommand.Handler = CommandHandler.Create((
-				Action<DirOrPath[],string,bool,DirectoryInfo,ListdemoOption,bool,bool,bool,bool,bool,bool,ActPressedDispType,PtpFilterType,ParseResult>)CommandAction);
+			rootCommand.Handler = CommandHandler.Create((Action<
+				DirOrPath[],bool,bool,bool,bool,bool,bool,bool,bool,
+				string,DirectoryInfo,ListdemoOption,ActPressedDispType,
+				PtpFilterType,ParseResult>)CommandAction);
 
 			
 			rootCommand.Invoke(args);

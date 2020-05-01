@@ -306,6 +306,20 @@ namespace ConsoleApp {
 		}
 
 
+		private static void ConsFunc_Errors() {
+			SetTextWriter("errors");
+			Console.Write("Getting errors during parsing... ");
+			if (CurDemo.ErrorList.Count == 0) {
+				_curTextWriter.WriteLine("no errors");
+				if (_curTextWriter != Console.Out)
+					Console.WriteLine();
+			} else {
+				Console.WriteLine();
+				CurDemo.ErrorList.ForEach(s => _curTextWriter.WriteLine(s));
+			}
+		}
+
+
 		private static void ConsFunc_LinkDemos() { // todo when this sets the writer, give it a custom name
 			Console.WriteLine("Link demos feature not implemented yet.");
 		}
