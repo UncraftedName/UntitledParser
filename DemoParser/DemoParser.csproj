@@ -20,7 +20,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug_ProcessEnts' ">
-      <DefineConstants>TRACE;FORCE_PROCESS_ENTS</DefineConstants>
+      <DefineConstants>TRACE;FORCE_PROCESS_ENTS;DEBUG</DefineConstants>
     </PropertyGroup>
 
 </Project>

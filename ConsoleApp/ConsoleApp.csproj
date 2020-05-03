@@ -10,6 +10,10 @@
         <Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug_ProcessEnts' ">
+      <DefineConstants>TRACE;DEBUG</DefineConstants>
+    </PropertyGroup>
+
     <ItemGroup>
       <PackageReference Include="System.CommandLine.Experimental" Version="0.3.0-alpha.19577.1" />
     </ItemGroup>
