@@ -76,6 +76,12 @@ namespace DemoParser.Parser.Components.Messages {
 				_exceptionWhileParsing = true;
 				return;
 			}
+
+			if (manager.CreationLookup.Single(table => table.TableName == _tableName).Flags == StringTableFlags.Fake) {
+				DemoRef.AddError($"{_tableName} table was created manually - not parsed in SvcServerInfo");
+				_exceptionWhileParsing = true;
+				return;
+			}
 			
 			try { // se2007/engine/networkstringtable.cpp  line 595
 				C_StringTable tableToUpdate = manager.Tables[_tableName];
@@ -87,7 +93,7 @@ namespace DemoParser.Parser.Components.Messages {
 					entryIndex++;
 					if (!bsr.ReadBool()) {
 						if (DemoRef.Header.NetworkProtocol > 14) // i'm actually not sure if this is where this goes
-							throw new NotImplementedException($"encoded with dictionary");
+							throw new NotImplementedException("encoded with dictionary");
 						entryIndex = (int)bsr.ReadBitsAsUInt(BitUtils.HighestBitIndex(tableToUpdate.MaxEntries));
 					}
 

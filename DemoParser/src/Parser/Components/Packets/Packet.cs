@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
+using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -46,6 +47,7 @@ namespace DemoParser.Parser.Components.Packets {
 					DemoRef.CEntitySnapshot.EngineTick = tickInfo.EngineTick;
 			}
 			// todo fill prop handles with data here
+			TimingAdjustment.AdjustFromPacket(this);
 		}
 		
 
@@ -68,12 +70,12 @@ namespace DemoParser.Parser.Components.Packets {
 
 		public InterpFlags Flags;
 		private Vector3[] _floats;
-		public Vector3 ViewOrigin => _floats[0];
-		public Vector3 ViewAngles => _floats[1];
-		public Vector3 LocalViewAngles => _floats[2];
-		public Vector3 ViewOrigin2 => _floats[3];
-		public Vector3 ViewAngles2 => _floats[4];
-		public Vector3 LocalViewAngles2 => _floats[5];
+		public ref Vector3 ViewOrigin       => ref _floats[0];
+		public ref Vector3 ViewAngles       => ref _floats[1];
+		public ref Vector3 LocalViewAngles  => ref _floats[2];
+		public ref Vector3 ViewOrigin2      => ref _floats[3];
+		public ref Vector3 ViewAngles2      => ref _floats[4];
+		public ref Vector3 LocalViewAngles2 => ref _floats[5];
 		private static readonly string[] Names = {
 			"view origin", "view angles", "local view angles", "view origin 2", "view angles 2", "local view angles 2"};
 		private static readonly bool[] UseDegreeSymbol = {false, true, true, false, true, true};
@@ -86,7 +88,7 @@ namespace DemoParser.Parser.Components.Packets {
 			Flags = (InterpFlags)bsr.ReadUInt();
 			_floats = new Vector3[6];
 			for (int i = 0; i < _floats.Length; i++)
-				_floats[i] = bsr.ReadVector3();
+				bsr.ReadVector3(out _floats[i]);
 			SetLocalStreamEnd(bsr);
 		}
 		
@@ -108,7 +110,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 	[Flags]
-	public enum InterpFlags: uint {
+	public enum InterpFlags : uint {
 		None        = 0,
 		UseOrigin2  = 1,
 		UserAngles2 = 1 << 1,

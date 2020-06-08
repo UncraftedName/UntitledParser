@@ -28,6 +28,9 @@ namespace DemoParser.Parser.HelperClasses {
 		public const string MeleeWeapons        = "MeleeWeapons";
 		public const string GameRulesCreation   = "GameRulesCreation";
 		public const string BlackMarket         = "BlackMarketTable";
+		// custom?
+		public const string DynamicModels       = "DynamicModels";
+		public const string ServerMapCycle      = "ServerMapCycle";
 	}
 	
 
@@ -59,10 +62,10 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 
 
-		internal void CreateStringTable(SvcCreateStringTable creationInfo) {
+		internal C_StringTable CreateStringTable(SvcCreateStringTable creationInfo) {
 			CreationLookup.Add(creationInfo);
 			TableReadable[creationInfo.TableName] = true;
-			InitNewTable(_privateTables.Count, creationInfo);
+			return InitNewTable(_privateTables.Count, creationInfo);
 		}
 
 
@@ -115,11 +118,31 @@ namespace DemoParser.Parser.HelperClasses {
 		internal void CreateTablesFromPacket(StringTables tablesPacket) {
 			_privateTables.Clear();
 			TableReadable.Clear();
+			bool useCreationLookup = CreationLookup.Any();
 			try {
-				foreach (StringTable table in tablesPacket.Tables) {
-					int tableId = CreationLookup.FindIndex(info => info.TableName == table.Name);
-					C_StringTable newTable = InitNewTable(tableId, CreationLookup[tableId]);
+				for (var i = 0; i < tablesPacket.Tables.Count; i++) {
+					StringTable table = tablesPacket.Tables[i];
+
+					C_StringTable newTable;
+					if (useCreationLookup) {
+						int tableId = CreationLookup.FindIndex(info => info.TableName == table.Name);
+						newTable = InitNewTable(tableId, CreationLookup[tableId]);
+					} else {
+						// create fake creation info
+						SvcCreateStringTable fakeInfo = new SvcCreateStringTable(null, null) {
+							TableName = table.Name, 
+							MaxEntries = -1,
+							Flags = StringTableFlags.Fake,
+							UserDataFixedSize = false,
+							UserDataSize = -1,
+							UserDataSizeBits = -1
+						};
+						// SvcServerInfo wasn't parsed correctly, assume i is the proper table ID
+						newTable = CreateStringTable(fakeInfo);
+					}
+					
 					table.MaxEntries = newTable.MaxEntries;
+					
 					if (table.TableEntries != null)
 						foreach (StringTableEntry entry in table.TableEntries)
 							AddTableEntry(newTable, entry?.EntryData?.Reader, entry?.Name);
@@ -143,7 +166,7 @@ namespace DemoParser.Parser.HelperClasses {
 		public int Id; // the index in the table list
 		// flattened fields from SvcCreateStringTable
 		public readonly string Name;
-		public readonly ushort MaxEntries;
+		public readonly short MaxEntries;
 		public readonly bool UserDataFixedSize;
 		public readonly int UserDataSize;
 		public readonly int UserDataSizeBits;
@@ -186,7 +209,7 @@ namespace DemoParser.Parser.HelperClasses {
 			EntryName = entryName;
 			if (entryStream != null) {
 				EntryData = StringTableEntryDataFactory.CreateData(demoRef, entryStream, tableRef.Name, entryName, demoRef?.DataTableParser?.FlattenedProps);
-				EntryData.ParseOwnStream();
+				EntryData.ParseOwnStream(); // todo instead of reparsing the data maybe clone it instead?
 			}
 		}
 

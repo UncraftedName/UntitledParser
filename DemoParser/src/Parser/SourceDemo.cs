@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
@@ -18,15 +20,17 @@ namespace DemoParser.Parser {
 	public class SourceDemo : DemoComponent {
 
 		public readonly string? FileName;
-		public DemoSettings DemoSettings;
+		public new DemoSettings DemoSettings;
 		public DemoHeader Header;
 		public List<PacketFrame> Frames;
 		private bool _exceptionDuringParsing;
-		public List<string> ErrorList;
+		// these are set in the packet packet and from console commands
+		public int StartTick = -1, EndTick = -1, StartAdjustmentTick = -1, EndAdjustmentTick = -1;
 		
 		// Helper classes, these are used by the demo components, are temporary and might be created/destroyed whenever.
 		// Any classes that require the use of any lookup tables e.g. string tables, game event list, etc. should store
 		// a local copy of any objects from those tables.
+		public List<string> ErrorList;
 		internal GameEventManager GameEventManager;
 		public DataTableParser DataTableParser;
 		internal C_StringTablesManager CStringTablesManager;
@@ -43,7 +47,7 @@ namespace DemoParser.Parser {
 		}
 
 
-		public SourceDemo(IReadOnlyList<byte> data, IProgress<double>? parseProgress = null) : base(null, new BitStreamReader(data)) {
+		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null) : base(null, new BitStreamReader(data)) {
 			_parseProgress = parseProgress;
 		}
 
@@ -57,12 +61,16 @@ namespace DemoParser.Parser {
 			CStringTablesManager = new C_StringTablesManager(this); 
 			ErrorList = new List<string>();
 			Frames = new List<PacketFrame>();
+			StartTick = 0;
 			try {
 				do {
 					Frames.Add(new PacketFrame(this, bsr));
 					Frames[^1].ParseStream(bsr);
 					_parseProgress?.Report((double)bsr.CurrentBitIndex / bsr.BitLength);
 				} while (Frames[^1].Type != PacketType.Stop && bsr.BitsRemaining >= 24); // would be 32 but the last byte is often cut off
+
+				StartAdjustmentTick = StartAdjustmentTick == -1 ? 0 : StartAdjustmentTick;
+				EndTick = this.FilterForPacket<Packet>().Select(packet => packet.Tick).Where(i => i >= 0).Max();
 			}
 			catch (Exception e) {
 				_exceptionDuringParsing = true;
@@ -70,6 +78,7 @@ namespace DemoParser.Parser {
 				AddError($"Exception after parsing {Frames.Count - 1} packets: {e.Message}");
 				throw;
 			}
+			EndAdjustmentTick = EndAdjustmentTick == -1 ? this.TickCount() - 1 : EndAdjustmentTick;
 		}
 		
 
@@ -125,7 +134,7 @@ namespace DemoParser.Parser {
 			iw.WriteLines(textWriter, indentStr);
 		}
 		
-		
+
 		// todo iterate over ent snapshots
 	}
 }
