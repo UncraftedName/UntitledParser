@@ -39,8 +39,8 @@ namespace DemoParser.Utils.BitStreams {
 
         public void EditBitsAtIndex(byte[] bytes, int bitIndex) 
             => EditBitsAtIndex(bytes, bitIndex, bytes.Length << 3);
-
-
+        
+        
         public void EditIntAtIndex(int i, int bitIndex, int bitCount) 
             => EditBitsAtIndex(IntToBytes(i), bitIndex, bitCount);
 
@@ -48,7 +48,7 @@ namespace DemoParser.Utils.BitStreams {
         public void RemoveBitsAtIndex(int bitIndex, int bitCount) {
             if (bitIndex + bitCount > BitLength)
                 throw new ArgumentOutOfRangeException(nameof(bitIndex), "the removed bits extend outside of the existing array");
-            BitStreamReader bsr = new BitStreamReader(_data);
+            BitStreamReader bsr = new BitStreamReader(_data.ToArray());
             BitStreamWriter newWriter = new BitStreamWriter(_data.Capacity);
             newWriter.WriteBits(bsr.ReadBits(bitIndex), bitIndex);
             bsr.SkipBits(bitCount);
@@ -60,7 +60,7 @@ namespace DemoParser.Utils.BitStreams {
 
         public void RemoveBitsAtIndices(IEnumerable<(int bitIndex, int bitCount)> removals) {
             var orderedRemovals = removals.OrderBy(tuple => tuple.bitIndex);
-            BitStreamReader bsr = new BitStreamReader(_data);
+            BitStreamReader bsr = new BitStreamReader(_data.ToArray());
             BitStreamWriter newWriter = new BitStreamWriter(_data.Capacity);
             int curOffset = 0;
             foreach ((int bitIndex, int bitCount) in orderedRemovals) {
@@ -78,7 +78,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
         public void InsertBitsAtIndex(byte[] bytes, int bitIndex, int bitCount) {
-            BitStreamReader bsr = new BitStreamReader(_data);
+            BitStreamReader bsr = new BitStreamReader(_data.ToArray());
             BitStreamWriter newWriter = new BitStreamWriter(_data.Capacity + bytes.Length);
             newWriter.WriteBits(bsr.ReadBits(bitIndex), bitIndex);
             newWriter.WriteBits(bytes, bitCount);
@@ -92,7 +92,7 @@ namespace DemoParser.Utils.BitStreams {
             => InsertBitsAtIndex(IntToBytes(i), bitIndex, bitCount);
 
 
-        private byte[] IntToBytes(int i) {
+        private static byte[] IntToBytes(int i) {
             BitStreamWriter bsw = new BitStreamWriter(4);
             bsw.WriteSInt(i);
             return bsw.AsArray;

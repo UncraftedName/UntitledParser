@@ -1,34 +1,33 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace DemoParser.Utils.BitStreams {
 	
 	public partial class BitStreamReader {
 		
-		public readonly IReadOnlyList<byte> Data;
-		public readonly int BitLength;
+		public readonly byte[] Data;
+		public int BitLength;
 		public int ByteLength => BitLength >> 3;
 		public readonly int Start; // index of first readable bit
 		public int AbsoluteBitIndex {get;private set;}
+		private int AbsoluteByteIndex => AbsoluteBitIndex >> 3;
 		public int CurrentBitIndex {
 			get => AbsoluteBitIndex - Start;
 			set => AbsoluteBitIndex = Start + value;
 		}
 		public int BitsRemaining => Start + BitLength - AbsoluteBitIndex;
 		internal bool IsLittleEndian; // this doesn't work w/ big endian atm, probably won't try to fix it since it's not necessary
-		private byte CurrentByte => Data[AbsoluteBitIndex >> 3];  // same as Pointer / 8
+		private byte CurrentByte => Data[AbsoluteByteIndex];  // same as Pointer / 8
 		private byte IndexInByte => (byte)(AbsoluteBitIndex & 0x07); // same as Pointer % 8
-		private int RemainingBitMask => 0xff << IndexInByte;         // mask to get remaining bits in this byte
+		private byte RemainingBitMask => (byte)(0xff << IndexInByte); // mask to get remaining bits in this byte
 		private bool IsByteAligned => IndexInByte == 0;
 		
 
-		public BitStreamReader(IReadOnlyList<byte> data, bool isLittleEndian = true) : this(data, data.Count << 3, 0, isLittleEndian) {}
+		public BitStreamReader(byte[] data, bool isLittleEndian = true) : this(data, data.Length << 3, 0, isLittleEndian) {}
 
 
-		private BitStreamReader(IReadOnlyList<byte> data, int bitLength, int start, bool isLittleEndian) {
+		private BitStreamReader(byte[] data, int bitLength, int start, bool isLittleEndian) {
 			Data = data;
 			BitLength = bitLength;
 			AbsoluteBitIndex = Start = start;
@@ -62,11 +61,6 @@ namespace DemoParser.Utils.BitStreams {
 			return new BitStreamReader(Data, BitLength, Start, IsLittleEndian);
 		}
 
-		
-		public BitStreamReader WithEndAt(BitStreamReader reader) {
-			return new BitStreamReader(Data, reader.AbsoluteBitIndex - Start, Start, IsLittleEndian);
-		}
-
 
 		public string ToBinaryString() {
 			int tmp = AbsoluteBitIndex;
@@ -87,15 +81,8 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		public void SkipBytes(uint byteCount) => SkipBytes((int)byteCount);
-
-
-		public void SkipBytes(int byteCount) {
-			EnsureCapacity(byteCount << 3);
-			AbsoluteBitIndex += byteCount << 3;
-		}
-
-
+		public void SkipBytes(uint byteCount) => SkipBits(byteCount << 3);
+		public void SkipBytes(int byteCount) => SkipBits(byteCount << 3);
 		public void SkipBits(uint bitCount) => SkipBits((int)bitCount);
 
 
@@ -111,6 +98,7 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void EnsureCapacity(long bitCount) {
 			if (bitCount > BitsRemaining)
 				throw new ArgumentOutOfRangeException(nameof(bitCount),
@@ -118,8 +106,8 @@ namespace DemoParser.Utils.BitStreams {
 		}
 		
 		
-		private int BitMask(int bitCount) {
-			return RemainingBitMask & (0xff >> (8 - bitCount - IndexInByte));
+		private byte BitMask(int bitCount) {
+			return (byte)(RemainingBitMask & ~(0xff << (bitCount + IndexInByte)));
 		}
 		
 
@@ -138,14 +126,13 @@ namespace DemoParser.Utils.BitStreams {
 				AbsoluteBitIndex += 8;
 				return result;
 			}
-
 			int bitsToGetInNextByte = IndexInByte;
 			int bitsToGetInCurrentByte = 8 - bitsToGetInNextByte;
 			int output = (CurrentByte & RemainingBitMask) >> bitsToGetInNextByte;
 			AbsoluteBitIndex += bitsToGetInCurrentByte;
 			output |= (CurrentByte & BitMask(bitsToGetInNextByte)) << bitsToGetInCurrentByte;
 			AbsoluteBitIndex += bitsToGetInNextByte;
-			return (byte) output;
+			return (byte)output;
 		}
 
 
@@ -155,42 +142,54 @@ namespace DemoParser.Utils.BitStreams {
 		
 
 		public byte[] ReadBytes(int byteCount) {
-			EnsureCapacity(byteCount << 3);
-			if (IsByteAligned) {
-				var result = Data.Skip(AbsoluteBitIndex >> 3).Take(byteCount);
-				AbsoluteBitIndex += byteCount << 3;
-				return result.ToArray();
-			}
-
-			byte[] output = new byte[byteCount];
-			for (int i = 0; i < byteCount; i++)
-				output[i] = ReadByte();
-			return output;
+			byte[] result = new byte[byteCount];
+			ReadBytesToSpan(result.AsSpan());
+			return result;
 		}
 		
 		
-		// hey idiot! bytes are read least significant bit first!
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void ReadBytesToSpan(Span<byte> byteSpan) {
+			if (byteSpan.Length == 0)
+				return;
+			EnsureCapacity(byteSpan.Length << 3);
+			if (IsByteAligned) {
+				Data.AsSpan(AbsoluteByteIndex, byteSpan.Length).CopyTo(byteSpan);
+				AbsoluteBitIndex += byteSpan.Length << 3;
+			} else {
+				for (int i = 0; i < byteSpan.Length; i++) 
+					byteSpan[i] = ReadByte();
+			}
+		}
+		
+		
 		public byte[] ReadBits(int bitCount) {
-			int byteCount = bitCount >> 3;
-			byte[] bytes = ReadBytes(byteCount);
-			bitCount &= 0x07; // remaining bits
+			byte[] result = new byte[(bitCount >> 3) + ((bitCount & 0x07) > 0 ? 1 : 0)];
+			ReadBitsToSpan(result.AsSpan(), bitCount);
+			return result;
+		}
+
+
+		// hey idiot! bytes are read least significant bit first!
+		private void ReadBitsToSpan(Span<byte> byteSpan, int bitCount) {
+			Span<byte> fullBytes = byteSpan.Slice(0, bitCount >> 3);
+			ReadBytesToSpan(fullBytes);
+			bitCount &= 0x07;
 			if (bitCount > 0) {
-				Array.Resize(ref bytes, bytes.Length + 1);
 				int lastByte;
-				int bitsLeft = 8 - IndexInByte;
-				if (bitCount > bitsLeft) {                     // if remaining bits stretch over 2 bytes
+				int bitsLeftInByte = 8 - IndexInByte;
+				if (bitCount > bitsLeftInByte) {               // if remaining bits stretch over 2 bytes
 					lastByte = CurrentByte & RemainingBitMask; // get bits from current byte
 					lastByte >>= IndexInByte;
-					AbsoluteBitIndex += bitsLeft;
-					bitCount -= bitsLeft;
-					lastByte |= (CurrentByte & BitMask(bitCount)) << bitsLeft; // get bits from remaining byte
+					AbsoluteBitIndex += bitsLeftInByte;
+					bitCount -= bitsLeftInByte;
+					lastByte |= (CurrentByte & BitMask(bitCount)) << bitsLeftInByte; // get bits from remaining byte
 				} else {
 					lastByte = (CurrentByte & BitMask(bitCount)) >> IndexInByte;
 				}
 				AbsoluteBitIndex += bitCount;
-				bytes[^1] = (byte)lastByte;
+				byteSpan[fullBytes.Length] = (byte)lastByte;
 			}
-			return bytes;
 		}
 
 
@@ -201,14 +200,15 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public uint ReadBitsAsUInt(int bitCount) {
-			EnsureCapacity(bitCount);
 			if (bitCount > 32 || bitCount < 0)
 				throw new ArgumentException("the number of bits requested must fit in an int", nameof(bitCount));
-			byte[] bytes = new byte[4];
-			Array.Copy(ReadBits(bitCount), 0, bytes, 0, (bitCount - 1) / 8 + 1);
+			EnsureCapacity(bitCount);
+			Span<byte> bytes = stackalloc byte[4];
+			bytes.Clear();
+			ReadBitsToSpan(bytes, bitCount);
 			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
-				Array.Reverse(bytes);
-			return BitConverter.ToUInt32(bytes, 0);
+				bytes.Reverse();
+			return BitConverter.ToUInt32(bytes);
 		}
 
 
@@ -227,18 +227,31 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public string ReadNullTerminatedString() {
-			List<byte> bytes = new List<byte>();
-			byte nextByte = ReadByte();
-			while (nextByte != 0) {
-				bytes.Add(nextByte);
-				nextByte = ReadByte();
+			unsafe {
+				sbyte* strPtr = stackalloc sbyte[1024];
+				int i = 0;
+				do 
+					strPtr[i] = ReadSByte();
+				while (strPtr[i++] != 0);
+				return new string(strPtr);
 			}
-			return Encoding.ASCII.GetString(bytes.ToArray());
 		}
 
 
 		public string ReadStringOfLength(int strLength) {
-			return Encoding.ASCII.GetString(ReadBytes(strLength));
+			if (strLength < 0)
+				throw new ArgumentException("bro that's not supposed to be negative", nameof(strLength));
+			
+			Span<byte> bytes = strLength < 1000 
+				? stackalloc byte[strLength + 1] 
+				: new byte[strLength + 1];
+			
+			ReadBytesToSpan(bytes.Slice(0, strLength));
+			bytes[strLength] = 0; // I would assume that in this case the string might not be null-terminated.
+			unsafe {
+				fixed(byte* strPtr = bytes)
+					return new string((sbyte*)strPtr);
+			}
 		}
 
 
@@ -249,51 +262,61 @@ namespace DemoParser.Utils.BitStreams {
 			return new CharArray(ReadBytes(byteCount));
 		}
 		
-
-		private T ReadPrimitive<T>(Func<byte[], int, T> bitConverterFunc, int sizeOfType) {
-			byte[] bytes = ReadBytes(sizeOfType);
-			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
-				Array.Reverse(bytes);
-			return bitConverterFunc(bytes, 0);
-		}
+		// I need to write these manually because I can't do Func<Span<byte>, T> cuz Span is a ref struct. 
 		
-
 		public uint ReadUInt() {
-			return ReadPrimitive(BitConverter.ToUInt32, sizeof(uint));
+			Span<byte> span = stackalloc byte[sizeof(uint)];
+			ReadBytesToSpan(span);
+			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
+				span.Reverse();
+			return BitConverter.ToUInt32(span);
 		}
 
 
 		public int ReadSInt() {
-			return ReadPrimitive(BitConverter.ToInt32, sizeof(int));
+			Span<byte> span = stackalloc byte[sizeof(int)];
+			ReadBytesToSpan(span);
+			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
+				span.Reverse();
+			return BitConverter.ToInt32(span);
 		}
 		
 		
 		public ushort ReadUShort() {
-			return ReadPrimitive(BitConverter.ToUInt16, sizeof(ushort));
+			Span<byte> span = stackalloc byte[sizeof(ushort)];
+			ReadBytesToSpan(span);
+			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
+				span.Reverse();
+			return BitConverter.ToUInt16(span);
 		}
 
 
 		public short ReadSShort() {
-			return ReadPrimitive(BitConverter.ToInt16, sizeof(short));
+			Span<byte> span = stackalloc byte[sizeof(short)];
+			ReadBytesToSpan(span);
+			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
+				span.Reverse();
+			return BitConverter.ToInt16(span);
 		}
 		
 
 		public float ReadFloat() {
-			return ReadPrimitive(BitConverter.ToSingle, sizeof(float));
+			Span<byte> span = stackalloc byte[sizeof(float)];
+			ReadBytesToSpan(span);
+			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
+				span.Reverse();
+			return BitConverter.ToSingle(span);
 		}
 
 
-		public Vector3 ReadVector3() {
-			return new Vector3(ReadFloat(), ReadFloat(), ReadFloat());
+		public void ReadVector3(out Vector3 vec3) {
+			vec3.X = ReadFloat();
+			vec3.Y = ReadFloat();
+			vec3.Z = ReadFloat();
 		}
 
 		
 		// for all 'IfExists' methods - read one bit, if it's set, read the desired field
-
-
-		public bool? ReadBoolIfExists() { // wtf is this shit
-			return ReadBool() ? ReadBool() : (bool?) null;
-		}
 
 
 		public byte? ReadByteIfExists() {
@@ -301,23 +324,18 @@ namespace DemoParser.Utils.BitStreams {
 		}
 		
 		
-		private T? ReadPrimitiveIfExists<T>(Func<byte[], int, T> bitConverterFunc, int sizeOfType) where T : struct {
-			return ReadBool() ? (T?)ReadPrimitive(bitConverterFunc, sizeOfType) : null;
-		}
-		
-		
 		public uint? ReadUIntIfExists() {
-			return ReadPrimitiveIfExists(BitConverter.ToUInt32, sizeof(uint));
+			return ReadBool() ? ReadUInt() : (uint?)null;
 		}
 		
 		
 		public ushort? ReadUShortIfExists() {
-			return ReadPrimitiveIfExists(BitConverter.ToUInt16, sizeof(ushort));
+			return ReadBool() ? ReadUShort() : (ushort?)null;
 		}
 		
 
 		public float? ReadFloatIfExists() {
-			return ReadPrimitiveIfExists(BitConverter.ToSingle, sizeof(float));
+			return ReadBool() ? ReadUInt() : (float?)null;
 		}
 
 

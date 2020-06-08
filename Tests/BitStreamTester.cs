@@ -13,7 +13,7 @@ namespace Tests {
 
 		[SetUp]
 		public void Setup() {
-			_random = new Random(4);
+			_random = new Random(0);
 		}
 		
 

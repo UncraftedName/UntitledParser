@@ -239,7 +239,8 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public override string ToString() {
-			return ParserTextUtils.BytesToBinaryString(_data);
+			//return ParserTextUtils.BytesToBinaryString(_data);
+			return "bit length: " + BitLength;
 			/*if (IsByteAligned) {
 				return ParserTextUtils.BytesToBinaryString(_data);
 			} else {
