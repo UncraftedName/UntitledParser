@@ -10,7 +10,7 @@ namespace DemoParser.Parser.Components {
 	/// </summary>
 	public class PacketFrame : DemoComponent {
 		
-		public byte? PlayerSlot; // new engine only
+		public byte? PlayerSlot; // orange box only
 		public DemoPacket Packet;
 		// in the demo the tick is stored as part of the packet frame, 
 		// but for convenience I store it as part of the packet
@@ -28,7 +28,7 @@ namespace DemoParser.Parser.Components {
 			Type = DemoPacket.ByteToPacketType(DemoSettings, bsr.ReadByte());
 			
 			// stop tick is cut off in portal demos, not that it really matters
-			int tick = Type == PacketType.Stop && !DemoSettings.NewEngine
+			int tick = Type == PacketType.Stop && !DemoSettings.OrangeBox
 				? (int)bsr.ReadBitsAsUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24))
 				: bsr.ReadSInt();
 			
@@ -50,7 +50,7 @@ namespace DemoParser.Parser.Components {
 		public override void AppendToWriter(IndentedWriter iw) {
 			if (Packet != null) {
 				iw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(DemoSettings, Type)})");
-				if (DemoSettings.NewEngine && PlayerSlot.HasValue)
+				if (DemoSettings.OrangeBox && PlayerSlot.HasValue)
 					iw.Append($"\nplayer slot: {PlayerSlot.Value}");
 				if (Packet.MayContainData) {
 					iw.FutureIndent++;

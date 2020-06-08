@@ -15,8 +15,7 @@ namespace DemoParser.Utils {
 		public static IEnumerable<T> FilterForPacket<T>(this SourceDemo demo) where T : DemoPacket {
 			return demo.Frames
 				.Select(frame => frame.Packet)
-				.Where(packet => packet.GetType() == typeof(T))
-				.Cast<T>();
+				.OfType<T>();
 		}
 		
 
@@ -27,8 +26,8 @@ namespace DemoParser.Utils {
 			return packet
 				.MessageStream
 				.Select(tuple => tuple.message)
-				.Where(message => message != null && message.GetType() == typeof(T))
-				.Cast<T>();
+				.Where(message => message != null)
+				.OfType<T>();
 		}
 		
 
@@ -49,8 +48,8 @@ namespace DemoParser.Utils {
 			return signOn
 				.MessageStream
 				.Select(tuple => tuple.message)
-				.Where(message => message != null && message.GetType() == typeof(T))
-				.Cast<T>();
+				.Where(message => message != null)
+				.OfType<T>();
 		}
 		
 
@@ -103,12 +102,16 @@ namespace DemoParser.Utils {
 		
 		
 		public static int TickCount(this SourceDemo demo) {
-			List<int> packetTicks = demo
-				.FilterForPacket<Packet>()
-				.Select(packet => packet.Tick)
-				.Where(i => i >= 0)
-				.ToList();
-			return packetTicks.Max() - packetTicks.Min() + 1; // accounts for 0th tick
+			if (demo.StartTick == -1 || demo.EndTick == -1)
+				throw new ArgumentException("the demo was probably not parsed correctly");
+			return demo.EndTick - demo.StartTick + 1;
+		}
+
+
+		public static int AdjustedTickCount(this SourceDemo demo) {
+			if (demo.StartAdjustmentTick == -1 || demo.EndAdjustmentTick == -1)
+				throw new ArgumentException("the demo was probably not parsed correctly");
+			return demo.EndAdjustmentTick - demo.StartAdjustmentTick + 1;
 		}
 	}
 }

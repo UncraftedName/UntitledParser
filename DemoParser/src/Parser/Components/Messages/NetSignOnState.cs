@@ -8,7 +8,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		public SignOnState SignOnState;
 		public int SpawnCount;
-		// new engine only
+		// orange box only
 		public uint? NumServerPlayers;
 		public byte[] PlayerNetworkIds;
 		public string MapName;
@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages {
 		internal override void ParseStream(BitStreamReader bsr) {
 			SignOnState = (SignOnState)bsr.ReadByte();
 			SpawnCount = bsr.ReadSInt();
-			if (DemoSettings.NewEngine) {
+			if (DemoSettings.OrangeBox) {
 				NumServerPlayers = bsr.ReadUInt();
 				int length = (int)bsr.ReadUInt();
 				if (length > 0)
@@ -41,7 +41,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"sign on state: {SignOnState}");
 			iw.Append($"spawn count: {SpawnCount}");
-			if (DemoSettings.NewEngine) {
+			if (DemoSettings.OrangeBox) {
 				iw.Append($"\nnumber of server players: {NumServerPlayers}");
 				if (PlayerNetworkIds != null)
 					iw.Append($"\nbyte array of length {PlayerNetworkIds.Length}");

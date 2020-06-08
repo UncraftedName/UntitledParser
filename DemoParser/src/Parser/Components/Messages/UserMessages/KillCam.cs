@@ -6,7 +6,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
 	public class KillCam : SvcUserMessage {
 
-		public byte NewMode;
+		public byte NewMode; // todo
 		public byte Target1;
 		public byte Target2;
 		public byte Unknown;

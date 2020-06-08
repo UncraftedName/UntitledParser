@@ -1,3 +1,4 @@
+using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -19,15 +20,21 @@ namespace DemoParser.Parser.Components.Messages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
+			string trimmed = Str.Trim();
 			iw.Append("string: ");
-			iw.FutureIndent++;
-			iw.Append(Str.TrimEnd());
-			iw.FutureIndent--;
+			if (trimmed.Contains('\n')) {
+				iw.FutureIndent++;
+				iw.AppendLine();
+				iw.Append(trimmed);
+				iw.FutureIndent--;
+			} else {
+				iw.Append(trimmed);
+			}
 		}
 	}
 }

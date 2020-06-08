@@ -1,7 +1,6 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.EntityStuff;
@@ -72,9 +71,10 @@ namespace DemoParser.Parser.Components.Messages {
 				NextOldEntIndex(ref oldI, ents);
 
 				for (int _ = 0; _ < UpdatedEntries; _++) {
-					newI += 1 + (DemoSettings.NewEngine 
+					newI += 1 + (DemoSettings.OrangeBox 
 						? (int)_entBsr.ReadUBitInt()
 						: (int)_entBsr.ReadUBitVar());
+					
 					
 					UpdateType updateType;
 					if (_entBsr.ReadBool()) {
@@ -109,7 +109,8 @@ namespace DemoParser.Parser.Components.Messages {
 								NextOldEntIndex(ref oldI, ents);
 							break;
 						case UpdateType.Delta:
-							Debug.Assert(oldI == newI, "oldEntSlot != newEntSlot");
+							if (oldI != newI)
+								throw new ArgumentException("oldEntSlot != newEntSlot");
 							Entity e = snapshot.Entities[newI];
 							iClass = e.ServerClass.DataTableId;
 							(entClass, fProps) = tableParser.FlattenedProps[iClass];

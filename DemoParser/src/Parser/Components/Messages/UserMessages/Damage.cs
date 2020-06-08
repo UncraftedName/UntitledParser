@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			Armor = bsr.ReadByte();
 			DamageTaken = bsr.ReadByte();
 			BitsDamage = bsr.ReadSInt();
-			VecFrom = bsr.ReadVector3();
+			bsr.ReadVector3(out VecFrom);
 			/*VecFrom = new Vector3 { 		old engine?
 				X = bsr.ReadCoord(),
 				Y = bsr.ReadCoord(),

@@ -169,7 +169,7 @@ namespace DemoParser.Parser.Components.Packets {
 			SendPropType = UIntToSendPropertyType(DemoRef, bsr.ReadBitsAsUInt(5));
 			Name = bsr.ReadNullTerminatedString();
 			Flags = (SendPropFlags)bsr.ReadBitsAsUInt(DemoRef.Header.DemoProtocol == 2 ? 11 : 16);
-			if (DemoSettings.NewEngine)
+			if (DemoSettings.OrangeBox)
 				Priority = bsr.ReadBitsAsSInt(11);
 			if (SendPropType == SendPropType.DataTable || (Flags & SendPropFlags.Exclude) != 0) {
 				ExcludeDtName = bsr.ReadNullTerminatedString();
@@ -206,6 +206,11 @@ namespace DemoParser.Parser.Components.Packets {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.Append($"{SendPropType.ToString().ToLower(), -10}");
+			AppendToWriterWithoutType(iw);
+		}
+
+
+		private void AppendToWriterWithoutType(IndentedWriter iw) { 
 			if (ExcludeDtName != null) {
 				iw.Append($"{Name}{(ExcludeDtName == null ? "" : $" : {ExcludeDtName}")}".PadRight(50));
 			} else {
@@ -229,12 +234,18 @@ namespace DemoParser.Parser.Components.Packets {
 			}
 			iw.Append($"flags: {Flags}");
 			iw.FutureIndent++;
-			if (DemoSettings.NewEngine) {
+			if (DemoSettings.OrangeBox) {
 				iw.PadLastLine(170, ' ');
 				iw.Append($" priority: {Priority}");
 			}
-
 			iw.FutureIndent--;
+		}
+
+
+		public string ToStringNoType() { // just for pretty toString() from the console app
+			var iw = new IndentedWriter();
+			AppendToWriterWithoutType(iw);
+			return iw.ToString();
 		}
 
 

@@ -14,7 +14,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			Text = bsr.ReadNullTerminatedString(); // something ain't right, might be char array 0f len 1024
+			Text = bsr.ReadNullTerminatedString(); // something ain't right, might be char array of len 1024
 		}
 		
 

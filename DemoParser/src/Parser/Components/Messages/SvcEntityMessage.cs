@@ -8,7 +8,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public uint EntityIndex;
 		public uint ClassId;
-		private BitStreamReader _data;
+		private BitStreamReader _data; // todo
 		public BitStreamReader Data => _data.FromBeginning();
 		
 

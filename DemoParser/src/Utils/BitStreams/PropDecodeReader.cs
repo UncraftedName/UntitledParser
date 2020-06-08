@@ -13,7 +13,7 @@ namespace DemoParser.Utils.BitStreams {
 	// mostly just an extra class to keep this nasty unusual stuff separate
 	public partial class BitStreamReader  {
 
-		public void DecodeVector3(SendTableProp propInfo, ref Vector3 vec3) { // src_main\engine\dt_encode.cpp line 158
+		public void DecodeVector3(SendTableProp propInfo, out Vector3 vec3) { // src_main\engine\dt_encode.cpp line 158
 			vec3.X = DecodeFloat(propInfo);
 			vec3.Y = DecodeFloat(propInfo);
 			if ((propInfo.Flags & SendPropFlags.Normal) == 0) { 
@@ -31,13 +31,13 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		public void DecodeVector2(SendTableProp propInfo, ref Vector2 vec2) { // nice and easy
+		public void DecodeVector2(SendTableProp propInfo, out Vector2 vec2) { // nice and easy
 			vec2.X = DecodeFloat(propInfo);
 			vec2.Y = DecodeFloat(propInfo);
 		}
-		
 
-		public bool DecodeSpecialFloat(SendTableProp propInfo, ref float val) {
+
+		private bool DecodeSpecialFloat(SendTableProp propInfo, out float val) {
 			SendPropFlags flags = propInfo.Flags;
 			if ((flags & SendPropFlags.Coord) != 0) {
 				val = ReadBitCoord();
@@ -58,14 +58,14 @@ namespace DemoParser.Utils.BitStreams {
 				val = ReadBitNormal();
 				return true;
 			}
+			val = default;
 			return false;
 		}
 
 
 		public float ReadBitNormal() { // src_main\tier1\newbitbuf.cpp line 662
 			bool signBit = ReadBool();
-			uint fracVal = ReadBitsAsUInt(NormFracBits);
-			float val = fracVal * NormRes;
+			float val = ReadBitsAsUInt(NormFracBits) * NormRes;
 			if (signBit)
 				val = -val;
 			return val;
@@ -77,8 +77,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public float DecodeFloat(SendTableProp propInfo) {
-			float val = default;
-			if (DecodeSpecialFloat(propInfo, ref val)) // check for special flags
+			if (DecodeSpecialFloat(propInfo, out float val)) // check for special flags
 				return val;
 			int bits = (int)propInfo.NumBits.Value;
 			uint dwInterp = ReadBitsAsUInt(bits);
@@ -177,8 +176,7 @@ namespace DemoParser.Utils.BitStreams {
 			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.Elements.Value) + 1);
 			List<Vector3> result = new List<Vector3>(count);
 			for (int i = 0; i < count; i++) {
-				Vector3 v3 = default;
-				DecodeVector3(propInfo.ArrayElementProp, ref v3);
+				DecodeVector3(propInfo.ArrayElementProp, out Vector3 v3);
 				result.Add(v3);
 			}
 			return result;
@@ -189,8 +187,7 @@ namespace DemoParser.Utils.BitStreams {
 			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.Elements.Value) + 1);
 			List<Vector2> result = new List<Vector2>(count);
 			for (int i = 0; i < count; i++) {
-				Vector2 v2 = default;
-				DecodeVector2(propInfo.ArrayElementProp, ref v2);
+				DecodeVector2(propInfo.ArrayElementProp, out Vector2 v2);
 				result.Add(v2);
 			}
 			return result;
@@ -240,18 +237,15 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public float ReadBitAngle(int bitCount) {
-			float shift = 1 << bitCount;
-			uint i = ReadBitsAsUInt(bitCount);
-			return i * (360f / shift);
+			return ReadBitsAsUInt(bitCount) * (360f / (1 << bitCount));
 		}
 
 
-		public Vector3 ReadVectorCoord() {
+		public void ReadVectorCoord(out Vector3 vec3) {
 			var exists = new {x = ReadBool(), y = ReadBool(), z = ReadBool()};
-			return new Vector3 {
-				X = exists.x ? ReadBitCoord() : 0, 
-				Y = exists.y ? ReadBitCoord() : 0, 
-				Z = exists.z ? ReadBitCoord() : 0};
+			vec3.X = exists.x ? ReadBitCoord() : 0;
+			vec3.Y = exists.y ? ReadBitCoord() : 0;
+			vec3.Z = exists.z ? ReadBitCoord() : 0;
 		}
 	}
 

@@ -25,8 +25,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			eHandle = bsr.ReadUInt();
 			PortalledEntIndex = (int)(eHandle & ((1 << DemoSettings.MaxEdictBits) - 1));
 			PortalledEntSerialNum = (int)(eHandle >> DemoSettings.MaxEdictBits);
-			NewPosition = bsr.ReadVector3();
-			NewAngles = bsr.ReadVector3();
+			bsr.ReadVector3(out NewPosition);
+			bsr.ReadVector3(out NewAngles);
 		}
 		
 

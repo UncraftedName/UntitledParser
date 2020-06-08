@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			Pos = bsr.ReadVectorCoord();
+			bsr.ReadVectorCoord(out Pos);
 			DecalTextureIndex = (int)bsr.ReadBitsAsUInt(9);
 			if (bsr.ReadBool()) {
 				EntityIndex = bsr.ReadBitsAsUInt(11);
