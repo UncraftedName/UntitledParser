@@ -14,7 +14,7 @@ namespace DemoParser.Parser.Components.Packets {
 	 * sign on data. The general structure of this packet looks like this:
 	 * [bunch of unknown data], [size of remaining data (I think, regardless we ignore this)], [messages].
 	 * The unknown data poses the biggest problem since its size is game-dependent, and as far as I know can only be
-	 * found with a brute force search. I don't know the contents of that data yet, so I simple skip over it. The
+	 * found with a brute force search. I don't know the contents of that data yet, so I simply skip over it. The
 	 * messages contain the server info (which is very juicy) and the creation of the string tables. Since most games
 	 * also have a string tables packet, I'm not sure what the purpose of having that data twice is...
 	 */
