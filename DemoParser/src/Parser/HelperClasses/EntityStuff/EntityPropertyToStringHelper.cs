@@ -74,9 +74,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				case DisplayType.Color:
 					return $"0x{val:X8}";
 				case DisplayType.Handle:
-					return val == (1 << (11 + 10)) - 1 // 10 = NUM_NETWORKED_EHANDLE_BITS
+					return val == (1 << (DemoSettings.MaxEdictBits + DemoSettings.NumNetworkedEHandleBits)) - 1
 						? "null"
-						: $"(index: {val & ((1 << 11) - 1)}, serial: {val >> 11})"; // 11 = MAX_EDICT_BITS
+						: $"(index: {val & (DemoSettings.MaxEdicts - 1)}, serial: {val >> DemoSettings.MaxEdictBits})";
 				default:
 					return EntityPropertyEnumManager.CreateEnumPropStr(val, displayType); // must be last
 			}
@@ -93,7 +93,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				case DisplayType.Vector3:
 					return val.ToString();
 				case DisplayType.Angles:
-					return $"<{val.X}°, {val.Y}°, {val.Z}°>";
+					return $"<{val.X}°, {val.Y}°, {val.Z}°>"; // i want full precision
 				default:
 					throw E;
 			}

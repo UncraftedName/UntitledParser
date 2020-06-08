@@ -7,7 +7,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 	// a part of each table entry in the "userinfo" string table
 	public class UserInfo : StringTableEntryData {
 
-		// new engine only
+		// orange box only
 		public uint? Version;
 		public uint? Xuid;
 		
@@ -26,7 +26,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 
 		internal override void ParseStream(BitStreamReader bsr) {
-			if (DemoSettings.NewEngine) {
+			if (DemoSettings.OrangeBox) {
 				Version = bsr.ReadUInt();
 				Xuid = bsr.ReadUInt();
 			}
@@ -66,7 +66,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"({ParserTextUtils.CamelCaseToUnderscore(GetType().Name)})");
-			if (DemoSettings.NewEngine) {
+			if (DemoSettings.OrangeBox) {
 				iw.AppendLine($"version: {Version}");
 				iw.AppendLine($"XUID: {Xuid}");
 			}

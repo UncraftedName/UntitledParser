@@ -110,12 +110,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public Vector3 Value;
 		
-		public Vec3EntProp(FlattenedProp propInfo, Vector3 value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+		public Vec3EntProp(FlattenedProp propInfo, ref Vector3 value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new Vec3EntProp(PropInfo, Value, Offset, BitLength);
+			return new Vec3EntProp(PropInfo, ref Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -137,12 +137,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public Vector2 Value;
 		
-		public Vec2EntProp(FlattenedProp propInfo, Vector2 value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+		public Vec2EntProp(FlattenedProp propInfo, ref Vector2 value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new Vec2EntProp(PropInfo, Value, Offset, BitLength);
+			return new Vec2EntProp(PropInfo, ref Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -384,13 +384,11 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 						float f = bsr.DecodeFloat(prop.Prop);
 						return new FloatEntProp(prop, f, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Vector3:
-						Vector3 v3 = default;
-						bsr.DecodeVector3(prop.Prop, ref v3);
-						return new Vec3EntProp(prop, v3, offset, bsr.AbsoluteBitIndex - offset);
+						bsr.DecodeVector3(prop.Prop, out Vector3 v3);
+						return new Vec3EntProp(prop, ref v3, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Vector2:
-						Vector2 v2 = default;
-						bsr.DecodeVector2(prop.Prop, ref v2);
-						return new Vec2EntProp(prop, v2, offset, bsr.AbsoluteBitIndex - offset);
+						bsr.DecodeVector2(prop.Prop, out Vector2 v2);
+						return new Vec2EntProp(prop, ref v2, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.String:
 						string s = bsr.DecodeString();
 						return new StringEntProp(prop, s, offset, bsr.AbsoluteBitIndex - offset);
@@ -420,13 +418,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			var props = new List<(int propIndex, EntityProperty prop)>();
 			
 			int i = -1;
-			if (demoRef.DemoSettings.NewEngine) {
+			if (demoRef.DemoSettings.OrangeBox) {
 				bool newWay = bsr.ReadBool();
 				while ((i = bsr.ReadFieldIndex(i, newWay)) != -1) {
+					int tmp = bsr.CurrentBitIndex; // this is a botched fix, seems to work for now todo make sure flag is right
 					props.Add((i, CreateAndReadProp(fProps[i], bsr)));
-					// temporary fix
 					if ((fProps[i].Prop.Flags & SendPropFlags.CoordMpIntegral) != 0)
-						bsr.SkipBits(24);
+						bsr.CurrentBitIndex = tmp + 30;
 				}
 			} else {
 				while (bsr.ReadBool()) {

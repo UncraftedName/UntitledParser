@@ -14,7 +14,7 @@ using DemoParser.Utils.BitStreams;
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 	
 	// this is the baseline in the string tables, each one only holds the baseline for a single server class
-	public class InstanceBaseLine : StringTableEntryData {
+	public class InstanceBaseline : StringTableEntryData {
 
 		private readonly string _entryName;
 		private BitStreamReader _bsr;
@@ -24,7 +24,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public List<(int propIndex, EntityProperty prop)> Properties;
 
 
-		public InstanceBaseLine(SourceDemo demoRef, BitStreamReader reader, string entryName,
+		public InstanceBaseline(SourceDemo demoRef, BitStreamReader reader, string entryName,
 			PropLookup? propLookup) : base(demoRef, reader) 
 		{
 			_entryName = entryName;
@@ -58,6 +58,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 				// once we're done, update the C_baselines so I can actually use this for prop creation
 				if (DemoSettings.ProcessEnts)
 					DemoRef.CBaseLines?.UpdateBaseLine(ServerClassRef, Properties, fProps.Count);
+				//Console.WriteLine(ServerClassRef.ClassName + ": " + _bsr.BitsRemaining);
 			} catch (Exception e) {
 				DemoRef.AddError($"error while parsing baseline for class {ServerClassRef.ClassName}: {e.Message}");
 			}

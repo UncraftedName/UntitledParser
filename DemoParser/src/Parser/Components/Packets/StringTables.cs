@@ -66,7 +66,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public string Name;
 		public List<StringTableEntry>? TableEntries;
 		public List<StringTableClass>? Classes;
-		internal ushort? MaxEntries; // initialized in the manager
+		internal short? MaxEntries; // initialized in the manager
 
 
 		public StringTable(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}

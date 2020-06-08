@@ -26,7 +26,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		// gets the packet type associated with this byte value
 		public static PacketType ByteToPacketType(DemoSettings demoSettings, byte byteValue) {
 			var def = (PacketType)byteValue;
-			if (demoSettings.NewEngine)
+			if (demoSettings.OrangeBox)
 				return NewEngineMapper.GetValueOrDefault(byteValue, def);
 			else if (demoSettings.Game == SourceGame.PORTAL_1_3420)
 				return Portal3420Mapper.GetValueOrDefault(byteValue, def);
@@ -37,7 +37,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		// gets the byte value associated with this packet type
 		public static byte PacketTypeToByte(DemoSettings demoSettings, PacketType packetType) {
 			var def = (byte)packetType;
-			if (demoSettings.NewEngine)
+			if (demoSettings.OrangeBox)
 				return NewEngineMapper.GetValueOrDefault(packetType, def);
 			else if (demoSettings.Game == SourceGame.PORTAL_1_3420)
 				return Portal3420Mapper.GetValueOrDefault(packetType, def);

@@ -17,7 +17,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public byte PlayerCount;
 		public byte MaxClients;
 		private BitStreamReader _unknown;
-		public BitStreamReader Unknown => _unknown.FromBeginning();
+		public BitStreamReader Unknown => _unknown?.FromBeginning();
 		public float TickInterval;
 		public char Platform;
 		public string GameDir;
@@ -39,15 +39,10 @@ namespace DemoParser.Parser.Components.Messages {
 			MapCrc = bsr.ReadUInt(); // network protocol < 18
 			PlayerCount = bsr.ReadByte();
 			MaxClients = bsr.ReadByte();
-			if (DemoSettings.Game == SourceGame.L4D2_2042) {
-				_unknown = bsr.SubStream(33);
-				bsr.SkipBits(33);
-			} else if (DemoSettings.NewEngine) {
-				_unknown = bsr.SubStream(32);
-				bsr.SkipBytes(4);
-			} else if (DemoRef.Header.NetworkProtocol == 24) {
-				_unknown = bsr.SubStream(96);
-				bsr.SkipBytes(12);
+			int skip = DemoSettings.SvcServerInfoUnknownBits; // todo
+			if (skip != 0) {
+				_unknown = bsr.SubStream(skip);
+				bsr.SkipBits(skip);
 			}
 			TickInterval = bsr.ReadFloat();
 			Platform = (char)bsr.ReadByte();
@@ -83,8 +78,9 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.AppendLine($"server map CRC: {MapCrc}"); // change to hex?
 			iw.AppendLine($"current player count: {PlayerCount}");
 			iw.AppendLine($"max player count: {MaxClients}");
-			if (_unknown != null)
-				iw.AppendLine($"unknown: 0x{Unknown.ToHexString().Replace(" ", " 0x")}");
+			int unknownCount = DemoSettings.SvcServerInfoUnknownBits;
+			if (unknownCount != 0)
+				iw.AppendLine($"{unknownCount} unknown bits: 0x{Unknown.ToHexString().Replace(" ", " 0x")}");
 			iw.AppendLine($"interval per tick: {TickInterval}");
 			iw.AppendLine($"platform: {Platform}");
 			iw.AppendLine($"game directory: {GameDir}");

@@ -9,7 +9,7 @@ using DemoParser.Utils.BitStreams;
 namespace DemoParser.Parser.Components {
 	
 	/// <summary>
-	/// A special class to handle parsing an arbitrary amount of messages that immediately follow each other.
+	/// A special class to handle parsing an arbitrary amount of consecutive net/svc messages.
 	/// </summary>
 	public class MessageStream : DemoComponent, IEnumerable<(MessageType messageType, DemoMessage message)> {
 		

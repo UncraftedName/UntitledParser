@@ -45,8 +45,8 @@ namespace DemoParser.Parser.HelperClasses {
 				List<FlattenedProp> fProps = FlattenedProps[currentClass.DataTableId].flattenedProps;
 
 				// Now we have the props, rearrange them so that props that are marked with 'changes often' get a
-				// smaller index. In new engine the priority of the props is also taken into account.
-				if (_demoRef.DemoSettings.NewEngine) {
+				// smaller index. In orange box the priority of the props is also taken into account.
+				if (_demoRef.DemoSettings.OrangeBox) {
 					List<int> priorities = new List<int>(); // csgo parser inits this with 64, literally no clue why
 					priorities.AddRange(fProps.Select(entry => entry.Prop.Priority.Value).Distinct());
 					priorities.Sort();
@@ -103,7 +103,7 @@ namespace DemoParser.Parser.HelperClasses {
 			if (_demoRef.CStringTablesManager.TableReadable.GetValueOrDefault(TableNames.InstanceBaseLine)) {
 				_demoRef.CStringTablesManager.Tables[TableNames.InstanceBaseLine]
 					.Entries.ToList()
-					.ForEach(entry => ((InstanceBaseLine)entry.EntryData).ParseBaseLineData(FlattenedProps));
+					.ForEach(entry => ((InstanceBaseline)entry.EntryData).ParseBaseLineData(FlattenedProps));
 			}
 		}
 

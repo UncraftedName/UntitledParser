@@ -25,7 +25,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			return tableName switch {
 				TableNames.UserInfo          => new UserInfo(demoRef, bsr),
 				TableNames.ServerQueryInfo   => new QueryPort(demoRef, bsr),
-				TableNames.InstanceBaseLine  => new InstanceBaseLine(demoRef, bsr, entryName, propLookup),
+				TableNames.InstanceBaseLine  => new InstanceBaseline(demoRef, bsr, entryName, propLookup),
 				TableNames.GameRulesCreation => new GameRulesCreation(demoRef, bsr),
 				_ => new UnknownStringTableEntryData(demoRef, bsr)
 			};
