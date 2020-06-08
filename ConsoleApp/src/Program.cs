@@ -366,11 +366,7 @@ namespace ConsoleApp {
 					}
 					catch (Exception e) {
 						Debug.WriteLine(e.ToString());
-						Console.Write("failed.\nMessage: ");
-						var originalColor = Console.ForegroundColor;
-						Console.ForegroundColor = ConsoleColor.Red;
-						Console.WriteLine(e.Message);
-						Console.ForegroundColor = originalColor;
+						ConsoleWriteWithColor("failed.\nMessage: " + e.Message, ConsoleColor.Red);
 						if (quickHashesMatch)
 							DemoTickCounts.Add((int.MinValue, int.MinValue));
 					}
@@ -385,14 +381,10 @@ namespace ConsoleApp {
 				}
 
 				if (link) {
-					if (quickHashesMatch) {
+					if (quickHashesMatch)
 						ConsFunc_LinkDemos();
-					} else {
-						var origColor = Console.ForegroundColor;
-						Console.ForegroundColor = ConsoleColor.Red;
-						Console.WriteLine("Cannot link demos - The game directory and/or demo version doesn't match!");
-						Console.ForegroundColor = origColor;
-					}
+					else
+						ConsoleWriteWithColor("Cannot link demos - The game directory and/or demo version doesn't match!\n", ConsoleColor.Red);
 				}
 
 				if (quickHashesMatch && implicitOptions.listDemo)
@@ -465,6 +457,14 @@ namespace ConsoleApp {
 		private static void PrintVersionInfo() {
 			DateTime dt = BuildDateAttribute.GetBuildDate(Assembly.GetExecutingAssembly());
 			Console.WriteLine($"Build time: {dt.ToString("R", CultureInfo.CurrentCulture)}");
+		}
+
+
+		private static void ConsoleWriteWithColor(string s, ConsoleColor color) {
+			var original = Console.ForegroundColor;
+			Console.ForegroundColor = color;
+			Console.Write(s);
+			Console.ForegroundColor = original;
 		}
 	}
 
