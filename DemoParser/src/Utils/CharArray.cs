@@ -1,8 +1,9 @@
+#nullable enable
 using System;
 
 namespace DemoParser.Utils {
 	
-	public class CharArray {
+	public struct CharArray {
 
 		private readonly int _length;
 		private string _str;
@@ -16,11 +17,7 @@ namespace DemoParser.Utils {
 			}
 		}
 
-
-		public CharArray(string str, int length) {
-			_length = length;
-			Str = str;
-		}
+		public static implicit operator string(CharArray ca) => ca._str;
 
 
 		public CharArray(byte[] bytes) {
@@ -36,6 +33,16 @@ namespace DemoParser.Utils {
 
 		public override string ToString() {
 			return _str;
+		}
+
+
+		public override bool Equals(object? obj) {
+			return obj is CharArray charArray && charArray._str == _str;
+		}
+
+
+		public override int GetHashCode() {
+			return _str.GetHashCode();
 		}
 	}
 }
