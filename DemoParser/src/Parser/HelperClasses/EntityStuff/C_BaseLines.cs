@@ -9,7 +9,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
     public class C_BaseLines {
 
         /*
-         The baseline is an array of all server classes and their default properties.
+        The baseline is an array of all server classes and their default properties.
         However, a server class will not appear in the demo unless it is actually used in the level, 
         therefore any element of the baseline will be null until that corresponding slot is initialized.
         In addition, once initialized, apparently not every property for a given class
@@ -67,8 +67,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
                 _demoRef.AddError("attempted to create entity from a non-existing baseline, " +
                                   $"creating new empty baseline for class: ({serverClass.ToString()})");
                 
-                (_, List<FlattenedProp> fProps) = _demoRef.DataTableParser.FlattenedProps[classIndex];
-                props = new EntityProperty?[fProps.Count];
+                List<FlattenedProp> fProps = _demoRef.DataTableParser.FlattenedProps[classIndex].flattenedProps;
+                props = new EntityProperty[fProps.Count];
                 ClassBaselines[classIndex].serverClass = serverClass;
             }
             
