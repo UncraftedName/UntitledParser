@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components;
+using DemoParser.Parser.HelperClasses;
 using static DemoParser.Parser.SourceGame;
 
 namespace DemoParser.Parser {
@@ -16,21 +18,24 @@ namespace DemoParser.Parser {
 		public const int MaxEdictBits = 11;
 		public const int MaxEdicts = 1 << MaxEdictBits;
 		public const int SubStringBits = 5;
+		public const int NumNetworkedEHandleBits = 10;
+		public const int MaxUserDataBits = 14;
+		public const uint HandleSerialNumberBits = 10;
 		
 		// initialized below
 		public readonly SourceGame Game;
 		public readonly int MaxSplitscreenPlayers;
 		public readonly int SignOnGarbageBytes;
+		public readonly int SvcServerInfoUnknownBits;
 		public float TickInterval; // to be determined while parsing in SvcServerInfo
-		public readonly bool ProcessEnts; // don't try to do entity stuff unless I'm testing or have explicit support
+		public readonly bool ProcessEnts; // only do ent stuff if you're testing or the game is supported
+		internal readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		
 		// these can be evaluated using simple expressions
-		public bool NewEngine => _header.DemoProtocol == 4;
-		public bool HasPlayerSlot => NewEngine; // "alignment byte" in nekz' parser
+		public bool OrangeBox => _header.DemoProtocol == 4; // "new engine" in nekz' parser
+		public bool HasPlayerSlot => OrangeBox; // "alignment byte" in nekz' parser
 		public int NetMsgTypeBits => _header.NetworkProtocol == 14 ? 5 : 6;
-		public int UserMessageLengthBits => NewEngine && Game != L4D2_2042 ? 12 : 11;
-		public int MaxUserDataBits => 14;
-		public uint HandleSerialNumberBits => 10;
+		public int UserMessageLengthBits => OrangeBox && Game != L4D2_2042 ? 12 : 11;
 
 
 		public DemoSettings(DemoHeader h) {
@@ -59,6 +64,15 @@ namespace DemoParser.Parser {
 					Console.WriteLine($"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n");
 					break;
 			}
+
+			if (Game == L4D2_2042)
+				SvcServerInfoUnknownBits = 33;
+			else if (OrangeBox)
+				SvcServerInfoUnknownBits = 32;
+			else if (_header.NetworkProtocol == 24)
+				SvcServerInfoUnknownBits = 96;
+			else
+				SvcServerInfoUnknownBits = 0;
 
 			switch (Game) {
 				case PORTAL_1_UNPACK:
@@ -89,6 +103,7 @@ namespace DemoParser.Parser {
 #if FORCE_PROCESS_ENTS
 			ProcessEnts = true; // be prepared for lots of exceptions
 #endif
+			TimeAdjustmentTypes = TimingAdjustment.AdjustmentTypeFromMap(h.MapName, Game);
 		}
 	}
 	
