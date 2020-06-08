@@ -1,4 +1,5 @@
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -19,6 +20,7 @@ namespace DemoParser.Parser.Components.Packets {
 			bsr.SkipBytes(4); // size of packet
 			Command = bsr.ReadNullTerminatedString();
 			SetLocalStreamEnd(bsr);
+			TimingAdjustment.AdjustFromConsoleCmd(this);
 		}
 		
 

@@ -14,8 +14,10 @@
           </e>
         </e>
         <e p="src" t="Include">
+          <e p="BuildDateAttribute.cs" t="Include" />
           <e p="ConsoleFunctions.cs" t="Include" />
           <e p="DirOrPath.cs" t="Include" />
+          <e p="NaturalSort.cs" t="Include" />
           <e p="Program.cs" t="Include" />
           <e p="ProgressBar.cs" t="Include" />
         </e>
@@ -140,6 +142,7 @@
                 <e p="EntityUpdate.cs" t="Include" />
               </e>
               <e p="GameEventManager.cs" t="Include" />
+              <e p="TimingAdjustment.cs" t="Include" />
             </e>
             <e p="SourceDemo.cs" t="Include" />
           </e>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
@@ -9,6 +10,7 @@ using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Parser.Components.Packets;
+using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -19,8 +21,12 @@ namespace ConsoleApp {
 		private static string _folderPath;
 		private static TextWriter _curTextWriter;
 		private static BinaryWriter _curBinWriter;
+		// I only save all demos if I need to
 		private static readonly List<SourceDemo> Demos = new List<SourceDemo>();
 		private static SourceDemo CurDemo => Demos[^1];
+		private static readonly List<(int ticks, int adjustedTicks)> DemoTickCounts = new List<(int, int)>();
+		private static int _runnableOptionCount;
+		private static bool _displayMapExcludedMsg;
 
 
 		private static void SetTextWriter(string suffix) {
@@ -45,6 +51,29 @@ namespace ConsoleApp {
 		}
 
 
+		private static int CurDemoHeaderQuickHash() {
+			DemoHeader h = CurDemo.Header;
+			//return HashCode.Combine(h.GameDirectory, h.NetworkProtocol, h.DemoProtocol);
+			return HashCode.Combine(h.NetworkProtocol, h.DemoProtocol);
+		}
+
+		
+		private static string FormatTime(double seconds) {
+			// timespan truncates values, (makes sense since 0.5 minutes is still 0 total minutes) so I round manually
+			TimeSpan t = TimeSpan.FromSeconds(seconds);
+			int roundedMilli = t.Milliseconds + (int)Math.Round(t.TotalMilliseconds - (long)t.TotalMilliseconds);
+			if (t.Hours > 0)
+				return $"{t.Hours:D1}:{t.Minutes:D2}:{t.Seconds:D2}.{roundedMilli:D3}";
+			else if (t.Minutes > 0)
+				return $"{t.Minutes:D1}:{t.Seconds:D2}.{roundedMilli:D3}";
+			else
+				return $"{t.Seconds:D1}.{roundedMilli:D3}";
+		}
+		
+		
+		#region ConsFunc
+		
+
 		private static void ConsFunc_VerboseDump() {
 			SetTextWriter("verbose dump");
 			Console.WriteLine("Dumping verbose output...");
@@ -55,7 +84,7 @@ namespace ConsoleApp {
 		// this is basically copied from the old parser, i'll think about improving this
 		private static void ConsFunc_ListDemo(ListdemoOption listdemoOption, bool printWriteMsg) {
 			SetTextWriter("listdemo++");
-			if (printWriteMsg)
+			if (printWriteMsg && _runnableOptionCount > 1)
 				Console.WriteLine("Writing listdemo+ output...");
 			ConsoleColor originalColor = Console.ForegroundColor;
 			if (!CurDemo.FilterForPacket<Packet>().Any()) {
@@ -82,24 +111,16 @@ namespace ConsoleApp {
 				new Regex("^autosave$"), 
 				new Regex("^autosavedangerous$"), 
 				new Regex("^autosavedangerousissafe$"),
-				new Regex("^startneurotoxins 99999$")
 			};
 			// all appended by "detected on tick..."
 			string[] names = {
 				"Autosavedangerous command",
 				"Autosavedangerousissafe command",
-				"Autosave command",
-				"End of game"
+				"Autosave command"
 			};
-			ConsoleColor[] colors = {
-				ConsoleColor.DarkYellow,
-				ConsoleColor.DarkYellow,
-				ConsoleColor.DarkYellow,
-				ConsoleColor.Green
-			};
+			Console.ForegroundColor = ConsoleColor.DarkYellow;
 			for (int i = 0; i < regexes.Length; i++) {
 				foreach (ConsoleCmd cmd in CurDemo.FilterForRegexMatches(regexes[i]).DistinctBy(cmd => cmd.Tick)) {
-					Console.ForegroundColor = colors[i];
 					_curTextWriter.WriteLine($"{names[i]} detected on tick {cmd.Tick}, " +
 											 $"time {cmd.Tick * CurDemo.DemoSettings.TickInterval:F3}");
 				}
@@ -125,6 +146,8 @@ namespace ConsoleApp {
 						)
 				.Select(pair => Tuple.Create(pair.Key, pair.Value));
  
+			double tickInterval = CurDemo.DemoSettings.TickInterval;
+			
 			foreach ((string flagName, List<int> ticks) in flagGroups) {
 				
 				Console.ForegroundColor = Console.ForegroundColor == ConsoleColor.Yellow 
@@ -132,30 +155,79 @@ namespace ConsoleApp {
 					: ConsoleColor.Yellow;
 				
 				foreach (int i in ticks) {
-					_curTextWriter.WriteLine($"'{flagName}' flag detected on tick {i}, " +
-											 $"time {i * CurDemo.DemoSettings.TickInterval:F3}");
+					_curTextWriter.WriteLine(
+						$"'{flagName}' flag detected on tick {i}, time {i * tickInterval:F3}");
 				}
 			}
  
+			if (listdemoOption == ListdemoOption.DisplayHeader)
+				Console.WriteLine();
+			
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			_curTextWriter.WriteLine(
-				$"\n{"Measured time: ",  -25}: {(CurDemo.TickCount() - 1) * CurDemo.DemoSettings.TickInterval:F3}" +
-				$"\n{"Measured ticks: ", -25}: {(CurDemo.TickCount() - 1)}\n");
+				$"{"Measured time ",  -25}: {FormatTime((CurDemo.TickCount() - 1) * tickInterval)}" +
+				$"\n{"Measured ticks ", -25}: {CurDemo.TickCount() - 1}");
+
+			if (CurDemo.TickCount() != CurDemo.AdjustedTickCount()) {
+				_curTextWriter.WriteLine(
+					$"{"Adjusted time ",-25}: {FormatTime((CurDemo.AdjustedTickCount() - 1) *  tickInterval)}");
+				_curTextWriter.Write($"{"Adjusted ticks ",-25}: {CurDemo.AdjustedTickCount() - 1}");
+				_curTextWriter.WriteLine($" ({CurDemo.StartAdjustmentTick}-{CurDemo.EndAdjustmentTick})");
+			}
+
+			if (_displayMapExcludedMsg) {
+				Console.ForegroundColor = ConsoleColor.DarkCyan;
+				Console.WriteLine("(This map will be excluded from the total time)");
+			}
+
+			Console.ForegroundColor = originalColor;
+			
+			if (listdemoOption == ListdemoOption.DisplayHeader)
+				Console.WriteLine();
+		}
+
+
+
+		private static void ConsFunc_DisplayTotalTime() {
+			ConsoleColor originalColor = Console.ForegroundColor;
+			
+			if (DemoTickCounts.Any(tuple => tuple.ticks == int.MinValue)) { // some exception was thrown
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine("There was an issue while calculating the total time, timing may be incorrect.");
+			}
+			
+			Console.ForegroundColor = ConsoleColor.Green;
+			
+			int totalTicks = DemoTickCounts
+				.Where(tuple => tuple.ticks != int.MinValue)
+				.Select(tuple => tuple.ticks - 1)
+				.Sum();
+			int totalAdjustedTicks = DemoTickCounts
+				.Where(tuple => tuple.adjustedTicks != int.MinValue)
+				.Select(tuple => tuple.adjustedTicks - 1)
+				.Sum();
+			float tickInterval = CurDemo.DemoSettings.TickInterval;
+			Console.WriteLine($"\n{"Total measured time ",  -25}: {FormatTime(totalTicks * tickInterval)}");
+			Console.WriteLine($"{"Total measured ticks ",   -25}: {totalTicks}");
+			if (totalTicks != totalAdjustedTicks) {
+				Console.WriteLine($"{"Total adjusted time ",  -25}: {FormatTime(totalAdjustedTicks * tickInterval)}");
+				Console.WriteLine($"{"Total adjusted ticks ", -25}: {totalAdjustedTicks}");
+			}
+			
 			Console.ForegroundColor = originalColor;
 		}
 
 
 		private static void ConsFunc_RegexSearch(string pattern) {
-			SetTextWriter("regex matches");
-			Console.Write("Finding regex matches...");
+			if (_runnableOptionCount > 1)
+				Console.Write("Finding regex matches...");
 			List<ConsoleCmd> matches = CurDemo.FilterForRegexMatches(new Regex(pattern)).ToList();
 			if (matches.Count == 0) {
-				const string s = "no matches found";
-				Console.WriteLine($" {s}");
-				if (_curTextWriter != Console.Out)
-					_curTextWriter.WriteLine(s);
+				Console.WriteLine(" no matches found");
 			} else {
-				Console.WriteLine();
+				if (_runnableOptionCount > 1)
+					Console.WriteLine();
+				SetTextWriter("regex matches");
 				matches.ForEach(cmd => {_curTextWriter.WriteLine($"[{cmd.Tick}] {cmd.Command}");});
 			}
 		}
@@ -163,7 +235,8 @@ namespace ConsoleApp {
 
 		private static void ConsFunc_DumpJumps() {
 			SetTextWriter("jump dump");
-			Console.Write("Finding jumps...");
+			if (_runnableOptionCount > 1)
+				Console.Write("Finding jumps...");
 			List<ConsoleCmd> matches = CurDemo.FilterForRegexMatches(new Regex("[-+]jump")).ToList();
 			if (matches.Count == 0) {
 				const string s = "no jumps found";
@@ -179,7 +252,8 @@ namespace ConsoleApp {
 
 		private static void ConsFunc_DumpCheats() {
 			SetTextWriter("cheat dump");
-			Console.WriteLine("Finding cheats...");
+			if (_runnableOptionCount > 1)
+				Console.WriteLine("Finding cheats...");
 			List<ConsoleCmd> matches = CurDemo.FilterForRegexMatches(new Regex(new[] {
 				"host_timescale", "god", "sv_cheats", "buddha", "host_framerate", "sv_accelerate", "gravity", 
 				"sv_airaccelerate", "noclip", "impulse", "ent_", "sv_gravity", "upgrade_portalgun", 
@@ -199,12 +273,19 @@ namespace ConsoleApp {
 
 
 		private static void ConsFunc_RemoveCaptions() {
-			SetBinaryWriter("captions_removed", "dem");
-			Console.WriteLine("Removing captions...");
+			if (_runnableOptionCount > 1)
+				Console.Write("Removing captions...");
 			
-			var closeCaptionPackets = CurDemo.FilterForPacket<Packet>()
+			Packet[] closeCaptionPackets = CurDemo.FilterForPacket<Packet>()
 				.Where(packet => packet.FilterForMessage<SvcUserMessageFrame>()
 					.Any(frame => frame.UserMessageType == UserMessageType.CloseCaption)).ToArray();
+
+			if (closeCaptionPackets.Length == 0) {
+				Console.WriteLine(" no captions found");
+				return;
+			}
+			SetBinaryWriter("captions_removed", "dem");
+			Console.WriteLine();
 			
 			int changedPackets = 0;
 			_curBinWriter.Write(CurDemo.Header.Reader.ReadRemainingBits().bytes);
@@ -239,13 +320,30 @@ namespace ConsoleApp {
 		}
 
 
-		private static void ConsFunc_DumpDataTables() {
+		private static void ConsFunc_DumpDataTables(DataTablesDispType dispType) {
 			SetTextWriter("data tables dump");
-			Console.WriteLine("Dumping data tables...");
+			if (_runnableOptionCount > 1)
+				Console.WriteLine("Dumping data tables...");
 			foreach ((DataTables tables, int j) in CurDemo.FilterForPacket<DataTables>().Select((tables, i) => (tables, i))) {
 				if (j > 0)
 					_curTextWriter.Write("\n\n\n");
-				_curTextWriter.WriteLine(tables.ToString());
+				if (dispType == DataTablesDispType.Default) {
+					_curTextWriter.WriteLine(tables.ToString());
+				} else {
+					var tableParser = new DataTableParser(CurDemo, tables);
+					tableParser.FlattenClasses();
+					foreach ((ServerClass sClass, List<FlattenedProp> fProps) in tableParser.FlattenedProps) {
+						_curTextWriter.WriteLine($"{sClass.ClassName} ({sClass.DataTableName}) ({fProps.Count} props):");
+						for (var i = 0; i < fProps.Count; i++) {
+							FlattenedProp fProp = fProps[i];
+							_curTextWriter.Write($"\t({i}): ");
+							_curTextWriter.Write(fProp.TypeString().PadRight(12));
+							_curTextWriter.WriteLine(fProp.ArrayElementProp == null
+								? fProp.Prop.ToStringNoType()
+								: fProp.ArrayElementProp.ToStringNoType());
+						}
+					}
+				}
 				_curTextWriter.Write("\n\nClass hierarchy:\n\n");
 				_curTextWriter.Write(new DataTableTree(tables, true));
 			}
@@ -254,7 +352,8 @@ namespace ConsoleApp {
 
 		private static void ConsFunc_DumpActions(ActPressedDispType opt) {
 			SetTextWriter("actions pressed");
-			Console.WriteLine("Getting actions pressed...");
+			if (_runnableOptionCount > 1)
+				Console.WriteLine("Getting actions pressed...");
 			foreach (UserCmd userCmd in CurDemo.FilterForPacket<UserCmd>()) {
 				_curTextWriter.Write($"[{userCmd.Tick}] ");
 				if (!userCmd.Buttons.HasValue) {
@@ -282,7 +381,8 @@ namespace ConsoleApp {
 		// todo when I store references to entities, add portal color info here as well
 		private static void ConsFunc_PortalsPassed(PtpFilterType filterType) {
 			SetTextWriter("portals passed");
-			Console.Write("Finding passing through portals...");
+			if (_runnableOptionCount > 1)
+				Console.Write("Finding passing through portals...");
 			bool playerOnly = filterType == PtpFilterType.PlayerOnly || filterType == PtpFilterType.PlayerOnlyVerbose;
 			bool verbose = filterType == PtpFilterType.PlayerOnlyVerbose || filterType == PtpFilterType.AllEntitiesVerbose;
 			var msgList = CurDemo.FilterForUserMessage<EntityPortalled>().ToList();
@@ -307,15 +407,63 @@ namespace ConsoleApp {
 
 
 		private static void ConsFunc_Errors() {
-			SetTextWriter("errors");
-			Console.Write("Getting errors during parsing... ");
+			if (_runnableOptionCount > 1)
+				Console.Write("Getting errors during parsing... ");
 			if (CurDemo.ErrorList.Count == 0) {
-				_curTextWriter.WriteLine("no errors");
-				if (_curTextWriter != Console.Out)
-					Console.WriteLine();
+				Console.WriteLine("no errors");
 			} else {
 				Console.WriteLine();
+				SetTextWriter("errors");
 				CurDemo.ErrorList.ForEach(s => _curTextWriter.WriteLine(s));
+			}
+		}
+
+
+		private static void ConsFunc_ChangeDemoDir(string dir) {
+			Console.Write("Changing demo dir");
+			string old = CurDemo.Header.GameDirectory;
+			if (CurDemo.Header.GameDirectory == dir) {
+				Console.WriteLine("... demo directories match!");
+			} else {
+				Console.Write($@" from ""{old}"" to ""{dir}""... ");
+				SetBinaryWriter("changed_dir", "dem");
+				int lenDiff = dir.Length - old.Length;
+				BitStreamReader bsr = CurDemo.Reader;
+				byte[] dirBytes = Encoding.ASCII.GetBytes(dir);
+				
+				_curBinWriter.Write(bsr.ReadBytes(796));
+				_curBinWriter.Write(dirBytes); // header doesn't matter but I change it anyway
+				_curBinWriter.Write(new byte[260 - dir.Length]);
+				bsr.SkipBytes(260);
+				_curBinWriter.Write(bsr.ReadBytes(12));
+				// change header signOn byteCount; this number might be wrong if the endianness is big but whatever
+				_curBinWriter.Write((uint)(bsr.ReadUInt() + lenDiff)); 
+
+				foreach (SignOn signOn in CurDemo.FilterForPacket<SignOn>().Where(signOn => signOn.FilterForMessage<SvcServerInfo>().Any())) {
+					// catch up to signOn packet
+					int byteCount = (signOn.Reader.AbsoluteBitIndex - bsr.AbsoluteBitIndex) / 8;
+					_curBinWriter.Write(bsr.ReadBytes(byteCount));
+					bsr.SkipBits(signOn.Reader.BitLength);
+					
+					BitStreamWriter bsw = new BitStreamWriter();
+					BitStreamReader signOnReader = signOn.Reader;
+					bsw.WriteBits(signOnReader.ReadRemainingBits());
+					signOnReader = signOnReader.FromBeginning();
+					int bytesToMessageStreamSize = CurDemo.DemoSettings.SignOnGarbageBytes + 8;
+					signOnReader.SkipBytes(bytesToMessageStreamSize);
+					// edit the message stream length - read uint, and edit at index before the reading of said uint
+					bsw.EditIntAtIndex((int)(signOnReader.ReadUInt() + lenDiff), signOnReader.CurrentBitIndex - 32, 32);
+					
+					// actually change the game dir
+					SvcServerInfo serverInfo = signOn.FilterForMessage<SvcServerInfo>().Single();
+					int editIndex = serverInfo.Reader.AbsoluteBitIndex - signOn.Reader.AbsoluteBitIndex + 186 + CurDemo.DemoSettings.SvcServerInfoUnknownBits;
+					bsw.RemoveBitsAtIndex(editIndex, old.Length * 8);
+					bsw.InsertBitsAtIndex(dirBytes, editIndex, dir.Length * 8);
+					_curBinWriter.Write(bsw.AsArray);
+				}
+				_curBinWriter.Write(bsr.ReadRemainingBits().bytes);
+				
+				Console.WriteLine("done.");
 			}
 		}
 
@@ -323,5 +471,8 @@ namespace ConsoleApp {
 		private static void ConsFunc_LinkDemos() { // todo when this sets the writer, give it a custom name
 			Console.WriteLine("Link demos feature not implemented yet.");
 		}
+		
+		
+		#endregion
 	}
 }

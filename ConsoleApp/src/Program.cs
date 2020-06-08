@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using DemoParser.Parser;
+using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 
 namespace ConsoleApp {
@@ -20,23 +23,38 @@ namespace ConsoleApp {
 		public static void Main(string[] args) {
 			
 			Console.WriteLine("UntitledParser by UncraftedName");
-			
+
+			// override default version behavior
+			if (args.Contains("--version")) {
+				PrintVersionInfo();
+				Environment.Exit(0);
+			}
+
 			switch (args.Length) {
 				case 0:
+					PrintVersionInfo();
 					PrintShortUsageString();
 					Console.Read();
 					Environment.Exit(0);
 					break;
-				case 1 when args[0].EndsWith(".dem") && File.Exists(args[0]): // just behave like listdemo+
+				case 1 when Directory.Exists(args[0]):
+					Main(new[] {args[0], "--listdemo", ListdemoOption.SuppressHeader.ToString()});
+					Console.Read();
+					Environment.Exit(1);
+					return;
+				case 1 when File.Exists(args[0]):
+					// just behave like listdemo+
 					Demos.Add(new SourceDemo(args[0]));
 					try {
 						CurDemo.Parse();
 						ConsFunc_ListDemo(default, false);
-					} catch (Exception e) {
+					}
+					catch (Exception e) {
 						Console.WriteLine($"there was a problem while parsing... {e.Message}");
 						Console.Read();
 						Environment.Exit(1);
 					}
+
 					Console.Read();
 					Environment.Exit(0);
 					break;
@@ -132,7 +150,7 @@ namespace ConsoleApp {
 			OptionsRequiringFolder.Add(linkOpt);
 			
 			
-			var removeCaptionOpt = new Option(new [] {"-rc", "--remove-captions"}, 
+			var removeCaptionOpt = new Option(new [] {"-C", "--remove-captions"}, 
 				"creates a copy of the original demo(s) without captions (needs -f)") {
 				Required = false
 			};
@@ -141,7 +159,11 @@ namespace ConsoleApp {
 			
 			var dTableDumpOpt = new Option(new [] {"-d", "--dump-datatables"},
 				"dumps the data tables packet and creates a tree of the server class hierarchy (needs -f)") {
-				Required = false
+				Required = false,
+				Argument = new Argument<DataTablesDispType>("datatableDisplayType", default) {
+					Arity = ArgumentArity.ZeroOrOne,
+					Description = "determines how to display the datatables"
+				}
 			};
 			OptionsRequiringFolder.Add(dTableDumpOpt);
 			
@@ -170,6 +192,17 @@ namespace ConsoleApp {
 				"display all errors that occured during parsing") {
 				Required = false
 			};
+			
+			
+			var changeDirOpt = new Option(new [] {"-D", "--change-demo-dir"},
+				"changes the directory of the given demos") {
+				Required = false,
+				Argument = new Argument<string>("dir") {
+					Arity = ArgumentArity.ExactlyOne,
+					Description = "directory to change to",
+				}
+			};
+			OptionsRequiringFolder.Add(changeDirOpt);
 
 
 			var rootCommand = new RootCommand {
@@ -185,7 +218,8 @@ namespace ConsoleApp {
 				dTableDumpOpt,
 				actionsPressedOpt,
 				passThroughPortalsOpt,
-				errorsOpt
+				errorsOpt,
+				changeDirOpt
 			};
 			
 			if (Debugger.IsAttached) // link option not implemented yet
@@ -193,18 +227,20 @@ namespace ConsoleApp {
 			
 			
 			rootCommand.AddValidator(res => {
-				if (!res.Children.Any(
-					result => result.GetType() != typeof(ArgumentResult)           // don't care about arguments
-							  && result.Name != folderOpt.Name                     // don't care about --folder option
-							  && result.Name != recursiveOpt.Name                  // don't care about --recursive option
-							  && !((result as OptionResult)?.IsImplicit ?? true))) // don't care about implicit options (like listdemo can be)
-				{
-					return "no runnable options given"; // if there are no options left after those ^ conditions, then none have been provided
-				}
+				var runnable = res.Children.Where(
+					result => result.GetType() != typeof(ArgumentResult)          // don't care about arguments
+							  && result.Name != folderOpt.Name                    // don't care about --folder option
+							  && result.Name != recursiveOpt.Name                 // don't care about --recursive option
+							  && !((result as OptionResult)?.IsImplicit ?? true)) // don't care about implicit options (anything with an arg)
+					.ToList();
+				// if there are no options left after those ^ conditions, then none have been provided
+				if ((_runnableOptionCount = runnable.Count) == 0)
+					return "no runnable options given";
 
-				// if no -f but something like -v is set, cry
+				// if no -f but something like -v explicitly set, cry
 				if (res[folderOpt.Aliases[0]] == null) {
-					return OptionsRequiringFolder.Where(option => res[option.Name] != null)
+					return OptionsRequiringFolder
+						.Where(option => res[option.Name] != null && runnable.Any(result => result.Name == option.Name))
 						.Select(option => $"{option.Name} option requires -f").FirstOrDefault();
 				}
 				return null;
@@ -220,8 +256,9 @@ namespace ConsoleApp {
 				bool link,
 				bool jumps,
 				bool removeCaptions,
-				bool dumpDatatables,
 				bool errors,
+				string changeDemoDir,
+				DataTablesDispType dumpDatatables,
 				string regex,
 				DirectoryInfo folder,
 				ListdemoOption listdemo,
@@ -236,7 +273,8 @@ namespace ConsoleApp {
 				HashSet<FileInfo> demoPaths = new HashSet<FileInfo>();
 				foreach (DirOrPath dirOrPath in paths) {
 					if (dirOrPath.IsDir) {
-						demoPaths.UnionWith(dirOrPath.DirectoryInfo.EnumerateFiles("*.dem", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly));
+						demoPaths.UnionWith(dirOrPath.DirectoryInfo.EnumerateFiles("*.dem", 
+							recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly));
 					} else {
 						if (!dirOrPath.Name.EndsWith(".dem"))
 							PrintErrorAndExit($"{dirOrPath} is not a demo file");
@@ -256,23 +294,37 @@ namespace ConsoleApp {
 					_folderPath = folder.FullName;
 				}
 
-				List<FileInfo> orderedPaths = demoPaths.OrderBy(s => s.Name).ToList();
+				// sort the same way that windows does
+				IReadOnlyList<FileInfo> orderedPaths = demoPaths.OrderBy(f => f.Name, new NaturalCompare()).ToList();
+				
 				// these are sorted, so any similarities between the first and last path must be shared between all paths
 				string commonParentPath = orderedPaths.Count == 1 
 					? orderedPaths[0].DirectoryName 
-					: ParserTextUtils.SharedSubstring(orderedPaths[0].FullName, orderedPaths[^1].FullName);
+					: ParserTextUtils.SharedPathSubstring(orderedPaths[0].FullName, orderedPaths[^1].FullName);
+
+				// the check for options with arguments is pretty dumb, not sure of a better way tho
+				var implicitOptions = new {
+					listDemo = parseResult.Tokens.Any(token => listDemoOpt.HasAlias(token.Value)),
+					actionsPressed = parseResult.Tokens.Any(token => actionsPressedOpt.HasAlias(token.Value)),
+					portalsPassed = parseResult.Tokens.Any(token => actionsPressedOpt.HasAlias(token.Value)),
+					dumpDatatables = parseResult.Tokens.Any(token => dTableDumpOpt.HasAlias(token.Value))
+				};
+				
+				bool quickHashesMatch = (implicitOptions.listDemo || link) && orderedPaths.Count > 1;
+
+				int prevDemoQuickHash = 0; // if demo dir or version is not the same as prev demo, don't count total time
 				
 				// main loop
-				foreach (FileInfo demoPath in orderedPaths) {
-					
+				for (var i = 0; i < orderedPaths.Count; i++) {
+					FileInfo demoPath = orderedPaths[i];
 					// if the common path is empty, that means the demos span multiple drives, so just use the full name
-					string displayPath = commonParentPath == "" 
-						? demoPath.Name 
+					string displayPath = commonParentPath == ""
+						? demoPath.Name
 						: Path.GetRelativePath(commonParentPath, demoPath.FullName);
-					
+
 					try {
 						Console.Write($"Parsing \"{displayPath}\"... ");
-						
+
 						using (var progressBar = new ProgressBar()) {
 							// if i'm not linking demos there's no point in keeping all of them
 							if (!link)
@@ -280,17 +332,25 @@ namespace ConsoleApp {
 							Demos.Add(new SourceDemo(demoPath, progressBar));
 							CurDemo.Parse();
 						}
+
 						Console.WriteLine("done.");
-						
+
 						// run all the standard options
-						
-						// the check for options with arguments is pretty dumb, not sure of a better way tho
-						if (parseResult.Tokens.Any(token => listDemoOpt.HasAlias(token.Value)))
+
+						if (implicitOptions.listDemo) {
+							bool excludedMap = TimingAdjustment.ExcludedMaps.Contains((CurDemo.DemoSettings.Game, CurDemo.Header.MapName));
+							_displayMapExcludedMsg = quickHashesMatch && excludedMap;
 							ConsFunc_ListDemo(listdemo, true);
-						if (parseResult.Tokens.Any(token => actionsPressedOpt.HasAlias(token.Value)))
+							if (quickHashesMatch && !excludedMap)
+								DemoTickCounts.Add((CurDemo.TickCount(), CurDemo.AdjustedTickCount()));
+						}
+
+						if (implicitOptions.actionsPressed)
 							ConsFunc_DumpActions(actionsPressed);
-						if (parseResult.Tokens.Any(token => passThroughPortalsOpt.HasAlias(token.Value)))
+						if (implicitOptions.portalsPassed)
 							ConsFunc_PortalsPassed(portalsPassed);
+						if (implicitOptions.dumpDatatables)
+							ConsFunc_DumpDataTables(dumpDatatables);
 						if (regex != null)
 							ConsFunc_RegexSearch(regex);
 						if (cheats)
@@ -299,19 +359,44 @@ namespace ConsoleApp {
 							ConsFunc_DumpJumps();
 						if (removeCaptions)
 							ConsFunc_RemoveCaptions();
-						if (dumpDatatables)
-							ConsFunc_DumpDataTables();
 						if (errors)
 							ConsFunc_Errors();
-					} catch (Exception e) {
-						Console.WriteLine("failed.");
-						Console.WriteLine($"Message: {e.Message}");
+						if (changeDemoDir != null)
+							ConsFunc_ChangeDemoDir(changeDemoDir);
 					}
+					catch (Exception e) {
+						Debug.WriteLine(e.ToString());
+						Console.Write("failed.\nMessage: ");
+						var originalColor = Console.ForegroundColor;
+						Console.ForegroundColor = ConsoleColor.Red;
+						Console.WriteLine(e.Message);
+						Console.ForegroundColor = originalColor;
+						if (quickHashesMatch)
+							DemoTickCounts.Add((int.MinValue, int.MinValue));
+					}
+
 					if (verbose && Demos.Count > 0)
-						ConsFunc_VerboseDump(); // verbose output can still recover from an exception
+						ConsFunc_VerboseDump(); // verbose output can still recover from some exceptions
+
+					if (i == 0)
+						prevDemoQuickHash = CurDemoHeaderQuickHash();
+					else if (prevDemoQuickHash != (prevDemoQuickHash = CurDemoHeaderQuickHash()))
+						quickHashesMatch = false;
 				}
-				if (link)
-					ConsFunc_LinkDemos();
+
+				if (link) {
+					if (quickHashesMatch) {
+						ConsFunc_LinkDemos();
+					} else {
+						var origColor = Console.ForegroundColor;
+						Console.ForegroundColor = ConsoleColor.Red;
+						Console.WriteLine("Cannot link demos - The game directory and/or demo version doesn't match!");
+						Console.ForegroundColor = origColor;
+					}
+				}
+
+				if (quickHashesMatch && implicitOptions.listDemo)
+					ConsFunc_DisplayTotalTime();
 				
 				// set to null after so that I can't flush it again, cuz that would cause a crash
 				_curTextWriter?.Flush();
@@ -325,7 +410,7 @@ namespace ConsoleApp {
 
 			// this is getting a tiny bit out of hand
 			rootCommand.Handler = CommandHandler.Create((Action<
-				DirOrPath[],bool,bool,bool,bool,bool,bool,bool,bool,
+				DirOrPath[],bool,bool,bool,bool,bool,bool,bool,string,DataTablesDispType,
 				string,DirectoryInfo,ListdemoOption,ActPressedDispType,
 				PtpFilterType,ParseResult>)CommandAction);
 
@@ -335,7 +420,7 @@ namespace ConsoleApp {
 		
 		
 		private static void PrintShortUsageString() {
-			Console.WriteLine($"\n{UsageStr}");
+			Console.WriteLine($"{UsageStr}");
 			Console.ForegroundColor = ConsoleColor.Yellow;
 			Console.WriteLine("Use -h, --help, or /? to get full help\n");
 			Console.ResetColor();
@@ -375,8 +460,14 @@ namespace ConsoleApp {
 			Console.Out.Flush();
 			Environment.Exit(1);
 		}
+
+
+		private static void PrintVersionInfo() {
+			DateTime dt = BuildDateAttribute.GetBuildDate(Assembly.GetExecutingAssembly());
+			Console.WriteLine($"Build time: {dt.ToString("R", CultureInfo.CurrentCulture)}");
+		}
 	}
-	
+
 	// keep these in order unless you want to change the default values
 	
 	public enum ListdemoOption {
@@ -397,5 +488,11 @@ namespace ConsoleApp {
 		PlayerOnlyVerbose,
 		AllEntities,
 		AllEntitiesVerbose,
+	}
+
+
+	public enum DataTablesDispType {
+		Default,
+		Flattened
 	}
 }
