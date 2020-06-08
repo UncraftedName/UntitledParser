@@ -83,7 +83,7 @@ namespace ConsoleApp {
 
 		// this is basically copied from the old parser, i'll think about improving this
 		private static void ConsFunc_ListDemo(ListdemoOption listdemoOption, bool printWriteMsg) {
-			SetTextWriter("listdemo++");
+			SetTextWriter("listdemo+");
 			if (printWriteMsg && _runnableOptionCount > 1)
 				Console.WriteLine("Writing listdemo+ output...");
 			ConsoleColor originalColor = Console.ForegroundColor;
@@ -388,13 +388,8 @@ namespace ConsoleApp {
 			var msgList = CurDemo.FilterForUserMessage<EntityPortalled>().ToList();
 			if (playerOnly)
 				msgList = msgList.Where(tuple => tuple.userMessage.PortalledEntIndex == 1).ToList();
-			if (!msgList.Any()) {
-				string s = playerOnly ? "player never went through a portal" : "no entities went through portals";
-				Console.WriteLine($" {s}");
-				if (_curTextWriter != Console.Out)
-					_curTextWriter.WriteLine(s);
-			} else {
-				if (_curTextWriter == Console.Out)
+			if (msgList.Any()) {
+				if (_runnableOptionCount > 1 && _curTextWriter == Console.Out)
 					_curTextWriter.WriteLine();
 				foreach ((EntityPortalled userMessage, int tick) in msgList) {
 					_curTextWriter.Write($"[{tick}]");
@@ -402,6 +397,11 @@ namespace ConsoleApp {
 						? $"\n{userMessage.ToString()}"
 						: $" entity {userMessage.PortalledEntIndex} went through portal {userMessage.PortalEntIndex}");
 				}
+			} else {
+				string s = playerOnly ? "player never went through a portal" : "no entities went through portals";
+				Console.WriteLine($" {s}");
+				if (_curTextWriter != Console.Out)
+					_curTextWriter.WriteLine(s);
 			}
 		}
 

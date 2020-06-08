@@ -306,7 +306,7 @@ namespace ConsoleApp {
 				var implicitOptions = new {
 					listDemo = parseResult.Tokens.Any(token => listDemoOpt.HasAlias(token.Value)),
 					actionsPressed = parseResult.Tokens.Any(token => actionsPressedOpt.HasAlias(token.Value)),
-					portalsPassed = parseResult.Tokens.Any(token => actionsPressedOpt.HasAlias(token.Value)),
+					portalsPassed = parseResult.Tokens.Any(token => passThroughPortalsOpt.HasAlias(token.Value)),
 					dumpDatatables = parseResult.Tokens.Any(token => dTableDumpOpt.HasAlias(token.Value))
 				};
 				
