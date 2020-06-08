@@ -389,8 +389,8 @@ namespace ConsoleApp {
 			if (playerOnly)
 				msgList = msgList.Where(tuple => tuple.userMessage.PortalledEntIndex == 1).ToList();
 			if (msgList.Any()) {
-				if (_runnableOptionCount > 1 && _curTextWriter == Console.Out)
-					_curTextWriter.WriteLine();
+				if (_runnableOptionCount > 1)
+					Console.WriteLine();
 				foreach ((EntityPortalled userMessage, int tick) in msgList) {
 					_curTextWriter.Write($"[{tick}]");
 					_curTextWriter.WriteLine(verbose
