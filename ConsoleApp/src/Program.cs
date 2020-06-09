@@ -366,7 +366,7 @@ namespace ConsoleApp {
 					}
 					catch (Exception e) {
 						Debug.WriteLine(e.ToString());
-						ConsoleWriteWithColor("failed.\nMessage: " + e.Message, ConsoleColor.Red);
+						ConsoleWriteWithColor($"failed.\nMessage: {e.Message}\n", ConsoleColor.Red);
 						if (quickHashesMatch)
 							DemoTickCounts.Add((int.MinValue, int.MinValue));
 					}

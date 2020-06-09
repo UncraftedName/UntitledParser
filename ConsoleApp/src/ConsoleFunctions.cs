@@ -175,10 +175,8 @@ namespace ConsoleApp {
 				_curTextWriter.WriteLine($" ({CurDemo.StartAdjustmentTick}-{CurDemo.EndAdjustmentTick})");
 			}
 
-			if (_displayMapExcludedMsg) {
-				Console.ForegroundColor = ConsoleColor.DarkCyan;
-				Console.WriteLine("(This map will be excluded from the total time)");
-			}
+			if (_displayMapExcludedMsg)
+				ConsoleWriteWithColor("(This map will be excluded from the total time)\n", ConsoleColor.DarkCyan);
 
 			Console.ForegroundColor = originalColor;
 			
