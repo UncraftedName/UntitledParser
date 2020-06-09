@@ -96,15 +96,15 @@ namespace ConsoleApp {
 			if (listdemoOption == ListdemoOption.DisplayHeader) {
 				DemoHeader h = CurDemo.Header;
 				_curTextWriter.Write(
-						$"{"Demo protocol",      -25}: {h.DemoProtocol}"    +
-						$"\n{"Network protocol", -25}: {h.NetworkProtocol}" +
-						$"\n{"Server name",      -25}: {h.ServerName}"      +
-						$"\n{"Client name",      -25}: {h.ClientName}"      +
-						$"\n{"Map name",         -25}: {h.MapName}"         +
-						$"\n{"Game directory",   -25}: {h.GameDirectory}"   +
-						$"\n{"Playback time",    -25}: {h.PlaybackTime:F3}" +
-						$"\n{"Ticks",            -25}: {h.TickCount}"       +
-						$"\n{"Frames",           -25}: {h.FrameCount}"      +
+						$"{"Demo protocol",      -25}: {h.DemoProtocol}"             +
+						$"\n{"Network protocol", -25}: {h.NetworkProtocol}"          +
+						$"\n{"Server name",      -25}: {h.ServerName}"               +
+						$"\n{"Client name",      -25}: {h.ClientName}"               +
+						$"\n{"Map name",         -25}: {h.MapName}"                  +
+						$"\n{"Game directory",   -25}: {h.GameDirectory}"            +
+						$"\n{"Playback time",    -25}: {FormatTime(h.PlaybackTime)}" +
+						$"\n{"Ticks",            -25}: {h.TickCount}"                +
+						$"\n{"Frames",           -25}: {h.FrameCount}"               +
 						$"\n{"SignOn Length",    -25}: {h.SignOnLength}\n\n");
 			}
 			Regex[] regexes = {
@@ -122,7 +122,7 @@ namespace ConsoleApp {
 			for (int i = 0; i < regexes.Length; i++) {
 				foreach (ConsoleCmd cmd in CurDemo.FilterForRegexMatches(regexes[i]).DistinctBy(cmd => cmd.Tick)) {
 					_curTextWriter.WriteLine($"{names[i]} detected on tick {cmd.Tick}, " +
-											 $"time {cmd.Tick * CurDemo.DemoSettings.TickInterval:F3}");
+											 $"time {FormatTime(cmd.Tick * CurDemo.DemoSettings.TickInterval)}");
 				}
 			}
 			// matches any flag like 'echo #some_flag_name#`
