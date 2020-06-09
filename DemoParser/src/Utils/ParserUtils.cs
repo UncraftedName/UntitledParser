@@ -101,13 +101,18 @@ namespace DemoParser.Utils {
 		}
 		
 		
+		/// <summary>
+		/// If you want this to behave the same way as other times, subtract 1
+		/// </summary>
 		public static int TickCount(this SourceDemo demo) {
 			if (demo.StartTick == -1 || demo.EndTick == -1)
 				throw new ArgumentException("the demo was probably not parsed correctly");
 			return demo.EndTick - demo.StartTick + 1;
 		}
 
-
+		/// <summary>
+		/// If you want this to behave the same way as other times, subtract 1
+		/// </summary>
 		public static int AdjustedTickCount(this SourceDemo demo) {
 			if (demo.StartAdjustmentTick == -1 || demo.EndAdjustmentTick == -1)
 				throw new ArgumentException("the demo was probably not parsed correctly");
