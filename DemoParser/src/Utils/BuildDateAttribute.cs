@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Reflection;
 
-namespace ConsoleApp {
+namespace DemoParser.Utils {
 	
 	// https://www.meziantou.net/getting-the-date-of-build-of-a-dotnet-assembly-at-runtime.htm
 	
@@ -17,7 +17,7 @@ namespace ConsoleApp {
 		}
 
 
-		internal static DateTime GetBuildDate(Assembly assembly) {
+		public static DateTime GetBuildDate(Assembly assembly) {
 			var attribute = assembly.GetCustomAttribute<BuildDateAttribute>();
 			return attribute?.DateTime ?? default;
 		}

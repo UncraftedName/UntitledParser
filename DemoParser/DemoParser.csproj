@@ -16,6 +16,12 @@
         <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
     </PropertyGroup>
 
+    <ItemGroup>
+        <AssemblyAttribute Include="DemoParser.Utils.BuildDateAttribute">
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <DefineConstants>TRACE</DefineConstants>
     </PropertyGroup>

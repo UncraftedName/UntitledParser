@@ -14,7 +14,6 @@
           </e>
         </e>
         <e p="src" t="Include">
-          <e p="BuildDateAttribute.cs" t="Include" />
           <e p="ConsoleFunctions.cs" t="Include" />
           <e p="DirOrPath.cs" t="Include" />
           <e p="NaturalSort.cs" t="Include" />
@@ -156,6 +155,7 @@
               <e p="PropDecodeWriter.cs" t="Include" />
             </e>
             <e p="BitUtils.cs" t="Include" />
+            <e p="BuildDateAttribute.cs" t="Include" />
             <e p="CharArray.cs" t="Include" />
             <e p="DataTableTree.cs" t="Include" />
             <e p="IndentedWriter.cs" t="Include" />

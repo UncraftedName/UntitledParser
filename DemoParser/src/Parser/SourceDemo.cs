@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets;
@@ -100,7 +101,8 @@ namespace DemoParser.Parser {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.AppendLine($"Untitled parser by UncraftedName, version: {GetType().Assembly.GetName().Version}");
+			iw.AppendLine("Untitled parser by UncraftedName, build time: " +
+						  $"{BuildDateAttribute.GetBuildDate(Assembly.GetExecutingAssembly()):R}");
 			if (FileName != null)
 				iw.AppendLine($"file name: {FileName}");
 			iw.Append($"predicted game: {DemoSettings.Game}\n\n");
