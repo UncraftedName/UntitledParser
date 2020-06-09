@@ -156,7 +156,7 @@ namespace ConsoleApp {
 				
 				foreach (int i in ticks) {
 					_curTextWriter.WriteLine(
-						$"'{flagName}' flag detected on tick {i}, time {i * tickInterval:F3}");
+						$"'{flagName}' flag detected on tick {i}, time {FormatTime(i * tickInterval)}");
 				}
 			}
  
