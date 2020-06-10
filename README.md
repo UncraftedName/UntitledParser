@@ -103,12 +103,17 @@ And finally, here's a more complicated example to get the fov of demos where the
 <details>
     <summary>Click to expand</summary>
 
+First, parse the demo.
 ```cs
 SourceDemo demo = new SourceDemo("fov-change-middemo.dem");
 demo.Parse();
+```
+
+Using lambda expressions:
+```cs
 demo.FilterForMessage<SvcPacketEntities>()
     .SelectMany(tuple => tuple.message.Updates.OfType<Delta>(), (tuple, delta) => new {tuple.tick, delta})
-    .Where(tuple => tuple.delta.EntIndex == 1)
+    .Where(tuple => tuple.delta.EntIndex == 1) // filter for player
     .SelectMany(tuple => tuple.delta.Props, (tuple, propInfo) => new {tuple.tick, propInfo})
     .Where(tuple => tuple.propInfo.prop.Name == "m_iDefaultFOV")
     .Select(tuple => new {
@@ -118,6 +123,40 @@ demo.FilterForMessage<SvcPacketEntities>()
     .ToList()
     .ForEach(Console.WriteLine);
 ```
+
+Using query expressions:
+```cs
+var fovValues = 
+    from messageTup in demo.FilterForMessage<SvcPacketEntities>()
+    from delta in messageTup.message.Updates.OfType<Delta>()
+    where delta.EntIndex == 1
+    from propInfo in delta.Props
+    where propInfo.prop is IntEntProp intProp && intProp.Name == "m_iDefaultFOV"
+    select new {Tick = messageTup.tick, FovValue = ((IntEntProp)propInfo.prop).Value};
+
+foreach (var value in fovValues)
+    Console.WriteLine(value);
+```
+
+Using loops:
+```cs
+foreach ((SvcPacketEntities message, int tick) in demo.FilterForMessage<SvcPacketEntities>()) {
+    foreach (EntityUpdate entityUpdate in message.Updates) {
+        // check if the update is of type delta, if it is check if the entity index is 1 (player)
+        if (entityUpdate is Delta delta && delta.EntIndex == 1) {
+            foreach ((_, EntityProperty entityProperty) in delta.Props) {
+                // check if the prop is an int, then check the name (can be found in the DataTables packet)
+                if (entityProperty is IntEntProp intProp && intProp.Name == "m_iDefaultFOV") {
+                    Console.WriteLine(new {tick, intProp.Value});
+                    goto end;
+                }
+            }
+        }
+    }
+    end:;
+}
+```
+
 ```
 { Tick = 374, FovValue = 70 }
 { Tick = 507, FovValue = 5 }
@@ -127,7 +166,7 @@ demo.FilterForMessage<SvcPacketEntities>()
 ```
 </details>
 
-More complicated stuff like this with entity-related properties will only work for portal 1 right now, and I only 100% guarantee pinky promise you that it will work for portal 3420.
+More complicated stuff like this with entity-related properties will only work for portal 1 right now, and I only 100% guarantee pinky promise you that it will work for portal 3420. In general, to find certain values you'll either need to dig deep into the code or ask me where to find them.
 
 ## Other parsers and resources that I used
 - https://github.com/NeKzor/sdp.js 
