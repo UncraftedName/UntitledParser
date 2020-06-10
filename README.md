@@ -116,10 +116,7 @@ demo.FilterForMessage<SvcPacketEntities>()
     .Where(tuple => tuple.delta.EntIndex == 1) // filter for player
     .SelectMany(tuple => tuple.delta.Props, (tuple, propInfo) => new {tuple.tick, propInfo})
     .Where(tuple => tuple.propInfo.prop.Name == "m_iDefaultFOV")
-    .Select(tuple => new {
-        Tick = tuple.tick,
-        FovValue = ((IntEntProp)tuple.propInfo.prop).Value
-    })
+    .Select(tuple => new {Tick = tuple.tick, FovValue = ((IntEntProp)tuple.propInfo.prop).Value})
     .ToList()
     .ForEach(Console.WriteLine);
 ```
