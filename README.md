@@ -2,11 +2,11 @@
 
 ## What is this?
 
-This is a parser for source engine demos similar to listdemo+. Currently it explicitly supports Portal 1 Unpack, Portal 1 Steampipe, Portal 1 3420/leak, Portal 2, some version(s) of L4D2, and HL2 (new engine I think). If you would like support for another version and/or game, you can message me or preferably open a new issue. I plan to add support for all versions of L4D2 and L4D1 in the future.
+This is a parser for source engine demos similar to [listdemo+](https://www.speedrun.com/portal/resources "portal resources"). Currently it explicitly supports Portal 1 Unpack, Portal 1 Steampipe, Portal 1 3420/leak, Portal 2, some version(s) of L4D2, and HL2 (new engine I think). If you would like support for another version and/or game, you can message me or preferably open a new issue. I plan to add support for all versions of L4D2 and L4D1 in the future.
 
 ## Why should I use this?
 
-This can be used to time individual demos like listdemo+ or entire runs. In addition, it has some mod support (currently only for portal 1) which only a couple of other timers partially support. For segmented runs the parser can detect more flags than just `#SAVE#` which can be useful for custom timing. As long as your flag has no spaces and is surround by `#` then the parser should detect it.
+This can be used to time individual demos like listdemo+ or entire runs. The source code probably contains the most detailed parsing of demos for games like Portal, HL2, and Portal2 (much more so than even [VolvoWrench](https://github.com/Traderain/VolvoWrench)). In addition, it has some mod support (currently only for portal 1) which only a couple of other timers partially support. For segmented runs the parser can detect more flags than just `#SAVE#` which can be useful for custom timing. As long as your flag has no spaces and is surround by `#` then the parser should detect it.
 
 <p align="center">
   <img width="408" height="294" src="github-resources/example-flags.png">
@@ -172,3 +172,4 @@ More complicated stuff like this with entity-related properties will only work f
 - https://github.com/VSES/SourceEngine2007
 - https://github.com/alliedmodders/hl2sdk
 - https://github.com/iVerb1/SourceLiveTimer
+- https://github.com/Traderain/VolvoWrench
