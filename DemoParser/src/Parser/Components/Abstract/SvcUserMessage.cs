@@ -302,7 +302,8 @@ namespace DemoParser.Parser.Components.Abstract {
 				return UserMessageType.UNKNOWN;
 			else if (b >= lookupTable.Length)
 				return UserMessageType.INVALID;
-			else return lookupTable[b];
+			else 
+				return lookupTable[b];
 		}
 
 
@@ -314,12 +315,9 @@ namespace DemoParser.Parser.Components.Abstract {
 				PORTAL_2           => Portal2ReverseTable,
 				L4D2_2000          => L4D2SteamReverseTable,
 				L4D2_2042          => L4D2SteamReverseTable,
-				_ => null
+				_ => throw new ArgumentException($"no reverse user message lookup table for {demoSettings.Game}")
 			};
-			if (reverseLookupTable == null)
-				throw new ArgumentException($"no reverse user message lookup table for {demoSettings.Game}");
-			else
-				return reverseLookupTable[m];
+			return reverseLookupTable[m];
 		}
 	}
 	
