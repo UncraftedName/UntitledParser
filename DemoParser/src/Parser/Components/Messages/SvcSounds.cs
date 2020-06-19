@@ -55,6 +55,10 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public uint EntityIndex;
 		public int SoundIndex;
+		
+		public string UnreliableSoundDir;
+		private bool _soundTableReadable;
+		
 		public SoundFlags Flags;
 		private bool HasStopPacket => (Flags & SoundFlags.Stop) != 0;
 		public uint Channel;
@@ -76,10 +80,14 @@ namespace DemoParser.Parser.Components.Messages {
 		internal override void ParseStream(BitStreamReader bsr) {
 			EntityIndex = bsr.ReadBool() ? bsr.ReadBitsAsUInt(bsr.ReadBool() ? 5 : 11) : 0; // MAX_EDICT_BITS
 			SoundIndex = (int)(bsr.ReadBitsAsUIntIfExists(13) ?? 0); // MAX_SOUND_INDEX_BITS
-			if (DemoRef.CStringTablesManager.TableReadable.GetValueOrDefault(TableNames.SoundPreCache)
-				&& SoundIndex >= DemoRef.CStringTablesManager.Tables[TableNames.SoundPreCache].Entries.Count) 
-			{
-				DemoRef.AddError($"sound index out of range: {SoundIndex}");
+
+			var mgr = DemoRef.CStringTablesManager;
+			if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache)) {
+				_soundTableReadable = true;
+				if (SoundIndex >= mgr.Tables[TableNames.SoundPreCache].Entries.Count)
+					DemoRef.AddError($"sound index out of range: {SoundIndex}");
+				else
+					UnreliableSoundDir = mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName;
 			}
 
 			Flags = (SoundFlags)(bsr.ReadBitsAsUIntIfExists(9) ?? 0); // SND_FLAG_BITS_ENCODE
@@ -119,12 +127,9 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"entity index: {EntityIndex}");
-
-			var mgr = DemoRef.CStringTablesManager;
-			if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache))
-				iw.Append(SoundIndex < mgr.Tables[TableNames.SoundPreCache].Entries.Count
-					? $"sound: {mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName}"
-					: "sound index (out of range):");
+			
+			if (_soundTableReadable)
+				iw.Append(UnreliableSoundDir == null ? "sound index (out of range):" : $"sound: \"{UnreliableSoundDir}\"");
 			else
 				iw.Append("sound index:");
 			

@@ -412,7 +412,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		// this right here is the real juice, it's how prop info is decoded
 		public static List<(int propIndex, EntityProperty prop)> ReadEntProps(
 			this BitStreamReader bsr,
-			IReadOnlyList<FlattenedProp> fProps, 
+			IReadOnlyList<FlattenedProp> fProps,
 			SourceDemo demoRef) 
 		{
 			var props = new List<(int propIndex, EntityProperty prop)>();
