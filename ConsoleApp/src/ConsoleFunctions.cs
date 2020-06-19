@@ -59,15 +59,16 @@ namespace ConsoleApp {
 
 		
 		private static string FormatTime(double seconds) {
+			string sign = seconds < 0 ? "-" : "";
 			// timespan truncates values, (makes sense since 0.5 minutes is still 0 total minutes) so I round manually
-			TimeSpan t = TimeSpan.FromSeconds(seconds);
+			TimeSpan t = TimeSpan.FromSeconds(Math.Abs(seconds));
 			int roundedMilli = t.Milliseconds + (int)Math.Round(t.TotalMilliseconds - (long)t.TotalMilliseconds);
 			if (t.Hours > 0)
-				return $"{t.Hours:D1}:{t.Minutes:D2}:{t.Seconds:D2}.{roundedMilli:D3}";
+				return $"{sign}{t.Hours:D1}:{t.Minutes:D2}:{t.Seconds:D2}.{roundedMilli:D3}";
 			else if (t.Minutes > 0)
-				return $"{t.Minutes:D1}:{t.Seconds:D2}.{roundedMilli:D3}";
+				return $"{sign}{t.Minutes:D1}:{t.Seconds:D2}.{roundedMilli:D3}";
 			else
-				return $"{t.Seconds:D1}.{roundedMilli:D3}";
+				return $"{sign}{t.Seconds:D1}.{roundedMilli:D3}";
 		}
 		
 		
@@ -109,8 +110,8 @@ namespace ConsoleApp {
 			}
 			Regex[] regexes = {
 				new Regex("^autosave$"), 
-				new Regex("^autosavedangerous$"), 
-				new Regex("^autosavedangerousissafe$"),
+				new Regex("^autosavedangerous$"),
+				new Regex("^autosavedangerousissafe$")
 			};
 			// all appended by "detected on tick..."
 			string[] names = {
@@ -159,7 +160,20 @@ namespace ConsoleApp {
 						$"'{flagName}' flag detected on tick {i}, time {FormatTime(i * tickInterval)}");
 				}
 			}
- 
+
+			/*CurDemo.FilterForUserMessage<Rumble>()
+				.Where(tuple =>
+					tuple.userMessage.RumbleType == RumbleLookup.PortalgunLeft ||
+					tuple.userMessage.RumbleType == RumbleLookup.PortalgunRight)
+				.Select(tuple => (tuple.tick, tuple.userMessage.RumbleType))
+				.ToList()
+				.ForEach(tuple => {
+					(int tick, RumbleLookup rumbleType) = tuple;
+					ConsoleWriteWithColor(
+						$"Portal fired on tick {tick,4}, time: {FormatTime(tick * tickInterval),10}\n",
+						rumbleType == RumbleLookup.PortalgunenLeft ? ConsoleColor.Cyan : ConsoleColor.Red);
+				});*/
+
 			if (listdemoOption == ListdemoOption.DisplayHeader)
 				Console.WriteLine();
 			
@@ -464,6 +478,9 @@ namespace ConsoleApp {
 				Console.WriteLine("done.");
 			}
 		}
+		
+		
+		// todo add portals shot to csv
 
 
 		private static void ConsFunc_LinkDemos() { // todo when this sets the writer, give it a custom name
