@@ -93,7 +93,7 @@ namespace ConsoleApp {
 				return;
 			}
 
-			Console.ForegroundColor = ConsoleColor.Gray;
+			Console.ForegroundColor = ConsoleColor.Gray; // todo add file name
 			if (listdemoOption == ListdemoOption.DisplayHeader) {
 				DemoHeader h = CurDemo.Header;
 				_curTextWriter.Write(
@@ -131,6 +131,8 @@ namespace ConsoleApp {
  			
 			// gets all flags, then groups them by the flag type, and sorts the ticks of each type
 			// in this case, #flag# is treated the same as #FLAG#
+			
+			// todo convert to query expression?
 			var flagGroups = CurDemo.FilterForRegexMatches(flagMatcher)
 				.Select(cmd => (
 						Matches: flagMatcher.Matches(cmd.Command)[0].Groups["flag_name"].Value.ToUpper(), 
@@ -161,7 +163,7 @@ namespace ConsoleApp {
 				}
 			}
 
-			/*CurDemo.FilterForUserMessage<Rumble>()
+			CurDemo.FilterForUserMessage<Rumble>()
 				.Where(tuple =>
 					tuple.userMessage.RumbleType == RumbleLookup.PortalgunLeft ||
 					tuple.userMessage.RumbleType == RumbleLookup.PortalgunRight)
@@ -171,8 +173,8 @@ namespace ConsoleApp {
 					(int tick, RumbleLookup rumbleType) = tuple;
 					ConsoleWriteWithColor(
 						$"Portal fired on tick {tick,4}, time: {FormatTime(tick * tickInterval),10}\n",
-						rumbleType == RumbleLookup.PortalgunenLeft ? ConsoleColor.Cyan : ConsoleColor.Red);
-				});*/
+						rumbleType == RumbleLookup.PortalgunLeft ? ConsoleColor.Cyan : ConsoleColor.Red);
+				});
 
 			if (listdemoOption == ListdemoOption.DisplayHeader)
 				Console.WriteLine();

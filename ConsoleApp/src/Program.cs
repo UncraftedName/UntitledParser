@@ -42,7 +42,7 @@ namespace ConsoleApp {
 					Console.Read();
 					Environment.Exit(1);
 					return;
-				case 1 when File.Exists(args[0]):
+				case 1 when File.Exists(args[0]): // todo accept multiple demo files/folders
 					// just behave like listdemo+
 					Demos.Add(new SourceDemo(args[0]));
 					try {
