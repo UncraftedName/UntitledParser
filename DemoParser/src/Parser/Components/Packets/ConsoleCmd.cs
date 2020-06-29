@@ -19,7 +19,7 @@ namespace DemoParser.Parser.Components.Packets {
 		internal override void ParseStream(BitStreamReader bsr) {
 			uint len = bsr.ReadUInt();
 			int indexBefore = bsr.CurrentBitIndex;
-			bsr.ReadNullTerminatedString();
+			Command = bsr.ReadNullTerminatedString();
 			bsr.CurrentBitIndex = (int)(indexBefore + len * 8); // to prevent null bytes from hecking this up
 			SetLocalStreamEnd(bsr);
 			TimingAdjustment.AdjustFromConsoleCmd(this);

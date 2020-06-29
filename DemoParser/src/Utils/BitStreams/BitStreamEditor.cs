@@ -88,6 +88,10 @@ namespace DemoParser.Utils.BitStreams {
         }
 
 
+        public void InsertBitsAtIndex(byte[] bytes, int bitIndex) =>
+            InsertBitsAtIndex(bytes, bitIndex, bytes.Length * 8);
+
+
         public void InsertIntAtIndex(int i, int bitIndex, int bitCount) 
             => InsertBitsAtIndex(IntToBytes(i), bitIndex, bitCount);
 
