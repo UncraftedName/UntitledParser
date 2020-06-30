@@ -335,7 +335,7 @@ namespace DemoParser.Utils.BitStreams {
 		
 
 		public float? ReadFloatIfExists() {
-			return ReadBool() ? ReadUInt() : (float?)null;
+			return ReadBool() ? ReadFloat() : (float?)null;
 		}
 
 
