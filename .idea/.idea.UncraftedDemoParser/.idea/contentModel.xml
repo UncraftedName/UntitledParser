@@ -179,6 +179,8 @@
         </e>
         <e p="sample demos" t="Include">
           <e p="captions.dem" t="Include" />
+          <e p="ep2_demo_driving_nocrash.dem" t="Include" />
+          <e p="ep2_demo_guard.dem" t="Include" />
           <e p="l4d2 2000.dem" t="Include" />
           <e p="l4d2 2042.dem" t="Include" />
           <e p="l4d2 2042_2.dem" t="Include" />
