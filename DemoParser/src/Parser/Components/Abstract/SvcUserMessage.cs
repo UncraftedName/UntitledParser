@@ -341,7 +341,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.PZEndGameVoteStatsMsg,
 			UserMessageType.VoteStart,
 			UserMessageType.VotePass,
-			UserMessageType.VoteFail
+			UserMessageType.VoteFailed // called VoteFail in l4d2
 		};
 		private static readonly Dictionary<UserMessageType, int> L4D2SteamReverseTable = L4D2SteamTable.CreateReverseLookupDict();
 
@@ -564,6 +564,5 @@ namespace DemoParser.Parser.Components.Abstract {
 		PZEndGamePanelMsg,
 		PZEndGamePanelVoteRegisteredMsg,
 		PZEndGameVoteStatsMsg,
-		VoteFail // todo is this any different from VoteFailed?
 	} 
 }
