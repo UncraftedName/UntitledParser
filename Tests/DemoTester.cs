@@ -107,7 +107,7 @@ namespace Tests {
             // assert that all the non-caption and non-nop messages are the same
             CollectionAssert.AreEqual(
                 before.FilterForMessages().Where(tuple => tuple.messageType != MessageType.NetNop)
-                    .Where(tuple => (tuple.message as SvcUserMessageFrame)?.UserMessageType != UserMessageType.CloseCaption)
+                    .Where(tuple => (tuple.message as SvcUserMessageFrame)?.MessageType != UserMessageType.CloseCaption)
                     .Select(tuple => tuple.messageType),
                 after.FilterForMessages().Where(tuple => tuple.messageType != MessageType.NetNop)
                     .Select(tuple => tuple.messageType)
