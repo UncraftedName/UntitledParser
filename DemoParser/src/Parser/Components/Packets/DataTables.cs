@@ -169,7 +169,7 @@ namespace DemoParser.Parser.Components.Packets {
 			SendPropType = UIntToSendPropertyType(DemoRef, bsr.ReadBitsAsUInt(5));
 			Name = bsr.ReadNullTerminatedString();
 			Flags = (SendPropFlags)bsr.ReadBitsAsUInt(DemoRef.Header.DemoProtocol == 2 ? 11 : 16);
-			if (DemoSettings.OrangeBox)
+			if (DemoSettings.NewDemoProtocol)
 				Priority = bsr.ReadBitsAsSInt(11);
 			if (SendPropType == SendPropType.DataTable || (Flags & SendPropFlags.Exclude) != 0) {
 				ExcludeDtName = bsr.ReadNullTerminatedString();
@@ -234,7 +234,7 @@ namespace DemoParser.Parser.Components.Packets {
 			}
 			iw.Append($"flags: {Flags}");
 			iw.FutureIndent++;
-			if (DemoSettings.OrangeBox) {
+			if (DemoSettings.NewDemoProtocol) {
 				iw.PadLastLine(170, ' ');
 				iw.Append($" priority: {Priority}");
 			}

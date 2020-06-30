@@ -32,10 +32,10 @@ namespace DemoParser.Parser {
 		internal readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		
 		// these can be evaluated using simple expressions
-		public bool OrangeBox => _header.DemoProtocol == 4; // "new engine" in nekz' parser
-		public bool HasPlayerSlot => OrangeBox; // "alignment byte" in nekz' parser
+		public bool NewDemoProtocol => _header.DemoProtocol == 4; // "new engine" in nekz' parser
+		public bool HasPlayerSlot => NewDemoProtocol; // "alignment byte" in nekz' parser
 		public int NetMsgTypeBits => _header.NetworkProtocol == 14 ? 5 : 6;
-		public int UserMessageLengthBits => OrangeBox && Game != L4D2_2042 ? 12 : 11;
+		public int UserMessageLengthBits => NewDemoProtocol && Game != L4D2_2042 ? 12 : 11;
 
 
 		public DemoSettings(DemoHeader h) {
@@ -67,7 +67,7 @@ namespace DemoParser.Parser {
 
 			if (Game == L4D2_2042)
 				SvcServerInfoUnknownBits = 33;
-			else if (OrangeBox)
+			else if (NewDemoProtocol)
 				SvcServerInfoUnknownBits = 32;
 			else if (_header.NetworkProtocol == 24)
 				SvcServerInfoUnknownBits = 96;

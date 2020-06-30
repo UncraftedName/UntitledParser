@@ -418,7 +418,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			var props = new List<(int propIndex, EntityProperty prop)>();
 			
 			int i = -1;
-			if (demoRef.DemoSettings.OrangeBox) {
+			if (demoRef.DemoSettings.NewDemoProtocol) {
 				bool newWay = bsr.ReadBool();
 				while ((i = bsr.ReadFieldIndex(i, newWay)) != -1) {
 					int tmp = bsr.CurrentBitIndex; // this is a botched fix, seems to work for now todo make sure flag is right

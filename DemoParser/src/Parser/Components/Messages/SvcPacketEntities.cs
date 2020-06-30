@@ -71,7 +71,7 @@ namespace DemoParser.Parser.Components.Messages {
 				NextOldEntIndex(ref oldI, ents);
 
 				for (int _ = 0; _ < UpdatedEntries; _++) {
-					newI += 1 + (DemoSettings.OrangeBox 
+					newI += 1 + (DemoSettings.NewDemoProtocol 
 						? (int)_entBsr.ReadUBitInt()
 						: (int)_entBsr.ReadUBitVar());
 					

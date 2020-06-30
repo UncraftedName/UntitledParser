@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Messages {
 			UserDataSize = (int)(UserDataFixedSize ? bsr.ReadBitsAsUInt(12) : 0);
 			UserDataSizeBits = (int)(UserDataFixedSize ? bsr.ReadBitsAsUInt(4) : 0);
 			if (DemoRef.Header.NetworkProtocol >= 15)
-				Flags = (StringTableFlags)bsr.ReadBitsAsUInt(DemoSettings.OrangeBox ? 2 : 1);
+				Flags = (StringTableFlags)bsr.ReadBitsAsUInt(DemoSettings.NewDemoProtocol ? 2 : 1);
 			
 			DemoRef.CStringTablesManager.CreateStringTable(this);
 			TableUpdate = new StringTableUpdate(DemoRef, bsr.SubStream(dataLen), TableName, NumEntries);

@@ -13,7 +13,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		
 		
 		public static MessageType ByteToSvcMessageType(byte b, DemoSettings demoSettings) {
-			if (!demoSettings.OrangeBox) {
+			if (!demoSettings.NewDemoProtocol) {
 				switch (b) {
 					case 3:
 						return MessageType.NetTick;
@@ -39,7 +39,7 @@ namespace DemoParser.Parser.Components.Abstract {
 
 
 		public static byte MessageTypeToByte(MessageType messageType, DemoSettings demoSettings) {
-			if (!demoSettings.OrangeBox) {
+			if (!demoSettings.NewDemoProtocol) {
 				switch (messageType) {
 					case MessageType.NetTick:
 						return 3;

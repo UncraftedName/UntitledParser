@@ -26,7 +26,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 
 		internal override void ParseStream(BitStreamReader bsr) {
-			if (DemoSettings.OrangeBox) {
+			if (DemoSettings.NewDemoProtocol) {
 				Version = bsr.ReadUInt();
 				Xuid = bsr.ReadUInt();
 			}
@@ -66,7 +66,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"({ParserTextUtils.CamelCaseToUnderscore(GetType().Name)})");
-			if (DemoSettings.OrangeBox) {
+			if (DemoSettings.NewDemoProtocol) {
 				iw.AppendLine($"version: {Version}");
 				iw.AppendLine($"XUID: {Xuid}");
 			}
