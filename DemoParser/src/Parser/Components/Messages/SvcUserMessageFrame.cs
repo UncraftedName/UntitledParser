@@ -85,8 +85,8 @@ namespace DemoParser.Parser.Components.Messages {
 				if (SvcUserMessage is UnknownSvcUserMessage)
 					iw.Append("(unimplemented) ");
 				iw.Append(MessageType.ToString());
+				iw.Append($" ({SvcUserMessage.UserMessageTypeToByte(DemoSettings, MessageType)})");
 			}
-			iw.Append($" ({SvcUserMessage.UserMessageTypeToByte(DemoSettings, MessageType)})");
 			if (SvcUserMessage.MayContainData) {
 				iw.FutureIndent++;
 				iw.AppendLine();
