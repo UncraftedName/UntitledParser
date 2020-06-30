@@ -25,6 +25,71 @@ namespace DemoParser.Parser.Components.Abstract {
 	public abstract class SvcUserMessage : DemoComponent {
 
 		#region lookup tables
+
+		private static readonly UserMessageType[] Hl2OeTable = {
+			UserMessageType.Geiger,
+			UserMessageType.Train,
+			UserMessageType.HudText,
+			UserMessageType.SayText,
+			UserMessageType.TextMsg,
+			UserMessageType.HUDMsg,
+			UserMessageType.ResetHUD,
+			UserMessageType.GameTitle,
+			UserMessageType.ItemPickup,
+			UserMessageType.ShowMenu,
+			UserMessageType.Shake,
+			UserMessageType.Fade,
+			UserMessageType.VGUIMenu,
+			UserMessageType.Battery,
+			UserMessageType.Damage,
+			UserMessageType.VoiceMask,
+			UserMessageType.RequestState,
+			UserMessageType.CloseCaption,
+			UserMessageType.HintText,
+			UserMessageType.SquadMemberDied,
+			UserMessageType.AmmoDenied,
+			UserMessageType.CreditsMsg
+		};
+		public static Dictionary<UserMessageType, int> Hl2OeReverseTable = Hl2OeTable.CreateReverseLookupDict();
+
+		// same as steam
+		private static readonly UserMessageType[] Hl2UnpackTable = {
+			UserMessageType.Geiger,
+			UserMessageType.Train,
+			UserMessageType.HudText,
+			UserMessageType.SayText,
+			UserMessageType.SayText2,
+			UserMessageType.TextMsg,
+			UserMessageType.HUDMsg,
+			UserMessageType.ResetHUD,
+			UserMessageType.GameTitle,
+			UserMessageType.ItemPickup,
+			UserMessageType.ShowMenu,
+			UserMessageType.Shake,
+			UserMessageType.Fade,
+			UserMessageType.VGUIMenu,
+			UserMessageType.Rumble,
+			UserMessageType.Battery,
+			UserMessageType.Damage,
+			UserMessageType.VoiceMask,
+			UserMessageType.RequestState,
+			UserMessageType.CloseCaption,
+			UserMessageType.HintText,
+			UserMessageType.KeyHintText,
+			UserMessageType.SquadMemberDied,
+			UserMessageType.AmmoDenied,
+			UserMessageType.CreditsMsg,
+			UserMessageType.LogoTimeMsg,
+			UserMessageType.AchievementEvent,
+			UserMessageType.UpdateJalopyRadar,
+			UserMessageType.SPHapWeapEvent,
+			UserMessageType.HapDmg,
+			UserMessageType.HapPunch,
+			UserMessageType.HapSetDrag,
+			UserMessageType.HapSetConst,
+			UserMessageType.HapMeleeContact
+		};
+		public static Dictionary<UserMessageType, int> Hl2UnpackReverseTable = Hl2UnpackTable.CreateReverseLookupDict();
 		
 		private static readonly UserMessageType[] Portal2Table = {
 			UserMessageType.Geiger,
@@ -127,7 +192,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		};
 		private static readonly Dictionary<UserMessageType, int> Portal3420ReverseTable = Portal3420Table.CreateReverseLookupDict();
 
-		private static readonly UserMessageType[] PortalUnpackTable = {
+		private static readonly UserMessageType[] Portal1UnpackTable = {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
 			UserMessageType.HudText,
@@ -165,9 +230,9 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapSetConst,
 			UserMessageType.HapMeleeContact
 		};
-		private static readonly Dictionary<UserMessageType, int> PortalUnpackReverseTable = PortalUnpackTable.CreateReverseLookupDict();
+		private static readonly Dictionary<UserMessageType, int> Portal1UnpackReverseTable = Portal1UnpackTable.CreateReverseLookupDict();
 
-		private static readonly UserMessageType[] PortalSteamTable = {
+		private static readonly UserMessageType[] Portal1SteamTable = {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
 			UserMessageType.HudText,
@@ -210,7 +275,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapSetConst,
 			UserMessageType.HapMeleeContact
 		};
-		private static readonly Dictionary<UserMessageType, int> PortalSteamReverseTable = PortalSteamTable.CreateReverseLookupDict();
+		private static readonly Dictionary<UserMessageType, int> Portal1SteamReverseTable = Portal1SteamTable.CreateReverseLookupDict();
 
 		private static readonly UserMessageType[] L4D2SteamTable = {
 			UserMessageType.Geiger,
@@ -290,9 +355,9 @@ namespace DemoParser.Parser.Components.Abstract {
 
 		public static UserMessageType ByteToUserMessageType(DemoSettings demoSettings, byte b) {
 			var lookupTable = demoSettings.Game switch {
-				PORTAL_1_UNPACK    => PortalUnpackTable,
+				PORTAL_1_UNPACK    => Portal1UnpackTable,
 				PORTAL_1_3420      => Portal3420Table,
-				PORTAL_1_STEAMPIPE => PortalSteamTable,
+				PORTAL_1_STEAMPIPE => Portal1SteamTable,
 				PORTAL_2           => Portal2Table,
 				L4D2_2000          => L4D2SteamTable,
 				L4D2_2042          => L4D2SteamTable,
@@ -309,9 +374,9 @@ namespace DemoParser.Parser.Components.Abstract {
 
 		public static int UserMessageTypeToByte(DemoSettings demoSettings, UserMessageType m) {
 			var reverseLookupTable = demoSettings.Game switch {
-				PORTAL_1_UNPACK    => PortalUnpackReverseTable,
+				PORTAL_1_UNPACK    => Portal1UnpackReverseTable,
 				PORTAL_1_3420      => Portal3420ReverseTable,
-				PORTAL_1_STEAMPIPE => PortalSteamReverseTable,
+				PORTAL_1_STEAMPIPE => Portal1SteamReverseTable,
 				PORTAL_2           => Portal2ReverseTable,
 				L4D2_2000          => L4D2SteamReverseTable,
 				L4D2_2042          => L4D2SteamReverseTable,
