@@ -22,7 +22,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			};
 			
 			if (result.GetType() == typeof(UnknownCustomDataMessage))
-				demoRef.AddError($"unknown or unimplemented custom data type: {type}");
+				demoRef.LogError($"unknown or unimplemented custom data type: {type}");
 			return result;
 		}
 	}

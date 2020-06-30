@@ -72,13 +72,13 @@ namespace DemoParser.Parser.Components.Messages {
 			
 			C_StringTablesManager manager = DemoRef.CStringTablesManager;
 			if (!manager.TableReadable.GetValueOrDefault(_tableName)) {
-				DemoRef.AddError($"{_tableName} table is marked as non-readable, can't update :/");
+				DemoRef.LogError($"{_tableName} table is marked as non-readable, can't update :/");
 				_exceptionWhileParsing = true;
 				return;
 			}
 
 			if (manager.CreationLookup.Single(table => table.TableName == _tableName).Flags == StringTableFlags.Fake) {
-				DemoRef.AddError($"{_tableName} table was created manually - not parsed in SvcServerInfo");
+				DemoRef.LogError($"{_tableName} table was created manually - not parsed in SvcServerInfo");
 				_exceptionWhileParsing = true;
 				return;
 			}
@@ -147,7 +147,7 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 			} catch (Exception e) {
 				// there was an update I couldn't parse, assume this C_table contain irrelevant data from here
-				DemoRef.AddError($"error while parsing {GetType().Name} for table {_tableName}: {e.Message}");
+				DemoRef.LogError($"error while parsing {GetType().Name} for table {_tableName}: {e.Message}");
 				_exceptionWhileParsing = true;
 				manager.TableReadable[_tableName] = false;
 			}

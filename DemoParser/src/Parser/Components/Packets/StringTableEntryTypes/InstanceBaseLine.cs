@@ -60,7 +60,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 					DemoRef.CBaseLines?.UpdateBaseLine(ServerClassRef, Properties, fProps.Count);
 				//Console.WriteLine(ServerClassRef.ClassName + ": " + _bsr.BitsRemaining);
 			} catch (Exception e) {
-				DemoRef.AddError($"error while parsing baseline for class {ServerClassRef.ClassName}: {e.Message}");
+				DemoRef.LogError($"error while parsing baseline for class {ServerClassRef.ClassName}: {e.Message}");
 			}
 		}
 

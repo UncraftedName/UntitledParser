@@ -85,7 +85,7 @@ namespace DemoParser.Parser.Components.Messages {
 			if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache)) {
 				_soundTableReadable = true;
 				if (SoundIndex >= mgr.Tables[TableNames.SoundPreCache].Entries.Count)
-					DemoRef.AddError($"sound index out of range: {SoundIndex}");
+					DemoRef.LogError($"sound index out of range: {SoundIndex}");
 				else
 					UnreliableSoundDir = mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName;
 			}

@@ -64,7 +64,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
             // I need this because for now I cannot parse string tables that are encoded with dictionaries,
             // so in anything that isn't 3420 I cannot parse baseline table updates outside of the string table packet.
             if (props == null) {
-                _demoRef.AddError("attempted to create entity from a non-existing baseline, " +
+                _demoRef.LogError("attempted to create entity from a non-existing baseline, " +
                                   $"creating new empty baseline for class: ({serverClass.ToString()})");
                 
                 List<FlattenedProp> fProps = _demoRef.DataTableParser.FlattenedProps[classIndex].flattenedProps;

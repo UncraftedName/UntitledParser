@@ -27,7 +27,7 @@ namespace DemoParser.Parser.Components.Messages {
 				
 				// if this ever gets used then it should update the C_tables
 				string s = $"I haven't implemented {GetType().Name} to update the C_string tables.";
-				DemoRef.AddError(s);
+				DemoRef.LogError(s);
 				Debug.WriteLine(s);
 				
 				ServerClasses = new ServerClass[ClassCount];

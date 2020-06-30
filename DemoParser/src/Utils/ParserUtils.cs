@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DemoParser.Parser;
@@ -117,6 +118,12 @@ namespace DemoParser.Utils {
 			if (demo.StartAdjustmentTick == -1 || demo.EndAdjustmentTick == -1)
 				throw new ArgumentException("the demo was probably not parsed correctly");
 			return demo.EndAdjustmentTick - demo.StartAdjustmentTick + 1;
+		}
+
+
+		internal static Dictionary<T, int> CreateReverseLookupDict<T>(this ICollection<T> lookup) {
+			Debug.Assert(lookup.Count == lookup.Distinct().Count(), "lookup contains duplicate values");
+			return lookup.Select((v,  i) => (v, i)).ToList().ToDictionary(tup => tup.v, tup => tup.i);
 		}
 	}
 }

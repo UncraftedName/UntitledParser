@@ -5,7 +5,6 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	// might be useful: #define SCREENFADE_FRACBITS 9
 	public class Fade : SvcUserMessage {
 
 		public float Duration;
@@ -18,7 +17,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			Duration = bsr.ReadUShort() / (float)(1 << 9);
+			Duration = bsr.ReadUShort() / (float)(1 << 9); // might be useful: #define SCREENFADE_FRACBITS 9
 			HoldTime = bsr.ReadUShort();
 			Flags = (FadeFlags)bsr.ReadUShort();
 			R = bsr.ReadByte();

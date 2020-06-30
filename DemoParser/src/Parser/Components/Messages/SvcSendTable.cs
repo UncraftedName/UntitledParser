@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages {
 			ushort len = bsr.ReadUShort();
 			_props = bsr.SubStream(len);
 			SetLocalStreamEnd(bsr);
-			DemoRef.AddError($"unprocessed {GetType().Name} message"); // todo se2007/engine/dt_send_eng.cpp line 800
+			DemoRef.LogError($"unprocessed {GetType().Name} message"); // todo se2007/engine/dt_send_eng.cpp line 800
 		}
 		
 

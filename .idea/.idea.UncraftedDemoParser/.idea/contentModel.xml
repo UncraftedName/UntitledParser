@@ -81,20 +81,18 @@
                   <e p="Battery.cs" t="Include" />
                   <e p="CloseCaption.cs" t="Include" />
                   <e p="Damage.cs" t="Include" />
+                  <e p="EmptySvcUserMessage.cs" t="Include" />
                   <e p="EntityPortalled.cs" t="Include" />
                   <e p="Fade.cs" t="Include" />
-                  <e p="GameTitle.cs" t="Include" />
                   <e p="Geiger.cs" t="Include" />
                   <e p="HudMsg.cs" t="Include" />
                   <e p="KeyHintText.cs" t="Include" />
                   <e p="KillCam.cs" t="Include" />
                   <e p="LogoTimeMsg.cs" t="Include" />
-                  <e p="RequestState.cs" t="Include" />
                   <e p="ResetHUD.cs" t="Include" />
                   <e p="Rumble.cs" t="Include" />
                   <e p="SayText2.cs" t="Include" />
                   <e p="Shake.cs" t="Include" />
-                  <e p="SquadMemberDied.cs" t="Include" />
                   <e p="TextMsg.cs" t="Include" />
                   <e p="Train.cs" t="Include" />
                   <e p="UnknownSvcUserMessage.cs" t="Include" />

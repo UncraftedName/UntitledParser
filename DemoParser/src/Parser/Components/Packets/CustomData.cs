@@ -26,7 +26,7 @@ namespace DemoParser.Parser.Components.Packets {
 			try {
 				DataMessage.ParseOwnStream();
 			} catch (Exception e) {
-				DemoRef.AddError($"error while parsing custom data of type: {DataType}... {e.Message}");
+				DemoRef.LogError($"error while parsing custom data of type: {DataType}... {e.Message}");
 				DataMessage = new UnknownCustomDataMessage(DemoRef, DataMessage.Reader);
 				DataMessage.ParseOwnStream();
 			}

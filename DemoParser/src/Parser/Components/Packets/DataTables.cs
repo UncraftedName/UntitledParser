@@ -61,7 +61,7 @@ namespace DemoParser.Parser.Components.Packets {
 				DemoRef.DataTableParser = new DataTableParser(DemoRef, this);
 				DemoRef.DataTableParser.FlattenClasses();
 			} catch (Exception e) {
-				DemoRef.AddError($"exception while parsing datatables\n\texception: {e.Message}");
+				DemoRef.LogError($"exception while parsing datatables\n\texception: {e.Message}");
 				Debug.WriteLine(e);
 			}
 

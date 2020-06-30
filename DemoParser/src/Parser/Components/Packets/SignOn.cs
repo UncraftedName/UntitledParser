@@ -36,7 +36,7 @@ namespace DemoParser.Parser.Components.Packets {
 			Unknown1 = bsr.ReadSInt();
 			Unknown2 = bsr.ReadSInt();
 			if (garbage.Any(b => b != 0))
-				DemoRef.AddError("SignOn garbage data is not all 0's! Data: " + garbage.SequenceToString());
+				DemoRef.LogError("SignOn garbage data is not all 0's! Data: " + garbage.SequenceToString());
 			MessageStream = new MessageStream(DemoRef, bsr);
 			MessageStream.ParseStream(bsr);
 			SetLocalStreamEnd(bsr);

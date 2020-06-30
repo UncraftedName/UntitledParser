@@ -12,7 +12,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		protected DemoSettings DemoSettings => DemoRef.DemoSettings;
 		private readonly BitStreamReader _reader;
 		public BitStreamReader Reader => _reader.FromBeginning();
-		public virtual bool MayContainData => true; // used for to string conversions
+		public virtual bool MayContainData => true; // used in ToString() calls
 		// todo remove reader, just keep absolute offset instead 
 		// todo implemented bits remaining after parsed method. suggestion: setEnd() makes this 0, markEnd() sets to however many left
 		

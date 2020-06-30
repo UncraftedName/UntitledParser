@@ -1,22 +1,22 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components.Messages.UserMessages;
+using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 using static DemoParser.Parser.SourceGame;
-
-// this is a two way dict so that i can map the byte to the message type and also know the reverse for debugging and for writing the demo
-using TypeReMapper = DemoParser.Utils.TwoWayDict<byte, DemoParser.Parser.Components.Abstract.UserMessageType>;
 
 
 namespace DemoParser.Parser.Components.Abstract {
 	
-	/* The idea here is that the enum corresponding to user messages is very shuffled/shifted in different games,
-	 * and the usermessages seem to be a byte number of bits long, with every byte of the data being used.
-	 * Therefore, if each byte isn't read, then I know that the message is either being read wrong, or I'm reading the wrong user message.
-	 * Instead of using a separate enums for different games, I have a single enum (for portal 1 leak) and many lookup tables for different games.
-	 * And during parsing, if not every byte is read, then I revert to an unknown message type, log an error,
-	 * and the unknown message type will simply print the contents of the message in hex (when converting to string).
-	 * The lookup tables are just me guessing for the most part.
+	/* The idea here is that the enum corresponding to user messages is shuffled/shifted in different games,
+	 * and the user messages seem to be a byte number of bits long, with every byte of the data being used.
+	 * Therefore, if each byte isn't read, then I know that the message is either being read wrong, or I'm reading
+	 * the wrong user message. Instead of using a separate enums for different games, I have a single list and many
+	 * lookup tables for different games. During parsing, if not every byte is read, then I revert to an unknown
+	 * message type, log an error, and the unknown message type will simply print the contents of the message in
+	 * hex (when converting this to string). The lookup tables are obtained by decompiling mac binaries.
+	 * Specifically you can look for the RegisterUserMessages function in server.dylib.
 	 */
 	
 	/// <summary>
@@ -25,17 +25,263 @@ namespace DemoParser.Parser.Components.Abstract {
 	public abstract class SvcUserMessage : DemoComponent {
 
 		#region lookup tables
-
-		// these are mostly offset by one from the leak, many that i don't technically know for sure tho
-		private static readonly TypeReMapper Portal1ReMapper = new TypeReMapper {
-			[30] = UserMessageType.KillCam, // idk if this is correct
-			[33] = UserMessageType.LogoTimeMsg // 34 is related to picking up/dropping items
+		
+		private static readonly UserMessageType[] Portal2Table = {
+			UserMessageType.Geiger,
+			UserMessageType.Train,
+			UserMessageType.HudText,
+			UserMessageType.SayText,
+			UserMessageType.SayText2,
+			UserMessageType.TextMsg,
+			UserMessageType.HUDMsg,
+			UserMessageType.ResetHUD,
+			UserMessageType.GameTitle,
+			UserMessageType.ItemPickup,
+			UserMessageType.ShowMenu,
+			UserMessageType.Shake,
+			UserMessageType.Tilt,
+			UserMessageType.Fade,
+			UserMessageType.VGUIMenu,
+			UserMessageType.Rumble,
+			UserMessageType.Battery,
+			UserMessageType.Damage,
+			UserMessageType.VoiceMask,
+			UserMessageType.RequestState,
+			UserMessageType.CloseCaption,
+			UserMessageType.CloseCaptionDirect,
+			UserMessageType.HintText,
+			UserMessageType.KeyHintText,
+			UserMessageType.SquadMemberDied,
+			UserMessageType.AmmoDenied,
+			UserMessageType.CreditsMsg,
+			UserMessageType.LogoTimeMsg,
+			UserMessageType.AchievementEvent,
+			UserMessageType.UpdateJalopyRadar,
+			UserMessageType.CurrentTimescale,
+			UserMessageType.DesiredTimescale,
+			UserMessageType.InventoryFlash,
+			UserMessageType.CreditsPortalMsg,
+			UserMessageType.IndicatorFlash,
+			UserMessageType.ControlHelperAnimate,
+			UserMessageType.TakePhoto,
+			UserMessageType.Flash,
+			UserMessageType.HudPingIndicator,
+			UserMessageType.OpenRadialMenu,
+			UserMessageType.AddLocator,
+			UserMessageType.MPMapCompleted,
+			UserMessageType.MPMapIncomplete,
+			UserMessageType.MPMapCompletedData,
+			UserMessageType.MPTauntEarned,
+			UserMessageType.MPTauntUnlocked,
+			UserMessageType.MPTauntLocked,
+			UserMessageType.MPAllTauntsLocked,
+			UserMessageType.PortalFX_Surface,
+			UserMessageType.PaintWorld,
+			UserMessageType.PaintEntity,
+			UserMessageType.ChangePaintColor,
+			UserMessageType.PaintBombExplode,
+			UserMessageType.RemoveAllPaint,
+			UserMessageType.PaintAllSurfaces,
+			UserMessageType.RemovePaint,
+			UserMessageType.StartSurvey,
+			UserMessageType.ApplyHitBoxDamageEffect,
+			UserMessageType.SetMixLayerTriggerFactor,
+			UserMessageType.TransitionFade,
+			UserMessageType.ScoreboardTempUpdate,
+			UserMessageType.ChallengeModCheatSession,
+			UserMessageType.ChallengeModCloseAllUI
 		};
-		private static readonly TypeReMapper Portal1SteamPipe = new TypeReMapper {};
-		private static readonly TypeReMapper L4D2ReMapper = new TypeReMapper {};
-		// 48 is something related to shooting/failing to place portals
-		// 59 is spammed in one packet, seems to be when entering disassembly machine
-		private static readonly TypeReMapper Portal2ReMapper = new TypeReMapper {};
+		private static readonly Dictionary<UserMessageType, int> Portal2ReverseTable = Portal2Table.CreateReverseLookupDict();
+
+		private static readonly UserMessageType[] Portal3420Table = {
+			UserMessageType.Geiger,
+			UserMessageType.Train,
+			UserMessageType.HudText,
+			UserMessageType.SayText,
+			UserMessageType.SayText2,
+			UserMessageType.TextMsg,
+			UserMessageType.HUDMsg,
+			UserMessageType.ResetHUD,
+			UserMessageType.GameTitle,
+			UserMessageType.ItemPickup,
+			UserMessageType.ShowMenu,
+			UserMessageType.Shake,
+			UserMessageType.Fade,
+			UserMessageType.VGUIMenu,
+			UserMessageType.Rumble,
+			UserMessageType.Battery,
+			UserMessageType.Damage,
+			UserMessageType.VoiceMask,
+			UserMessageType.RequestState,
+			UserMessageType.CloseCaption,
+			UserMessageType.HintText,
+			UserMessageType.KeyHintText,
+			UserMessageType.SquadMemberDied,
+			UserMessageType.AmmoDenied,
+			UserMessageType.CreditsMsg,
+			UserMessageType.CreditsPortalMsg,
+			UserMessageType.LogoTimeMsg,
+			UserMessageType.AchievementEvent,
+			UserMessageType.EntityPortalled,
+			UserMessageType.KillCam
+		};
+		private static readonly Dictionary<UserMessageType, int> Portal3420ReverseTable = Portal3420Table.CreateReverseLookupDict();
+
+		private static readonly UserMessageType[] PortalUnpackTable = {
+			UserMessageType.Geiger,
+			UserMessageType.Train,
+			UserMessageType.HudText,
+			UserMessageType.SayText,
+			UserMessageType.SayText2,
+			UserMessageType.TextMsg,
+			UserMessageType.HUDMsg,
+			UserMessageType.ResetHUD,
+			UserMessageType.GameTitle,
+			UserMessageType.ItemPickup,
+			UserMessageType.ShowMenu,
+			UserMessageType.Shake,
+			UserMessageType.Fade,
+			UserMessageType.VGUIMenu,
+			UserMessageType.Rumble,
+			UserMessageType.Battery,
+			UserMessageType.Damage,
+			UserMessageType.VoiceMask,
+			UserMessageType.RequestState,
+			UserMessageType.CloseCaption,
+			UserMessageType.HintText,
+			UserMessageType.KeyHintText,
+			UserMessageType.SquadMemberDied,
+			UserMessageType.AmmoDenied,
+			UserMessageType.CreditsMsg,
+			UserMessageType.CreditsPortalMsg,
+			UserMessageType.LogoTimeMsg,
+			UserMessageType.AchievementEvent,
+			UserMessageType.EntityPortalled,
+			UserMessageType.KillCam,
+			UserMessageType.SPHapWeapEvent,
+			UserMessageType.HapDmg,
+			UserMessageType.HapPunch,
+			UserMessageType.HapSetDrag,
+			UserMessageType.HapSetConst,
+			UserMessageType.HapMeleeContact
+		};
+		private static readonly Dictionary<UserMessageType, int> PortalUnpackReverseTable = PortalUnpackTable.CreateReverseLookupDict();
+
+		private static readonly UserMessageType[] PortalSteamTable = {
+			UserMessageType.Geiger,
+			UserMessageType.Train,
+			UserMessageType.HudText,
+			UserMessageType.SayText,
+			UserMessageType.SayText2,
+			UserMessageType.TextMsg,
+			UserMessageType.HUDMsg,
+			UserMessageType.ResetHUD,
+			UserMessageType.GameTitle,
+			UserMessageType.ItemPickup,
+			UserMessageType.ShowMenu,
+			UserMessageType.Shake,
+			UserMessageType.Fade,
+			UserMessageType.VGUIMenu,
+			UserMessageType.Rumble,
+			UserMessageType.Battery,
+			UserMessageType.Damage,
+			UserMessageType.VoiceMask,
+			UserMessageType.RequestState,
+			UserMessageType.CloseCaption,
+			UserMessageType.HintText,
+			UserMessageType.KeyHintText,
+			UserMessageType.SquadMemberDied,
+			UserMessageType.AmmoDenied,
+			UserMessageType.CreditsMsg,
+			UserMessageType.CreditsPortalMsg,
+			UserMessageType.LogoTimeMsg,
+			UserMessageType.AchievementEvent,
+			UserMessageType.EntityPortalled,
+			UserMessageType.KillCam,
+			UserMessageType.CallVoteFailed,
+			UserMessageType.VoteStart,
+			UserMessageType.VotePass,
+			UserMessageType.VoteFailed,
+			UserMessageType.VoteSetup,
+			UserMessageType.SPHapWeapEvent,
+			UserMessageType.HapDmg,
+			UserMessageType.HapPunch,
+			UserMessageType.HapSetDrag,
+			UserMessageType.HapSetConst,
+			UserMessageType.HapMeleeContact
+		};
+		private static readonly Dictionary<UserMessageType, int> PortalSteamReverseTable = PortalSteamTable.CreateReverseLookupDict();
+
+		private static readonly UserMessageType[] L4D2SteamTable = {
+			UserMessageType.Geiger,
+			UserMessageType.Train,
+			UserMessageType.HudText,
+			UserMessageType.SayText,
+			UserMessageType.SayText2,
+			UserMessageType.TextMsg,
+			UserMessageType.HUDMsg,
+			UserMessageType.ResetHUD,
+			UserMessageType.GameTitle,
+			UserMessageType.ItemPickup,
+			UserMessageType.ShowMenu,
+			UserMessageType.Shake,
+			UserMessageType.Fade,
+			UserMessageType.VGUIMenu,
+			UserMessageType.Rumble,
+			UserMessageType.CloseCaption,
+			UserMessageType.CloseCaptionDirect,
+			UserMessageType.SendAudio,
+			UserMessageType.RawAudio,
+			UserMessageType.VoiceMask,
+			UserMessageType.RequestState,
+			UserMessageType.BarTime,
+			UserMessageType.Damage,
+			UserMessageType.RadioText,
+			UserMessageType.HintText,
+			UserMessageType.KeyHintText,
+			UserMessageType.ReloadEffect,
+			UserMessageType.PlayerAnimEvent,
+			UserMessageType.AmmoDenied,
+			UserMessageType.UpdateRadar,
+			UserMessageType.KillCam,
+			UserMessageType.MarkAchievement,
+			UserMessageType.Splatter,
+			UserMessageType.MeleeSlashSplatter,
+			UserMessageType.MeleeClubSplatter,
+			UserMessageType.MudSplatter,
+			UserMessageType.SplatterClear,
+			UserMessageType.MessageText,
+			UserMessageType.TransitionRestore,
+			UserMessageType.Spawn,
+			UserMessageType.CreditsLine,
+			UserMessageType.CreditsMsg,
+			UserMessageType.JoinLateMsg,
+			UserMessageType.StatsCrawlMsg,
+			UserMessageType.StatsSkipState,
+			UserMessageType.ShowStats,
+			UserMessageType.BlurFade,
+			UserMessageType.MusicCmd,
+			UserMessageType.WitchBloodSplatter,
+			UserMessageType.AchievementEvent,
+			UserMessageType.PZDmgMsg,
+			UserMessageType.AllPlayersConnectedGameStarting,
+			UserMessageType.VoteRegistered,
+			UserMessageType.DisconnectToLobby,
+			UserMessageType.CallVoteFailed,
+			UserMessageType.SteamWeaponStatData,
+			UserMessageType.CurrentTimescale,
+			UserMessageType.DesiredTimescale,
+			UserMessageType.PZEndGamePanelMsg,
+			UserMessageType.PZEndGamePanelVoteRegisteredMsg,
+			UserMessageType.PZEndGameVoteStatsMsg,
+			UserMessageType.VoteStart,
+			UserMessageType.VotePass,
+			UserMessageType.VoteFail
+		};
+		private static readonly Dictionary<UserMessageType, int> L4D2SteamReverseTable = L4D2SteamTable.CreateReverseLookupDict();
+
+		private static readonly UserMessageType[] L4D2OldSoloTable = L4D2SteamTable[..61];
+		private static readonly Dictionary<UserMessageType, int> L4D2OldSoloReverseTable = L4D2OldSoloTable.CreateReverseLookupDict();
 		
 		#endregion
 
@@ -43,40 +289,74 @@ namespace DemoParser.Parser.Components.Abstract {
 
 
 		public static UserMessageType ByteToUserMessageType(DemoSettings demoSettings, byte b) {
-			var def = (UserMessageType)b;
-			return demoSettings.Game switch {
-				PORTAL_1_UNPACK    => Portal1ReMapper.GetValueOrDefault(b, def),
-				PORTAL_1_STEAMPIPE => Portal1SteamPipe.GetValueOrDefault(b, def),
-				L4D2_2042          => L4D2ReMapper.GetValueOrDefault(b, def),
-				PORTAL_2           => Portal2ReMapper.GetValueOrDefault(b, def),
-				_ => def
+			var lookupTable = demoSettings.Game switch {
+				PORTAL_1_UNPACK    => PortalUnpackTable,
+				PORTAL_1_3420      => Portal3420Table,
+				PORTAL_1_STEAMPIPE => PortalSteamTable,
+				PORTAL_2           => Portal2Table,
+				L4D2_2000          => L4D2SteamTable,
+				L4D2_2042          => L4D2SteamTable,
+				_ => null
 			};
+			if (lookupTable == null)
+				return UserMessageType.UNKNOWN;
+			else if (b >= lookupTable.Length)
+				return UserMessageType.INVALID;
+			else return lookupTable[b];
 		}
 
 
-		public static byte UserMessageTypeToByte(DemoSettings demoSettings, UserMessageType m) {
-			var def = (byte)m;
-			return demoSettings.Game switch {
-				PORTAL_1_UNPACK    => Portal1ReMapper.GetValueOrDefault(m, def),
-				PORTAL_1_STEAMPIPE => Portal1SteamPipe.GetValueOrDefault(m, def),
-				L4D2_2042          => L4D2ReMapper.GetValueOrDefault(m, def),
-				PORTAL_2           => Portal2ReMapper.GetValueOrDefault(m, def),
-				_ => def
+		public static int UserMessageTypeToByte(DemoSettings demoSettings, UserMessageType m) {
+			var reverseLookupTable = demoSettings.Game switch {
+				PORTAL_1_UNPACK    => PortalUnpackReverseTable,
+				PORTAL_1_3420      => Portal3420ReverseTable,
+				PORTAL_1_STEAMPIPE => PortalSteamReverseTable,
+				PORTAL_2           => Portal2ReverseTable,
+				L4D2_2000          => L4D2SteamReverseTable,
+				L4D2_2042          => L4D2SteamReverseTable,
+				_ => null
 			};
+			if (reverseLookupTable == null)
+				throw new ArgumentException($"no reverse user message lookup table for {demoSettings.Game}");
+			else
+				return reverseLookupTable[m];
 		}
 	}
 	
 
 	public static class SvcUserMessageFactory {
-		// make sure to pass in a substream
-		public static SvcUserMessage CreateUserMessage(SourceDemo demoRef, BitStreamReader reader, UserMessageType messageType) {
-			SvcUserMessage msgResult = messageType switch {
+		
+		private static readonly HashSet<UserMessageType> EmptyMessages = new HashSet<UserMessageType> {
+			UserMessageType.GameTitle,
+			UserMessageType.RequestState,
+			UserMessageType.SquadMemberDied,
+			UserMessageType.RemoveAllPaint,
+			UserMessageType.SplatterClear,
+			UserMessageType.TransitionRestore,
+			UserMessageType.CreditsMsg,
+			UserMessageType.JoinLateMsg,
+			UserMessageType.StatsCrawlMsg,
+			UserMessageType.BlurFade,
+			UserMessageType.AllPlayersConnectedGameStarting,
+			UserMessageType.DisconnectToLobby,
+			UserMessageType.HapMeleeContact
+		};
+		
+		
+		// make sure to pass in a substream, don't call SetLocalStreamEnd() in any of the user messages
+		public static SvcUserMessage CreateUserMessage(
+			SourceDemo demoRef,
+			BitStreamReader reader,
+			UserMessageType messageType) 
+		{
+			
+			if (EmptyMessages.Contains(messageType))
+				return new EmptySvcUserMessage(demoRef, reader);
+			
+			return messageType switch {
 				UserMessageType.CloseCaption     => new CloseCaption(demoRef, reader),
 				UserMessageType.AchievementEvent => new AchievementEvent(demoRef, reader),
 				UserMessageType.SayText2         => new SayText2(demoRef, reader),
-				UserMessageType.SquadMemberDied  => new SquadMemberDied(demoRef, reader),
-				UserMessageType.GameTitle        => new GameTitle(demoRef, reader),
-				UserMessageType.RequestState     => new RequestState(demoRef, reader),
 				UserMessageType.Shake            => new Shake(demoRef, reader),
 				UserMessageType.Fade             => new Fade(demoRef, reader),
 				UserMessageType.Damage           => new Damage(demoRef, reader),
@@ -92,25 +372,8 @@ namespace DemoParser.Parser.Components.Abstract {
 				UserMessageType.Train            => new Train(demoRef, reader),
 				UserMessageType.VGUIMenu         => new VguiMenu(demoRef, reader),
 				UserMessageType.TextMsg          => new TextMsg(demoRef, reader),
-				_ => null
+				_ => null // I do a check for this so that I don't have to allocate the unknown type twice
 			};
-			
-			if (msgResult != null) {
-				return msgResult;
-			} else {
-				#region error logging
-				
-				bool defined = Enum.IsDefined(typeof(UserMessageType), messageType);
-				string s = defined ? "unimplemented" : "unknown";
-				s += $" SvcUserMessage: {messageType}";
-				if (defined)
-					s += $" ({SvcUserMessage.UserMessageTypeToByte(demoRef.DemoSettings, messageType)})";
-				int rem = reader.BitsRemaining / 8;
-				demoRef.AddError($"{s} ({rem} byte{(rem == 1 ? "" : "s")}) - {reader.FromBeginning().ToHexString()}");
-				
-				#endregion
-				return new UnknownSvcUserMessage(demoRef, reader);
-			}
 		}
 	}
 	
@@ -120,13 +383,18 @@ namespace DemoParser.Parser.Components.Abstract {
 	// For other sdk's it's in similar locations, the csgo values can be found at
 	// https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/Messages/EnumConstants.cs
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
-	public enum UserMessageType : byte {
-		Geiger = 0,
+	[SuppressMessage("ReSharper", "IdentifierTypo")]
+	public enum UserMessageType {
+		// not used in any games just personal book keeping
+		UNKNOWN,
+		INVALID,
+		// 3420 types
+		Geiger,
 		Train,
 		HudText,
 		SayText,
 		SayText2,
-		TextMsg,    //one of the messages here doesn't actually exist in the leak even tho it registers??
+		TextMsg,
 		HUDMsg,
 		ResetHUD,   // called every respawn
 		GameTitle,  // show game title
@@ -145,11 +413,94 @@ namespace DemoParser.Parser.Components.Abstract {
 		KeyHintText,
 		SquadMemberDied,
 		AmmoDenied,
-		CreditsMessage,
-		CreditsPortalMessage,
+		CreditsMsg,
+		CreditsPortalMsg,
 		LogoTimeMsg,
 		AchievementEvent,
 		EntityPortalled,
-		KillCam
+		KillCam,
+		// additional types from unpack
+		SPHapWeapEvent,
+		HapDmg,
+		HapPunch,
+		HapSetDrag,
+		HapSetConst,
+		HapMeleeContact,
+		// additional types from portal 2
+		Tilt,
+		CloseCaptionDirect,
+		UpdateJalopyRadar,
+		CurrentTimescale,
+		DesiredTimescale,
+		InventoryFlash,
+		IndicatorFlash,
+		ControlHelperAnimate,
+		TakePhoto,
+		Flash,
+		HudPingIndicator,
+		OpenRadialMenu,
+		AddLocator,
+		MPMapCompleted,
+		MPMapIncomplete,
+		MPMapCompletedData,
+		MPTauntEarned,
+		MPTauntUnlocked,
+		MPTauntLocked,
+		MPAllTauntsLocked,
+		PortalFX_Surface,
+		PaintWorld,
+		PaintEntity,
+		ChangePaintColor,
+		PaintBombExplode,
+		RemoveAllPaint,
+		PaintAllSurfaces,
+		RemovePaint,
+		StartSurvey,
+		ApplyHitBoxDamageEffect,
+		SetMixLayerTriggerFactor,
+		TransitionFade,
+		ScoreboardTempUpdate,
+		ChallengeModCheatSession,
+		ChallengeModCloseAllUI,
+		// additional types from portal 1 steampipe
+		CallVoteFailed,
+		VoteStart,
+		VotePass,
+		VoteFailed,
+		VoteSetup,
+		// additional types from l4d2
+		SendAudio,
+		RawAudio,
+		BarTime,
+		RadioText,
+		ReloadEffect,
+		PlayerAnimEvent,
+		UpdateRadar,
+		MarkAchievement,
+		Splatter,
+		MeleeSlashSplatter,
+		MeleeClubSplatter,
+		MudSplatter,
+		SplatterClear,
+		MessageText,
+		TransitionRestore,
+		Spawn,
+		CreditsLine,
+		JoinLateMsg,
+		StatsCrawlMsg,
+		StatsSkipState,
+		ShowStats,
+		BlurFade,
+		MusicCmd,
+		WitchBloodSplatter,
+		PZDmgMsg,
+		AllPlayersConnectedGameStarting,
+		VoteRegistered,
+		DisconnectToLobby,
+		SteamWeaponStatData,
+		PZEndGamePanelMsg,
+		PZEndGamePanelVoteRegisteredMsg,
+		PZEndGameVoteStatsMsg,
+		VoteFail // todo is this any different from VoteFailed?
 	} 
 }

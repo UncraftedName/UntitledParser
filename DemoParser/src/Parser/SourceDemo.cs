@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -40,16 +41,19 @@ namespace DemoParser.Parser {
 		private readonly IProgress<double>? _parseProgress;
 
 		
-		public SourceDemo(FileInfo info, IProgress<double>? parseProgress = null) : this(info.FullName, parseProgress) {}
+		public SourceDemo(FileInfo info, IProgress<double>? parseProgress = null) 
+			: this(info.FullName, parseProgress) {}
 		
 		
-		public SourceDemo(string fileDir, IProgress<double>? parseProgress = null) : this(File.ReadAllBytes(fileDir), parseProgress) {
-			FileName = Path.GetFileName(fileDir);
-		}
+		public SourceDemo(string fileDir, IProgress<double>? parseProgress = null) 
+			: this(File.ReadAllBytes(fileDir), parseProgress, Path.GetFileName(fileDir)) {}
 
 
-		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null) : base(null, new BitStreamReader(data)) {
+		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null, [NotNull]string demoName = "") 
+			: base(null, new BitStreamReader(data)) 
+		{
 			_parseProgress = parseProgress;
+			FileName = demoName;
 		}
 
 
@@ -76,7 +80,7 @@ namespace DemoParser.Parser {
 			catch (Exception e) {
 				_exceptionDuringParsing = true;
 				Debug.WriteLine($"Exception after parsing {Frames.Count - 1} packets");
-				AddError($"Exception after parsing {Frames.Count - 1} packets: {e.Message}");
+				LogError($"Exception after parsing {Frames.Count - 1} packets: {e.Message}");
 				throw;
 			}
 			EndAdjustmentTick = EndAdjustmentTick == -1 ? this.TickCount() - 1 : EndAdjustmentTick;
@@ -88,7 +92,7 @@ namespace DemoParser.Parser {
 		}
 
 
-		internal void AddError(string e) {
+		internal void LogError(string e) {
 			string s = Frames[^1].Packet == null ? "[unknown]" : $"[{Frames[^1].Tick}] {e}";
 			ErrorList.Add(s);
 			Debug.WriteLine(s);

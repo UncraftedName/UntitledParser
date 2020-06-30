@@ -52,7 +52,7 @@ namespace DemoParser.Parser.Components.Messages {
 			if (IsDelta && snapshot.EngineTick != DeltaFrom) {
 				// If the messages ever arrive in a different order I should queue them,
 				// but for now just exit if we're updating from a non-existent snapshot.
-				DemoRef.AddError(
+				DemoRef.LogError(
 					$"{GetType().Name} failed to process entity delta, " + 
 					$"attempted to retrieve non existent snapshot on engine tick: {DeltaFrom}");
 				return;
@@ -131,7 +131,7 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 			} catch (Exception e) {
 				Updates = null;
-				DemoRef.AddError($"Exception while parsing entity info in {GetType().Name}: {e.Message}");
+				DemoRef.LogError($"Exception while parsing entity info in {GetType().Name}: {e.Message}");
 			}
 		}
 		

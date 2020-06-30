@@ -66,7 +66,7 @@ namespace DemoParser.Parser.Components {
 					errorStr += $"unimplemented message type - {Messages[^1].Item1}";
 				}
 
-				DemoRef.AddError(errorStr);
+				DemoRef.LogError(errorStr);
 			}
 			
 			#endregion

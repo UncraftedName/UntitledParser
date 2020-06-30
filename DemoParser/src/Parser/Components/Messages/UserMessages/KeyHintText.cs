@@ -17,7 +17,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		internal override void ParseStream(BitStreamReader bsr) {
 			Count = bsr.ReadByte();
 			if (Count != 1)
-				DemoRef.AddError($"{GetType()} borking, there should only be one string but count is {Count}");
+				DemoRef.LogError($"{GetType()} is borking, there should only be one string but count is {Count}");
 			KeyString = bsr.ReadNullTerminatedString();
 		}
 		

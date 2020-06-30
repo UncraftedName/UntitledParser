@@ -151,7 +151,7 @@ namespace DemoParser.Parser.HelperClasses {
 							AddTableClass(newTable, tableClass.Name, tableClass.Data);
 				}
 			} catch (Exception e) {
-				_demoRef.AddError($"error while converting tables packet to c_tables: {e.Message}");
+				_demoRef.LogError($"error while converting tables packet to c_tables: {e.Message}");
 				TableReadable.Keys.ToList().ForEach(s => TableReadable[s] = false);
 			}
 		}
