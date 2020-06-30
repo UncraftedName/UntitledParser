@@ -59,6 +59,8 @@ namespace ConsoleApp {
 
 		
 		private static string FormatTime(double seconds) {
+			if (Math.Abs(seconds) > 8640000) // 10 days, probably happens from initializing the tick interval to garbage 
+				return "invalid";
 			string sign = seconds < 0 ? "-" : "";
 			// timespan truncates values, (makes sense since 0.5 minutes is still 0 total minutes) so I round manually
 			TimeSpan t = TimeSpan.FromSeconds(Math.Abs(seconds));
@@ -93,20 +95,21 @@ namespace ConsoleApp {
 				return;
 			}
 
-			Console.ForegroundColor = ConsoleColor.Gray; // todo add file name
+			Console.ForegroundColor = ConsoleColor.Gray;
 			if (listdemoOption == ListdemoOption.DisplayHeader) {
 				DemoHeader h = CurDemo.Header;
 				_curTextWriter.Write(
-						$"{"Demo protocol",      -25}: {h.DemoProtocol}"             +
-						$"\n{"Network protocol", -25}: {h.NetworkProtocol}"          +
-						$"\n{"Server name",      -25}: {h.ServerName}"               +
-						$"\n{"Client name",      -25}: {h.ClientName}"               +
-						$"\n{"Map name",         -25}: {h.MapName}"                  +
-						$"\n{"Game directory",   -25}: {h.GameDirectory}"            +
-						$"\n{"Playback time",    -25}: {FormatTime(h.PlaybackTime)}" +
-						$"\n{"Ticks",            -25}: {h.TickCount}"                +
-						$"\n{"Frames",           -25}: {h.FrameCount}"               +
-						$"\n{"SignOn Length",    -25}: {h.SignOnLength}\n\n");
+					$"{"File name",          -25}: {CurDemo.FileName}"           +
+					$"{"Demo protocol",      -25}: {h.DemoProtocol}"             +
+					$"\n{"Network protocol", -25}: {h.NetworkProtocol}"          +
+					$"\n{"Server name",      -25}: {h.ServerName}"               +
+					$"\n{"Client name",      -25}: {h.ClientName}"               +
+					$"\n{"Map name",         -25}: {h.MapName}"                  +
+					$"\n{"Game directory",   -25}: {h.GameDirectory}"            +
+					$"\n{"Playback time",    -25}: {FormatTime(h.PlaybackTime)}" +
+					$"\n{"Ticks",            -25}: {h.TickCount}"                +
+					$"\n{"Frames",           -25}: {h.FrameCount}"               +
+					$"\n{"SignOn Length",    -25}: {h.SignOnLength}\n\n");
 			}
 			Regex[] regexes = {
 				new Regex("^autosave$"), 
@@ -163,7 +166,7 @@ namespace ConsoleApp {
 				}
 			}
 
-			CurDemo.FilterForUserMessage<Rumble>()
+			/*CurDemo.FilterForUserMessage<Rumble>()
 				.Where(tuple =>
 					tuple.userMessage.RumbleType == RumbleLookup.PortalgunLeft ||
 					tuple.userMessage.RumbleType == RumbleLookup.PortalgunRight)
@@ -174,7 +177,7 @@ namespace ConsoleApp {
 					ConsoleWriteWithColor(
 						$"Portal fired on tick {tick,4}, time: {FormatTime(tick * tickInterval),10}\n",
 						rumbleType == RumbleLookup.PortalgunLeft ? ConsoleColor.Cyan : ConsoleColor.Red);
-				});
+				});*/
 
 			if (listdemoOption == ListdemoOption.DisplayHeader)
 				Console.WriteLine();
@@ -292,7 +295,7 @@ namespace ConsoleApp {
 			
 			Packet[] closeCaptionPackets = CurDemo.FilterForPacket<Packet>()
 				.Where(packet => packet.FilterForMessage<SvcUserMessageFrame>()
-					.Any(frame => frame.UserMessageType == UserMessageType.CloseCaption)).ToArray();
+					.Any(frame => frame.MessageType == UserMessageType.CloseCaption)).ToArray();
 
 			if (closeCaptionPackets.Length == 0) {
 				Console.WriteLine(" no captions found");
