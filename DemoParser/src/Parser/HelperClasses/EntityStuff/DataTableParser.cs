@@ -1,5 +1,4 @@
 #nullable enable
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -179,7 +178,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	}
 	
 	
-	public class FlattenedProp : IEquatable<FlattenedProp> {
+	public class FlattenedProp {
 		
 		public readonly string Name;
 		public readonly SendTableProp Prop;
@@ -204,41 +203,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		// if elements are of array type, converts from something like "int" to something like "int[32]"
 		public string TypeString() {
 			return Prop.SendPropType == SendPropType.Array
-				? $"{ArrayElementProp?.SendPropType.ToString().ToLower()}[{Prop.Elements}]" 
+				? $"{ArrayElementProp?.SendPropType.ToString().ToLower()}[{Prop.NumElements}]" 
 				: Prop.SendPropType.ToString().ToLower();
-		}
-
-
-		public bool Equals(FlattenedProp? other) {
-			if (ReferenceEquals(null, other)) return false;
-			if (ReferenceEquals(this, other)) return true;
-			return Name == other.Name && Prop.Equals(other.Prop) && Equals(ArrayElementProp, other.ArrayElementProp);
-		}
-
-
-		public override bool Equals(object? obj) {
-			if (ReferenceEquals(null, obj)) return false;
-			if (ReferenceEquals(this, obj)) return true;
-			return obj.GetType() == GetType() && Equals((FlattenedProp)obj);
-		}
-
-
-		public override int GetHashCode() {
-			return HashCode.Combine(Name, Prop, ArrayElementProp);
-		}
-
-
-		public static bool operator ==(FlattenedProp left, FlattenedProp right) {
-			return Equals(left, right);
-		}
-
-
-		public static bool operator !=(FlattenedProp left, FlattenedProp right) {
-			return !Equals(left, right);
 		}
 	}
 
 
-	// typedef
+	// typedef todo explicit lookup?
 	public class PropLookup : List<(ServerClass serverClass, List<FlattenedProp> flattenedProps)> {} 
 }

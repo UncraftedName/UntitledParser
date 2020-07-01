@@ -1,6 +1,5 @@
 #nullable enable
 using System;
-using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
@@ -8,7 +7,7 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
-	public class SendTableProp : DemoComponent, IEquatable<SendTableProp> { // todo do i really need IEquatable?
+	public class SendTableProp : DemoComponent {
 		
 		public readonly SendTable TableRef;
 		// these fields should only be set once in ParseStream()
@@ -20,7 +19,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		public float? LowValue;
 		public float? HighValue;
 		public uint? NumBits;
-		public uint? Elements;
+		public uint? NumElements;
 		
 
 		public SendTableProp(SourceDemo demoRef, BitStreamReader reader, SendTable tableRef) : base(demoRef, reader) {
@@ -52,7 +51,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 								? 6 : 7);
 						break;
 					case SendPropType.Array:
-						Elements = bsr.ReadBitsAsUInt(10);
+						NumElements = bsr.ReadBitsAsUInt(10);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException(nameof(SendPropType),
@@ -87,7 +86,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 						iw.Append($"low: {LowValue, -12} high: {HighValue, -12} {NumBits, 3} bit{(NumBits == 1 ? "" : "s")}");
 						break;
 					case SendPropType.Array:
-						iw.Append($"elements: {Elements}");
+						iw.Append($"elements: {NumElements}");
 						break;
 					default:
 						iw.Append($"unknown prop type: {SendPropType}");
@@ -118,56 +117,6 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					i++;
 			}
 			return (SendPropType)i;
-		}
-
-
-		public bool Equals(SendTableProp? other) {
-			if (ReferenceEquals(null, other)) return false;
-			if (ReferenceEquals(this, other)) return true;
-			return TableRef.Equals(other.TableRef) 
-				   && SendPropType == other.SendPropType 
-				   && Name == other.Name 
-				   && Flags == other.Flags 
-				   && Priority == other.Priority 
-				   && ExcludeDtName == other.ExcludeDtName 
-				   && Nullable.Equals(LowValue, other.LowValue) 
-				   && Nullable.Equals(HighValue, other.HighValue) 
-				   && NumBits == other.NumBits 
-				   && Elements == other.Elements;
-		}
-
-
-		public override bool Equals(object? obj) {
-			if (ReferenceEquals(null, obj)) return false;
-			if (ReferenceEquals(this, obj)) return true;
-			return obj.GetType() == GetType() && Equals((SendTableProp)obj);
-		}
-
-
-		[SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")] // fields should only be set once
-		public override int GetHashCode() {
-			var hashCode = new HashCode();
-			hashCode.Add(TableRef);
-			hashCode.Add((int)SendPropType);
-			hashCode.Add(Name);
-			hashCode.Add((int)Flags);
-			hashCode.Add(Priority);
-			hashCode.Add(ExcludeDtName);
-			hashCode.Add(LowValue);
-			hashCode.Add(HighValue);
-			hashCode.Add(NumBits);
-			hashCode.Add(Elements);
-			return hashCode.ToHashCode();
-		}
-
-
-		public static bool operator ==(SendTableProp left, SendTableProp right) {
-			return Equals(left, right);
-		}
-
-
-		public static bool operator !=(SendTableProp left, SendTableProp right) {
-			return !Equals(left, right);
 		}
 	}
 
