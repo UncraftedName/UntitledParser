@@ -50,7 +50,7 @@ namespace DemoParser.Parser.Components.Packets {
 					ServerClasses[^1].ParseStream(bsr);
 					// this is an assumption I make in the structure of all the entity stuff, very critical
 					if (i != ServerClasses[i].DataTableId)
-						throw new ConstraintException("server class ID does not match it's index in the list");
+						throw new ConstraintException("server class ID does not match its index in the list");
 				}
 				
 				// re-init the baselines if the count doesn't match (maybe I should just init them from here?)
@@ -145,7 +145,7 @@ namespace DemoParser.Parser.Components.Packets {
 	}
 	
 	
-	public class SendTableProp : DemoComponent, IEquatable<SendTableProp> {
+	public class SendTableProp : DemoComponent, IEquatable<SendTableProp> { // todo do i really need IEquatable?
 		
 		public readonly SendTable TableRef;
 		// these fields should only be set once in ParseStream()

@@ -45,7 +45,7 @@ namespace DemoParser.Parser.HelperClasses {
 				List<FlattenedProp> fProps = FlattenedProps[currentClass.DataTableId].flattenedProps;
 
 				// Now we have the props, rearrange them so that props that are marked with 'changes often' get a
-				// smaller index. In orange box the priority of the props is also taken into account.
+				// smaller index. In the new protocol the priority of the props is also taken into account.
 				if (_demoRef.DemoSettings.NewDemoProtocol) {
 					List<int> priorities = new List<int>(); // csgo parser inits this with 64, literally no clue why
 					priorities.AddRange(fProps.Select(entry => entry.Prop.Priority.Value).Distinct());

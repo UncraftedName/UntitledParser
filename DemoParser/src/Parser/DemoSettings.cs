@@ -109,7 +109,7 @@ namespace DemoParser.Parser {
 	
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum SourceGame {
-		PORTAL_1_UNPACK,
+		PORTAL_1_UNPACK, // todo add hl2
 		PORTAL_1_3420,
 		PORTAL_1_STEAMPIPE,
 		PORTAL_2,

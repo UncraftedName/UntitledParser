@@ -29,6 +29,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public SvcServerInfo(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 		
 		
+		// src_main/common/netmessages.cpp  SVC_ServerInfo::WriteToBuffer
 		internal override void ParseStream(BitStreamReader bsr) {
 			NetworkProtocol = bsr.ReadUShort();
 			ServerCount = bsr.ReadUInt();
