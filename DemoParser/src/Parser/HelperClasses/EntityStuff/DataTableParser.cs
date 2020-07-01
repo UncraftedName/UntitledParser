@@ -9,7 +9,7 @@ using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Utils;
 
-namespace DemoParser.Parser.HelperClasses {
+namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
 	// https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/DataTableParser.cs#L69
 	public class DataTableParser {
@@ -115,12 +115,12 @@ namespace DemoParser.Parser.HelperClasses {
 			bool collectBaseClasses) 
 		{
 			excludes.UnionWith(
-				table.Properties
+				table.SendProps
 					.Where(property => (property.Flags & SendPropFlags.Exclude) != 0)
 					.Select(property => (property.ExcludeDtName, property.Name))
 				);
 			
-			foreach (SendTableProp property in table.Properties.Where(property => property.SendPropType == SendPropType.DataTable)) {
+			foreach (SendTableProp property in table.SendProps.Where(property => property.SendPropType == SendPropType.DataTable)) {
 				if (collectBaseClasses && property.Name == "baseclass") {
 					GatherExcludesAndBaseClasses(excludes, baseClasses, _tableLookup[property.ExcludeDtName], true);
 					baseClasses.Add(GetClassByDtName(table.Name)); // should be the same as the properties table
@@ -154,8 +154,8 @@ namespace DemoParser.Parser.HelperClasses {
 			ICollection<FlattenedProp> fProps, 
 			string prefix) 
 		{
-			for (int i = 0; i < table.Properties.Count; i++) {
-				SendTableProp prop = table.Properties[i];
+			for (int i = 0; i < table.SendProps.Count; i++) {
+				SendTableProp prop = table.SendProps[i];
 				if ((prop.Flags & (SendPropFlags.InsideArray | SendPropFlags.Exclude)) != 0 || excludes.Contains((table.Name, prop.Name)))
 					continue;
 				if (prop.SendPropType == SendPropType.DataTable) {
@@ -167,7 +167,7 @@ namespace DemoParser.Parser.HelperClasses {
 						GatherProps(excludes, subTable, classIndex, prop.Name.Length > 0 ? $"{prop.Name}." : "");
 				} else {
 					fProps.Add(new FlattenedProp(prefix + prop.Name, prop, 
-						prop.SendPropType == SendPropType.Array ? table.Properties[i - 1] : null));
+						prop.SendPropType == SendPropType.Array ? table.SendProps[i - 1] : null));
 				}
 			}
 		}

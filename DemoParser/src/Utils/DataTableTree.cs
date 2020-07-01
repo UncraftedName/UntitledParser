@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DemoParser.Parser.Components.Packets;
+using DemoParser.Parser.HelperClasses.EntityStuff;
 
 namespace DemoParser.Utils {
 	
@@ -23,8 +24,8 @@ namespace DemoParser.Utils {
 					if (checkedStrs.Contains(sendTable.Name))
 						continue;
 					string inheritName = null;
-					if (sendTable.Properties.Count > 0 && sendTable.Properties[0].SendPropType == SendPropType.DataTable)
-						inheritName = sendTable.Properties[0].ExcludeDtName;
+					if (sendTable.SendProps.Count > 0 && sendTable.SendProps[0].SendPropType == SendPropType.DataTable)
+						inheritName = sendTable.SendProps[0].ExcludeDtName;
 					if (inheritName == null) {
 						AddRoot(sendTable.Name);
 						checkedStrs.Add(sendTable.Name);

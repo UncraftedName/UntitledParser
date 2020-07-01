@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using DemoParser.Parser.Components.Packets;
-using DemoParser.Parser.HelperClasses;
+using DemoParser.Parser.HelperClasses.EntityStuff;
 using static DemoParser.Utils.BitStreams.CoordConsts;
 
 // I want to access NumBits from props without my IDE screaming at me

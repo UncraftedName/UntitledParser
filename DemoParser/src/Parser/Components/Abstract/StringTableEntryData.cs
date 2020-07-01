@@ -1,5 +1,6 @@
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Parser.HelperClasses;
+using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {

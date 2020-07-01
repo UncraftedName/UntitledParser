@@ -10,7 +10,7 @@ using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Parser.Components.Packets;
-using DemoParser.Parser.HelperClasses;
+using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
