@@ -56,9 +56,31 @@ namespace DemoParser.Utils.BitStreams {
 			} else if ((flags & SendPropFlags.Normal) != 0) {
 				val = ReadBitNormal();
 				return true;
+			} else if (propInfo.DemoRef.DemoSettings.NewDemoProtocol) {
+				if ((flags & SendPropFlags.CellCoord) != 0) {
+					val = ReadBitCellCoord(propInfo.NumBits.Value, BitChordType.None);
+					return true;
+				} else if ((flags & SendPropFlags.CellCoordLowPrecision) != 0) {
+					val = ReadBitCellCoord(propInfo.NumBits.Value, BitChordType.LowPrecision);
+					return true;
+				} else if ((flags & SendPropFlags.CellCoordIntegral) != 0) {
+					val = ReadBitCellCoord(propInfo.NumBits.Value, BitChordType.Integral);
+					return true;
+				}
 			}
 			val = default;
 			return false;
+		}
+
+
+		private float ReadBitCellCoord(uint numBits, BitChordType type) {
+			if (type == BitChordType.Integral) {
+				return ReadBitsAsUInt(numBits);
+			} else {
+				uint intval = ReadBitsAsUInt(numBits);
+				uint fractVal = ReadBitsAsUInt(type == BitChordType.LowPrecision ? CoordFracBitsMpLp : CoordFracBits);
+				return intval + fractVal * (type == BitChordType.LowPrecision ? CoordResLp : CoordRes);
+			}
 		}
 
 
@@ -273,5 +295,12 @@ namespace DemoParser.Utils.BitStreams {
 		public const int CoordMpLp = 1 << 14;
 		public const int CoordMpIntegral = 1 << 15;
 		public const int NumFlagBitsNetworked = 16;*/
+	}
+
+
+	internal enum BitChordType {
+		None,
+		LowPrecision,
+		Integral
 	}
 }
