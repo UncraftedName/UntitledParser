@@ -100,7 +100,7 @@ namespace ConsoleApp {
 				DemoHeader h = CurDemo.Header;
 				_curTextWriter.Write(
 					$"{"File name",          -25}: {CurDemo.FileName}"           +
-					$"{"Demo protocol",      -25}: {h.DemoProtocol}"             +
+					$"\n{"Demo protocol",      -25}: {h.DemoProtocol}"             +
 					$"\n{"Network protocol", -25}: {h.NetworkProtocol}"          +
 					$"\n{"Server name",      -25}: {h.ServerName}"               +
 					$"\n{"Client name",      -25}: {h.ClientName}"               +
