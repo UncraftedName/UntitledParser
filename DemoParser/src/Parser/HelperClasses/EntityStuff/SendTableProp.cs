@@ -30,9 +30,14 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		internal override void ParseStream(BitStreamReader bsr) {
 			SendPropType = UIntToSendPropertyType(DemoRef, bsr.ReadBitsAsUInt(5));
 			Name = bsr.ReadNullTerminatedString();
-			Flags = (SendPropFlags)bsr.ReadBitsAsUInt(DemoRef.Header.DemoProtocol == 2 ? 11 : 16);
+			Flags = (SendPropFlags)bsr.ReadBitsAsUInt(
+				DemoRef.Header.DemoProtocol switch {
+				2 => 11, // todo put in constants
+				3 => 16,
+				4 => 19
+			});
 			if (DemoSettings.NewDemoProtocol)
-				Priority = bsr.ReadBitsAsSInt(11);
+				Priority = bsr.ReadByte();
 			if (SendPropType == SendPropType.DataTable || (Flags & SendPropFlags.Exclude) != 0) {
 				ExcludeDtName = bsr.ReadNullTerminatedString();
 			} else {
@@ -134,7 +139,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 	[Flags]
 	public enum SendPropFlags : uint { // https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/SendTableProperty.cs
-		None                = 0,
+		/*None                = 0,
 		Unsigned            = 1,
 		Coord               = 1 << 1,
 		NoScale             = 1 << 2,
@@ -150,14 +155,37 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		Collapsible         = 1 << 12,
 		CoordMp             = 1 << 13,
 		CoordMpLowPrecision = 1 << 14,
-		CoordMpIntegral     = 1 << 15
+		CoordMpIntegral     = 1 << 15*/
 		
-		// we read 16 bits, so there's probably an additional flag that i'm missing, but these are only used in csg
+		None                  = 0x0,
+		Unsigned              = 0x1,
+		Coord                 = 0x2,
+		NoScale               = 0x4,
+		RoundDown             = 0x8,
+		RoundUp               = 0x10,
+		Normal                = 0x20,
+		Exclude               = 0x40,
+		XYZE                  = 0x80,
+		InsideArray           = 0x100,
+		ProxyAlwaysYes        = 0x200,
 		
-		// CellCoordMp             = 1 << 16,
-		// CellCoordMpLowPrecision = 1 << 17,
-		// CellCoordMpLowIntegral  = 1 << 18,
-		// ChangesOften            = 1 << 18,
-		// VarInt                  = 1 << 19
+		IsVectorElem          = 0x400,
+		Collapsible           = 0x800,
+		
+		CoordMp               = 0x1000,
+		CoordMpLowPrecision   = 0x2000,
+		CoordMpIntegral       = 0x4000,
+		CellCoord             = 0x8000, // todo ReadBitCellCoord
+		CellCoordLowPrecision = 0x10000,
+		CellCoordIntegral     = 0x20000,
+		ChangesOften          = 0x40000
+		
+		
+		/*ChangesOften        = 0x400,
+		IsAVectorElement    = 0x800,
+		Collapsible         = 0x1000,
+		CoordMp             = 0x2000,
+		CoordMpLowPrecision = 0x4000,
+		CoordMpIntegral     = 0x8000*/
 	}
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -421,10 +420,10 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			if (demoRef.DemoSettings.NewDemoProtocol) {
 				bool newWay = bsr.ReadBool();
 				while ((i = bsr.ReadFieldIndex(i, newWay)) != -1) {
-					int tmp = bsr.CurrentBitIndex; // this is a botched fix, seems to work for now todo make sure flag is right
+					//int tmp = bsr.CurrentBitIndex; // this is a botched fix, seems to work for now todo make sure flag is right
 					props.Add((i, CreateAndReadProp(fProps[i], bsr)));
-					if ((fProps[i].Prop.Flags & SendPropFlags.CoordMpIntegral) != 0)
-						bsr.CurrentBitIndex = tmp + 30;
+					/*if ((fProps[i].Prop.Flags & SendPropFlags.CoordMpIntegral) != 0)
+						bsr.CurrentBitIndex = tmp + 30;*/
 				}
 			} else {
 				while (bsr.ReadBool()) {
