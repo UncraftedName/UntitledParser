@@ -84,6 +84,7 @@ namespace DemoParser.Parser {
 					SignOnGarbageBytes = 76;
 					break;
 				case PORTAL_2:
+					ProcessEnts = true;
 					MaxSplitscreenPlayers = 2;
 					SignOnGarbageBytes = 152;
 					break;

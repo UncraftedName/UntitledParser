@@ -73,7 +73,7 @@ namespace DemoParser.Parser {
 					Frames[^1].ParseStream(bsr);
 					_parseProgress?.Report((double)bsr.CurrentBitIndex / bsr.BitLength);
 				} while (Frames[^1].Type != PacketType.Stop && bsr.BitsRemaining >= 24); // would be 32 but the last byte is often cut off
-
+				
 				StartAdjustmentTick = StartAdjustmentTick == -1 ? 0 : StartAdjustmentTick;
 				EndTick = this.FilterForPacket<Packet>().Select(packet => packet.Tick).Where(i => i >= 0).Max();
 			}

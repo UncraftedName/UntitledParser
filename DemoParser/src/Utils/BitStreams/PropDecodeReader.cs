@@ -215,12 +215,14 @@ namespace DemoParser.Utils.BitStreams {
 		}
 		
 
+#pragma warning disable 8509
+		
 		public uint ReadUBitVar() {
 			return ReadBitsAsUInt(2) switch {
 				0 => ReadBitsAsUInt(4),
 				1 => ReadBitsAsUInt(8),
 				2 => ReadBitsAsUInt(12),
-				_ => ReadBitsAsUInt(32)
+				3 => ReadBitsAsUInt(32)
 			};
 		}
 
@@ -231,7 +233,7 @@ namespace DemoParser.Utils.BitStreams {
 				0 => ret,
 				1 => ret | (ReadBitsAsUInt(4) << 4),
 				2 => ret | (ReadBitsAsUInt(8) << 4),
-				_ => ret | (ReadBitsAsUInt(28) << 4)
+				3 => ret | (ReadBitsAsUInt(28) << 4)
 			};
 		}
 
@@ -248,13 +250,15 @@ namespace DemoParser.Utils.BitStreams {
 					0 => ret,
 					1 => ret | (ReadBitsAsUInt(2) << 5),
 					2 => ret | (ReadBitsAsUInt(4) << 5),
-					_ => ret | (ReadBitsAsUInt(7) << 5)
+					3 => ret | (ReadBitsAsUInt(7) << 5)
 				};
 			}
 			if (ret == 0xFFF) // end marker
 				return -1;
 			return lastIndex + 1 + (int)ret;
 		}
+		
+#pragma warning restore 8509
 
 
 		public float ReadBitAngle(int bitCount) {
@@ -272,29 +276,20 @@ namespace DemoParser.Utils.BitStreams {
 
 
 	// these might be different depending on the game, i sure hope fucking not
-	public static class CoordConsts { 
-		// src_main\public\coordsize.h
-		public const int   CoordIntBits      = 14;
+	// found in src_main\public\coordsize.h
+	internal static class CoordConsts { 
 		public const int   CoordFracBits     = 5;
 		public const int   CoordDenom        = 1 << CoordFracBits;
 		public const float CoordRes          = 1.0f / CoordDenom;
 		public const int   CoordIntBitsMp    = 11;
+		public const int   CoordIntBits      = 14;
 		public const int   CoordFracBitsMpLp = 3;
 		public const int   CoordDenomLp      = 1 << CoordFracBitsMpLp;
 		public const float CoordResLp        = 1.0f / CoordDenomLp;
-
 		public const int   NormFracBits      = 11;
 		public const int   NormDenom         = (1 << NormFracBits) - 1;
 		public const float NormRes           = 1.0f / NormDenom;
-		
-		
-		// src_main\public\dt_common.h
-		public const int DtMaxStringBits     = 9; // read this many bits to get the length of a string prop, this is probably constant (same in csgo parser)    
-		
-		/*public const int CoordMp = 1 << 13;
-		public const int CoordMpLp = 1 << 14;
-		public const int CoordMpIntegral = 1 << 15;
-		public const int NumFlagBitsNetworked = 16;*/
+		public const int DtMaxStringBits     = 9; // read this many bits to get the length of a string prop
 	}
 
 

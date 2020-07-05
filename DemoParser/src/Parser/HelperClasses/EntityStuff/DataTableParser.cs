@@ -46,20 +46,16 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				// Now we have the props, rearrange them so that props that are marked with 'changes often' get a
 				// smaller index. In the new protocol the priority of the props is also taken into account.
 				if (_demoRef.DemoSettings.NewDemoProtocol) {
-					List<int> priorities = new List<int> {64}; // csgo parser inits this with 64, literally no clue why
+					List<int> priorities = new List<int> {64};
 					priorities.AddRange(fProps.Select(entry => entry.Prop.Priority.Value).Distinct());
 					priorities.Sort();
-					// csgo parser doesn't reverse here, portal 2 seems to require it
-					//priorities.Reverse();
-					// So this might actually start at 0, but that kinda breaks for portal 2 demos for 
-					// flAnimTimeMustBeFirst or whatever, and starting at 1 doesn't seem to effect portal 1 demos.
 					int start = 0;
 					foreach (int priority in priorities) {
 						while (true) {
 							int currentProp = start;
 							while (currentProp < fProps.Count) {
 								SendTableProp prop = fProps[currentProp].Prop;
-								// in csgo parser, check for ChangesOften is accompanied by a check for a priority of 64 
+								// ChangesOften gets the same priority as 64
 								if (prop.Priority == priority || ((prop.Flags & SendPropFlags.ChangesOften) != 0 && priority == 64)) {
 									if (start != currentProp) {
 										FlattenedProp tmp = fProps[start];

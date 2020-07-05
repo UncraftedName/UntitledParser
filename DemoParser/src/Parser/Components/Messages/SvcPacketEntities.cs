@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -40,7 +39,7 @@ namespace DemoParser.Parser.Components.Messages {
 			_entBsr = bsr.SubStream(dataLen);
 			bsr.SkipBits(dataLen);
 			SetLocalStreamEnd(bsr);
-
+			
 			if (!DemoSettings.ProcessEnts)
 				return;
 			
@@ -48,7 +47,7 @@ namespace DemoParser.Parser.Components.Messages {
 			ref C_EntitySnapshot snapshot = ref DemoRef.CEntitySnapshot;
 			if (snapshot == null)
 				snapshot = new C_EntitySnapshot(DemoRef);
-
+			
 			if (IsDelta && snapshot.EngineTick != DeltaFrom) {
 				// If the messages ever arrive in a different order I should queue them,
 				// but for now just exit if we're updating from a non-existent snapshot.
@@ -57,7 +56,7 @@ namespace DemoParser.Parser.Components.Messages {
 					$"attempted to retrieve non existent snapshot on engine tick: {DeltaFrom}");
 				return;
 			}
-
+			
 			Updates = new List<EntityUpdate>(UpdatedEntries);
 			DataTableParser tableParser = DemoRef.DataTableParser;
 			Entity?[] ents = snapshot.Entities; // current entity state
@@ -65,37 +64,36 @@ namespace DemoParser.Parser.Components.Messages {
 			try { // the journey begins in src_main\engine\servermsghandler.cpp  line 663, warning: it goes 8 layers deep  
 				if (!IsDelta)
 					snapshot.ClearEntityState();
-
+				
 				// game uses different entity frames, so "oldI = old ent index = from" & "newI = new ent index = to"
 				int oldI = -1, newI = -1;
 				NextOldEntIndex(ref oldI, ents);
-
+				
 				for (int _ = 0; _ < UpdatedEntries; _++) {
-					newI += 1 + (DemoSettings.NewDemoProtocol 
+					
+					newI += 1 + (DemoSettings.NewDemoProtocol
 						? (int)_entBsr.ReadUBitInt()
 						: (int)_entBsr.ReadUBitVar());
 					
-					
-					UpdateType updateType;
-					if (_entBsr.ReadBool()) {
-						updateType = UpdateType.LeavePvs;
-						if (_entBsr.ReadBool())
-							updateType = UpdateType.Delete;
-					} else {
-						updateType = UpdateType.Delta;
-						if (_entBsr.ReadBool())
-							updateType = UpdateType.EnterPvs;
-					}
 					// get the old ent index up to at least the new one
 					if (newI > oldI) {
 						oldI = newI - 1;
 						NextOldEntIndex(ref oldI, ents);
 					}
-
-					EntityUpdate update;
+					
+#pragma warning disable 8509
+					UpdateType updateType = _entBsr.ReadBitsAsUInt(2) switch {
+						0 => UpdateType.Delta,
+						1 => UpdateType.LeavePvs,
+						2 => UpdateType.EnterPvs,
+						3 => UpdateType.Delete
+					};
+#pragma warning restore 8509
+					
+					EntityUpdate update = null;
 					// vars used in enter pvs & delta
-					ServerClass entClass; 
-					List<FlattenedProp> fProps; 
+					ServerClass entClass;
+					List<FlattenedProp> fProps;
 					int iClass;
 					switch (updateType) {
 						case UpdateType.EnterPvs:
@@ -124,8 +122,6 @@ namespace DemoParser.Parser.Components.Messages {
 							snapshot.ProcessLeavePvs((LeavePvs)update);
 							NextOldEntIndex(ref oldI, ents);
 							break;
-						default:
-							throw new ArgumentException($"unknown update type in {GetType()}, :{updateType}");
 					}
 					Updates.Add(update);
 				}
