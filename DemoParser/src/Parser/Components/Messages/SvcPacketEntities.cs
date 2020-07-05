@@ -61,7 +61,7 @@ namespace DemoParser.Parser.Components.Messages {
 			DataTableParser tableParser = DemoRef.DataTableParser;
 			Entity?[] ents = snapshot.Entities; // current entity state
 			
-			try { // the journey begins in src_main\engine\servermsghandler.cpp  line 663, warning: it goes 8 layers deep  
+			try { // the journey begins in src_main\engine\servermsghandler.cpp line 663, warning: it goes 8 layers deep
 				if (!IsDelta)
 					snapshot.ClearEntityState();
 				

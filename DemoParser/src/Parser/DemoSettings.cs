@@ -29,11 +29,13 @@ namespace DemoParser.Parser {
 		public readonly int SvcServerInfoUnknownBits;
 		public float TickInterval; // to be determined while parsing in SvcServerInfo
 		public readonly bool ProcessEnts; // only do ent stuff if you're testing or the game is supported
-		internal readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
+		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
+		public readonly int SendPropFlagBits;
+		
 		
 		// these can be evaluated using simple expressions
 		public bool NewDemoProtocol => _header.DemoProtocol == 4; // "new engine" in nekz' parser
-		public bool HasPlayerSlot => NewDemoProtocol; // "alignment byte" in nekz' parser
+		public bool HasPlayerSlot => NewDemoProtocol; // "alignment byte" in nekz' parser todo inline
 		public int NetMsgTypeBits => _header.NetworkProtocol == 14 ? 5 : 6;
 		public int UserMessageLengthBits => NewDemoProtocol && Game != L4D2_2042 ? 12 : 11;
 
@@ -65,6 +67,14 @@ namespace DemoParser.Parser {
 					break;
 			}
 
+#pragma warning disable 8509
+			SendPropFlagBits = h.DemoProtocol switch {
+				2 => 11,
+				3 => 16,
+				4 => 19
+			};
+#pragma warning restore 8509
+			
 			if (Game == L4D2_2042)
 				SvcServerInfoUnknownBits = 33;
 			else if (NewDemoProtocol)

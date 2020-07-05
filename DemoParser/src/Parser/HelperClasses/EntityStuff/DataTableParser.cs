@@ -29,12 +29,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			_tableLookup = dtRef.Tables.ToImmutableDictionary(table => table.Name, table => table);
 		}
 		
-
+		
 		public void FlattenClasses() {
 			for (int classIndex = 0; classIndex < _dtRef.ServerClasses.Count; classIndex++) {
 				ServerClass currentClass = _dtRef.ServerClasses[classIndex];
 				
-				HashSet<(string, string)> excludes = new HashSet<(string, string)>(); // table name, prop name
+				HashSet<(string, string)> excludes = new HashSet<(string tableName, string propName)>();
 				List<ServerClass> baseClasses = new List<ServerClass>();
 				SendTable table = _dtRef.Tables[currentClass.DataTableId];
 
@@ -94,7 +94,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			// appeared BEFORE the datatables (valve really do be like that). In game, the baselines are stored as an
 			// array and reparsed every time they're updated during demo playback. I just parse them once and store
 			// them in a more accessible format.
-
+			
 			if (_demoRef.CStringTablesManager.TableReadable.GetValueOrDefault(TableNames.InstanceBaseLine)) {
 				_demoRef.CStringTablesManager.Tables[TableNames.InstanceBaseLine]
 					.Entries.ToList()
