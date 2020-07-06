@@ -7,6 +7,7 @@ using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Utils;
+using static DemoParser.Parser.HelperClasses.EntityStuff.PropFlag;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
@@ -14,6 +15,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	public class DataTableParser {
 
 		private readonly SourceDemo _demoRef;
+		private DemoSettings DemSet => _demoRef.DemoSettings;
 		private readonly DataTables _dtRef;
 		private readonly ImmutableDictionary<string, SendTable> _tableLookup;
 		public int ServerClassBits => BitUtils.HighestBitIndex((uint)_dtRef.ServerClasses.Count) + 1; // this might be off for powers of 2
@@ -56,7 +58,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 							while (currentProp < fProps.Count) {
 								SendTableProp prop = fProps[currentProp].Prop;
 								// ChangesOften gets the same priority as 64
-								if (prop.Priority == priority || ((prop.Flags & SendPropFlags.ChangesOften) != 0 && priority == 64)) {
+								if (prop.Priority == priority || (DemSet.PropFlagChecker.HasFlag(prop.Flags, ChangesOften) && priority == 64)) {
 									if (start != currentProp) {
 										FlattenedProp tmp = fProps[start];
 										fProps[start] = fProps[currentProp];
@@ -77,7 +79,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 						int i;
 						for (i = start; i < fProps.Count; i++) {
 							FlattenedProp p = fProps[i];
-							if ((p.Prop.Flags & SendPropFlags.ChangesOften) != 0) {
+							if (DemSet.PropFlagChecker.HasFlag(p.Prop.Flags, ChangesOften)) {
 								fProps[i] = fProps[start];
 								fProps[start] = p;
 								start++;
@@ -104,15 +106,15 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		private void GatherExcludesAndBaseClasses(
-			ISet<(string, string)> excludes, 
-			ICollection<ServerClass> baseClasses, 
-			SendTable table, 
-			bool collectBaseClasses) 
+			ISet<(string, string)> excludes,
+			ICollection<ServerClass> baseClasses,
+			SendTable table,
+			bool collectBaseClasses)
 		{
 			excludes.UnionWith(
 				table.SendProps
-					.Where(property => (property.Flags & SendPropFlags.Exclude) != 0)
-					.Select(property => (property.ExcludeDtName, property.Name))
+					.Where(stp => DemSet.PropFlagChecker.HasFlag(stp.Flags, Exclude))
+					.Select(stp => (stp.ExcludeDtName, stp.Name))
 				);
 			
 			foreach (SendTableProp property in table.SendProps.Where(property => property.SendPropType == SendPropType.DataTable)) {
@@ -144,24 +146,24 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		private void IterateProps(
 			HashSet<(string, string)> excludes, 
-			SendTable table, 
-			int classIndex, 
-			ICollection<FlattenedProp> fProps, 
-			string prefix) 
+			SendTable table,
+			int classIndex,
+			ICollection<FlattenedProp> fProps,
+			string prefix)
 		{
 			for (int i = 0; i < table.SendProps.Count; i++) {
 				SendTableProp prop = table.SendProps[i];
-				if ((prop.Flags & (SendPropFlags.InsideArray | SendPropFlags.Exclude)) != 0 || excludes.Contains((table.Name, prop.Name)))
+				if (DemSet.PropFlagChecker.HasFlags(prop.Flags, Exclude, InsideArray) || excludes.Contains((table.Name, prop.Name)))
 					continue;
 				if (prop.SendPropType == SendPropType.DataTable) {
 					SendTable subTable = _tableLookup[prop.ExcludeDtName];
 					// we don't prefix Collapsible stuff, since it is just derived mostly
-					if ((prop.Flags & SendPropFlags.Collapsible) != 0)
+					if (DemSet.PropFlagChecker.HasFlag(prop.Flags, Collapsible))
 						IterateProps(excludes, subTable, classIndex, fProps, prefix); 
 					else
 						GatherProps(excludes, subTable, classIndex, prop.Name.Length > 0 ? $"{prop.Name}." : "");
 				} else {
-					fProps.Add(new FlattenedProp(prefix + prop.Name, prop, 
+					fProps.Add(new FlattenedProp(DemSet, prefix + prop.Name, prop, 
 						prop.SendPropType == SendPropType.Array ? table.SendProps[i - 1] : null));
 				}
 			}
@@ -176,20 +178,22 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
 	public class FlattenedProp {
 		
+		private readonly DemoSettings _demSet;
 		public readonly string Name;
 		public readonly SendTableProp Prop;
 		public readonly SendTableProp? ArrayElementProp;
 		
 
-		public FlattenedProp(string name, SendTableProp prop, SendTableProp? arrayElementProp) {
+		public FlattenedProp(DemoSettings demSet, string name, SendTableProp prop, SendTableProp? arrayElementProp) {
 			Prop = prop;
 			ArrayElementProp = arrayElementProp;
+			_demSet = demSet;
 			Name = name;
 		}
 		
 
 		public override string ToString() {
-			SendTableProp displayProp = (Prop.Flags & SendPropFlags.InsideArray) != 0 ? ArrayElementProp : Prop;
+			SendTableProp displayProp = _demSet.PropFlagChecker.HasFlag(Prop.Flags, InsideArray) ? ArrayElementProp : Prop;
 			return $"{TypeString()} {Name}, " +
 				   $"{displayProp.NumBits} bit{(displayProp.NumBits == 1 ? "" : "s")}, " +
 				   $"flags: {displayProp.Flags}";

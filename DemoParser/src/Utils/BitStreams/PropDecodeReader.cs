@@ -15,9 +15,8 @@ namespace DemoParser.Utils.BitStreams {
 		public void DecodeVector3(SendTableProp propInfo, out Vector3 vec3) { // src_main\engine\dt_encode.cpp line 158
 			vec3.X = DecodeFloat(propInfo);
 			vec3.Y = DecodeFloat(propInfo);
-			if ((propInfo.Flags & SendPropFlags.Normal) == 0) { 
-				vec3.Z = DecodeFloat(propInfo);
-			} else { // Don't read in the third component for normals
+			if (propInfo.DemoRef.DemoSettings.PropFlagChecker.HasFlag(propInfo.Flags, PropFlag.Normal)) {
+				// Don't read in the third component for normals
 				bool sign = ReadBool();
 				float distSqr = vec3.X * vec3.X + vec3.Y * vec3.Y;
 				if (distSqr < 1)
@@ -26,6 +25,8 @@ namespace DemoParser.Utils.BitStreams {
 					vec3.Z = 0;
 				if (sign)
 					vec3.Z = -vec3.Z;
+			} else { 
+				vec3.Z = DecodeFloat(propInfo);
 			}
 		}
 
@@ -37,33 +38,34 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		private bool DecodeSpecialFloat(SendTableProp propInfo, out float val) {
-			SendPropFlags flags = propInfo.Flags;
-			if ((flags & SendPropFlags.Coord) != 0) {
+			uint flags = propInfo.Flags;
+			PropFlagChecker check = propInfo.DemoRef.DemoSettings.PropFlagChecker;
+			if (check.HasFlag(flags, PropFlag.Coord)) {
 				val = ReadBitCoord();
 				return true;
-			} else if ((flags & SendPropFlags.CoordMp) != 0) {
+			} else if (check.HasFlag(flags, PropFlag.CoordMp)) {
 				val = ReadBitCoordMp(false, false);
 				return true;
-			} else if ((flags & SendPropFlags.CoordMpLowPrecision) != 0) {
+			} else if (check.HasFlag(flags, PropFlag.CoordMpLp)) {
 				val = ReadBitCoordMp(false, true);
 				return true;
-			} else if ((flags & SendPropFlags.CoordMpIntegral) != 0) {
+			} else if (check.HasFlag(flags, PropFlag.CoordMpInt)) {
 				val = ReadBitCoordMp(true, false);
 				return true;
-			} else if ((flags & SendPropFlags.NoScale) != 0) {
+			} else if (check.HasFlag(flags, PropFlag.NoScale)) {
 				val = ReadBitFloat();
 				return true;
-			} else if ((flags & SendPropFlags.Normal) != 0) {
+			} else if (check.HasFlag(flags, PropFlag.Normal)) {
 				val = ReadBitNormal();
 				return true;
 			} else if (propInfo.DemoRef.DemoSettings.NewDemoProtocol) {
-				if ((flags & SendPropFlags.CellCoord) != 0) {
+				if (check.HasFlag(flags, PropFlag.CellCoord)) {
 					val = ReadBitCellCoord(propInfo.NumBits.Value, BitChordType.None);
 					return true;
-				} else if ((flags & SendPropFlags.CellCoordLowPrecision) != 0) {
+				} else if (check.HasFlag(flags, PropFlag.CellCoordLp)) {
 					val = ReadBitCellCoord(propInfo.NumBits.Value, BitChordType.LowPrecision);
 					return true;
-				} else if ((flags & SendPropFlags.CellCoordIntegral) != 0) {
+				} else if (check.HasFlag(flags, PropFlag.CellCoordInt)) {
 					val = ReadBitCellCoord(propInfo.NumBits.Value, BitChordType.Integral);
 					return true;
 				}
@@ -155,7 +157,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public int DecodeInt(SendTableProp propInfo) {
-			return (propInfo.Flags & SendPropFlags.Unsigned) != 0
+			return propInfo.DemoRef.DemoSettings.PropFlagChecker.HasFlag(propInfo.Flags, PropFlag.Unsigned)
 				? (int)ReadBitsAsUInt(propInfo.NumBits.Value)
 				: ReadBitsAsSInt(propInfo.NumBits.Value);
 		}

@@ -369,6 +369,29 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 	public static class EntPropFactory {
 		
+		// this right here is the real juice, it's how prop info is decoded
+		public static List<(int propIndex, EntityProperty prop)> ReadEntProps(
+			this BitStreamReader bsr,
+			IReadOnlyList<FlattenedProp> fProps,
+			SourceDemo demoRef)
+		{
+			var props = new List<(int propIndex, EntityProperty prop)>();
+			
+			int i = -1;
+			if (demoRef.DemoSettings.NewDemoProtocol) {
+				bool newWay = bsr.ReadBool();
+				while ((i = bsr.ReadFieldIndex(i, newWay)) != -1) 
+					props.Add((i, CreateAndReadProp(fProps[i], bsr)));
+			} else {
+				while (bsr.ReadBool()) {
+					i += (int)bsr.ReadUBitVar() + 1;
+					props.Add((i, CreateAndReadProp(fProps[i], bsr)));
+				}
+			}
+			return props;
+		}
+		
+		
 		// all of this fun jazz can be found in src_main/engine/dt_encode.cpp, a summary with comments is at the very end
 		private static EntityProperty CreateAndReadProp(FlattenedProp prop, BitStreamReader bsr) {
 			
@@ -406,32 +429,5 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				return new UnparsedProperty(prop);
 			}
 		}
-
-
-		// this right here is the real juice, it's how prop info is decoded
-		public static List<(int propIndex, EntityProperty prop)> ReadEntProps(
-			this BitStreamReader bsr,
-			IReadOnlyList<FlattenedProp> fProps,
-			SourceDemo demoRef) 
-		{
-			var props = new List<(int propIndex, EntityProperty prop)>();
-			
-			int i = -1;
-			if (demoRef.DemoSettings.NewDemoProtocol) {
-				bool newWay = bsr.ReadBool();
-				while ((i = bsr.ReadFieldIndex(i, newWay)) != -1) {
-					//int tmp = bsr.CurrentBitIndex; // this is a botched fix, seems to work for now todo make sure flag is right
-					props.Add((i, CreateAndReadProp(fProps[i], bsr)));
-					/*if ((fProps[i].Prop.Flags & SendPropFlags.CoordMpIntegral) != 0)
-						bsr.CurrentBitIndex = tmp + 30;*/
-				}
-			} else {
-				while (bsr.ReadBool()) {
-					i += (int)bsr.ReadUBitVar() + 1;
-					props.Add((i, CreateAndReadProp(fProps[i], bsr)));
-				}
-			}
-			return props;
-		} 
 	}
 }

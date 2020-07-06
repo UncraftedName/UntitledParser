@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.HelperClasses;
+using DemoParser.Parser.HelperClasses.EntityStuff;
 using static DemoParser.Parser.SourceGame;
 
 namespace DemoParser.Parser {
@@ -31,6 +32,7 @@ namespace DemoParser.Parser {
 		public readonly bool ProcessEnts; // only do ent stuff if you're testing or the game is supported
 		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		public readonly int SendPropFlagBits;
+		public readonly PropFlagChecker PropFlagChecker;
 		
 		
 		// these can be evaluated using simple expressions
@@ -67,13 +69,14 @@ namespace DemoParser.Parser {
 					break;
 			}
 
-#pragma warning disable 8509
 			SendPropFlagBits = h.DemoProtocol switch {
 				2 => 11,
 				3 => 16,
-				4 => 19
+				4 => 19,
+				_ => throw new ArgumentException($"What the heck is demo protocol version {h.DemoProtocol}?")
 			};
-#pragma warning restore 8509
+			
+			PropFlagChecker = PropFlagChecker.CreateFromDemoHeader(_header);
 			
 			if (Game == L4D2_2042)
 				SvcServerInfoUnknownBits = 33;

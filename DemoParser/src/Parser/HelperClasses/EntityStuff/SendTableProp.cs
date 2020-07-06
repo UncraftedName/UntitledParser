@@ -1,5 +1,8 @@
 #nullable enable
 using System;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
@@ -13,7 +16,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		// these fields should only be set once in ParseStream()
 		public SendPropType SendPropType;
 		public string Name;
-		public SendPropFlags Flags;
+		public uint Flags;
 		public int? Priority;
 		public string? ExcludeDtName;
 		public float? LowValue;
@@ -30,10 +33,10 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		internal override void ParseStream(BitStreamReader bsr) {
 			SendPropType = UIntToSendPropertyType(DemoRef, bsr.ReadBitsAsUInt(5));
 			Name = bsr.ReadNullTerminatedString();
-			Flags = (SendPropFlags)bsr.ReadBitsAsUInt(DemoSettings.SendPropFlagBits);
+			Flags = bsr.ReadBitsAsUInt(DemoSettings.SendPropFlagBits);
 			if (DemoSettings.NewDemoProtocol)
 				Priority = bsr.ReadByte();
-			if (SendPropType == SendPropType.DataTable || (Flags & SendPropFlags.Exclude) != 0) {
+			if (SendPropType == SendPropType.DataTable || DemoSettings.PropFlagChecker.HasFlag(Flags, PropFlag.Exclude)) {
 				ExcludeDtName = bsr.ReadNullTerminatedString();
 			} else {
 				switch (SendPropType) {
@@ -92,12 +95,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 						iw.Append($"unknown prop type: {SendPropType}");
 						break;
 				}
-				iw.PadLastLine(130, ' ');
+				iw.PadLastLine(120, ' ');
 			}
-			iw.Append($"flags: {Flags}");
+			iw.Append($" flags: {DemoSettings.PropFlagChecker.ToFlagString(Flags)}");
 			iw.FutureIndent++;
 			if (DemoSettings.NewDemoProtocol) {
-				iw.PadLastLine(170, ' ');
+				iw.PadLastLine(155, ' ');
 				iw.Append($" priority: {Priority}");
 			}
 			iw.FutureIndent--;
@@ -131,46 +134,133 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		DataTable
 	}
 
+	/*
+	 * The flags are actually different depending on the protocol version, which is a big heck. Since remapping flags
+	 * to a different set of flags would be not too hot and revolve around iterating over every bit and the like, what
+	 * I've done here is create a non-flag enum that you can pass to a separate object along with your int which will
+	 * actually determine if your desired flag is set. That object will be stored in DemoSettings.cs.
+	 * Flags for demo protocol 3 can be found in src_main/public/dt_common.h
+	 * csgo flags can be found here: https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/SendTableProperty.cs
+	 */
+	public enum PropFlag {
+		Unsigned,
+		Coord,
+		NoScale,
+		RoundDown,
+		RoundUp,
+		Normal,
+		Exclude,
+		Xyze,
+		InsideArray,
+		ProxyAlwaysYes,
+		IsVectorElem,
+		Collapsible,
+		CoordMp,
+		CoordMpLp, // low precision  
+		CoordMpInt,
+		CellCoord,
+		CellCoordLp,
+		CellCoordInt,
+		ChangesOften
+	}
 
-	[Flags]
-	public enum SendPropFlags : uint { // https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/SendTableProperty.cs
-		/*None                = 0, todo
-		Unsigned            = 1,
-		Coord               = 1 << 1,
-		NoScale             = 1 << 2,
-		RoundDown           = 1 << 3,
-		RoundUp             = 1 << 4,
-		Normal              = 1 << 5,
-		Exclude             = 1 << 6,
-		XYZE                = 1 << 7,
-		InsideArray         = 1 << 8,
-		ProxyAlwaysYes      = 1 << 9,
-		ChangesOften        = 1 << 10,
-		IsAVectorElement    = 1 << 11,
-		Collapsible         = 1 << 12,
-		CoordMp             = 1 << 13,
-		CoordMpLowPrecision = 1 << 14,
-		CoordMpIntegral     = 1 << 15*/
+
+	public abstract class PropFlagChecker {
+
+		private static readonly PropFlag[] PropFlags = (PropFlag[])Enum.GetValues(typeof(PropFlag));
+		private static readonly string[] PropNames = Enum.GetNames(typeof(PropFlag));
+		private static readonly int MaxStrLen = PropNames.Select(s => s.Length + 2).Sum() - 2;
 		
-		None                  = 0x0,
-		Unsigned              = 0x1,
-		Coord                 = 0x2,
-		NoScale               = 0x4,
-		RoundDown             = 0x8,
-		RoundUp               = 0x10,
-		Normal                = 0x20,
-		Exclude               = 0x40,
-		XYZE                  = 0x80,
-		InsideArray           = 0x100,
-		ProxyAlwaysYes        = 0x200,
-		IsVectorElem          = 0x400,
-		Collapsible           = 0x800,
-		CoordMp               = 0x1000,
-		CoordMpLowPrecision   = 0x2000,
-		CoordMpIntegral       = 0x4000,
-		CellCoord             = 0x8000,
-		CellCoordLowPrecision = 0x10000,
-		CellCoordIntegral     = 0x20000,
-		ChangesOften          = 0x40000
+
+		public static PropFlagChecker CreateFromDemoHeader(DemoHeader h) {
+			return h.DemoProtocol switch {
+				3 => new DemoProtocol3FlagChecker(),
+				4 => new DemoProtocol4FlagChecker(),
+				_ => throw new ArgumentException($"There is no prop flag list for demo protocol {h.DemoProtocol}")
+			};
+		}
+		
+		
+		public abstract bool HasFlag(uint val, PropFlag flag);
+		
+
+		public bool HasFlags(uint val, PropFlag f1, PropFlag f2) {
+			return HasFlag(val, f1) || HasFlag(val, f2);
+		}
+
+
+		public string ToFlagString(uint val) {
+			Span<char> str = stackalloc char[MaxStrLen];
+			int len = 0;
+			int flagCount = 0;
+			for (int i = 0; i < PropFlags.Length; i++) {
+				if (HasFlag(val, PropFlags[i])) {
+					if (flagCount++ > 0) {
+						", ".AsSpan().CopyTo(str.Slice(len));
+						len += 2;
+					}
+					PropNames[i].AsSpan().CopyTo(str.Slice(len));
+					len += PropNames[i].Length;
+				}
+			}
+			return len == 0 ? "None" : str.Slice(0, len).ToString();
+		}
+
+
+		private class DemoProtocol3FlagChecker : PropFlagChecker {
+			
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			public override bool HasFlag(uint val, PropFlag flag) {
+				return flag switch {
+					PropFlag.Unsigned       => ((val & 1) != 00),
+					PropFlag.Coord          => ((val & (1 << 01)) != 0),
+					PropFlag.NoScale        => ((val & (1 << 02)) != 0),
+					PropFlag.RoundDown      => ((val & (1 << 03)) != 0),
+					PropFlag.RoundUp        => ((val & (1 << 04)) != 0),
+					PropFlag.Normal         => ((val & (1 << 05)) != 0),
+					PropFlag.Exclude        => ((val & (1 << 06)) != 0),
+					PropFlag.Xyze           => ((val & (1 << 07)) != 0),
+					PropFlag.InsideArray    => ((val & (1 << 08)) != 0),
+					PropFlag.ProxyAlwaysYes => ((val & (1 << 09)) != 0),
+					PropFlag.ChangesOften   => ((val & (1 << 10)) != 0),
+					PropFlag.IsVectorElem   => ((val & (1 << 11)) != 0),
+					PropFlag.Collapsible    => ((val & (1 << 12)) != 0),
+					PropFlag.CoordMp        => ((val & (1 << 13)) != 0),
+					PropFlag.CoordMpLp      => ((val & (1 << 14)) != 0),
+					PropFlag.CoordMpInt     => ((val & (1 << 15)) != 0),
+					_ => false
+				};
+			}
+		}
+		
+		
+		private class DemoProtocol4FlagChecker : PropFlagChecker {
+			
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			public override bool HasFlag(uint val, PropFlag flag) {
+				return flag switch {
+					PropFlag.Unsigned       => ((val & 1) != 00),
+					PropFlag.Coord          => ((val & (1 << 01)) != 0),
+					PropFlag.NoScale        => ((val & (1 << 02)) != 0),
+					PropFlag.RoundDown      => ((val & (1 << 03)) != 0),
+					PropFlag.RoundUp        => ((val & (1 << 04)) != 0),
+					PropFlag.Normal         => ((val & (1 << 05)) != 0),
+					PropFlag.Exclude        => ((val & (1 << 06)) != 0),
+					PropFlag.Xyze           => ((val & (1 << 07)) != 0),
+					PropFlag.InsideArray    => ((val & (1 << 08)) != 0),
+					PropFlag.ProxyAlwaysYes => ((val & (1 << 09)) != 0),
+					PropFlag.IsVectorElem   => ((val & (1 << 10)) != 0),
+					PropFlag.Collapsible    => ((val & (1 << 11)) != 0),
+					PropFlag.CoordMp        => ((val & (1 << 12)) != 0),
+					PropFlag.CoordMpLp      => ((val & (1 << 13)) != 0),
+					PropFlag.CoordMpInt     => ((val & (1 << 14)) != 0),
+					PropFlag.CellCoord      => ((val & (1 << 15)) != 0),
+					PropFlag.CellCoordLp    => ((val & (1 << 16)) != 0),
+					PropFlag.CellCoordInt   => ((val & (1 << 17)) != 0),
+					PropFlag.ChangesOften   => ((val & (1 << 18)) != 0),
+					_ => false
+				};
+			}
+		}
 	}
 }
