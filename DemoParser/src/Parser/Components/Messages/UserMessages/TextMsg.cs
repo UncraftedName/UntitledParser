@@ -18,7 +18,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			Destination = (TextMsgDestination)bsr.ReadByte();
 			Messages = new string[MessageCount];
 			for (int i = 0; i < MessageCount; i++) 
-				Messages[i] = bsr.ReadNullTerminatedString().Replace("\n", @"\n");
+				Messages[i] = bsr.ReadNullTerminatedString();
 		}
 
 
@@ -28,9 +28,9 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append("destination: " + Destination);
+			iw.Append($"destination: {Destination}");
 			for (int i = 0; i < MessageCount; i++) 
-				iw.Append($"\nmessage {i + 1}: {Messages[i]}");
+				iw.Append($"\nmessage {i + 1}: {Messages[i].Replace("\n", @"\n")}");
 		}
 	}
 

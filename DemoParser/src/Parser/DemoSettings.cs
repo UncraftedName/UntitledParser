@@ -22,7 +22,9 @@ namespace DemoParser.Parser {
 		public const int NumNetworkedEHandleBits = 10;
 		public const int MaxUserDataBits = 14;
 		public const uint HandleSerialNumberBits = 10;
-		
+		public const int MaxPortal2CoopBranches = 6;
+		public const int MaxPortal2CoopLevelsPerBranch = 16;
+
 		// initialized below
 		public readonly SourceGame Game;
 		public readonly int MaxSplitscreenPlayers;

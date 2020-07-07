@@ -4,26 +4,26 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class AchievementEvent : SvcUserMessage {
-
-		public int AchievementId; // https://nekzor.github.io/portal2/achievements
+	public class MpTauntLocked : SvcUserMessage {
+		
+		public string TauntName;
 		
 		
-		public AchievementEvent(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public MpTauntLocked(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			throw new System.NotImplementedException(); // todo, and figure out the achievements
+			TauntName = bsr.ReadNullTerminatedString();
 		}
 		
-
+		
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new System.NotImplementedException();
 		}
-
-
+		
+		
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append($"achievement ID: {AchievementId}");
+			iw.Append($"taunt name: {TauntName}");
 		}
 	}
 }
