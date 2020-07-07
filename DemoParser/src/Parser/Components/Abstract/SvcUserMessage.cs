@@ -15,8 +15,7 @@ namespace DemoParser.Parser.Components.Abstract {
 	 * the wrong user message. Instead of using a separate enums for different games, I have a single list and many
 	 * lookup tables for different games. During parsing, if not every byte is read, then I revert to an unknown
 	 * message type, log an error, and the unknown message type will simply print the contents of the message in
-	 * hex (when converting this to string). The lookup tables are obtained by decompiling mac binaries.
-	 * Specifically you can look for the RegisterUserMessages function in server.dylib.
+	 * hex (when converting this to string). The lookup tables can be obtained from the RegisterUserMessages() function.
 	 */
 	
 	/// <summary>
@@ -414,10 +413,9 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType messageType)
 		{
 			
-			if (EmptyMessages.Contains(messageType)) {
+			if (EmptyMessages.Contains(messageType))
 				return new EmptySvcUserMessage(demoRef, reader);
-			}
-			
+
 			return messageType switch {
 				UserMessageType.CloseCaption     => new CloseCaption(demoRef, reader),
 				UserMessageType.AchievementEvent => new AchievementEvent(demoRef, reader),
@@ -438,6 +436,7 @@ namespace DemoParser.Parser.Components.Abstract {
 				UserMessageType.VGUIMenu         => new VguiMenu(demoRef, reader),
 				UserMessageType.TextMsg          => new TextMsg(demoRef, reader),
 				UserMessageType.PortalFX_Surface => new PortalFxSurface(demoRef, reader),
+				UserMessageType.VoiceMask        => new VoiceMask(demoRef, reader),
 				_ => null // I do a check for this so that I don't have to allocate the unknown type twice
 			};
 		}

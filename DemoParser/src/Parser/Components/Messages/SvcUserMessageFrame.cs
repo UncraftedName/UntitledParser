@@ -58,8 +58,8 @@ namespace DemoParser.Parser.Components.Messages {
 			
 			// if parsing fails, just convert to an unknown type - the byte array that it will print is still useful
 			if (errorStr != null) {
-				int rem = uMessageReader.BitsRemaining / 8;
-				DemoRef.LogError($"{errorStr}, ({rem} byte{(rem == 1 ? "" : "s")}) - " +
+				int rem = uMessageReader.BitsRemaining;
+				DemoRef.LogError($"{errorStr}, ({rem} bit{(rem == 1 ? "" : "s")}) - " +
 								 $"{uMessageReader.FromBeginning().ToHexString()}");
 				SvcUserMessage = new UnknownSvcUserMessage(DemoRef, uMessageReader);
 			}
