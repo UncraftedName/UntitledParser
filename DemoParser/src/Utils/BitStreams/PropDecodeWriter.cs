@@ -1,5 +1,5 @@
 using System;
-using static DemoParser.Utils.BitStreams.CoordConsts;
+using static DemoParser.Utils.BitStreams.PropDecodeConsts;
 
 namespace DemoParser.Utils.BitStreams {
     

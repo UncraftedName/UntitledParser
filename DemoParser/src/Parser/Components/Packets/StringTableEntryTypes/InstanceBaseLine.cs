@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
-using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -58,7 +57,6 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 				// once we're done, update the C_baselines so I can actually use this for prop creation
 				if (DemoSettings.ProcessEnts)
 					DemoRef.CBaseLines?.UpdateBaseLine(ServerClassRef, Properties, fProps.Count);
-				//Console.WriteLine(ServerClassRef.ClassName + ": " + _bsr.BitsRemaining);
 			} catch (Exception e) {
 				DemoRef.LogError($"error while parsing baseline for class {ServerClassRef.ClassName}: {e.Message}");
 			}

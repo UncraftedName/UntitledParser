@@ -134,7 +134,6 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 		
 
-		// todo make a check for net string cmd instead 
 		public static void AdjustFromConsoleCmd(ConsoleCmd consoleCmd) {
 			if (consoleCmd.Tick <= 0)
 				return;

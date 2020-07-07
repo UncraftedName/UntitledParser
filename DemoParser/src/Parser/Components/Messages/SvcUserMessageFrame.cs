@@ -20,8 +20,8 @@ namespace DemoParser.Parser.Components.Messages {
 		/* Okay, this is pretty wacky. First I read a byte, and based off of that I try to determine the type of
 		 * user message. If I don't have a lookup list for whatever game this is or the type seems bogus, I log an
 		 * error. Otherwise, create the message instance, and if it's not empty, try to parse it. If parsing fails,
-		 * log an error. Finally, if not all bytes of the message are parsed, then it's likely that I did something
-		 * wrong, (since it seems like the user messages use up all the bytes in the message) so log an error.
+		 * log an error. Finally, if not all bits of the message are parsed, then it's likely that I did something
+		 * wrong, (since it seems like the user messages use up all the bits in the message) so log an error.
 		 */
 		internal override void ParseStream(BitStreamReader bsr) {
 			byte typeVal = bsr.ReadByte();
@@ -43,14 +43,12 @@ namespace DemoParser.Parser.Components.Messages {
 					if (SvcUserMessage == null) {
 						errorStr = $"Unimplemented SvcUserMessage: {MessageType}";
 					} else {
-						if (SvcUserMessage.MayContainData) {
-							try {
-								if (SvcUserMessage.ParseOwnStream() != 0)
-									errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) didn't parse all bytes";
-							} catch (Exception e) {
-								errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) " + 
-										   $"threw exception during parsing, message: {e}";
-							}
+						try { // empty messages might still have 1-2 bytes, might need to do something 'bout that
+							if (SvcUserMessage.ParseOwnStream() != 0)
+								errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) didn't parse all bytes";
+						} catch (Exception e) {
+							errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) " + 
+									   $"threw exception during parsing, message: {e}";
 						}
 					}
 					break;

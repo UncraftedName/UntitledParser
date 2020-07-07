@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using DemoParser.Parser.HelperClasses.EntityStuff;
-using static DemoParser.Utils.BitStreams.CoordConsts;
+using static DemoParser.Utils.BitStreams.PropDecodeConsts;
 
 // I want to access NumBits from props without my IDE screaming at me
 // ReSharper disable PossibleInvalidOperationException
@@ -279,7 +279,7 @@ namespace DemoParser.Utils.BitStreams {
 
 	// these might be different depending on the game, i sure hope fucking not
 	// found in src_main\public\coordsize.h
-	internal static class CoordConsts { 
+	internal static class PropDecodeConsts { 
 		public const int   CoordFracBits     = 5;
 		public const int   CoordDenom        = 1 << CoordFracBits;
 		public const float CoordRes          = 1.0f / CoordDenom;
@@ -291,7 +291,7 @@ namespace DemoParser.Utils.BitStreams {
 		public const int   NormFracBits      = 11;
 		public const int   NormDenom         = (1 << NormFracBits) - 1;
 		public const float NormRes           = 1.0f / NormDenom;
-		public const int DtMaxStringBits     = 9; // read this many bits to get the length of a string prop
+		public const int   DtMaxStringBits   = 9; // read this many bits to get the length of a string prop
 	}
 
 

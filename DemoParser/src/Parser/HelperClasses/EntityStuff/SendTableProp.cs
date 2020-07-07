@@ -1,7 +1,6 @@
 #nullable enable
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets;
@@ -209,25 +208,24 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		private class DemoProtocol3FlagChecker : PropFlagChecker {
 			
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public override bool HasFlag(uint val, PropFlag flag) {
 				return flag switch {
-					PropFlag.Unsigned       => ((val & 1) != 00),
-					PropFlag.Coord          => ((val & (1 << 01)) != 0),
-					PropFlag.NoScale        => ((val & (1 << 02)) != 0),
-					PropFlag.RoundDown      => ((val & (1 << 03)) != 0),
-					PropFlag.RoundUp        => ((val & (1 << 04)) != 0),
-					PropFlag.Normal         => ((val & (1 << 05)) != 0),
-					PropFlag.Exclude        => ((val & (1 << 06)) != 0),
-					PropFlag.Xyze           => ((val & (1 << 07)) != 0),
-					PropFlag.InsideArray    => ((val & (1 << 08)) != 0),
-					PropFlag.ProxyAlwaysYes => ((val & (1 << 09)) != 0),
-					PropFlag.ChangesOften   => ((val & (1 << 10)) != 0),
-					PropFlag.IsVectorElem   => ((val & (1 << 11)) != 0),
-					PropFlag.Collapsible    => ((val & (1 << 12)) != 0),
-					PropFlag.CoordMp        => ((val & (1 << 13)) != 0),
-					PropFlag.CoordMpLp      => ((val & (1 << 14)) != 0),
-					PropFlag.CoordMpInt     => ((val & (1 << 15)) != 0),
+					PropFlag.Unsigned       => (val & 1) != 00,
+					PropFlag.Coord          => (val & (1 << 01)) != 0,
+					PropFlag.NoScale        => (val & (1 << 02)) != 0,
+					PropFlag.RoundDown      => (val & (1 << 03)) != 0,
+					PropFlag.RoundUp        => (val & (1 << 04)) != 0,
+					PropFlag.Normal         => (val & (1 << 05)) != 0,
+					PropFlag.Exclude        => (val & (1 << 06)) != 0,
+					PropFlag.Xyze           => (val & (1 << 07)) != 0,
+					PropFlag.InsideArray    => (val & (1 << 08)) != 0,
+					PropFlag.ProxyAlwaysYes => (val & (1 << 09)) != 0,
+					PropFlag.ChangesOften   => (val & (1 << 10)) != 0,
+					PropFlag.IsVectorElem   => (val & (1 << 11)) != 0,
+					PropFlag.Collapsible    => (val & (1 << 12)) != 0,
+					PropFlag.CoordMp        => (val & (1 << 13)) != 0,
+					PropFlag.CoordMpLp      => (val & (1 << 14)) != 0,
+					PropFlag.CoordMpInt     => (val & (1 << 15)) != 0,
 					_ => false
 				};
 			}
@@ -236,28 +234,27 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		private class DemoProtocol4FlagChecker : PropFlagChecker {
 			
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public override bool HasFlag(uint val, PropFlag flag) {
 				return flag switch {
-					PropFlag.Unsigned       => ((val & 1) != 00),
-					PropFlag.Coord          => ((val & (1 << 01)) != 0),
-					PropFlag.NoScale        => ((val & (1 << 02)) != 0),
-					PropFlag.RoundDown      => ((val & (1 << 03)) != 0),
-					PropFlag.RoundUp        => ((val & (1 << 04)) != 0),
-					PropFlag.Normal         => ((val & (1 << 05)) != 0),
-					PropFlag.Exclude        => ((val & (1 << 06)) != 0),
-					PropFlag.Xyze           => ((val & (1 << 07)) != 0),
-					PropFlag.InsideArray    => ((val & (1 << 08)) != 0),
-					PropFlag.ProxyAlwaysYes => ((val & (1 << 09)) != 0),
-					PropFlag.IsVectorElem   => ((val & (1 << 10)) != 0),
-					PropFlag.Collapsible    => ((val & (1 << 11)) != 0),
-					PropFlag.CoordMp        => ((val & (1 << 12)) != 0),
-					PropFlag.CoordMpLp      => ((val & (1 << 13)) != 0),
-					PropFlag.CoordMpInt     => ((val & (1 << 14)) != 0),
-					PropFlag.CellCoord      => ((val & (1 << 15)) != 0),
-					PropFlag.CellCoordLp    => ((val & (1 << 16)) != 0),
-					PropFlag.CellCoordInt   => ((val & (1 << 17)) != 0),
-					PropFlag.ChangesOften   => ((val & (1 << 18)) != 0),
+					PropFlag.Unsigned       => (val & 1) != 00,
+					PropFlag.Coord          => (val & (1 << 01)) != 0,
+					PropFlag.NoScale        => (val & (1 << 02)) != 0,
+					PropFlag.RoundDown      => (val & (1 << 03)) != 0,
+					PropFlag.RoundUp        => (val & (1 << 04)) != 0,
+					PropFlag.Normal         => (val & (1 << 05)) != 0,
+					PropFlag.Exclude        => (val & (1 << 06)) != 0,
+					PropFlag.Xyze           => (val & (1 << 07)) != 0,
+					PropFlag.InsideArray    => (val & (1 << 08)) != 0,
+					PropFlag.ProxyAlwaysYes => (val & (1 << 09)) != 0,
+					PropFlag.IsVectorElem   => (val & (1 << 10)) != 0,
+					PropFlag.Collapsible    => (val & (1 << 11)) != 0,
+					PropFlag.CoordMp        => (val & (1 << 12)) != 0,
+					PropFlag.CoordMpLp      => (val & (1 << 13)) != 0,
+					PropFlag.CoordMpInt     => (val & (1 << 14)) != 0,
+					PropFlag.CellCoord      => (val & (1 << 15)) != 0,
+					PropFlag.CellCoordLp    => (val & (1 << 16)) != 0,
+					PropFlag.CellCoordInt   => (val & (1 << 17)) != 0,
+					PropFlag.ChangesOften   => (val & (1 << 18)) != 0,
 					_ => false
 				};
 			}

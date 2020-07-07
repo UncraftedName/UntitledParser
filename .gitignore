@@ -1,8 +1,16 @@
 bin/
 obj/
 /packages/
-*.xml
 *.user
 *.DotSettings
 /Tests/sample demos/verbose output/
 /Tests/sample demos/demo output/
+*.iws
+
+.idea/**/contentModel.xml
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/*/.idea/projectSettingsUpdater.xml

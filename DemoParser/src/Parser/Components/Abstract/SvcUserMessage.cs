@@ -23,9 +23,9 @@ namespace DemoParser.Parser.Components.Abstract {
 	/// The payload in the SvcUserMessageFrame message. 
 	/// </summary>
 	public abstract class SvcUserMessage : DemoComponent {
-
+		
 		#region lookup tables
-
+		
 		private static readonly UserMessageType[] Hl2OeTable = {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -51,7 +51,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.CreditsMsg
 		};
 		public static Dictionary<UserMessageType, int> Hl2OeReverseTable = Hl2OeTable.CreateReverseLookupDict();
-
+		
 		// same as steam
 		private static readonly UserMessageType[] Hl2UnpackTable = {
 			UserMessageType.Geiger,
@@ -157,7 +157,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.ChallengeModCloseAllUI
 		};
 		private static readonly Dictionary<UserMessageType, int> Portal2ReverseTable = Portal2Table.CreateReverseLookupDict();
-
+		
 		private static readonly UserMessageType[] Portal3420Table = {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -191,7 +191,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.KillCam
 		};
 		private static readonly Dictionary<UserMessageType, int> Portal3420ReverseTable = Portal3420Table.CreateReverseLookupDict();
-
+		
 		private static readonly UserMessageType[] Portal1UnpackTable = {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -231,7 +231,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapMeleeContact
 		};
 		private static readonly Dictionary<UserMessageType, int> Portal1UnpackReverseTable = Portal1UnpackTable.CreateReverseLookupDict();
-
+		
 		private static readonly UserMessageType[] Portal1SteamTable = {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -276,7 +276,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapMeleeContact
 		};
 		private static readonly Dictionary<UserMessageType, int> Portal1SteamReverseTable = Portal1SteamTable.CreateReverseLookupDict();
-
+		
 		private static readonly UserMessageType[] L4D2SteamTable = {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -344,15 +344,16 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.VoteFailed // called VoteFail in l4d2
 		};
 		private static readonly Dictionary<UserMessageType, int> L4D2SteamReverseTable = L4D2SteamTable.CreateReverseLookupDict();
-
-		private static readonly UserMessageType[] L4D2OldSoloTable = L4D2SteamTable[..61];
+		
+		private static readonly UserMessageType[] L4D2OldSoloTable = L4D2SteamTable[..61]; // all but the last 3 (votes)
 		private static readonly Dictionary<UserMessageType, int> L4D2OldSoloReverseTable = L4D2OldSoloTable.CreateReverseLookupDict();
 		
 		#endregion
 
 		protected SvcUserMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-
-
+		
+		
+		// todo hl2
 		public static UserMessageType ByteToUserMessageType(DemoSettings demoSettings, byte b) {
 			var lookupTable = demoSettings.Game switch {
 				PORTAL_1_UNPACK    => Portal1UnpackTable,
@@ -370,8 +371,8 @@ namespace DemoParser.Parser.Components.Abstract {
 			else 
 				return lookupTable[b];
 		}
-
-
+		
+		
 		public static int UserMessageTypeToByte(DemoSettings demoSettings, UserMessageType m) {
 			var reverseLookupTable = demoSettings.Game switch {
 				PORTAL_1_UNPACK    => Portal1UnpackReverseTable,
@@ -386,7 +387,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		}
 	}
 	
-
+	
 	public static class SvcUserMessageFactory {
 		
 		private static readonly HashSet<UserMessageType> EmptyMessages = new HashSet<UserMessageType> {
@@ -410,11 +411,12 @@ namespace DemoParser.Parser.Components.Abstract {
 		public static SvcUserMessage CreateUserMessage(
 			SourceDemo demoRef,
 			BitStreamReader reader,
-			UserMessageType messageType) 
+			UserMessageType messageType)
 		{
 			
-			if (EmptyMessages.Contains(messageType))
+			if (EmptyMessages.Contains(messageType)) {
 				return new EmptySvcUserMessage(demoRef, reader);
+			}
 			
 			return messageType switch {
 				UserMessageType.CloseCaption     => new CloseCaption(demoRef, reader),
@@ -435,12 +437,13 @@ namespace DemoParser.Parser.Components.Abstract {
 				UserMessageType.Train            => new Train(demoRef, reader),
 				UserMessageType.VGUIMenu         => new VguiMenu(demoRef, reader),
 				UserMessageType.TextMsg          => new TextMsg(demoRef, reader),
+				UserMessageType.PortalFX_Surface => new PortalFxSurface(demoRef, reader),
 				_ => null // I do a check for this so that I don't have to allocate the unknown type twice
 			};
 		}
 	}
 	
-
+	
 	// These types may be different and shuffled depending on the game.
 	// For portal it's in src_main/game/shared/portal/portal_usermessages.cpp.
 	// For other sdk's it's in similar locations, the csgo values can be found at
