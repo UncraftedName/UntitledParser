@@ -7,7 +7,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 	// a part of each table entry in the "userinfo" string table
 	public class UserInfo : StringTableEntryData {
 
-		// orange box only
+		// demo protocol 4 only
 		public uint? Version;
 		public uint? Xuid;
 		

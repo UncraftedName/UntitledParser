@@ -8,7 +8,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		public SignOnState SignOnState;
 		public int SpawnCount;
-		// orange box only
+		// demo protocol 4 only
 		public uint? NumServerPlayers;
 		public byte[] PlayerNetworkIds;
 		public string MapName;

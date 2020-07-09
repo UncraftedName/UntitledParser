@@ -45,10 +45,10 @@ namespace DemoParser.Parser.Components.Messages {
 					} else {
 						try { // empty messages might still have 1-2 bytes, might need to do something 'bout that
 							if (SvcUserMessage.ParseOwnStream() != 0)
-								errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) didn't parse all bytes";
+								errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) didn't parse all bits";
 						} catch (Exception e) {
 							errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) " + 
-									   $"threw exception during parsing, message: {e}";
+									   $"threw exception during parsing, message: {e.Message}";
 						}
 					}
 					break;

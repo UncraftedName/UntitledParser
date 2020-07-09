@@ -105,7 +105,7 @@ namespace DemoParser.Parser {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.AppendLine("Untitled parser by UncraftedName, build time: " +
+			iw.AppendLine("Untitled parser by UncraftedName, build date: " +
 						  $"{BuildDateAttribute.GetBuildDate(Assembly.GetExecutingAssembly()):R}");
 			if (FileName != null)
 				iw.AppendLine($"file name: {FileName}");

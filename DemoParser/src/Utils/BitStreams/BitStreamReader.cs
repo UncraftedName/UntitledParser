@@ -148,8 +148,7 @@ namespace DemoParser.Utils.BitStreams {
 		}
 		
 		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void ReadBytesToSpan(Span<byte> byteSpan) {
+		public void ReadBytesToSpan(Span<byte> byteSpan) {
 			if (byteSpan.Length == 0)
 				return;
 			EnsureCapacity(byteSpan.Length << 3);

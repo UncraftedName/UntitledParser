@@ -16,7 +16,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			EntityIndex = bsr.ReadBitsAsUInt(11);
+			EntityIndex = bsr.ReadBitsAsUInt(DemoSettings.MaxEdictBits);
 			ClassId = bsr.ReadBitsAsUInt(9);
 			_data = bsr.SubStream(bsr.ReadBitsAsUInt(11));
 			SetLocalStreamEnd(bsr);

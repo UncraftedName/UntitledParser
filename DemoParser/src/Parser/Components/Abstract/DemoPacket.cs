@@ -8,11 +8,11 @@ namespace DemoParser.Parser.Components.Abstract {
 	public abstract class DemoPacket : DemoComponent {
 		
 		public int Tick;
-		// special cases
+		// special cases, todo do the same thing as user messages
 		private static readonly TypeReMapper Portal3420Mapper = new TypeReMapper {
 			[(byte)0] = PacketType.StringTables
 		};
-		private static readonly TypeReMapper NewEngineMapper = new TypeReMapper {
+		private static readonly TypeReMapper DemoProtocol4Mapper = new TypeReMapper {
 			[8] = PacketType.CustomData,
 			[9] = PacketType.StringTables
 		};
@@ -27,7 +27,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		public static PacketType ByteToPacketType(DemoSettings demoSettings, byte byteValue) {
 			var def = (PacketType)byteValue;
 			if (demoSettings.NewDemoProtocol)
-				return NewEngineMapper.GetValueOrDefault(byteValue, def);
+				return DemoProtocol4Mapper.GetValueOrDefault(byteValue, def);
 			else if (demoSettings.Game == SourceGame.PORTAL_1_3420)
 				return Portal3420Mapper.GetValueOrDefault(byteValue, def);
 			return def;
@@ -38,7 +38,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		public static byte PacketTypeToByte(DemoSettings demoSettings, PacketType packetType) {
 			var def = (byte)packetType;
 			if (demoSettings.NewDemoProtocol)
-				return NewEngineMapper.GetValueOrDefault(packetType, def);
+				return DemoProtocol4Mapper.GetValueOrDefault(packetType, def);
 			else if (demoSettings.Game == SourceGame.PORTAL_1_3420)
 				return Portal3420Mapper.GetValueOrDefault(packetType, def);
 			return def;

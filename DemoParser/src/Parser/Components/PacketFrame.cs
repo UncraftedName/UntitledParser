@@ -10,7 +10,7 @@ namespace DemoParser.Parser.Components {
 	/// </summary>
 	public class PacketFrame : DemoComponent {
 		
-		public byte? PlayerSlot; // orange box only
+		public byte? PlayerSlot; // demo protocol 4 only
 		public DemoPacket Packet;
 		// in the demo the tick is stored as part of the packet frame, 
 		// but for convenience I store it as part of the packet
@@ -32,7 +32,7 @@ namespace DemoParser.Parser.Components {
 				? (int)bsr.ReadBitsAsUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24))
 				: bsr.ReadSInt();
 			
-			if (DemoSettings.HasPlayerSlot && bsr.BitsRemaining > 0) // last player slot byte is cut off in l4d2 demos
+			if (DemoSettings.NewDemoProtocol && bsr.BitsRemaining > 0) // last player slot byte is cut off in l4d2 demos
 				PlayerSlot = bsr.ReadByte();
 			
 			Packet = PacketFactory.CreatePacket(DemoRef, bsr, tick, Type);

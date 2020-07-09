@@ -24,6 +24,8 @@ namespace DemoParser.Parser {
 		public const uint HandleSerialNumberBits = 10;
 		public const int MaxPortal2CoopBranches = 6;
 		public const int MaxPortal2CoopLevelsPerBranch = 16;
+		public const int MaxSoundIndexBits = 13;
+		
 
 		// initialized below
 		public readonly SourceGame Game;
@@ -35,15 +37,15 @@ namespace DemoParser.Parser {
 		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		public readonly int SendPropFlagBits;
 		public readonly PropFlagChecker PropFlagChecker;
-		
-		
+		public readonly int SoundFlagBits;
+
+
 		// these can be evaluated using simple expressions
 		public bool NewDemoProtocol => _header.DemoProtocol == 4; // "new engine" in nekz' parser
-		public bool HasPlayerSlot => NewDemoProtocol; // "alignment byte" in nekz' parser todo inline
 		public int NetMsgTypeBits => _header.NetworkProtocol == 14 ? 5 : 6;
 		public int UserMessageLengthBits => NewDemoProtocol && Game != L4D2_2042 ? 12 : 11;
-
-
+		
+		
 		public DemoSettings(DemoHeader h) {
 			_header = h;
 			switch (h.DemoProtocol) {
@@ -77,7 +79,13 @@ namespace DemoParser.Parser {
 				4 => 19,
 				_ => throw new ArgumentException($"What the heck is demo protocol version {h.DemoProtocol}?")
 			};
-			
+
+			SoundFlagBits = h.DemoProtocol switch {
+				3 => 9,
+				4 => 13,
+				_ => throw new ArgumentException($"What the heck is demo protocol version {h.DemoProtocol}?")
+			};
+
 			PropFlagChecker = PropFlagChecker.CreateFromDemoHeader(_header);
 			
 			if (Game == L4D2_2042)
@@ -88,7 +96,7 @@ namespace DemoParser.Parser {
 				SvcServerInfoUnknownBits = 96;
 			else
 				SvcServerInfoUnknownBits = 0;
-
+			
 			switch (Game) {
 				case PORTAL_1_UNPACK:
 				case PORTAL_1_3420:
