@@ -22,7 +22,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		internal override void ParseStream(BitStreamReader bsr) {
 			TableId = (byte)bsr.ReadBitsAsUInt(5);
-			TableName = DemoRef.CStringTablesManager.TableById(TableId).Name;
+			TableName = DemoRef.CurStringTablesManager.TableById(TableId).Name;
 			ChangedEntriesCount = bsr.ReadUShortIfExists() ?? 1;
 			uint dataLen = bsr.ReadBitsAsUInt(20);
 
@@ -58,19 +58,19 @@ namespace DemoParser.Parser.Components.Messages {
 		private readonly int _updatedEntries; // just used when parsing
 		private readonly string _tableName;
 		private bool _exceptionWhileParsing;
-		public readonly List<TableUpdate> TableUpdates;
+		public readonly List<TableUpdate?> TableUpdates;
 		
 		
 		
 		public StringTableUpdate(SourceDemo demoRef, BitStreamReader reader, string tableName, int updatedEntries) : base(demoRef, reader) {
 			_tableName = tableName;
 			_updatedEntries = updatedEntries;
-			TableUpdates = new List<TableUpdate>(_updatedEntries);
+			TableUpdates = new List<TableUpdate?>(_updatedEntries);
 		}
 		
 		internal override void ParseStream(BitStreamReader bsr) { 
 			
-			C_StringTablesManager manager = DemoRef.CStringTablesManager;
+			CurStringTablesManager manager = DemoRef.CurStringTablesManager;
 			if (!manager.TableReadable.GetValueOrDefault(_tableName)) {
 				DemoRef.LogError($"{_tableName} table is marked as non-readable, can't update :/");
 				_exceptionWhileParsing = true;
@@ -84,7 +84,7 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 			
 			try { // se2007/engine/networkstringtable.cpp  line 595
-				C_StringTable tableToUpdate = manager.Tables[_tableName];
+				CurStringTable tableToUpdate = manager.Tables[_tableName];
 				int entryIndex = -1;
 				List<string> history = new List<string>();
 
@@ -97,7 +97,7 @@ namespace DemoParser.Parser.Components.Messages {
 						entryIndex = (int)bsr.ReadBitsAsUInt(BitUtils.HighestBitIndex(tableToUpdate.MaxEntries));
 					}
 
-					string entryName = null;
+					string? entryName = null;
 					if (bsr.ReadBool()) {
 						if (bsr.ReadBool()) { // the first part of the string may be the same as for other entries
 							int index = (int)bsr.ReadBitsAsUInt(5);
@@ -109,7 +109,7 @@ namespace DemoParser.Parser.Components.Messages {
 						}
 					}
 
-					BitStreamReader entryStream = null;
+					BitStreamReader? entryStream = null;
 
 					int streamLen = 0;
 					if (bsr.ReadBool()) {
@@ -134,7 +134,7 @@ namespace DemoParser.Parser.Components.Messages {
 								tableToUpdate.Entries.Count - 1)); // sub 1 since we update the table 2 lines up
 						} else {
 							TableUpdates.Add(new TableUpdate(
-								manager.SetEntryData(tableToUpdate, tableToUpdate.Entries[j], entryStream), 
+								manager.SetEntryData(tableToUpdate, tableToUpdate.Entries[j], entryStream!), 
 								TableUpdateType.ChangeEntryData,
 								j));
 						}
@@ -189,12 +189,12 @@ namespace DemoParser.Parser.Components.Messages {
 	public class TableUpdate : Appendable {
 
 		internal int PadCount; // just for toString()
-		public readonly C_StringTableEntry TableEntry;
+		public readonly CurStringTableEntry? TableEntry;
 		public readonly int Index;
 		public readonly TableUpdateType UpdateType;
 
 
-		public TableUpdate(C_StringTableEntry tableEntry, TableUpdateType updateType, int index) {
+		public TableUpdate(CurStringTableEntry? tableEntry, TableUpdateType updateType, int index) {
 			TableEntry = tableEntry;
 			UpdateType = updateType;
 			Index = index;
@@ -203,7 +203,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		public override void AppendToWriter(IndentedWriter iw) { // similar logic to that in string tables
 			iw.Append($"({Index}) {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
-			if (TableEntry.EntryData != null) {
+			if (TableEntry?.EntryData != null) {
 				iw.FutureIndent++;
 				if (TableEntry.EntryData.ContentsKnown)
 					iw.AppendLine();

@@ -42,7 +42,7 @@ namespace DemoParser.Parser.Components.Messages {
 			SetLocalStreamEnd(bsr);
 			
 			if (DemoRef.CBaseLines == null) // init baselines here if still null
-				DemoRef.CBaseLines = new C_BaseLines(ClassCount, DemoRef);
+				DemoRef.CBaseLines = new CurBaseLines(ClassCount, DemoRef);
 		}
 		
 
@@ -73,9 +73,11 @@ namespace DemoParser.Parser.Components.Messages {
 		public int DataTableId; // this references the nth data table this class refers to
 		public string ClassName;
 		public string DataTableName; // this is the name of the data table this class refers to
-		
-		
-		public ServerClass(SourceDemo demoRef, BitStreamReader reader, SvcClassInfo classInfoRef = null) : base(demoRef, reader) {
+
+
+		public ServerClass(SourceDemo demoRef, BitStreamReader reader, SvcClassInfo? classInfoRef) 
+			: base(demoRef, reader) 
+		{
 			_classInfoRef = classInfoRef;
 		}
 		

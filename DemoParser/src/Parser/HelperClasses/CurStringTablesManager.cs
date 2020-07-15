@@ -36,12 +36,12 @@ namespace DemoParser.Parser.HelperClasses {
 
 	// Keeps the original string tables passed here untouched, and keeps a separate "current copy"
 	// since the tables can be updated/modified as the demo runs from SvcUpdateStringTable.
-	internal class C_StringTablesManager { // todo any object taken from the tables should not be taken until the tables are updated for that tick
+	internal class CurStringTablesManager { // todo any object taken from the tables should not be taken until the tables are updated for that tick
 		
 		// the list here can be updated and is meant to be separate from the list in the stringtables packet
 		private readonly SourceDemo _demoRef;
-		private readonly List<C_StringTable> _privateTables;
-		internal readonly Dictionary<string, C_StringTable> Tables;
+		private readonly List<CurStringTable> _privateTables;
+		internal readonly Dictionary<string, CurStringTable> Tables;
 		
 		// Before accessing any values in the tables, check to see if the respective table is readable first,
 		// make sure to use GetValueOrDefault() - this will ensure that even if the corresponding SvcCreationStringTable
@@ -53,24 +53,24 @@ namespace DemoParser.Parser.HelperClasses {
 		internal readonly List<SvcCreateStringTable> CreationLookup;
 		
 
-		internal C_StringTablesManager(SourceDemo demoRef) {
+		internal CurStringTablesManager(SourceDemo demoRef) {
 			_demoRef = demoRef;
-			_privateTables = new List<C_StringTable>();
-			Tables = new Dictionary<string, C_StringTable>();
+			_privateTables = new List<CurStringTable>();
+			Tables = new Dictionary<string, CurStringTable>();
 			TableReadable = new Dictionary<string, bool>();
 			CreationLookup = new List<SvcCreateStringTable>();
 		}
 
 
-		internal C_StringTable CreateStringTable(SvcCreateStringTable creationInfo) {
+		internal CurStringTable CreateStringTable(SvcCreateStringTable creationInfo) {
 			CreationLookup.Add(creationInfo);
 			TableReadable[creationInfo.TableName] = true;
 			return InitNewTable(_privateTables.Count, creationInfo);
 		}
 
 
-		private C_StringTable InitNewTable(int id, SvcCreateStringTable creationInfo) {
-			var table = new C_StringTable(id, creationInfo);
+		private CurStringTable InitNewTable(int id, SvcCreateStringTable creationInfo) {
+			var table = new CurStringTable(id, creationInfo);
 			_privateTables.Add(table);
 			Tables[creationInfo.TableName] = table;
 			TableReadable[creationInfo.TableName] = true;
@@ -86,28 +86,28 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 
 
-		internal C_StringTable TableById(int id) {
+		internal CurStringTable TableById(int id) {
 			return _privateTables[id]; // should be right™
 		}
 
 
-		internal C_StringTableEntry AddTableEntry(C_StringTable table, BitStreamReader entryStream, string entryName) {
+		internal CurStringTableEntry? AddTableEntry(CurStringTable table, BitStreamReader? entryStream, string entryName) {
 			if (!TableReadable[table.Name])
 				return null;
-			table.Entries.Add(new C_StringTableEntry(_demoRef, table, entryStream, entryName));
+			table.Entries.Add(new CurStringTableEntry(_demoRef, table, entryStream, entryName));
 			return table.Entries[^1];
 		}
 
 
-		private void AddTableClass(C_StringTable table, string name, string? data) {
+		private void AddTableClass(CurStringTable table, string name, string? data) {
 			if (!TableReadable[table.Name]) 
 				return;
-			var stc = new C_StringTableClass(name, data);
+			var stc = new CurStringTableClass(name, data);
 			table.Classes.Add(stc);
 		}
 
 
-		internal C_StringTableEntry SetEntryData(C_StringTable table, C_StringTableEntry entry, BitStreamReader entryStream) {
+		internal CurStringTableEntry? SetEntryData(CurStringTable table, CurStringTableEntry entry, BitStreamReader entryStream) {
 			if (!TableReadable[table.Name])
 				return null;
 			entry.EntryData = StringTableEntryDataFactory.CreateData(_demoRef, entryStream, table.Name, entry.EntryName);
@@ -123,7 +123,7 @@ namespace DemoParser.Parser.HelperClasses {
 				for (var i = 0; i < tablesPacket.Tables.Count; i++) {
 					StringTable table = tablesPacket.Tables[i];
 
-					C_StringTable newTable;
+					CurStringTable newTable;
 					if (useCreationLookup) {
 						int tableId = CreationLookup.FindIndex(info => info.TableName == table.Name);
 						newTable = InitNewTable(tableId, CreationLookup[tableId]);
@@ -145,9 +145,9 @@ namespace DemoParser.Parser.HelperClasses {
 					
 					if (table.TableEntries != null)
 						foreach (StringTableEntry entry in table.TableEntries)
-							AddTableEntry(newTable, entry?.EntryData?.Reader, entry?.Name);
+							AddTableEntry(newTable, entry?.EntryData?.Reader, entry.Name);
 					if (table.Classes != null)
-						foreach (C_StringTableClass tableClass in newTable.Classes)
+						foreach (CurStringTableClass tableClass in newTable.Classes)
 							AddTableClass(newTable, tableClass.Name, tableClass.Data);
 				}
 			} catch (Exception e) {
@@ -161,7 +161,7 @@ namespace DemoParser.Parser.HelperClasses {
 	// classes separate from the StringTables packet for managing updateable tables, c stands for current
 	
 	
-	public class C_StringTable {
+	public class CurStringTable {
 
 		public int Id; // the index in the table list
 		// flattened fields from SvcCreateStringTable
@@ -172,11 +172,11 @@ namespace DemoParser.Parser.HelperClasses {
 		public readonly int UserDataSizeBits;
 		public readonly StringTableFlags? Flags;
 		// string table fields
-		public readonly List<C_StringTableEntry> Entries;
-		public readonly List<C_StringTableClass> Classes;
+		public readonly List<CurStringTableEntry> Entries;
+		public readonly List<CurStringTableClass> Classes;
 
 
-		public C_StringTable(int id, SvcCreateStringTable creationInfo) {
+		public CurStringTable(int id, SvcCreateStringTable creationInfo) {
 			Id = id;
 			Name = creationInfo.TableName;
 			MaxEntries = creationInfo.MaxEntries;
@@ -184,8 +184,8 @@ namespace DemoParser.Parser.HelperClasses {
 			UserDataSize = creationInfo.UserDataSize;
 			UserDataSizeBits = (int)creationInfo.UserDataSizeBits;
 			Flags = creationInfo.Flags;
-			Entries = new List<C_StringTableEntry>();
-			Classes = new List<C_StringTableClass>();
+			Entries = new List<CurStringTableEntry>();
+			Classes = new List<CurStringTableClass>();
 		}
 
 
@@ -195,15 +195,15 @@ namespace DemoParser.Parser.HelperClasses {
 	}
 
 
-	public class C_StringTableEntry {
+	public class CurStringTableEntry {
 		
 		private readonly SourceDemo _demoRef;
-		private readonly C_StringTable _tableRef;
+		private readonly CurStringTable _tableRef;
 		public readonly string EntryName;
 		public StringTableEntryData? EntryData;
 		
 		
-		public C_StringTableEntry(SourceDemo demoRef, C_StringTable tableRef, BitStreamReader entryStream, string entryName) {
+		public CurStringTableEntry(SourceDemo demoRef, CurStringTable tableRef, BitStreamReader? entryStream, string entryName) {
 			_demoRef = demoRef;
 			_tableRef = tableRef;
 			EntryName = entryName;
@@ -220,13 +220,13 @@ namespace DemoParser.Parser.HelperClasses {
 	}
 
 
-	public class C_StringTableClass {
+	public class CurStringTableClass {
 		
 		public readonly string Name;
 		public readonly string? Data;
 		
 		
-		public C_StringTableClass(string name, string? data) {
+		public CurStringTableClass(string name, string? data) {
 			Name = name;
 			Data = data;
 		}

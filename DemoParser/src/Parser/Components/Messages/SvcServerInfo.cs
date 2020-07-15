@@ -57,10 +57,10 @@ namespace DemoParser.Parser.Components.Messages {
 			DemoSettings.TickInterval = TickInterval;
 			// this packet always(?) appears before the creation of any tables
 			
-			DemoRef.CStringTablesManager.ClearCurrentTables();
+			DemoRef.CurStringTablesManager.ClearCurrentTables();
 			
 			// init baselines here
-			DemoRef.CBaseLines = new C_BaseLines(MaxServerClasses, DemoRef);
+			DemoRef.CBaseLines = new CurBaseLines(MaxServerClasses, DemoRef);
 		}
 		
 

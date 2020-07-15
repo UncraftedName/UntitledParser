@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
@@ -33,12 +32,12 @@ namespace DemoParser.Utils {
 		}
 
 
-		public void Append([NotNull] Appendable appendable) {
+		public void Append(Appendable appendable) {
 			appendable.AppendToWriter(this);
 		}
 
 
-		public void Append([NotNull]string s) {
+		public void Append(string s) {
 			// string[] newLines = s.Split(new[] {"\r\n", "\r", "\n"}, StringSplitOptions.None);
 			string[] newLines = s.Split('\n');
 			for (int i = 0; i < newLines.Length; i++) {
@@ -52,7 +51,7 @@ namespace DemoParser.Utils {
 		}
 
 
-		public void AppendLine([NotNull]string s) {
+		public void AppendLine(string s) {
 			Append(s);
 			AppendLine();
 		}
@@ -98,7 +97,7 @@ namespace DemoParser.Utils {
 				outLen += _indentCount[i] * indentLen;
 			}
 			
-			return string.Create<object>(outLen, null, (chars, _) => {
+			return string.Create<object>(outLen, null!, (chars, _) => {
 				ReadOnlySpan<char> indent = new ReadOnlySpan<char>(string.Concat(Enumerable.Repeat(indentStr, _maxIndent)).ToCharArray());
 				ReadOnlySpan<char> newLine = Environment.NewLine.AsSpan();
 

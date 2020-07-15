@@ -17,9 +17,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		private readonly SourceDemo _demoRef;
 		private DemoSettings DemSet => _demoRef.DemoSettings;
 		private readonly DataTables _dtRef;
-		private readonly ImmutableDictionary<string, SendTable> _tableLookup;
+		private readonly ImmutableDictionary<string, SendTable> _tableLookup; // immutable
 		public int ServerClassBits => BitUtils.HighestBitIndex((uint)_dtRef.ServerClasses.Count) + 1; // this might be off for powers of 2
-		public readonly PropLookup? FlattenedProps; // not initialized during the server class info
+		public readonly PropLookup FlattenedProps; // not initialized during the server class info
 		
 		
 		
@@ -49,7 +49,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				// smaller index. In the new protocol the priority of the props is also taken into account.
 				if (_demoRef.DemoSettings.NewDemoProtocol) {
 					List<int> priorities = new List<int> {64};
-					priorities.AddRange(fProps.Select(entry => entry.Prop.Priority.Value).Distinct());
+					priorities.AddRange(fProps.Select(entry => entry.Prop.Priority!.Value).Distinct());
 					priorities.Sort();
 					int start = 0;
 					foreach (int priority in priorities) {
@@ -97,10 +97,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			// array and reparsed every time they're updated during demo playback. I just parse them once and store
 			// them in a more accessible format.
 			
-			if (_demoRef.CStringTablesManager.TableReadable.GetValueOrDefault(TableNames.InstanceBaseLine)) {
-				_demoRef.CStringTablesManager.Tables[TableNames.InstanceBaseLine]
+			if (_demoRef.CurStringTablesManager.TableReadable.GetValueOrDefault(TableNames.InstanceBaseLine)) {
+				_demoRef.CurStringTablesManager.Tables[TableNames.InstanceBaseLine]
 					.Entries.ToList()
-					.ForEach(entry => ((InstanceBaseline)entry.EntryData).ParseBaseLineData(FlattenedProps));
+					.Select(entry => entry.EntryData)
+					.Cast<InstanceBaseline>()
+					.ToList()
+					.ForEach(baseline => baseline.ParseBaseLineData(FlattenedProps));
 			}
 		}
 
@@ -114,15 +117,15 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			excludes.UnionWith(
 				table.SendProps
 					.Where(stp => DemSet.PropFlagChecker.HasFlag(stp.Flags, Exclude))
-					.Select(stp => (stp.ExcludeDtName, stp.Name))
+					.Select(stp => (stp.ExcludeDtName!, stp.Name))
 				);
 			
 			foreach (SendTableProp property in table.SendProps.Where(property => property.SendPropType == SendPropType.DataTable)) {
 				if (collectBaseClasses && property.Name == "baseclass") {
-					GatherExcludesAndBaseClasses(excludes, baseClasses, _tableLookup[property.ExcludeDtName], true);
+					GatherExcludesAndBaseClasses(excludes, baseClasses, _tableLookup[property.ExcludeDtName!], true);
 					baseClasses.Add(GetClassByDtName(table.Name)); // should be the same as the properties table
 				} else {
-					GatherExcludesAndBaseClasses(excludes, baseClasses, _tableLookup[property.ExcludeDtName], false);
+					GatherExcludesAndBaseClasses(excludes, baseClasses, _tableLookup[property.ExcludeDtName!], false);
 				}
 			}
 		}
@@ -156,7 +159,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				if (DemSet.PropFlagChecker.HasFlags(prop.Flags, Exclude, InsideArray) || excludes.Contains((table.Name, prop.Name)))
 					continue;
 				if (prop.SendPropType == SendPropType.DataTable) {
-					SendTable subTable = _tableLookup[prop.ExcludeDtName];
+					SendTable subTable = _tableLookup[prop.ExcludeDtName!];
 					// we don't prefix Collapsible stuff, since it is just derived mostly
 					if (DemSet.PropFlagChecker.HasFlag(prop.Flags, Collapsible))
 						IterateProps(excludes, subTable, classIndex, fProps, prefix); 
@@ -193,7 +196,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 
 		public override string ToString() {
-			SendTableProp displayProp = _demSet.PropFlagChecker.HasFlag(Prop.Flags, InsideArray) ? ArrayElementProp : Prop;
+			SendTableProp displayProp = _demSet.PropFlagChecker.HasFlag(Prop.Flags, InsideArray) ? ArrayElementProp! : Prop;
 			return $"{TypeString()} {Name}, " +
 				   $"{displayProp.NumBits} bit{(displayProp.NumBits == 1 ? "" : "s")}, " +
 				   $"flags: {displayProp.Flags}";

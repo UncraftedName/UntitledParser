@@ -45,7 +45,8 @@ namespace DemoParser.Parser.Components.Packets {
 				ushort classCount = bsr.ReadUShort();
 				ServerClasses = new List<ServerClass>(classCount);
 				for (int i = 0; i < classCount; i++) {
-					ServerClasses.Add(new ServerClass(DemoRef, Reader));
+					// class info's come at the end
+					ServerClasses.Add(new ServerClass(DemoRef, Reader, null));
 					ServerClasses[^1].ParseStream(bsr);
 					// this is an assumption I make in the structure of all the entity stuff, very critical
 					if (i != ServerClasses[i].DataTableId)
@@ -53,7 +54,7 @@ namespace DemoParser.Parser.Components.Packets {
 				}
 				
 				// re-init the baselines if the count doesn't match (maybe I should just init them from here?)
-				if (DemoRef.CBaseLines.ClassBaselines.Length != classCount)
+				if (DemoRef.CBaseLines!.ClassBaselines.Length != classCount)
 					DemoRef.CBaseLines.ClearBaseLineState(classCount);
 				
 				// create the prop list for each class
@@ -85,7 +86,7 @@ namespace DemoParser.Parser.Components.Packets {
 			iw.FutureIndent--;
 			iw.AppendLine();
 			if ((ServerClasses?.Count ?? 0) > 0) {
-				iw.Append($"{ServerClasses.Count} class{(ServerClasses.Count > 1 ? "es" : "")}:");
+				iw.Append($"{ServerClasses!.Count} class{(ServerClasses.Count > 1 ? "es" : "")}:");
 				iw.FutureIndent++;
 				foreach (ServerClass classInfo in ServerClasses) {
 					iw.AppendLine();

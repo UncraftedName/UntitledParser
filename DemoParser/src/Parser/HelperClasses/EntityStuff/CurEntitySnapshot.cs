@@ -8,28 +8,28 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
     /// <summary>
     /// Represents the entity state at any given time.
     /// </summary>
-    public class C_EntitySnapshot {
+    public class CurEntitySnapshot {
         
         private readonly SourceDemo _demoRef;
         public readonly Entity[] Entities;
         public uint EngineTick; // set from the packet packet
 
 
-        public C_EntitySnapshot(SourceDemo demoRef) {
+        public CurEntitySnapshot(SourceDemo demoRef) {
             _demoRef = demoRef;
             Entities = new Entity[DemoSettings.MaxEdicts];
         }
 
 
-        private C_EntitySnapshot(SourceDemo demoRef, Entity[] entities, uint engineTick) {
+        private CurEntitySnapshot(SourceDemo demoRef, Entity[] entities, uint engineTick) {
             _demoRef = demoRef;
             Entities = entities;
             EngineTick = engineTick;
         }
 
 
-        public C_EntitySnapshot DeepCopy() => 
-            new C_EntitySnapshot(_demoRef, Entities.Select(entity => entity?.Duplicate()).ToArray(), EngineTick);
+        public CurEntitySnapshot DeepCopy() => 
+            new CurEntitySnapshot(_demoRef, Entities.Select(entity => entity?.Duplicate()).ToArray(), EngineTick);
 
 
         internal void ClearEntityState() {
@@ -38,6 +38,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
         
 
         internal void ProcessEnterPvs(SvcPacketEntities msg, EnterPvs u) {
+            Debug.Assert(_demoRef.CBaseLines != null, "baselines are null");
             if (u.New) // force a recreate
                 Entities[u.EntIndex] = _demoRef.CBaseLines.EntFromBaseLine(u.ServerClass, u.Serial);
             Entity e = Entities[u.EntIndex];

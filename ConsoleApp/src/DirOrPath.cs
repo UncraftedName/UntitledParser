@@ -1,6 +1,8 @@
 #nullable enable
 using System.IO;
 
+#pragma warning disable 8602
+
 namespace ConsoleApp {
 	
 	public class DirOrPath : FileSystemInfo {

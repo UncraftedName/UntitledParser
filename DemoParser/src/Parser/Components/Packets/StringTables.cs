@@ -42,7 +42,7 @@ namespace DemoParser.Parser.Components.Packets {
 			SetLocalStreamEnd(bsr);
 			
 			// if this packet exists make sure to create the C_tables after we parse this
-			DemoRef.CStringTablesManager.CreateTablesFromPacket(this);
+			DemoRef.CurStringTablesManager.CreateTablesFromPacket(this);
 		}
 		
 
@@ -75,11 +75,12 @@ namespace DemoParser.Parser.Components.Packets {
 		internal override void ParseStream(BitStreamReader bsr) {
 			Name = bsr.ReadNullTerminatedString();
 			ushort entryCount = bsr.ReadUShort();
-			if (entryCount > 0)
+			if (entryCount > 0) {
 				TableEntries = new List<StringTableEntry>(entryCount);
-			for (int i = 0; i < entryCount; i++) {
-				TableEntries.Add(new StringTableEntry(DemoRef, bsr, this));
-				TableEntries[^1].ParseStream(bsr);
+				for (int i = 0; i < entryCount; i++) {
+					TableEntries.Add(new StringTableEntry(DemoRef, bsr, this));
+					TableEntries[^1].ParseStream(bsr);
+				}
 			}
 			if (bsr.ReadBool()) {
 				ushort classCount = bsr.ReadUShort();

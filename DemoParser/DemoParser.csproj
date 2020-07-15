@@ -3,17 +3,18 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Version>2.2.0.0</Version>
-        <PackageVersion>2.2.0.0</PackageVersion>
+        <Version>2.3.0.0</Version>
+        <PackageVersion>2.3.0.0</PackageVersion>
         <Title>UntitledDemoParser</Title>
         <Authors>UncraftedName</Authors>
         <RepositoryUrl>https://github.com/UncraftedName/UncraftedDemoParser</RepositoryUrl>
-        <PackageTags>SourceEngine demo Valve</PackageTags>
+        <PackageTags>SourceEngine demo Valve Portal</PackageTags>
         <Description>A parser for Source Engine demos.</Description>
         <PackageIconUrl>https://raw.githubusercontent.com/UncraftedName/UncraftedDemoParser/master/github-resources/investigation.ico</PackageIconUrl>
         <Platforms>AnyCPU;x64</Platforms>
         <Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
         <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,16 +25,16 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <DefineConstants>TRACE</DefineConstants>
-      <NoWarn>1701;1702;8618</NoWarn>
+      <NoWarn>1701;1702;8618;8602</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug_ProcessEnts' ">
       <DefineConstants>TRACE;FORCE_PROCESS_ENTS;DEBUG</DefineConstants>
-      <NoWarn>1701;1702;8618</NoWarn>
+      <NoWarn>1701;1702;8618;8602</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <NoWarn>1701;1702;8618</NoWarn>
+      <NoWarn>1701;1702;8618;8602</NoWarn>
     </PropertyGroup>
 
 </Project>

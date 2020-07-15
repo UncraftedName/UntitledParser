@@ -25,7 +25,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			int tmp = iw.LastLineLength;
+			int tmp = iw.LastLineLength; // todo improve
 			iw.Append(PropInfo.TypeString());
 			iw.PadLastLine(tmp + 12, ' ');
 			iw.Append(PropInfo.Name + ": ");
@@ -375,7 +375,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			IReadOnlyList<FlattenedProp> fProps,
 			SourceDemo demoRef)
 		{
-			var props = new List<(int propIndex, EntityProperty prop)>();
+			var props = new List<(int propIndex, EntityProperty prop)>(fProps.Count);
 			
 			int i = -1;
 			if (demoRef.DemoSettings.NewDemoProtocol) {

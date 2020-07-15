@@ -1,8 +1,10 @@
 #nullable enable
+// making the compiler happy
+#pragma warning disable 8604, 8625
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
@@ -39,7 +41,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 		
 		// called once 
-		internal void ParseBaseLineData([NotNull]PropLookup propLookup) {
+		internal void ParseBaseLineData(PropLookup propLookup) {
 
 			_propLookup = propLookup;
 			int id = int.Parse(_entryName);

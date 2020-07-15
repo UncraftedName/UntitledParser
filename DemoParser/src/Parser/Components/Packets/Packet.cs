@@ -43,8 +43,8 @@ namespace DemoParser.Parser.Components.Packets {
 			Debug.Assert(netTickMessages.Count < 2, "there's more than 2 net tick messages in this packet");
 			NetTick tickInfo = (NetTick)netTickMessages.FirstOrDefault().message;
 			if (tickInfo != null) {
-				if (DemoRef.CEntitySnapshot != null)
-					DemoRef.CEntitySnapshot.EngineTick = tickInfo.EngineTick;
+				if (DemoRef.CurEntitySnapshot != null)
+					DemoRef.CurEntitySnapshot.EngineTick = tickInfo.EngineTick;
 			}
 			// todo fill prop handles with data here
 			TimingAdjustment.AdjustFromPacket(this);

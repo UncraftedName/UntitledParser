@@ -4,6 +4,7 @@ using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
+using static DemoParser.Parser.DemoSettings;
 
 namespace DemoParser.Parser.Components.Messages {
 	
@@ -17,17 +18,20 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
+			//bsr.SkipBits(16+12+5);
+			//Console.WriteLine(bsr.SubStream(20).ToBinaryString());
 			Reliable = bsr.ReadBool();
+			//Reliable = true;
 			uint soundCount = Reliable ? (uint)1 : bsr.ReadByte();
-			uint dataBitLen = bsr.ReadBitsAsUInt(Reliable ? 8 : 16);
+			int dataBitLen = (int)bsr.ReadBitsAsUInt(Reliable ? 8 : 16);
 			int indexBeforeSounds = bsr.CurrentBitIndex;
 			Sounds = new List<SoundInfo>();
 			for (int i = 0; i < soundCount; i++) {
 				Sounds.Add(new SoundInfo(DemoRef, bsr));
 				Sounds[^1].ParseStream(bsr);
 			}
-			bsr.CurrentBitIndex = indexBeforeSounds;
-			bsr.SkipBits(dataBitLen);
+			//Console.WriteLine((bsr.CurrentBitIndex - indexBeforeSounds) - dataBitLen);
+			bsr.CurrentBitIndex = indexBeforeSounds + dataBitLen;
 			SetLocalStreamEnd(bsr);
 		}
 		
@@ -78,10 +82,10 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			EntityIndex = bsr.ReadBool() ? bsr.ReadBitsAsUInt(bsr.ReadBool() ? 5 : 11) : 0; // MAX_EDICT_BITS
-			SoundIndex = (int)(bsr.ReadBitsAsUIntIfExists(13) ?? 0); // MAX_SOUND_INDEX_BITS
+			EntityIndex = bsr.ReadBool() ? bsr.ReadBitsAsUInt(bsr.ReadBool() ? 5 : MaxEdictBits) : 0;
+			SoundIndex = (int)(bsr.ReadBitsAsUIntIfExists(MaxSoundIndexBits) ?? 0);
 
-			var mgr = DemoRef.CStringTablesManager;
+			var mgr = DemoRef.CurStringTablesManager;
 			if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache)) {
 				_soundTableReadable = true;
 				if (SoundIndex >= mgr.Tables[TableNames.SoundPreCache].Entries.Count)
@@ -90,7 +94,7 @@ namespace DemoParser.Parser.Components.Messages {
 					UnreliableSoundDir = mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName;
 			}
 
-			Flags = (SoundFlags)(bsr.ReadBitsAsUIntIfExists(9) ?? 0); // SND_FLAG_BITS_ENCODE
+			Flags = (SoundFlags)(bsr.ReadBitsAsUIntIfExists(DemoSettings.SoundFlagBits) ?? 0);
 			Channel = bsr.ReadBitsAsUIntIfExists(3) ?? 0;
 			IsAmbient = bsr.ReadBool();
 			IsSentence = bsr.ReadBool();
@@ -152,17 +156,22 @@ namespace DemoParser.Parser.Components.Messages {
 
 		[Flags]
 		public enum SoundFlags : uint {
-			None           = 0,
-			ChangeVol      = 1,
-			ChangePitch    = 1 << 1,
-			Stop           = 1 << 2,
-			Spawning       = 1 << 3,
-			Delay          = 1 << 4,
-			StopLooping    = 1 << 5,
-			Speaker        = 1 << 6,
-			ShouldPause    = 1 << 7,
-			IgnorePhonemes = 1 << 8,
-			IgnoreName     = 1 << 9,
+			None                 = 0,
+			ChangeVol            = 1,
+			ChangePitch          = 1 << 1,
+			Stop                 = 1 << 2,
+			Spawning             = 1 << 3, // we're spawning, used in some cases for ambients, not sent over net
+			Delay                = 1 << 4,
+			StopLooping          = 1 << 5,
+			Speaker              = 1 << 6, // being played again by a microphone through a speaker
+			ShouldPause          = 1 << 7, // this sound should be paused if the game is paused
+			IgnorePhonemes       = 1 << 8,
+			IgnoreName           = 1 << 9,
+			// not present in portal 1
+			IsScriptHandle       = 1 << 10,
+			UpdateDelayForChoreo = 1 << 11, // True if we have to update snd_delay_for_choreo with the IO latency
+			GenerateGuid         = 1 << 12, // True if we generate the GUID when we send the sound
+			OverridePitch        = 1 << 13
 		}
 	} 
 }

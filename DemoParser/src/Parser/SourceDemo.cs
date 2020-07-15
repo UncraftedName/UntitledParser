@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -35,9 +34,9 @@ namespace DemoParser.Parser {
 		public List<string> ErrorList;
 		internal GameEventManager GameEventManager;
 		public DataTableParser DataTableParser;
-		internal C_StringTablesManager CStringTablesManager;
-		internal C_EntitySnapshot CEntitySnapshot;
-		internal C_BaseLines? CBaseLines;
+		internal CurStringTablesManager CurStringTablesManager;
+		internal CurEntitySnapshot CurEntitySnapshot;
+		internal CurBaseLines? CBaseLines;
 		private readonly IProgress<double>? _parseProgress;
 
 		
@@ -49,7 +48,7 @@ namespace DemoParser.Parser {
 			: this(File.ReadAllBytes(fileDir), parseProgress, Path.GetFileName(fileDir)) {}
 
 
-		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null, [NotNull]string demoName = "") 
+		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null, string demoName = "") 
 			: base(null, new BitStreamReader(data)) 
 		{
 			_parseProgress = parseProgress;
@@ -63,7 +62,7 @@ namespace DemoParser.Parser {
 			Header.ParseStream(bsr);
 			DemoSettings = new DemoSettings(Header);
 			// it might be worth it to implement updating helper classes with listeners, but it's not a huge deal atm
-			CStringTablesManager = new C_StringTablesManager(this); 
+			CurStringTablesManager = new CurStringTablesManager(this); 
 			ErrorList = new List<string>();
 			Frames = new List<PacketFrame>();
 			StartTick = 0;

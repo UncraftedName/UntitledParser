@@ -39,7 +39,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public override void AppendToWriter(IndentedWriter iw) {
 			iw.AppendLine($"position: {Pos:F4}");
 
-			var mgr = DemoRef.CStringTablesManager;
+			var mgr = DemoRef.CurStringTablesManager;
 			iw.Append(mgr.TableReadable.GetValueOrDefault(TableNames.DecalPreCache)
 				? $"decal texture: {mgr.Tables[TableNames.DecalPreCache].Entries[DecalTextureIndex]}"
 				: "decal texture index:");

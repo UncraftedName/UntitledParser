@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool UpdateBaseline;
 		private BitStreamReader _entBsr;
 		public BitStreamReader EntStream => _entBsr.FromBeginning();
-		public List<EntityUpdate> Updates;
+		public List<EntityUpdate>? Updates;
 		
 
 		public SvcPacketEntities(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
@@ -44,9 +44,9 @@ namespace DemoParser.Parser.Components.Messages {
 				return;
 			
 			// now, we do some setup for ent parsing
-			ref C_EntitySnapshot snapshot = ref DemoRef.CEntitySnapshot;
+			ref CurEntitySnapshot snapshot = ref DemoRef.CurEntitySnapshot;
 			if (snapshot == null)
-				snapshot = new C_EntitySnapshot(DemoRef);
+				snapshot = new CurEntitySnapshot(DemoRef);
 			
 			if (IsDelta && snapshot.EngineTick != DeltaFrom) {
 				// If the messages ever arrive in a different order I should queue them,
@@ -90,7 +90,7 @@ namespace DemoParser.Parser.Components.Messages {
 					};
 #pragma warning restore 8509
 					
-					EntityUpdate update = null;
+					EntityUpdate update;
 					// vars used in enter pvs & delta
 					ServerClass entClass;
 					List<FlattenedProp> fProps;
@@ -122,6 +122,8 @@ namespace DemoParser.Parser.Components.Messages {
 							snapshot.ProcessLeavePvs((LeavePvs)update);
 							NextOldEntIndex(ref oldI, ents);
 							break;
+						default:
+							throw new ArgumentException("unknown ent update type");
 					}
 					Updates.Add(update);
 				}

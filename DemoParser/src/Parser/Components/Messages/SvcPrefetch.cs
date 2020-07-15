@@ -26,7 +26,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			var mgr = DemoRef.CStringTablesManager;
+			var mgr = DemoRef.CurStringTablesManager;
 			if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache))
 				iw.Append(SoundIndex < mgr.Tables[TableNames.SoundPreCache].Entries.Count
 					? $"sound: {mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName}"

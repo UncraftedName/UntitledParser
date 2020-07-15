@@ -1,12 +1,11 @@
 #nullable enable
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components.Messages;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
     
-    // like C_StringTablesManager, keeps a local copy of the baselines that can be updated and changed whenever
-    public class C_BaseLines {
+    // like CurStringTablesManager, keeps a local copy of the baselines that can be updated and changed whenever
+    public class CurBaseLines {
 
         /*
         The baseline is an array of all server classes and their default properties.
@@ -20,7 +19,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
         private readonly SourceDemo _demoRef;
 
 
-        public C_BaseLines(int maxServerClasses, SourceDemo demoRef) {
+        public CurBaseLines(int maxServerClasses, SourceDemo demoRef) {
             _demoRef = demoRef;
             ClearBaseLineState(maxServerClasses);
         }
@@ -34,8 +33,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
         // either updated from the instance baseline in string tables or the dynamic baseline in the entities message
         // this might be wrong, it's possible all updates are stored to a new baseline, so effectively only the last one matters
         public void UpdateBaseLine(
-            [NotNull] ServerClass serverClass, 
-            [NotNull] IEnumerable<(int propIndex, EntityProperty prop)> props,
+            ServerClass serverClass, 
+            IEnumerable<(int propIndex, EntityProperty prop)> props,
             int entPropCount) 
         {
             int i = serverClass.DataTableId;
@@ -46,7 +45,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
             
             // update the slot
             foreach ((int propIndex, EntityProperty from) in props) {
-                ref EntityProperty to = ref ClassBaselines[i].entityProperties[propIndex];
+                ref EntityProperty? to = ref ClassBaselines[i].entityProperties[propIndex];
                 if (to == null)
                     to = from.CopyProperty();
                 else
@@ -59,7 +58,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
             
             // assume classes[ID] is valid
             int classIndex = serverClass.DataTableId; 
-            ref EntityProperty?[] props = ref ClassBaselines[classIndex].entityProperties;
+            ref EntityProperty?[]? props = ref ClassBaselines[classIndex].entityProperties;
 
             // I need this because for now I cannot parse string tables that are encoded with dictionaries,
             // so in anything that isn't 3420 I cannot parse baseline table updates outside of the string table packet.
@@ -72,7 +71,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
                 ClassBaselines[classIndex].serverClass = serverClass;
             }
             
-            EntityProperty[] newEnt = new EntityProperty[props.Length];
+            EntityProperty?[] newEnt = new EntityProperty[props.Length];
             for (int i = 0; i < newEnt.Length; i++) {
                 if (props[i] == null)
                     newEnt[i] = null;
