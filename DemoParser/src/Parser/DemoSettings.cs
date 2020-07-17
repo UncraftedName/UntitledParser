@@ -24,7 +24,13 @@ namespace DemoParser.Parser {
 		public const uint HandleSerialNumberBits = 10;
 		public const int MaxPortal2CoopBranches = 6;
 		public const int MaxPortal2CoopLevelsPerBranch = 16;
-		public const int MaxSoundIndexBits = 13;
+		
+		public const int MaxSndIndexBits = 13;
+		public const int SndSeqNumberBits = 10;
+		public const int MaxSndLvlBits = 9;
+		public const int MaxSndDelayMSecEncodeBits = 13;
+		public const float SndDelayOffset = 0.1f;
+		public const int SndSeqNumMask = (1 << SndSeqNumberBits) - 1;
 		
 
 		// initialized below

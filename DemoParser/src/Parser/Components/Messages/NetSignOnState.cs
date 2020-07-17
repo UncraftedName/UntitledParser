@@ -30,6 +30,8 @@ namespace DemoParser.Parser.Components.Messages {
 					MapName = bsr.ReadStringOfLength(length).Split('\0', 2)[0];
 			}
 			SetLocalStreamEnd(bsr);
+			if (SignOnState == SignOnState.PreSpawn)
+				DemoRef.ClientSoundSequence = 1; // reset sound sequence number after receiving SignOn sounds
 		}
 		
 

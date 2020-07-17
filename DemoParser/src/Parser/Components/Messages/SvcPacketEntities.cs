@@ -44,9 +44,8 @@ namespace DemoParser.Parser.Components.Messages {
 				return;
 			
 			// now, we do some setup for ent parsing
-			ref CurEntitySnapshot snapshot = ref DemoRef.CurEntitySnapshot;
-			if (snapshot == null)
-				snapshot = new CurEntitySnapshot(DemoRef);
+			ref CurEntitySnapshot? snapshot = ref DemoRef.CurEntitySnapshot;
+			snapshot ??= new CurEntitySnapshot(DemoRef);
 			
 			if (IsDelta && snapshot.EngineTick != DeltaFrom) {
 				// If the messages ever arrive in a different order I should queue them,

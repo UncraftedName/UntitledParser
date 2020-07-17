@@ -120,9 +120,7 @@ namespace DemoParser.Parser.HelperClasses {
 			TableReadable.Clear();
 			bool useCreationLookup = CreationLookup.Any();
 			try {
-				for (var i = 0; i < tablesPacket.Tables.Count; i++) {
-					StringTable table = tablesPacket.Tables[i];
-
+				foreach (StringTable table in tablesPacket.Tables) {
 					CurStringTable newTable;
 					if (useCreationLookup) {
 						int tableId = CreationLookup.FindIndex(info => info.TableName == table.Name);
@@ -158,7 +156,7 @@ namespace DemoParser.Parser.HelperClasses {
 	}
 
 
-	// classes separate from the StringTables packet for managing updateable tables, c stands for current
+	// classes separate from the StringTables packet for managing updateable tables
 	
 	
 	public class CurStringTable {
@@ -182,7 +180,7 @@ namespace DemoParser.Parser.HelperClasses {
 			MaxEntries = creationInfo.MaxEntries;
 			UserDataFixedSize = creationInfo.UserDataFixedSize;
 			UserDataSize = creationInfo.UserDataSize;
-			UserDataSizeBits = (int)creationInfo.UserDataSizeBits;
+			UserDataSizeBits = creationInfo.UserDataSizeBits;
 			Flags = creationInfo.Flags;
 			Entries = new List<CurStringTableEntry>();
 			Classes = new List<CurStringTableClass>();

@@ -27,6 +27,7 @@ namespace DemoParser.Parser {
 		private bool _exceptionDuringParsing;
 		// these are set in the packet packet and from console commands
 		public int StartTick = -1, EndTick = -1, StartAdjustmentTick = -1, EndAdjustmentTick = -1;
+		internal uint ClientSoundSequence; // increases with each reliable sound
 		
 		// Helper classes, these are used by the demo components, are temporary and might be created/destroyed whenever.
 		// Any classes that require the use of any lookup tables e.g. string tables, game event list, etc. should store
@@ -35,7 +36,7 @@ namespace DemoParser.Parser {
 		internal GameEventManager GameEventManager;
 		public DataTableParser DataTableParser;
 		internal CurStringTablesManager CurStringTablesManager;
-		internal CurEntitySnapshot CurEntitySnapshot;
+		internal CurEntitySnapshot? CurEntitySnapshot;
 		internal CurBaseLines? CBaseLines;
 		private readonly IProgress<double>? _parseProgress;
 

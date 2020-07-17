@@ -9,6 +9,8 @@
         <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
         <LangVersion>latest</LangVersion>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+        <Title>UntitledParser</Title>
+        <Description>A console wrapper for the UncraftedDemoParser</Description>
     </PropertyGroup>
 
     <ItemGroup>
