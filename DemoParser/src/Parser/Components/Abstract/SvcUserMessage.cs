@@ -49,7 +49,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.AmmoDenied,
 			UserMessageType.CreditsMsg
 		};
-		public static Dictionary<UserMessageType, int> Hl2OeReverseTable = Hl2OeTable.CreateReverseLookupDict();
+		private static readonly Dictionary<UserMessageType, int> Hl2OeReverseTable = Hl2OeTable.CreateReverseLookupDict();
 		
 		// same as steam
 		private static readonly UserMessageType[] Hl2UnpackTable = {
@@ -88,7 +88,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapSetConst,
 			UserMessageType.HapMeleeContact
 		};
-		public static Dictionary<UserMessageType, int> Hl2UnpackReverseTable = Hl2UnpackTable.CreateReverseLookupDict();
+		public static readonly Dictionary<UserMessageType, int> Hl2UnpackReverseTable = Hl2UnpackTable.CreateReverseLookupDict();
 		
 		private static readonly UserMessageType[] Portal2Table = {
 			UserMessageType.Geiger,

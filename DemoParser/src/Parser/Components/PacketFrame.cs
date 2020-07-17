@@ -27,6 +27,11 @@ namespace DemoParser.Parser.Components {
 		internal override void ParseStream(BitStreamReader bsr) {
 			Type = DemoPacket.ByteToPacketType(DemoSettings, bsr.ReadByte());
 			
+			if (Type == PacketType.Unknown)
+				throw new ArgumentException("no byte->packet mapper found for this game!");
+			else if (Type == PacketType.Invalid)
+				throw new ArgumentException($"Illegal packet type: {Type}");
+			
 			// stop tick is cut off in portal demos, not that it really matters
 			int tick = Type == PacketType.Stop && !DemoSettings.NewDemoProtocol
 				? (int)bsr.ReadBitsAsUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24))

@@ -114,7 +114,7 @@ namespace DemoParser.Parser.Components.Messages {
 							NextOldEntIndex(ref oldI, ents);
 							break;
 						default:
-							throw new ArgumentException("unknown ent update type");
+							throw new ArgumentException($"unknown ent update type: {updateType}");
 					}
 					Updates.Add(update);
 				}
@@ -129,7 +129,7 @@ namespace DemoParser.Parser.Components.Messages {
 			do {
 				index++;
 				if (index >= oldEnts.Count) {
-					index = int.MaxValue; // entity sentinel, something bigger than the number of entities
+					index = int.MaxValue - 1; // entity sentinel, something bigger than the number of entities
 					return;
 				}
 			} while (oldEnts[index] == null);
