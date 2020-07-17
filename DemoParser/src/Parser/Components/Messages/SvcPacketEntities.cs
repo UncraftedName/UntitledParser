@@ -80,32 +80,14 @@ namespace DemoParser.Parser.Components.Messages {
 						NextOldEntIndex(ref oldI, ents);
 					}
 					
-#pragma warning disable 8509
-					UpdateType updateType = _entBsr.ReadBitsAsUInt(2) switch {
-						0 => UpdateType.Delta,
-						1 => UpdateType.LeavePvs,
-						2 => UpdateType.EnterPvs,
-						3 => UpdateType.Delete
-					};
-#pragma warning restore 8509
-					
 					EntityUpdate update;
 					// vars used in enter pvs & delta
 					ServerClass entClass;
 					List<FlattenedProp> fProps;
 					int iClass;
+					uint updateType = _entBsr.ReadBitsAsUInt(2);
 					switch (updateType) {
-						case UpdateType.EnterPvs:
-							iClass = (int)_entBsr.ReadBitsAsUInt(tableParser.ServerClassBits);
-							uint iSerial = _entBsr.ReadBitsAsUInt(DemoSettings.HandleSerialNumberBits);
-							(entClass, fProps) = tableParser.FlattenedProps[iClass];
-							bool bNew = ents[newI] == null || ents[newI].Serial != iSerial;
-							update = new EnterPvs(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);
-							snapshot.ProcessEnterPvs(this, (EnterPvs)update); // update baseline check in here
-							if (oldI == newI)
-								NextOldEntIndex(ref oldI, ents);
-							break;
-						case UpdateType.Delta:
+						case 0: // delta
 							if (oldI != newI)
 								throw new ArgumentException("oldEntSlot != newEntSlot");
 							Entity e = snapshot.Entities[newI];
@@ -115,9 +97,19 @@ namespace DemoParser.Parser.Components.Messages {
 							snapshot.ProcessDelta((Delta)update);
 							NextOldEntIndex(ref oldI, ents);
 							break;
-						case UpdateType.LeavePvs:
-						case UpdateType.Delete:
-							update = new LeavePvs(oldI, ents[oldI].ServerClass, updateType == UpdateType.Delete);
+						case 2: // enter PVS
+							iClass = (int)_entBsr.ReadBitsAsUInt(tableParser.ServerClassBits);
+							uint iSerial = _entBsr.ReadBitsAsUInt(DemoSettings.HandleSerialNumberBits);
+							(entClass, fProps) = tableParser.FlattenedProps[iClass];
+							bool bNew = ents[newI] == null || ents[newI].Serial != iSerial;
+							update = new EnterPvs(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);
+							snapshot.ProcessEnterPvs(this, (EnterPvs)update); // update baseline check in here
+							if (oldI == newI)
+								NextOldEntIndex(ref oldI, ents);
+							break;
+						case 1: // leave PVS
+						case 3: // delete
+							update = new LeavePvs(oldI, ents[oldI].ServerClass, updateType == 3);
 							snapshot.ProcessLeavePvs((LeavePvs)update);
 							NextOldEntIndex(ref oldI, ents);
 							break;
@@ -174,13 +166,5 @@ namespace DemoParser.Parser.Components.Messages {
 				iw.Append("\n(entity parsing not supported for this game)");
 			}
 		}
-	}
-	
-	
-	public enum UpdateType { // src_main/common/protocol.h
-		EnterPvs = 0, // New entity or entity reentered PVS (potentially visible system)
-		LeavePvs,     // Entity left PVS
-		Delete,       // This is a LeavePVS message, but with a delete flag
-		Delta         // There is a delta for this entity
 	}
 }
