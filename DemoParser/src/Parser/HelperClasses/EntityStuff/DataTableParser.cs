@@ -17,7 +17,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		private readonly SourceDemo _demoRef;
 		private DemoSettings DemSet => _demoRef.DemoSettings;
 		private readonly DataTables _dtRef;
-		private readonly ImmutableDictionary<string, SendTable> _tableLookup; // immutable
+		private readonly ImmutableDictionary<string, SendTable> _tableLookup;
 		public int ServerClassBits => BitUtils.HighestBitIndex((uint)_dtRef.ServerClasses.Count) + 1; // this might be off for powers of 2
 		public readonly PropLookup FlattenedProps; // not initialized during the server class info
 		
@@ -181,22 +181,22 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
 	public class FlattenedProp {
 		
-		private readonly DemoSettings _demSet;
+		internal readonly DemoSettings DemoSettings;
 		public readonly string Name;
 		public readonly SendTableProp Prop;
 		public readonly SendTableProp? ArrayElementProp;
 		
 
-		public FlattenedProp(DemoSettings demSet, string name, SendTableProp prop, SendTableProp? arrayElementProp) {
+		public FlattenedProp(DemoSettings demoSettings, string name, SendTableProp prop, SendTableProp? arrayElementProp) {
 			Prop = prop;
 			ArrayElementProp = arrayElementProp;
-			_demSet = demSet;
+			DemoSettings = demoSettings;
 			Name = name;
 		}
 		
 
 		public override string ToString() {
-			SendTableProp displayProp = _demSet.PropFlagChecker.HasFlag(Prop.Flags, InsideArray) ? ArrayElementProp! : Prop;
+			SendTableProp displayProp = DemoSettings.PropFlagChecker.HasFlag(Prop.Flags, InsideArray) ? ArrayElementProp! : Prop;
 			return $"{TypeString()} {Name}, " +
 				   $"{displayProp.NumBits} bit{(displayProp.NumBits == 1 ? "" : "s")}, " +
 				   $"flags: {displayProp.Flags}";

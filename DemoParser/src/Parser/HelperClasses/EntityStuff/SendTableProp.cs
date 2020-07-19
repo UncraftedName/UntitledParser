@@ -1,38 +1,36 @@
 #nullable enable
 using System;
-using System.Linq;
-using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
-	
+
 	public class SendTableProp : DemoComponent {
-		
+
 		public readonly SendTable TableRef;
 		// these fields should only be set once in ParseStream()
 		public SendPropType SendPropType;
 		public string Name;
-		public uint Flags;
+		public int Flags;
 		public int? Priority;
 		public string? ExcludeDtName;
 		public float? LowValue;
 		public float? HighValue;
 		public uint? NumBits;
 		public uint? NumElements;
-		
+
 
 		public SendTableProp(SourceDemo demoRef, BitStreamReader reader, SendTable tableRef) : base(demoRef, reader) {
 			TableRef = tableRef;
 		}
-		
-		
+
+
 		internal override void ParseStream(BitStreamReader bsr) {
 			SendPropType = UIntToSendPropertyType(DemoRef, bsr.ReadBitsAsUInt(5));
 			Name = bsr.ReadNullTerminatedString();
-			Flags = bsr.ReadBitsAsUInt(DemoSettings.SendPropFlagBits);
+			Flags = (int)bsr.ReadBitsAsUInt(DemoSettings.SendPropFlagBits);
 			if (DemoSettings.NewDemoProtocol)
 				Priority = bsr.ReadByte();
 			if (SendPropType == SendPropType.DataTable || DemoSettings.PropFlagChecker.HasFlag(Flags, PropFlag.Exclude)) {
@@ -47,7 +45,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 						LowValue = bsr.ReadFloat();
 						HighValue = bsr.ReadFloat();
 						NumBits = bsr.ReadBitsAsUInt(
-							DemoRef.Header.NetworkProtocol == 14 || 
+							DemoRef.Header.NetworkProtocol == 14 ||
 							DemoSettings.Game == SourceGame.L4D2_2000 ||
 							DemoSettings.Game == SourceGame.L4D2_2042
 								? 6 : 7);
@@ -61,7 +59,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				}
 			}
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -69,12 +67,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append($"{SendPropType.ToString().ToLower(), -10}");
+			iw.Append($"{SendPropType.ToString().ToLower(),-10}");
 			AppendToWriterWithoutType(iw);
 		}
 
 
-		private void AppendToWriterWithoutType(IndentedWriter iw) { 
+		private void AppendToWriterWithoutType(IndentedWriter iw) {
 			if (ExcludeDtName != null) {
 				iw.Append($"{Name}{(ExcludeDtName == null ? "" : $" : {ExcludeDtName}")}".PadRight(50));
 			} else {
@@ -85,7 +83,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					case SendPropType.Float:
 					case SendPropType.Vector3:
 					case SendPropType.Vector2:
-						iw.Append($"low: {LowValue, -12} high: {HighValue, -12} {NumBits, 3} bit{(NumBits == 1 ? "" : "s")}");
+						iw.Append($"low: {LowValue,-12} high: {HighValue,-12} {NumBits,3} bit{(NumBits == 1 ? "" : "s")}");
 						break;
 					case SendPropType.Array:
 						iw.Append($"elements: {NumElements}");
@@ -163,101 +161,61 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		ChangesOften
 	}
 
+	#region prop flags for different versions
 
-	public abstract class PropFlagChecker {
+	public class DemoProtocol3FlagChecker : AbstractFlagChecker<PropFlag> {
 
-		private static readonly PropFlag[] PropFlags = (PropFlag[])Enum.GetValues(typeof(PropFlag));
-		private static readonly string[] PropNames = Enum.GetNames(typeof(PropFlag));
-		private static readonly int MaxStrLen = PropNames.Select(s => s.Length + 2).Sum() - 2;
-		
-
-		public static PropFlagChecker CreateFromDemoHeader(DemoHeader h) {
-			return h.DemoProtocol switch {
-				3 => new DemoProtocol3FlagChecker(),
-				4 => new DemoProtocol4FlagChecker(),
-				_ => throw new ArgumentException($"There is no prop flag list for demo protocol {h.DemoProtocol}")
+		public override bool HasFlag(long val, PropFlag flag) {
+			return flag switch {
+				PropFlag.Unsigned       => CheckBit(val, 00),
+				PropFlag.Coord          => CheckBit(val, 01),
+				PropFlag.NoScale        => CheckBit(val, 02),
+				PropFlag.RoundDown      => CheckBit(val, 03),
+				PropFlag.RoundUp        => CheckBit(val, 04),
+				PropFlag.Normal         => CheckBit(val, 05),
+				PropFlag.Exclude        => CheckBit(val, 06),
+				PropFlag.Xyze           => CheckBit(val, 07),
+				PropFlag.InsideArray    => CheckBit(val, 08),
+				PropFlag.ProxyAlwaysYes => CheckBit(val, 09),
+				PropFlag.ChangesOften   => CheckBit(val, 10),
+				PropFlag.IsVectorElem   => CheckBit(val, 11),
+				PropFlag.Collapsible    => CheckBit(val, 12),
+				PropFlag.CoordMp        => CheckBit(val, 13),
+				PropFlag.CoordMpLp      => CheckBit(val, 14),
+				PropFlag.CoordMpInt     => CheckBit(val, 15),
+				_ => false
 			};
 		}
-		
-		
-		public abstract bool HasFlag(uint val, PropFlag flag);
-		
-
-		public bool HasFlags(uint val, PropFlag f1, PropFlag f2) {
-			return HasFlag(val, f1) || HasFlag(val, f2);
-		}
+	}
 
 
-		public string ToFlagString(uint val) {
-			Span<char> str = stackalloc char[MaxStrLen];
-			int len = 0;
-			int flagCount = 0;
-			for (int i = 0; i < PropFlags.Length; i++) {
-				if (HasFlag(val, PropFlags[i])) {
-					if (flagCount++ > 0) {
-						", ".AsSpan().CopyTo(str.Slice(len));
-						len += 2;
-					}
-					PropNames[i].AsSpan().CopyTo(str.Slice(len));
-					len += PropNames[i].Length;
-				}
-			}
-			return len == 0 ? "None" : str.Slice(0, len).ToString();
-		}
+	public class DemoProtocol4FlagChecker : AbstractFlagChecker<PropFlag> {
 
-
-		private class DemoProtocol3FlagChecker : PropFlagChecker {
-			
-			public override bool HasFlag(uint val, PropFlag flag) {
-				return flag switch {
-					PropFlag.Unsigned       => (val & 1) != 00,
-					PropFlag.Coord          => (val & (1 << 01)) != 0,
-					PropFlag.NoScale        => (val & (1 << 02)) != 0,
-					PropFlag.RoundDown      => (val & (1 << 03)) != 0,
-					PropFlag.RoundUp        => (val & (1 << 04)) != 0,
-					PropFlag.Normal         => (val & (1 << 05)) != 0,
-					PropFlag.Exclude        => (val & (1 << 06)) != 0,
-					PropFlag.Xyze           => (val & (1 << 07)) != 0,
-					PropFlag.InsideArray    => (val & (1 << 08)) != 0,
-					PropFlag.ProxyAlwaysYes => (val & (1 << 09)) != 0,
-					PropFlag.ChangesOften   => (val & (1 << 10)) != 0,
-					PropFlag.IsVectorElem   => (val & (1 << 11)) != 0,
-					PropFlag.Collapsible    => (val & (1 << 12)) != 0,
-					PropFlag.CoordMp        => (val & (1 << 13)) != 0,
-					PropFlag.CoordMpLp      => (val & (1 << 14)) != 0,
-					PropFlag.CoordMpInt     => (val & (1 << 15)) != 0,
-					_ => false
-				};
-			}
-		}
-		
-		
-		private class DemoProtocol4FlagChecker : PropFlagChecker {
-			
-			public override bool HasFlag(uint val, PropFlag flag) {
-				return flag switch {
-					PropFlag.Unsigned       => (val & 1) != 00,
-					PropFlag.Coord          => (val & (1 << 01)) != 0,
-					PropFlag.NoScale        => (val & (1 << 02)) != 0,
-					PropFlag.RoundDown      => (val & (1 << 03)) != 0,
-					PropFlag.RoundUp        => (val & (1 << 04)) != 0,
-					PropFlag.Normal         => (val & (1 << 05)) != 0,
-					PropFlag.Exclude        => (val & (1 << 06)) != 0,
-					PropFlag.Xyze           => (val & (1 << 07)) != 0,
-					PropFlag.InsideArray    => (val & (1 << 08)) != 0,
-					PropFlag.ProxyAlwaysYes => (val & (1 << 09)) != 0,
-					PropFlag.IsVectorElem   => (val & (1 << 10)) != 0,
-					PropFlag.Collapsible    => (val & (1 << 11)) != 0,
-					PropFlag.CoordMp        => (val & (1 << 12)) != 0,
-					PropFlag.CoordMpLp      => (val & (1 << 13)) != 0,
-					PropFlag.CoordMpInt     => (val & (1 << 14)) != 0,
-					PropFlag.CellCoord      => (val & (1 << 15)) != 0,
-					PropFlag.CellCoordLp    => (val & (1 << 16)) != 0,
-					PropFlag.CellCoordInt   => (val & (1 << 17)) != 0,
-					PropFlag.ChangesOften   => (val & (1 << 18)) != 0,
-					_ => false
-				};
-			}
+		public override bool HasFlag(long val, PropFlag flag) {
+			return flag switch {
+				PropFlag.Unsigned       => CheckBit(val, 00),
+				PropFlag.Coord          => CheckBit(val, 01),
+				PropFlag.NoScale        => CheckBit(val, 02),
+				PropFlag.RoundDown      => CheckBit(val, 03),
+				PropFlag.RoundUp        => CheckBit(val, 04),
+				PropFlag.Normal         => CheckBit(val, 05),
+				PropFlag.Exclude        => CheckBit(val, 06),
+				PropFlag.Xyze           => CheckBit(val, 07),
+				PropFlag.InsideArray    => CheckBit(val, 08),
+				PropFlag.ProxyAlwaysYes => CheckBit(val, 09),
+				PropFlag.IsVectorElem   => CheckBit(val, 10),
+				PropFlag.Collapsible    => CheckBit(val, 11),
+				PropFlag.CoordMp        => CheckBit(val, 12),
+				PropFlag.CoordMpLp      => CheckBit(val, 13),
+				PropFlag.CoordMpInt     => CheckBit(val, 14),
+				PropFlag.CellCoord      => CheckBit(val, 15),
+				PropFlag.CellCoordLp    => CheckBit(val, 16),
+				PropFlag.CellCoordInt   => CheckBit(val, 17),
+				PropFlag.ChangesOften   => CheckBit(val, 18),
+				_ => false
+			};
 		}
 	}
+
+	#endregion
 }

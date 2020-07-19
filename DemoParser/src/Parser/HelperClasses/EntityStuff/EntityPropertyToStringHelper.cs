@@ -23,7 +23,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			string[] split = name.Split('.');
 			
 			// check for flags and special cases first
-			DisplayType tmp = EntityPropertyEnumManager.DetermineSpecialType(propInfo.Name, propInfo.TableRef.Name);
+			DisplayType tmp = EntityPropertyEnumManager.DetermineSpecialType(propInfo.TableRef.Name, propInfo.Name);
 			if (tmp != DisplayType.Int) // default return from above method
 				return tmp;
 			
@@ -65,7 +65,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 
-		internal static string CreateIntPropStr(int val, DisplayType displayType) {
+		internal static string CreateIntPropStr(int val, DisplayType displayType, DemoSettings demoSettings) {
 			switch (displayType) {
 				case DisplayType.Int:
 					return val.ToString();
@@ -77,6 +77,10 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					return val.IsNullEHandle() 
 						? "null"
 						: $"(index: {val & (DemoSettings.MaxEdicts - 1)}, serial: {val >> DemoSettings.MaxEdictBits})";
+				case DisplayType.DT_BaseEntity__m_CollisionGroup:
+					return demoSettings.CollisionsGroupList[val].ToString();
+				case DisplayType.DT_BasePlayer__m_fFlags:
+					return $"({demoSettings.PlayerMfFlagChecker.ToFlagString(val)})";
 				default:
 					return EntityPropertyEnumManager.CreateEnumPropStr(val, displayType); // must be last
 			}
@@ -114,7 +118,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	// todo CBaseTrigger.m_spawnflags
 	
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
-	internal enum DisplayType { // don't rely on order here
+	internal enum DisplayType { // don't rely on order here, and don't use -1
 		Int,
 		Float,
 		Vector2,

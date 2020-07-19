@@ -9,7 +9,7 @@ using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using static DemoParser.Parser.DemoSettings;
-using static DemoParser.Parser.HelperClasses.EntityStuff.PlayerMfFlags_t;
+using static DemoParser.Parser.HelperClasses.EntityStuff.PropEnums.PlayerMfFlags_t;
 using static DemoParser.Parser.HelperClasses.TimingAdjustment.AdjustmentType;
 using static DemoParser.Parser.SourceGame;
 
@@ -289,7 +289,8 @@ namespace DemoParser.Parser.HelperClasses {
 						   .First(delta => delta.EntIndex == 1).Props
 						   .Select(tuple => tuple.prop)
 						   .OfType<IntEntProp>()
-						   .Any(prop => prop.Value == (int)(FL_ONGROUND | FL_CLIENT) && prop.Name == "m_fFlags"));
+						   .Any(prop => prop.Name == "m_fFlags" && packet.DemoRef.DemoSettings.PlayerMfFlagChecker.HasFlags(
+							   prop.Value, FL_ONGROUND, FL_CLIENT)));
 		}
 
 
@@ -302,8 +303,8 @@ namespace DemoParser.Parser.HelperClasses {
 					   .First(delta => delta.EntIndex == 1).Props
 					   .Select(tuple => tuple.prop)
 					   .OfType<IntEntProp>()
-					   .Any(prop => prop.Value == (int)(FL_ONGROUND | FL_FROZEN | FL_CLIENT) && 
-									prop.Name == "m_fFlags");
+					   .Any(prop => prop.Name == "m_fFlags" && packet.DemoRef.DemoSettings.PlayerMfFlagChecker.HasFlags(
+						   prop.Value, FL_ONGROUND, FL_FROZEN, FL_CLIENT));
 		}
 
 

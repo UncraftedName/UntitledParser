@@ -4,17 +4,15 @@ using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Utils;
 using static DemoParser.Parser.SourceGame;
 
 namespace DemoParser.Parser {
 	
 	/// <summary>
-	/// A class containing several useful constants used while parsing the demo.
+	/// A class containing many useful constants used while parsing the demo.
 	/// </summary>
 	public class DemoSettings {
-
-		private readonly DemoHeader _header;
-		
 		// these seem to be constant in all games
 		public const int MaxEdictBits = 11;
 		public const int MaxEdicts = 1 << MaxEdictBits;
@@ -33,7 +31,7 @@ namespace DemoParser.Parser {
 		public const int SndSeqNumMask = (1 << SndSeqNumberBits) - 1;
 		
 
-		// initialized below
+		// initialized from the header
 		public readonly SourceGame Game;
 		public readonly int MaxSplitscreenPlayers;
 		public readonly int SignOnGarbageBytes;
@@ -42,18 +40,19 @@ namespace DemoParser.Parser {
 		public readonly bool ProcessEnts; // only do ent stuff if you're testing or the game is supported
 		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		public readonly int SendPropFlagBits;
-		public readonly PropFlagChecker PropFlagChecker;
 		public readonly int SoundFlagBits;
-
-
-		// these can be evaluated using simple expressions
-		public bool NewDemoProtocol => _header.DemoProtocol == 4; // "new engine" in nekz' parser
-		public int NetMsgTypeBits => _header.NetworkProtocol == 14 ? 5 : 6;
-		public int UserMessageLengthBits => NewDemoProtocol && Game != L4D2_2042 ? 12 : 11;
+		public readonly bool NewDemoProtocol; // "new engine" in nekz' parser
+		public readonly int NetMsgTypeBits;
+		public readonly int UserMessageLengthBits;
+		
+		// game specific enum lists
+		public readonly AbstractFlagChecker<PropFlag> PropFlagChecker;
+		public readonly PropEnums.Collision_Group_t[] CollisionsGroupList;
+		public readonly AbstractFlagChecker<PropEnums.PlayerMfFlags_t> PlayerMfFlagChecker;
+		// todo add user message/packet list
 		
 		
 		public DemoSettings(DemoHeader h) {
-			_header = h;
 			switch (h.DemoProtocol) {
 				case 3 when h.NetworkProtocol == 14:
 					Game = PORTAL_1_3420;
@@ -78,27 +77,12 @@ namespace DemoParser.Parser {
 					Console.WriteLine($"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n");
 					break;
 			}
-
-			SendPropFlagBits = h.DemoProtocol switch {
-				2 => 11,
-				3 => 16,
-				4 => 19,
-				_ => throw new ArgumentException($"What the heck is demo protocol version {h.DemoProtocol}?")
-			};
-
-			SoundFlagBits = h.DemoProtocol switch {
-				3 => 9,
-				4 => 13,
-				_ => throw new ArgumentException($"What the heck is demo protocol version {h.DemoProtocol}?")
-			};
-
-			PropFlagChecker = PropFlagChecker.CreateFromDemoHeader(_header);
 			
 			if (Game == L4D2_2042)
 				SvcServerInfoUnknownBits = 33;
 			else if (NewDemoProtocol)
 				SvcServerInfoUnknownBits = 32;
-			else if (_header.NetworkProtocol == 24)
+			else if (h.NetworkProtocol == 24)
 				SvcServerInfoUnknownBits = 96;
 			else
 				SvcServerInfoUnknownBits = 0;
@@ -130,10 +114,45 @@ namespace DemoParser.Parser {
 					throw new Exception("You fool, you absolute buffoon! " +
 										"You added a game type but didn't add a case for it!");
 			}
+			NetMsgTypeBits = h.NetworkProtocol == 14 ? 5 : 6;
+			// these should all come last after the game and other constants have already been determined
+			switch (h.DemoProtocol) {
+				case 2:
+					NewDemoProtocol = false;
+					SendPropFlagBits = 11;
+					goto default; // I don't know any other constants for demo protocol 2 so just cry
+				case 3:
+					NewDemoProtocol = false;
+					SendPropFlagBits = 16;
+					SoundFlagBits = 9;
+					PropFlagChecker = new DemoProtocol3FlagChecker();
+					PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsOldDemoProtocol();
+					CollisionsGroupList = PropEnums.CollisionGroupListOldDemoProtocol;
+					UserMessageLengthBits = 11;
+					break;
+				case 4:
+					NewDemoProtocol = true;
+					SendPropFlagBits = 19;
+					SoundFlagBits = 13;
+					PropFlagChecker = new DemoProtocol4FlagChecker();
+					UserMessageLengthBits = Game == L4D2_2042 ? 11 : 12;
+					if (Game == PORTAL_2) {
+						PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsPortal2();
+						CollisionsGroupList = PropEnums.CollisionGroupListPortal2;
+					} else {
+						PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsNewDemoProtocol();
+						CollisionsGroupList = PropEnums.CollisionGroupListNewDemoProcol;
+					}
+					break;
+				default:
+					throw new ArgumentException($"What the heck is demo protocol version {h.DemoProtocol}?");
+			}
+			
+			TimeAdjustmentTypes = TimingAdjustment.AdjustmentTypeFromMap(h.MapName, Game);
+			
 #if FORCE_PROCESS_ENTS
 			ProcessEnts = true; // be prepared for lots of exceptions
 #endif
-			TimeAdjustmentTypes = TimingAdjustment.AdjustmentTypeFromMap(h.MapName, Game);
 		}
 	}
 	

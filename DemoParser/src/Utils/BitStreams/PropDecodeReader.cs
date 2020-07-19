@@ -38,34 +38,34 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		private bool DecodeSpecialFloat(SendTableProp propInfo, out float val) {
-			uint flags = propInfo.Flags;
-			PropFlagChecker check = propInfo.DemoRef.DemoSettings.PropFlagChecker;
-			if (check.HasFlag(flags, PropFlag.Coord)) {
+			int flags = propInfo.Flags;
+			AbstractFlagChecker<PropFlag> checker = propInfo.DemoRef.DemoSettings.PropFlagChecker;
+			if (checker.HasFlag(flags, PropFlag.Coord)) {
 				val = ReadBitCoord();
 				return true;
-			} else if (check.HasFlag(flags, PropFlag.CoordMp)) {
+			} else if (checker.HasFlag(flags, PropFlag.CoordMp)) {
 				val = ReadBitCoordMp(false, false);
 				return true;
-			} else if (check.HasFlag(flags, PropFlag.CoordMpLp)) {
+			} else if (checker.HasFlag(flags, PropFlag.CoordMpLp)) {
 				val = ReadBitCoordMp(false, true);
 				return true;
-			} else if (check.HasFlag(flags, PropFlag.CoordMpInt)) {
+			} else if (checker.HasFlag(flags, PropFlag.CoordMpInt)) {
 				val = ReadBitCoordMp(true, false);
 				return true;
-			} else if (check.HasFlag(flags, PropFlag.NoScale)) {
+			} else if (checker.HasFlag(flags, PropFlag.NoScale)) {
 				val = ReadBitFloat();
 				return true;
-			} else if (check.HasFlag(flags, PropFlag.Normal)) {
+			} else if (checker.HasFlag(flags, PropFlag.Normal)) {
 				val = ReadBitNormal();
 				return true;
 			} else if (propInfo.DemoRef.DemoSettings.NewDemoProtocol) {
-				if (check.HasFlag(flags, PropFlag.CellCoord)) {
+				if (checker.HasFlag(flags, PropFlag.CellCoord)) {
 					val = ReadBitCellCoord(propInfo.NumBits.Value, BitChordType.None);
 					return true;
-				} else if (check.HasFlag(flags, PropFlag.CellCoordLp)) {
+				} else if (checker.HasFlag(flags, PropFlag.CellCoordLp)) {
 					val = ReadBitCellCoord(propInfo.NumBits.Value, BitChordType.LowPrecision);
 					return true;
-				} else if (check.HasFlag(flags, PropFlag.CellCoordInt)) {
+				} else if (checker.HasFlag(flags, PropFlag.CellCoordInt)) {
 					val = ReadBitCellCoord(propInfo.NumBits.Value, BitChordType.Integral);
 					return true;
 				}

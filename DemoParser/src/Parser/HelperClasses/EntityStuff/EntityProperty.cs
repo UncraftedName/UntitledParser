@@ -10,6 +10,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
     public abstract class EntityProperty : Appendable {
 		
         public readonly FlattenedProp PropInfo;
+		public DemoSettings DemoSettings => PropInfo.DemoSettings;
 		public string Name => PropInfo.Name;
 		// To be able to find the props later, technically might not
 		// work with arrays but I probably won't worry about that for now.
@@ -72,7 +73,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		public override string PropToString() {
 			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.Prop);
-			return EntPropToStringHelper.CreateIntPropStr(Value, tmp);
+			return EntPropToStringHelper.CreateIntPropStr(Value, tmp, DemoSettings);
 		}
 	}
 	
@@ -212,7 +213,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public override string PropToString() {
 			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.ArrayElementProp);
-			return Value.Select(i => EntPropToStringHelper.CreateIntPropStr(i, tmp)).SequenceToString();
+			return Value.Select(i => EntPropToStringHelper.CreateIntPropStr(i, tmp, DemoSettings)).SequenceToString();
 		}
 	}
 
@@ -380,7 +381,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			int i = -1;
 			if (demoRef.DemoSettings.NewDemoProtocol) {
 				bool newWay = bsr.ReadBool();
-				while ((i = bsr.ReadFieldIndex(i, newWay)) != -1) 
+				while ((i = bsr.ReadFieldIndex(i, newWay)) != -1)
 					props.Add((i, CreateAndReadProp(fProps[i], bsr)));
 			} else {
 				while (bsr.ReadBool()) {
@@ -415,7 +416,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 						string s = bsr.DecodeString();
 						return new StringEntProp(prop, s, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Array:
-						return prop.ArrayElementProp.SendPropType switch {
+						return prop.ArrayElementProp!.SendPropType switch {
 							SendPropType.Int     => new IntArrEntProp(prop, bsr.DecodeIntArr(prop), offset, bsr.AbsoluteBitIndex - offset),
 							SendPropType.Float   => new FloatArrEntProp(prop, bsr.DecodeFloatArr(prop), offset, bsr.AbsoluteBitIndex - offset),
 							SendPropType.Vector3 => new Vec3ArrEntProp(prop, bsr.DecodeVector3Arr(prop), offset, bsr.AbsoluteBitIndex - offset),
