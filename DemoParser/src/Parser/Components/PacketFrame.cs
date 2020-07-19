@@ -22,15 +22,17 @@ namespace DemoParser.Parser.Components {
 		
 		
 		public PacketFrame(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-
-
+		
+		
 		internal override void ParseStream(BitStreamReader bsr) {
-			Type = DemoPacket.ByteToPacketType(DemoSettings, bsr.ReadByte());
+			
+			byte typeVal = bsr.ReadByte();
+			Type = DemoPacket.ByteToPacketType(DemoSettings, typeVal);
 			
 			if (Type == PacketType.Unknown)
 				throw new ArgumentException("no byte->packet mapper found for this game!");
 			else if (Type == PacketType.Invalid)
-				throw new ArgumentException($"Illegal packet type: {Type}");
+				throw new ArgumentException($"Illegal packet type: {typeVal}");
 			
 			// stop tick is cut off in portal demos, not that it really matters
 			int tick = Type == PacketType.Stop && !DemoSettings.NewDemoProtocol
@@ -46,12 +48,12 @@ namespace DemoParser.Parser.Components {
 			SetLocalStreamEnd(bsr);
 		}
 		
-
+		
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
 		}
-
-
+		
+		
 		public override void AppendToWriter(IndentedWriter iw) {
 			if (Packet != null) {
 				iw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(DemoSettings, Type)})");

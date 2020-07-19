@@ -125,5 +125,11 @@ namespace DemoParser.Utils {
 			Debug.Assert(lookup.Count == lookup.Distinct().Count(), "lookup contains duplicate values");
 			return lookup.Select((v,  i) => (v, i)).ToList().ToDictionary(tup => tup.v, tup => tup.i);
 		}
+
+
+		// if these consts change depending on versions this will have to be fixed
+		public static bool IsNullEHandle(this int val) {
+			return val == (1 << (DemoSettings.MaxEdictBits + DemoSettings.NumNetworkedEHandleBits)) - 1;
+		}
 	}
 }

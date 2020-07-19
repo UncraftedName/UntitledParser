@@ -31,7 +31,7 @@ namespace DemoParser.Parser.HelperClasses {
 		
 
 		// In vanilla you can check for game begin/end without doing ent parsing, so I use that so that the this works
-		// with steampipe. When I get steampipe up and running 
+		// with steampipe.
 		public static IReadOnlyList<AdjustmentType> AdjustmentTypeFromMap(string mapName, SourceGame game) {
 			switch (game) {
 				case PORTAL_1_UNPACK:
@@ -174,13 +174,10 @@ namespace DemoParser.Parser.HelperClasses {
 						start = packet.Tick;
 						return;
 					case Portal1GenericWakeup when Portal1WakeupCheck(packet):
-					case Portal2Begin when start == -1 && Portal2AtSpawn(packet):
 					case Portal1Begin when Portal1VanillaWakeupCheck(packet):
 					case PortalPreludeBegin when PreludeWakeupCheck(packet):
+					case Portal2Begin when Portal2AtSpawn(packet):
 						start = packet.Tick + 1;
-						return;
-					case Portal2End when end == -1 && Portal2OnMoon(packet):
-						end = packet.Tick - 852;
 						return;
 					case TfvEnd when TfvCheckGunShipSpawn(packet):
 						end = packet.Tick - 1; // gun ship spawns a tick after trigger
@@ -190,6 +187,9 @@ namespace DemoParser.Parser.HelperClasses {
 					case RexauraEnd when RexauraEndCheck(packet):
 					case PortalPreludeEnd when PreludeEndCheck(packet):
 						end = packet.Tick + 1;
+						return;
+					case Portal2End when Portal2PortalOnMoon(packet):
+						end = packet.Tick;
 						return;
 				}
 			}
@@ -229,32 +229,47 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 
 
-		private static bool Portal2AtSpawn(Packet packet) { // todo once ent stuff is working check for crosshair
-			ref Vector3 pos = ref packet.PacketInfo[0].ViewOrigin;
-			const float posX = -8709.20f;
-			const float posY = 1690.07f;
-			const float posZ = 28.00f;
-			const float tolX = 0.02f;
-			const float tolY = 0.02f;
-			const float tolZ = 0.5f;
-			return !(Math.Abs(pos.X - posX) > tolX) 
-				   && !(Math.Abs(pos.Y - posY) > tolY) 
-				   && !(Math.Abs(pos.Z - posZ) > tolZ);
+		private static bool Portal2AtSpawn(Packet packet) {
+			return packet.FilterForMessage<SvcFixAngle>().Any()
+				   && packet.FilterForMessage<SvcPacketEntities>().Any(
+					   entityMsg => entityMsg.Updates!
+						   .OfType<Delta>()
+						   .First(delta => delta.EntIndex == 1).Props
+						   .Select(tuple => tuple.prop)
+						   .OfType<IntEntProp>()
+						   .Any(prop => prop.Value.IsNullEHandle() && prop.Name == "m_hViewEntity"));
 		}
 
 
-		private static bool Portal2OnMoon(Packet packet) {
-			ref Vector3 pos = ref packet.PacketInfo[0].ViewOrigin;
-			const float endPosX = 54.1f;
-			const float endPosY = 159.2f;
-			const float endPosZ = -201.4f;
-			return (pos.X-endPosX)*(pos.X-endPosX) + (pos.Y-endPosY)*(pos.Y-endPosY) < 2500 && pos.Z < endPosZ;
+		private static bool Portal2PortalOnMoon(Packet packet) {
+			var portalVecDeltas = packet.FilterForMessage<SvcPacketEntities>()
+				.SelectMany(entityMsg => entityMsg.Updates)
+				.OfType<Delta>()
+				.Where(delta => delta.ServerClass.ClassName == "CProp_Portal")
+				.SelectMany(delta => delta.Props)
+				.Select(tuple => tuple.prop)
+				.OfType<Vec3EntProp>()
+				.ToList();
+			
+			bool originCheck = false, rotationCheck = false;
+			
+			foreach (Vec3EntProp prop in portalVecDeltas) {
+				ref Vector3 val = ref prop.Value;
+				if (prop.Name == "m_angRotation")
+					rotationCheck = val.X == 90 && val.Z == 0;
+				else if (prop.Name == "m_ptOrigin")
+					originCheck =
+						185 < val.X && val.X < 485 &&
+						-95 < val.Y && val.Y < 195 &&
+						Math.Abs(val.Z - 1543.968) < 0.001;
+			}
+			return originCheck && rotationCheck;
 		}
 
 
 		private static bool TfvCheckGunShipSpawn(Packet packet) {
 			return packet.FilterForMessage<SvcPacketEntities>()
-				.Any(entityMessage => entityMessage.Updates
+				.Any(entityMessage => entityMessage.Updates!
 					.OfType<EnterPvs>()
 					.Any(enterMsg => enterMsg.New && enterMsg.ServerClass.ClassName == "CNPC_CombineGunship"));
 			/*return packet.FilterForMessage<SvcPacketEntities>()
@@ -269,7 +284,7 @@ namespace DemoParser.Parser.HelperClasses {
 		private static bool Portal1WakeupCheck(Packet packet) {
 			return packet.FilterForMessage<SvcSetView>().Any(viewMsg => viewMsg.EntityIndex == 1) && 
 				   packet.FilterForMessage<SvcPacketEntities>()
-					   .Any(entityMessage => entityMessage.Updates
+					   .Any(entityMessage => entityMessage.Updates!
 						   .OfType<Delta>()
 						   .First(delta => delta.EntIndex == 1).Props
 						   .Select(tuple => tuple.prop)
@@ -282,7 +297,7 @@ namespace DemoParser.Parser.HelperClasses {
 			return packet.FilterForUserMessage<Fade>().Any(fade => fade.Flags == (FadeFlags.FadeIn | FadeFlags.Purge)) && 
 				   Portal1GunRemoved(packet) &&
 				   packet.FilterForMessage<SvcPacketEntities>()
-					   .Single().Updates
+					   .Single().Updates!
 					   .OfType<Delta>()
 					   .First(delta => delta.EntIndex == 1).Props
 					   .Select(tuple => tuple.prop)
@@ -300,7 +315,7 @@ namespace DemoParser.Parser.HelperClasses {
 
 		private static bool Portal1GunRemoved(Packet packet) {
 			return packet.FilterForMessage<SvcPacketEntities>()
-				.Single().Updates
+				.Single().Updates!
 				.OfType<Delta>()
 				.First(delta => delta.EntIndex == 1).Props
 				.Select(tuple => tuple.prop)

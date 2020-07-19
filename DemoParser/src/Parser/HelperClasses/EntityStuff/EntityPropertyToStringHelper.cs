@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using DemoParser.Utils;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
@@ -73,7 +74,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				case DisplayType.Color:
 					return $"0x{val:X8}";
 				case DisplayType.Handle:
-					return val == (1 << (DemoSettings.MaxEdictBits + DemoSettings.NumNetworkedEHandleBits)) - 1
+					return val.IsNullEHandle() 
 						? "null"
 						: $"(index: {val & (DemoSettings.MaxEdicts - 1)}, serial: {val >> DemoSettings.MaxEdictBits})";
 				default:

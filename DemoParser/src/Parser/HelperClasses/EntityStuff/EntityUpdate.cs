@@ -15,6 +15,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	}
 	
 
+	/// <summary>
+	/// An entity update consisting of only deltas to a previous entity state.
+	/// </summary>
 	public class Delta : EntityUpdate {
 		
 		public readonly int EntIndex;
@@ -41,7 +44,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	}
 	
 	
-	// After creating the ent if necessary and marking it as in the PVS, this IS a delta.
+	/// <summary>
+	/// An entity update where an entity enters the PVS, as well as any deltas from the baseline/previous entity state.
+	/// </summary>
 	public class EnterPvs : Delta {
 
 		public readonly uint Serial;
@@ -75,6 +80,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	}
 	
 	
+	/// <summary>
+	/// An entity update where an entity leaves the PVS, possibly being deleted.
+	/// </summary>
 	public class LeavePvs : EntityUpdate {
 		
 		public readonly int Index;
