@@ -621,7 +621,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 		public class PlayerMfFlagsPortal2 : AbstractFlagChecker<PlayerMfFlags_t> {
-			public override bool HasFlag(long val, PlayerMfFlags_t flag) {
+			public override bool HasFlag(long val, PlayerMfFlags_t flag) { // todo check
 				return flag switch {
 					FL_ONGROUND              => CheckBit(val, 00),
 					FL_DUCKING               => CheckBit(val, 01),
