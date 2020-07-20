@@ -13,4 +13,6 @@ obj/
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
-.idea/*/.idea/projectSettingsUpdater.xml
+.idea/**/projectSettingsUpdater.xml
+.idea/**/modules.xml
+.idea/**/riderModule.iml
