@@ -443,6 +443,7 @@ namespace DemoParser.Parser.Components.Abstract {
 				UserMessageType.MPMapCompletedData => new MpMapCompletedData(demoRef, reader),
 				UserMessageType.MPTauntEarned      => new MpTauntEarned(demoRef, reader),
 				UserMessageType.MPTauntLocked      => new MpTauntLocked(demoRef, reader),
+				UserMessageType.HudText            => new HudText(demoRef, reader),
 				_ => null // I do a check for this so that I don't have to allocate the unknown type twice
 			};
 		}

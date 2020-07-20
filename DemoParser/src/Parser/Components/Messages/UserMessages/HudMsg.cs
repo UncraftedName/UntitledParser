@@ -7,24 +7,54 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
 	public class HudMsg : SvcUserMessage {
 
-		public byte Channel;
-		public float? X, Y; // 0-1 & resolution independent, -1 means center in each dimension
-		public byte? R1, G1, B1, A1;
-		public byte? R2, G2, B2, A2;
-		public HudMsgEffect? Effect;
-		public float? FadeIn, FadeOut, HoldTime, FxTime; // the fade times seem to be per character
-		public string? Message;
+		public HudChannel Channel;
+		public HudMsgInfo? MsgInfo;
 		
 
 		public HudMsg(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			Channel = (byte)(bsr.ReadByte() % 6); // MAX_NETMESSAGE
+			Channel = (HudChannel)(bsr.ReadByte() % DemoSettings.MaxNetMessage);
 			// if ( !pNetMessage || !pNetMessage->pMessage )
 			// return;
-			// ^ Since this is defined in the engine, I will simply keep reading if there are more bytes left ^
+			// ^ Since this is what the game does, I will simply keep reading if there are more bytes left
 			if (bsr.BitsRemaining >= 148) {
+				MsgInfo = new HudMsgInfo(DemoRef, bsr);
+				MsgInfo.ParseStream(bsr);
+			}
+		}
+		
+
+		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
+			bsw.WriteByte((byte)Channel);
+			MsgInfo?.WriteToStreamWriter(bsw);
+		}
+
+
+		public override void AppendToWriter(IndentedWriter iw) {
+			iw.Append($"channel: {Channel}");
+			if (MsgInfo != null) {
+				iw.AppendLine();
+				MsgInfo.AppendToWriter(iw);
+			}
+		}
+
+
+		public class HudMsgInfo : DemoComponent {
+			
+			public float X, Y; // 0-1 & resolution independent, -1 means center in each dimension
+			public byte R1, G1, B1, A1;
+			public byte R2, G2, B2, A2;
+			public HudMsgEffect Effect;
+			public float FadeIn, FadeOut, HoldTime, FxTime; // the fade times seem to be per character
+			public string Message;
+			
+			
+			public HudMsgInfo(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+			
+			
+			internal override void ParseStream(BitStreamReader bsr) {
 				X = bsr.ReadFloat();
 				Y = bsr.ReadFloat();
 				R1 = bsr.ReadByte();
@@ -35,35 +65,42 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				G2 = bsr.ReadByte();
 				B2 = bsr.ReadByte();
 				A2 = bsr.ReadByte();
-				Effect = (HudMsgEffect?)bsr.ReadByte();
+				Effect = (HudMsgEffect)bsr.ReadByte();
 				FadeIn = bsr.ReadFloat();
 				FadeOut = bsr.ReadFloat();
 				HoldTime = bsr.ReadFloat();
 				FxTime = bsr.ReadFloat();
-				Message = bsr.ReadNullTerminatedString(); // this might be a char array of length 512
+				Message = bsr.ReadNullTerminatedString();
 			}
-		}
-		
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
-		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append("channel: " + Channel);
-			if (X.HasValue) { // assume all the others are defined
-				iw.AppendLine($"\nx: {X}, y: {Y}");
+			internal override void WriteToStreamWriter(BitStreamWriter bsw) {
+				throw new System.NotImplementedException();
+			}
+
+
+			public override void AppendToWriter(IndentedWriter iw) {
+				iw.AppendLine($"x: {X}, y: {Y}");
 				iw.AppendLine($"RGBA1: {R1} {G1} {B1} {A1}");
 				iw.AppendLine($"RGBA2: {R2} {G2} {B2} {A2}");
 				iw.AppendLine($"effect: {Effect}");
-				iw.AppendLine("fade in: " + FadeIn);
-				iw.AppendLine("fade out: " + FadeOut);
-				iw.AppendLine("hold time: " + HoldTime);
-				iw.AppendLine("fx time: " + FxTime);
-				iw.Append("message: " + Message);
+				iw.AppendLine($"fade in: {FadeIn}");
+				iw.AppendLine($"fade out: {FadeOut}");
+				iw.AppendLine($"hold time: {HoldTime}");
+				iw.AppendLine($"fx time: {FxTime}");
+				iw.Append($"message: {Message}");
 			}
 		}
+	}
+
+
+	public enum HudChannel : byte {
+		Netmessage1 = 0,
+		NetMessage2,
+		NetMessage3,
+		NetMessage4,
+		NetMessage5,
+		NetMessage6,
 	}
 
 
