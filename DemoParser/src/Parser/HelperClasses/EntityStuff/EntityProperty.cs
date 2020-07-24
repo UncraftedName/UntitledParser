@@ -65,7 +65,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			iw.Append(PropInfo.TypeString());
 			iw.PadLastLine(tmp + 12, ' ');
 			iw.Append($"{PropInfo.Name}: ");
-			iw.Append(ToString());
+			iw.Append(PropToString());
 		}
 
 
@@ -73,7 +73,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public abstract void CopyPropertyTo(EntityProperty other);
 
-		public abstract override string ToString();
+		protected abstract string PropToString();
 
 		private protected abstract DisplayType DetermineDisplayType();
 	}
@@ -104,8 +104,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		private protected override DisplayType DetermineDisplayType() {
 			return EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.Prop);
 		}
-		
-		public override string ToString() {
+
+
+		protected override string PropToString() {
 			return EntPropToStringHelper.CreateIntPropStr(Value, ThisDisplayType, DemoSettings);
 		}
 	}
@@ -135,7 +136,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return EntPropToStringHelper.IdentifyTypeForFloat(PropInfo.Name);
 		}
 
-		public override string ToString() {
+
+		protected override string PropToString() {
 			return EntPropToStringHelper.CreateFloatPropStr(Value, ThisDisplayType);
 		}
 	}
@@ -164,8 +166,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		private protected override DisplayType DetermineDisplayType() {
 			return EntPropToStringHelper.IdentifyTypeForVec3(PropInfo.Name);
 		}
-		
-		public override string ToString() {
+
+
+		protected override string PropToString() {
 			return EntPropToStringHelper.CreateVec3PropStr(in Value, ThisDisplayType);
 		}
 	}
@@ -195,7 +198,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return EntPropToStringHelper.IdentifyTypeForVec2(PropInfo.Name);
 		}
 
-		public override string ToString() {
+
+		protected override string PropToString() {
 			return EntPropToStringHelper.CreateVec2PropStr(in Value, ThisDisplayType);
 		}
 	}
@@ -225,7 +229,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return EntPropToStringHelper.IdentifyTypeForString(PropInfo.Name);
 		}
 
-		public override string ToString() {
+
+		protected override string PropToString() {
 			return EntPropToStringHelper.CreateStrPropStr(Value, ThisDisplayType);
 		}
 	}
@@ -260,7 +265,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.ArrayElementProp);
 		}
 
-		public override string ToString() {
+
+		protected override string PropToString() {
 			return Value.Select(i =>
 				EntPropToStringHelper.CreateIntPropStr(i, ThisDisplayType, DemoSettings)).SequenceToString();
 		}
@@ -295,8 +301,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		private protected override DisplayType DetermineDisplayType() {
 			return EntPropToStringHelper.IdentifyTypeForFloat(PropInfo.Name);
 		}
-		
-		public override string ToString() {
+
+
+		protected override string PropToString() {
 			return Value.Select(i =>
 				EntPropToStringHelper.CreateFloatPropStr(i, ThisDisplayType)).SequenceToString();
 		}
@@ -332,7 +339,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return EntPropToStringHelper.IdentifyTypeForVec3(PropInfo.Name);
 		}
 
-		public override string ToString() {
+
+		protected override string PropToString() {
 			return Value.Select(i =>
 				EntPropToStringHelper.CreateVec3PropStr(i, ThisDisplayType)).SequenceToString();
 		}
@@ -368,7 +376,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return EntPropToStringHelper.IdentifyTypeForVec2(PropInfo.Name);
 		}
 
-		public override string ToString() {
+
+		protected override string PropToString() {
 			return Value.Select(i =>
 				EntPropToStringHelper.CreateVec2PropStr(i, ThisDisplayType)).SequenceToString();
 		}
@@ -404,7 +413,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return EntPropToStringHelper.IdentifyTypeForString(PropInfo.Name);
 		}
 
-		public override string ToString() {
+
+		protected override string PropToString() {
 			return Value.Select(i =>
 				EntPropToStringHelper.CreateStrPropStr(i, ThisDisplayType)).SequenceToString();
 		}
@@ -430,7 +440,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return DisplayType.UNPARSED;
 		}
 
-		public override string ToString() {
+
+		protected override string PropToString() {
 			return "UNPARSED_DATA";
 		}
 	}
