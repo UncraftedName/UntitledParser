@@ -10,10 +10,10 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
 	/* Every type of entity property gets a 'display type' which determines how the ToString() representation will be
 	 * displayed. Actually determining this type is not the fastest thing in the world considering that every
-	 * EntityUpdate ToString() needs to use it. So I have a lookup which determines if the type has already been
-	 * determined for this entity based on the FlattenedProp it references. Those fProps should be unique and
-	 * initialized only once for every type of prop that appears in the demo, so the lookup is a dict that uses
-	 * reference comparisons like java's IdentityHashMap.
+	 * EntityUpdate ToString() needs to use it. So I have a lookup which says if the type has already been determined
+	 * for this property based on the FlattenedProp it references. Those fProps should be unique and initialized only
+	 * once for every type of prop that appears in the demo, so the lookup is a dict that uses reference comparisons
+	 * like java's IdentityHashMap.
 	 */
 	public abstract class EntityProperty : Appendable {
 		
@@ -23,7 +23,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 		private static readonly IDictionary<FlattenedProp, DisplayType> DisplayLookup =
-			new Dictionary<FlattenedProp, DisplayType>(new ReferenceComparer());
+			new Dictionary<FlattenedProp, DisplayType>(1000, new ReferenceComparer());
 
 
 		public readonly FlattenedProp PropInfo;

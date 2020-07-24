@@ -40,11 +40,9 @@ namespace DemoParser.Utils {
 		}
 
 
-		public static string ByteArrayAsString(byte[] bytes) { // cuts off all '\0' from the end of the array
-			unsafe {
-				fixed (byte* bytePtr = bytes) 
-					return new string((sbyte*)bytePtr);
-			}
+		public static unsafe string ByteArrayAsString(byte[] bytes) { // cuts off all '\0' from the end of the array
+			fixed (byte* bytePtr = bytes)
+				return new string((sbyte*)bytePtr);
 		}
 		
 

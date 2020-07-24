@@ -22,7 +22,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		// might not get set until later
 		private PropLookup? _propLookup;
 		public ServerClass? ServerClassRef;
-		public List<(int propIndex, EntityProperty prop)> Properties;
+		public IReadOnlyList<(int propIndex, EntityProperty prop)> Properties;
 
 
 		public InstanceBaseline(SourceDemo demoRef, BitStreamReader reader, string entryName,
