@@ -6,7 +6,7 @@ namespace DemoParser.Parser.Components.Messages {
 	
 	public class SvcPaintMapData : DemoMessage {
 
-		private BitStreamReader _data;
+		private BitStreamReader _data; // todo, it looks like this uses RLE so guess i'll die
 		public BitStreamReader Data => _data.FromBeginning();
 		
 		

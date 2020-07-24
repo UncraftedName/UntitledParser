@@ -23,7 +23,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			string[] split = name.Split('.');
 			
 			// check for flags and special cases first
-			DisplayType tmp = EntityPropertyEnumManager.DetermineSpecialType(propInfo.TableRef.Name, propInfo.Name);
+			DisplayType tmp = EntityPropertyEnumManager.DetermineIntSpecialType(propInfo.TableRef.Name, propInfo.Name);
 			if (tmp != DisplayType.Int) // default return from above method
 				return tmp;
 			
@@ -118,7 +118,11 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	// todo CBaseTrigger.m_spawnflags
 	
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
-	internal enum DisplayType { // don't rely on order here, and don't use -1
+	internal enum DisplayType {
+		// used internally, not actually valid display types
+		NOT_SET,
+		UNPARSED,
+		
 		Int,
 		Float,
 		Vector2,
@@ -129,7 +133,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		Angles,
 		Handle,
 		Color,
+		
 		// flags and enums
+		
 		DT_EffectData__m_fFlags,
 		DT_BaseGrenade__m_fFlags,
 		DT_BasePlayer__m_fFlags,

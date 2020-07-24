@@ -19,15 +19,15 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	internal static class EntityPropertyEnumManager {
 
 
-		private static readonly Dictionary<string, DisplayType> GlobalNames = new Dictionary<string , DisplayType> {
-			["moveparent"]   = Handle,
-			["m_clrRender"]  = Color,
-			["m_lifeState"]  = m_lifeState,
-			["m_nRenderFX"]  = m_nRenderFX,
-			["m_nRenderMod"] = m_nRenderMode
+		private static readonly Dictionary<string, DisplayType> GlobalPropNames = new Dictionary<string, DisplayType> {
+			["moveparent"]    = Handle,
+			["m_clrRender"]   = Color,
+			["m_lifeState"]   = m_lifeState,
+			["m_nRenderFX"]   = m_nRenderFX,
+			["m_nRenderMode"] = m_nRenderMode
 		};
 		
-		private static readonly Dictionary<(string tableName, string propName), DisplayType> TableSpecificNames = 
+		private static readonly Dictionary<(string tableName, string propName), DisplayType> TableSpecificPropNames = 
 			new Dictionary<(string, string), DisplayType> 
 			{
 				[("DT_PlayerState", "deadflag")]                = Bool,
@@ -57,18 +57,17 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			};
 		
 		
-		// only contains special cases for int prop types
-		internal static DisplayType DetermineSpecialType(string tableName, string propName) {
-			if (GlobalNames.TryGetValue(propName, out DisplayType ret))
+		internal static DisplayType DetermineIntSpecialType(string tableName, string propName) {
+			if (GlobalPropNames.TryGetValue(propName, out DisplayType ret))
 				return ret;
-			else if (TableSpecificNames.TryGetValue((tableName, propName), out ret))
+			else if (TableSpecificPropNames.TryGetValue((tableName, propName), out ret))
 				return ret;
 			else
 				return Int;
 		}
 
 
-		// I want all the flags to have some end and beginning, (such as parenthesis) just in case they're used in arrays
+		// I want all the flags to have some end and beginning, (such as parenthesis) in case they're used in arrays
 		internal static string CreateEnumPropStr(int val, DisplayType displayType) {
 			return displayType switch {
 				DT_CollisionProperty__m_usSolidFlags    => "(" + (SolidFlags_t)val + ")",
@@ -99,7 +98,6 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	}
 	
 	// all enums should have a "None" or equivalent unless the abstract flag checker is used
-	// in theory these types can be different depending on the game, lets hope they aren't
 
 	public static class PropEnums {
 

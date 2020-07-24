@@ -2,50 +2,80 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
-    public abstract class EntityProperty : Appendable {
+	/* Every type of entity property gets a 'display type' which determines how the ToString() representation will be
+	 * displayed. Actually determining this type is not the fastest thing in the world considering that every
+	 * EntityUpdate ToString() needs to use it. So I have a lookup which determines if the type has already been
+	 * determined for this entity based on the FlattenedProp it references. Those fProps should be unique and
+	 * initialized only once for every type of prop that appears in the demo, so the lookup is a dict that uses
+	 * reference comparisons like java's IdentityHashMap.
+	 */
+	public abstract class EntityProperty : Appendable {
 		
-        public readonly FlattenedProp PropInfo;
+		private class ReferenceComparer : IEqualityComparer<FlattenedProp> {
+			public bool Equals(FlattenedProp a, FlattenedProp b) => ReferenceEquals(a, b);
+			public int GetHashCode(FlattenedProp obj) => RuntimeHelpers.GetHashCode(obj);
+		}
+
+		private static readonly IDictionary<FlattenedProp, DisplayType> DisplayLookup =
+			new Dictionary<FlattenedProp, DisplayType>(new ReferenceComparer());
+
+
+		public readonly FlattenedProp PropInfo;
 		public DemoSettings DemoSettings => PropInfo.DemoSettings;
+
 		public string Name => PropInfo.Name;
 		// To be able to find the props later, technically might not
 		// work with arrays but I probably won't worry about that for now.
 		public int Offset;
 		public int BitLength;
 
+		private DisplayType _thisDisplayType;
 
-		protected EntityProperty(FlattenedProp propInfo, int offset, int bitLength) {
+		private protected DisplayType ThisDisplayType {
+			get {
+				if (_thisDisplayType == DisplayType.NOT_SET)
+					if (!DisplayLookup.TryGetValue(PropInfo, out _thisDisplayType))
+						ThisDisplayType = DetermineDisplayType();
+				return _thisDisplayType;
+			}
+			private set {
+				DisplayLookup[PropInfo] = value;
+				_thisDisplayType = value;
+			}
+		}
+
+
+		// internal cuz I want to keep the DisplayType enum internal
+		private protected EntityProperty(FlattenedProp propInfo, int offset, int bitLength) {
 			PropInfo = propInfo;
 			Offset = offset;
 			BitLength = bitLength;
+			_thisDisplayType = DisplayType.NOT_SET;
 		}
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			int tmp = iw.LastLineLength; // todo improve
+			int tmp = iw.LastLineLength;
 			iw.Append(PropInfo.TypeString());
 			iw.PadLastLine(tmp + 12, ' ');
-			iw.Append(PropInfo.Name + ": ");
-			iw.Append(PropToString());
+			iw.Append($"{PropInfo.Name}: ");
+			iw.Append(ToString());
 		}
-		
+
+
 		public abstract EntityProperty CopyProperty();
 
 		public abstract void CopyPropertyTo(EntityProperty other);
 
-		/* The structure for all of these is that first the "type" is identified based on the name
-		 * (this is pretty much a guess, but in theory most props should be named correctly by volvo).
-		 * Then we call a helper to string function based on that type which will create a special string for that
-		 * specific prop. Those two steps are done separately for the case of arrays so that the type doesn't have to
-		 * be determined several times. For cases like floats and strings, those helpers just return the default
-		 * ToString() calls (but the methods are still there in case I want to change them in the future).
-		 * For arrays, I pass the element props to the helper after identifying the type.
-		 */
-		public abstract string PropToString();
+		public abstract override string ToString();
+
+		private protected abstract DisplayType DetermineDisplayType();
 	}
 	
 	/******************************************************************************/
@@ -71,9 +101,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			casted.BitLength = BitLength;
 		}
 		
-		public override string PropToString() {
-			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.Prop);
-			return EntPropToStringHelper.CreateIntPropStr(Value, tmp, DemoSettings);
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.Prop);
+		}
+		
+		public override string ToString() {
+			return EntPropToStringHelper.CreateIntPropStr(Value, ThisDisplayType, DemoSettings);
 		}
 	}
 	
@@ -98,9 +131,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			casted.BitLength = BitLength;
 		}
 
-		public override string PropToString() {
-			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForFloat(PropInfo.Name);
-			return EntPropToStringHelper.CreateFloatPropStr(Value, tmp);
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForFloat(PropInfo.Name);
+		}
+
+		public override string ToString() {
+			return EntPropToStringHelper.CreateFloatPropStr(Value, ThisDisplayType);
 		}
 	}
 	
@@ -124,10 +160,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			casted.Offset = Offset;
 			casted.BitLength = BitLength;
 		}
+
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForVec3(PropInfo.Name);
+		}
 		
-		public override string PropToString() {
-			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForVec3(PropInfo.Name);
-			return EntPropToStringHelper.CreateVec3PropStr(in Value, tmp);
+		public override string ToString() {
+			return EntPropToStringHelper.CreateVec3PropStr(in Value, ThisDisplayType);
 		}
 	}
 	
@@ -151,10 +190,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			casted.Offset = Offset;
 			casted.BitLength = BitLength;
 		}
+		
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForVec2(PropInfo.Name);
+		}
 
-		public override string PropToString() {
-			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForVec2(PropInfo.Name);
-			return EntPropToStringHelper.CreateVec2PropStr(in Value, tmp);
+		public override string ToString() {
+			return EntPropToStringHelper.CreateVec2PropStr(in Value, ThisDisplayType);
 		}
 	}
 	
@@ -178,10 +220,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			casted.Offset = Offset;
 			casted.BitLength = BitLength;
 		}
+		
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForString(PropInfo.Name);
+		}
 
-		public override string PropToString() {
-			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForString(PropInfo.Name);
-			return EntPropToStringHelper.CreateStrPropStr(Value, tmp);
+		public override string ToString() {
+			return EntPropToStringHelper.CreateStrPropStr(Value, ThisDisplayType);
 		}
 	}
 	
@@ -211,9 +256,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			}
 		}
 
-		public override string PropToString() {
-			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.ArrayElementProp);
-			return Value.Select(i => EntPropToStringHelper.CreateIntPropStr(i, tmp, DemoSettings)).SequenceToString();
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.ArrayElementProp);
+		}
+
+		public override string ToString() {
+			return Value.Select(i =>
+				EntPropToStringHelper.CreateIntPropStr(i, ThisDisplayType, DemoSettings)).SequenceToString();
 		}
 	}
 
@@ -242,10 +291,14 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					casted.Value[i] = Value[i];
 			}
 		}
+
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForFloat(PropInfo.Name);
+		}
 		
-		public override string PropToString() {
-			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForFloat(PropInfo.Name);
-			return Value.Select(i => EntPropToStringHelper.CreateFloatPropStr(i, tmp)).SequenceToString();
+		public override string ToString() {
+			return Value.Select(i =>
+				EntPropToStringHelper.CreateFloatPropStr(i, ThisDisplayType)).SequenceToString();
 		}
 	}
 	
@@ -274,10 +327,14 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					casted.Value[i] = Value[i];
 			}
 		}
+		
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForVec3(PropInfo.Name);
+		}
 
-		public override string PropToString() {
-			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForVec3(PropInfo.Name);
-			return Value.Select(i => EntPropToStringHelper.CreateVec3PropStr(i, tmp)).SequenceToString();
+		public override string ToString() {
+			return Value.Select(i =>
+				EntPropToStringHelper.CreateVec3PropStr(i, ThisDisplayType)).SequenceToString();
 		}
 	}
 	
@@ -307,9 +364,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			}
 		}
 
-		public override string PropToString() {
-			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForVec2(PropInfo.Name);
-			return Value.Select(i => EntPropToStringHelper.CreateVec2PropStr(i, tmp)).SequenceToString();
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForVec2(PropInfo.Name);
+		}
+
+		public override string ToString() {
+			return Value.Select(i =>
+				EntPropToStringHelper.CreateVec2PropStr(i, ThisDisplayType)).SequenceToString();
 		}
 	}
 	
@@ -338,10 +399,14 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					casted.Value[i] = Value[i];
 			}
 		}
+		
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForString(PropInfo.Name);
+		}
 
-		public override string PropToString() {
-			DisplayType tmp = EntPropToStringHelper.IdentifyTypeForString(PropInfo.Name);
-			return Value.Select(i => EntPropToStringHelper.CreateStrPropStr(i, tmp)).SequenceToString();
+		public override string ToString() {
+			return Value.Select(i =>
+				EntPropToStringHelper.CreateStrPropStr(i, ThisDisplayType)).SequenceToString();
 		}
 	}
 	
@@ -361,8 +426,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			throw new InvalidOperationException("unparsed property attempted to be copied to another property");
 		}
 
-		public override string PropToString() {
-			return "INVALID_DATA";
+		private protected override DisplayType DetermineDisplayType() {
+			return DisplayType.UNPARSED;
+		}
+
+		public override string ToString() {
+			return "UNPARSED_DATA";
 		}
 	}
 	
