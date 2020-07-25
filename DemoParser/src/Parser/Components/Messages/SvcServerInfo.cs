@@ -40,7 +40,7 @@ namespace DemoParser.Parser.Components.Messages {
 			MapCrc = bsr.ReadUInt(); // network protocol < 18
 			PlayerCount = bsr.ReadByte();
 			MaxClients = bsr.ReadByte();
-			int skip = DemoSettings.SvcServerInfoUnknownBits; // todo
+			int skip = DemoSettings.SvcServerInfoUnknownBits; // todo, also fields are out of order for p2
 			if (skip != 0) {
 				_unknown = bsr.SubStream(skip);
 				bsr.SkipBits(skip);

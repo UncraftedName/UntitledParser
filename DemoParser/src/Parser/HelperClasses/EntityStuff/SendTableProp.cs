@@ -4,6 +4,7 @@ using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
+using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
@@ -28,7 +29,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		internal override void ParseStream(BitStreamReader bsr) {
-			SendPropType = UIntToSendPropertyType(DemoRef, bsr.ReadBitsAsUInt(5));
+			SendPropType = DemoSettings.SendPropTypes[bsr.ReadBitsAsUInt(5)];
 			Name = bsr.ReadNullTerminatedString();
 			Flags = (int)bsr.ReadBitsAsUInt(DemoSettings.SendPropFlagBits);
 			if (DemoSettings.NewDemoProtocol)
@@ -44,11 +45,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					case SendPropType.Vector2:
 						LowValue = bsr.ReadFloat();
 						HighValue = bsr.ReadFloat();
-						NumBits = bsr.ReadBitsAsUInt(
-							DemoRef.Header.NetworkProtocol == 14 ||
-							DemoSettings.Game == SourceGame.L4D2_2000 ||
-							DemoSettings.Game == SourceGame.L4D2_2042
-								? 6 : 7);
+						NumBits = bsr.ReadBitsAsUInt(DemoSettings.SendPropNumBitsToGetNumBits);
 						break;
 					case SendPropType.Array:
 						NumElements = bsr.ReadBitsAsUInt(10);
@@ -109,113 +106,125 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			AppendToWriterWithoutType(iw);
 			return iw.ToString();
 		}
+	}
+	
 
+	public static class SendPropEnums {
 
-		public static SendPropType UIntToSendPropertyType(SourceDemo demoRef, uint i) {
-			if (demoRef.Header.NetworkProtocol <= 14) {
-				if (i >= 3) // vectorXY/vec2 doesn't exist in leak/3420 build of portal
-					i++;
+		public enum SendPropType {
+			Int,
+			Float,
+			Vector3,
+			Vector2, // called VectorXY internally
+			String,
+			Array,
+			DataTable
+		}
+		
+
+		#region send prop type enums for different versions
+
+		public static readonly SendPropType[] OldNetPropTypes = {
+			SendPropType.Int,
+			SendPropType.Float,
+			SendPropType.Vector3,
+			SendPropType.String,
+			SendPropType.Array,
+			SendPropType.DataTable
+		};
+
+		public static readonly SendPropType[] NewNetPropTypes = {
+			SendPropType.Int,
+			SendPropType.Float,
+			SendPropType.Vector3,
+			SendPropType.Vector2,
+			SendPropType.String,
+			SendPropType.Array,
+			SendPropType.DataTable
+		};
+		
+		#endregion
+		
+
+		// csgo: https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/SendTableProperty.cs
+		public enum PropFlag {
+			Unsigned,
+			Coord,
+			NoScale,
+			RoundDown,
+			RoundUp,
+			Normal,
+			Exclude,
+			Xyze,
+			InsideArray,
+			ProxyAlwaysYes,
+			IsVectorElem,
+			Collapsible,
+			CoordMp,
+			CoordMpLp, // low precision  
+			CoordMpInt,
+			CellCoord,
+			CellCoordLp,
+			CellCoordInt,
+			ChangesOften
+		}
+		
+
+		#region prop flags for different versions
+
+		public class DemoProtocol3FlagChecker : AbstractFlagChecker<PropFlag> {
+
+			public override bool HasFlag(long val, PropFlag flag) {
+				return flag switch {
+					PropFlag.Unsigned       => CheckBit(val, 00),
+					PropFlag.Coord          => CheckBit(val, 01),
+					PropFlag.NoScale        => CheckBit(val, 02),
+					PropFlag.RoundDown      => CheckBit(val, 03),
+					PropFlag.RoundUp        => CheckBit(val, 04),
+					PropFlag.Normal         => CheckBit(val, 05),
+					PropFlag.Exclude        => CheckBit(val, 06),
+					PropFlag.Xyze           => CheckBit(val, 07),
+					PropFlag.InsideArray    => CheckBit(val, 08),
+					PropFlag.ProxyAlwaysYes => CheckBit(val, 09),
+					PropFlag.ChangesOften   => CheckBit(val, 10),
+					PropFlag.IsVectorElem   => CheckBit(val, 11),
+					PropFlag.Collapsible    => CheckBit(val, 12),
+					PropFlag.CoordMp        => CheckBit(val, 13),
+					PropFlag.CoordMpLp      => CheckBit(val, 14),
+					PropFlag.CoordMpInt     => CheckBit(val, 15),
+					_ => false
+				};
 			}
-			return (SendPropType)i;
 		}
-	}
 
+		public class DemoProtocol4FlagChecker : AbstractFlagChecker<PropFlag> {
 
-	public enum SendPropType : uint {
-		Int,
-		Float,
-		Vector3,
-		Vector2, // called VectorXY internally
-		String,
-		Array,
-		DataTable
-	}
-
-	/*
-	 * The flags are actually different depending on the protocol version, which is a big heck. Since remapping flags
-	 * to a different set of flags would be not too hot and revolve around iterating over every bit and the like, what
-	 * I've done here is create a non-flag enum that you can pass to a separate object along with your int which will
-	 * actually determine if your desired flag is set. That object will be stored in DemoSettings.cs.
-	 * Flags for demo protocol 3 can be found in src_main/public/dt_common.h
-	 * csgo flags can be found here: https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/SendTableProperty.cs
-	 */
-	public enum PropFlag {
-		Unsigned,
-		Coord,
-		NoScale,
-		RoundDown,
-		RoundUp,
-		Normal,
-		Exclude,
-		Xyze,
-		InsideArray,
-		ProxyAlwaysYes,
-		IsVectorElem,
-		Collapsible,
-		CoordMp,
-		CoordMpLp, // low precision  
-		CoordMpInt,
-		CellCoord,
-		CellCoordLp,
-		CellCoordInt,
-		ChangesOften
-	}
-
-	#region prop flags for different versions
-
-	public class DemoProtocol3FlagChecker : AbstractFlagChecker<PropFlag> {
-
-		public override bool HasFlag(long val, PropFlag flag) {
-			return flag switch {
-				PropFlag.Unsigned       => CheckBit(val, 00),
-				PropFlag.Coord          => CheckBit(val, 01),
-				PropFlag.NoScale        => CheckBit(val, 02),
-				PropFlag.RoundDown      => CheckBit(val, 03),
-				PropFlag.RoundUp        => CheckBit(val, 04),
-				PropFlag.Normal         => CheckBit(val, 05),
-				PropFlag.Exclude        => CheckBit(val, 06),
-				PropFlag.Xyze           => CheckBit(val, 07),
-				PropFlag.InsideArray    => CheckBit(val, 08),
-				PropFlag.ProxyAlwaysYes => CheckBit(val, 09),
-				PropFlag.ChangesOften   => CheckBit(val, 10),
-				PropFlag.IsVectorElem   => CheckBit(val, 11),
-				PropFlag.Collapsible    => CheckBit(val, 12),
-				PropFlag.CoordMp        => CheckBit(val, 13),
-				PropFlag.CoordMpLp      => CheckBit(val, 14),
-				PropFlag.CoordMpInt     => CheckBit(val, 15),
-				_ => false
-			};
+			public override bool HasFlag(long val, PropFlag flag) {
+				return flag switch {
+					PropFlag.Unsigned       => CheckBit(val, 00),
+					PropFlag.Coord          => CheckBit(val, 01),
+					PropFlag.NoScale        => CheckBit(val, 02),
+					PropFlag.RoundDown      => CheckBit(val, 03),
+					PropFlag.RoundUp        => CheckBit(val, 04),
+					PropFlag.Normal         => CheckBit(val, 05),
+					PropFlag.Exclude        => CheckBit(val, 06),
+					PropFlag.Xyze           => CheckBit(val, 07),
+					PropFlag.InsideArray    => CheckBit(val, 08),
+					PropFlag.ProxyAlwaysYes => CheckBit(val, 09),
+					PropFlag.IsVectorElem   => CheckBit(val, 10),
+					PropFlag.Collapsible    => CheckBit(val, 11),
+					PropFlag.CoordMp        => CheckBit(val, 12),
+					PropFlag.CoordMpLp      => CheckBit(val, 13),
+					PropFlag.CoordMpInt     => CheckBit(val, 14),
+					PropFlag.CellCoord      => CheckBit(val, 15),
+					PropFlag.CellCoordLp    => CheckBit(val, 16),
+					PropFlag.CellCoordInt   => CheckBit(val, 17),
+					PropFlag.ChangesOften   => CheckBit(val, 18),
+					_ => false
+				};
+			}
 		}
+
+		#endregion
 	}
-
-
-	public class DemoProtocol4FlagChecker : AbstractFlagChecker<PropFlag> {
-
-		public override bool HasFlag(long val, PropFlag flag) {
-			return flag switch {
-				PropFlag.Unsigned       => CheckBit(val, 00),
-				PropFlag.Coord          => CheckBit(val, 01),
-				PropFlag.NoScale        => CheckBit(val, 02),
-				PropFlag.RoundDown      => CheckBit(val, 03),
-				PropFlag.RoundUp        => CheckBit(val, 04),
-				PropFlag.Normal         => CheckBit(val, 05),
-				PropFlag.Exclude        => CheckBit(val, 06),
-				PropFlag.Xyze           => CheckBit(val, 07),
-				PropFlag.InsideArray    => CheckBit(val, 08),
-				PropFlag.ProxyAlwaysYes => CheckBit(val, 09),
-				PropFlag.IsVectorElem   => CheckBit(val, 10),
-				PropFlag.Collapsible    => CheckBit(val, 11),
-				PropFlag.CoordMp        => CheckBit(val, 12),
-				PropFlag.CoordMpLp      => CheckBit(val, 13),
-				PropFlag.CoordMpInt     => CheckBit(val, 14),
-				PropFlag.CellCoord      => CheckBit(val, 15),
-				PropFlag.CellCoordLp    => CheckBit(val, 16),
-				PropFlag.CellCoordInt   => CheckBit(val, 17),
-				PropFlag.ChangesOften   => CheckBit(val, 18),
-				_ => false
-			};
-		}
-	}
-
-	#endregion
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using DemoParser.Parser.HelperClasses.EntityStuff;
+using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
 using static DemoParser.Utils.BitStreams.PropDecodeConsts;
 
 // I want to access NumBits from props without my IDE screaming at me

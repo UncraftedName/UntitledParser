@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DemoParser.Parser.Components.Packets;
-using DemoParser.Parser.HelperClasses.EntityStuff;
+using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
 
 namespace DemoParser.Utils {
 	

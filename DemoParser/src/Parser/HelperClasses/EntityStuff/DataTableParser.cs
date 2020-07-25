@@ -7,7 +7,8 @@ using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Utils;
-using static DemoParser.Parser.HelperClasses.EntityStuff.PropFlag;
+using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
+using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums.PropFlag;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	

@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
+using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
