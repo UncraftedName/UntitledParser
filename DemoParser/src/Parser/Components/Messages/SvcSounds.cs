@@ -83,7 +83,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		public uint EntityIndex;
 		public uint SoundNum; // either index or possibly hash in demo protocol 4
-		public string? Name;
+		public string? SoundName;
 		private bool _soundTableReadable;
 		public SoundFlags Flags;
 		public Channel Chan;
@@ -157,9 +157,9 @@ namespace DemoParser.Parser.Components.Messages {
 				if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache)) {
 					_soundTableReadable = true;
 					if (SoundNum >= mgr.Tables[TableNames.SoundPreCache].Entries.Count)
-						DemoRef.LogError($"sound index out of range: {SoundNum}");
+						DemoRef.LogError($"{GetType().Name} - sound index out of range: {SoundNum}");
 					else if (SoundNum != 0)
-						Name = mgr.Tables[TableNames.SoundPreCache].Entries[(int)SoundNum].EntryName;
+						SoundName = mgr.Tables[TableNames.SoundPreCache].Entries[(int)SoundNum].EntryName;
 				}
 			}
 
@@ -213,8 +213,8 @@ namespace DemoParser.Parser.Components.Messages {
 			if ((Flags & SoundFlags.IsScriptHandle) != 0) {
 				iw.Append("scriptable sound hash:");
 			} else {
-				if (_soundTableReadable && Name != null)
-					iw.Append($"sound: \"{Name}\"");
+				if (_soundTableReadable && SoundName != null)
+					iw.Append($"sound: \"{SoundName}\"");
 				else
 					iw.Append("sound num:");
 			}

@@ -8,7 +8,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public ushort MenuType;
 		private BitStreamReader _data;
-		public BitStreamReader Data => _data.FromBeginning();
+		public BitStreamReader Data => _data.FromBeginning(); // todo
 		
 
 		public SvcMenu(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}

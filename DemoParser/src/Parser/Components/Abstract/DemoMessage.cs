@@ -10,8 +10,8 @@ namespace DemoParser.Parser.Components.Abstract {
 	public abstract class DemoMessage : DemoComponent {
 
 		protected DemoMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
+
+
 		public static MessageType ByteToSvcMessageType(byte b, DemoSettings demoSettings) {
 			if (!demoSettings.NewDemoProtocol) {
 				switch (b) {

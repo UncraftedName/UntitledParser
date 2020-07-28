@@ -47,8 +47,6 @@ namespace DemoParser.Utils.BitStreams {
 		
 		public BitStreamReader SubStream(int fromBitIndex, int bitCount) {
 			if (bitCount < 0)
-				throw new ArgumentOutOfRangeException(nameof(CurrentBitIndex), $"{nameof(CurrentBitIndex)} cannot be less than 0");
-			if (bitCount < 0)
 				throw new ArgumentOutOfRangeException(nameof(bitCount), $"{nameof(bitCount)} cannot be less than 0");
 			if (fromBitIndex + bitCount > CurrentBitIndex + BitsRemaining)
 				throw new ArgumentOutOfRangeException(nameof(bitCount),

@@ -14,7 +14,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			new ArgumentException("bro a property doesn't have an implemented display type wtf");
 		
 		private static readonly Regex HandleMatcher = new Regex("^m_h[A-Z]", RegexOptions.Compiled);
-		private static readonly Regex BoolMatcher = new Regex("^(m_)?b[A-Z]", RegexOptions.Compiled);
+		private static readonly Regex BoolMatcher = new Regex("^(?:m_)?b[A-Z]", RegexOptions.Compiled);
 
 
 		internal static DisplayType IdentifyTypeForInt(string name, SendTableProp propInfo) {

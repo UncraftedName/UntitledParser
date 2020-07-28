@@ -9,6 +9,7 @@ namespace DemoParser.Parser.Components.Messages {
 	public class SvcPrefetch : DemoMessage {
 
 		public int SoundIndex;
+		public string? SoundName;
 		
 		
 		public SvcPrefetch(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
@@ -16,6 +17,16 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		internal override void ParseStream(BitStreamReader bsr) {
 			SoundIndex = (int)bsr.ReadBitsAsUInt(13);
+			
+			var mgr = DemoRef.CurStringTablesManager;
+
+			if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache)) {
+				if (SoundIndex >= mgr.Tables[TableNames.SoundPreCache].Entries.Count)
+					DemoRef.LogError($"{GetType().Name} - sound index out of range: {SoundIndex}");
+				else if (SoundIndex != 0)
+					SoundName = mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName;
+			}
+			
 			SetLocalStreamEnd(bsr);
 		}
 		
@@ -26,13 +37,9 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			var mgr = DemoRef.CurStringTablesManager;
-			if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache))
-				iw.Append(SoundIndex < mgr.Tables[TableNames.SoundPreCache].Entries.Count
-					? $"sound: {mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName}"
-					: "sound index (out of range):");
-			else
-				iw.Append("sound index:");
+			iw.Append(SoundName != null 
+				? $"sound: {SoundName}" 
+				: "sound index:");
 			
 			iw.Append($" ({SoundIndex})");
 		}

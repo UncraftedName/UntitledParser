@@ -15,6 +15,7 @@
         <Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
         <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
         <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
