@@ -7,14 +7,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
     // like CurStringTablesManager, keeps a local copy of the baselines that can be updated and changed whenever
     public class CurBaseLines {
 
-        /*
-        The baseline is an array of all server classes and their default properties.
-        However, a server class will not appear in the demo unless it is actually used in the level, 
-        therefore any element of the baseline will be null until that corresponding slot is initialized.
-        In addition, once initialized, apparently not every property for a given class
-        is given a default value. (I'm guessing this is for properties that are known to be set to
-        something as soon as the entity is created.)
-        */
+        /* The baseline is an array of all server classes and their default properties.
+         * However, a server class will not appear in the demo unless it is actually used in the level, 
+         * therefore any element of the baseline will be null until that corresponding slot is initialized.
+         * In addition, once initialized, apparently not every property for a given class
+         * is always given a default value. (I'm guessing this is for properties that are known to be set to
+         * something as soon as the entity is created.)
+         */
         public (ServerClass? serverClass, EntityProperty?[]? entityProperties)[] ClassBaselines;
         private readonly SourceDemo _demoRef;
 
@@ -34,7 +33,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
         // this might be wrong, it's possible all updates are stored to a new baseline, so effectively only the last one matters
         public void UpdateBaseLine(
             ServerClass serverClass, 
-            IEnumerable<(int propIndex, EntityProperty prop)> props,
+            IEnumerable<(int propIndex, EntityProperty? prop)> props,
             int entPropCount) 
         {
             int i = serverClass.DataTableId;
@@ -44,7 +43,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
             }
             
             // update the slot
-            foreach ((int propIndex, EntityProperty from) in props) {
+            foreach ((int propIndex, EntityProperty? from) in props) {
                 ref EntityProperty? to = ref ClassBaselines[i].entityProperties[propIndex];
                 if (to == null)
                     to = from.CopyProperty();
@@ -71,15 +70,15 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
                 ClassBaselines[classIndex].serverClass = serverClass;
             }
             
-            EntityProperty?[] newEnt = new EntityProperty[props.Length];
-            for (int i = 0; i < newEnt.Length; i++) {
+            EntityProperty?[] newEntProps = new EntityProperty[props.Length];
+            for (int i = 0; i < newEntProps.Length; i++) {
                 if (props[i] == null)
-                    newEnt[i] = null;
+                    newEntProps[i] = null;
                 else
-                    newEnt[i] = props[i].CopyProperty();
+                    newEntProps[i] = props[i].CopyProperty();
             }
 
-            return new Entity(ClassBaselines[classIndex].serverClass, newEnt, serial);
+            return new Entity(serverClass, newEntProps, serial);
         }
     }
 }

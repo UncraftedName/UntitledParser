@@ -20,13 +20,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		internal static DisplayType IdentifyTypeForInt(string name, SendTableProp propInfo) {
 			if (propInfo.NumBits == 32 && name.Contains("color", StringComparison.OrdinalIgnoreCase))
 				return DisplayType.Color;
-			string[] split = name.Split('.');
 			
 			// check for flags and special cases first
-			DisplayType tmp = EntityPropertyEnumManager.DetermineIntSpecialType(propInfo.TableRef.Name, propInfo.Name);
-			if (tmp != DisplayType.Int) // default return from above method
-				return tmp;
+			if (EntityPropertyEnumManager.DetermineIntSpecialType(propInfo.TableRef.Name, propInfo.Name, out DisplayType disp))
+				return disp;
 			
+			string[] split = name.Split('.');
+
 			if (propInfo.NumBits == 21 && split.Any(s => HandleMatcher.IsMatch(s))) // num bits depends on max edict bits 
 				return DisplayType.Handle;
 
@@ -71,6 +71,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					return val.ToString();
 				case DisplayType.Bool:
 					return (val != 0).ToString();
+				case DisplayType.AreaBits:
+					return Convert.ToString(val, 2).PadLeft(DemoSettings.AreaBitsNumBits, '0');
 				case DisplayType.Color:
 					return $"0x{val:X8}";
 				case DisplayType.Handle:
@@ -133,6 +135,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		Angles,
 		Handle,
 		Color,
+		AreaBits,
 		
 		// flags and enums
 		

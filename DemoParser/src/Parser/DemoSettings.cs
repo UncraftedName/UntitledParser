@@ -23,6 +23,7 @@ namespace DemoParser.Parser {
 		public const int MaxPortal2CoopBranches = 6;
 		public const int MaxPortal2CoopLevelsPerBranch = 16;
 		public const int MaxNetMessage = 6;
+		public const int AreaBitsNumBits = 8;
 		
 		public const int MaxSndIndexBits = 13;
 		public const int SndSeqNumberBits = 10;

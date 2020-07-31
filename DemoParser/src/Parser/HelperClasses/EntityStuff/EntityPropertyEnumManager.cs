@@ -27,6 +27,11 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			["m_nRenderMode"] = m_nRenderMode
 		};
 		
+		private static readonly Dictionary<string, DisplayType> GlobalTableNames = new Dictionary<string, DisplayType> {
+			["m_chAreaBits"]       = AreaBits,
+			["m_chAreaPortalBits"] = AreaBits
+		};
+		
 		private static readonly Dictionary<(string tableName, string propName), DisplayType> TableSpecificPropNames = 
 			new Dictionary<(string, string), DisplayType> 
 			{
@@ -57,13 +62,10 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			};
 		
 		
-		internal static DisplayType DetermineIntSpecialType(string tableName, string propName) {
-			if (GlobalPropNames.TryGetValue(propName, out DisplayType ret))
-				return ret;
-			else if (TableSpecificPropNames.TryGetValue((tableName, propName), out ret))
-				return ret;
-			else
-				return Int;
+		internal static bool DetermineIntSpecialType(string tableName, string propName, out DisplayType displayType) {
+			return GlobalTableNames.TryGetValue(tableName, out displayType)
+				   || GlobalPropNames.TryGetValue(propName, out displayType)
+				   || TableSpecificPropNames.TryGetValue((tableName, propName), out displayType);
 		}
 
 

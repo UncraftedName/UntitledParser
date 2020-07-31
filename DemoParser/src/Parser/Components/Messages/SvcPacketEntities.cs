@@ -90,8 +90,7 @@ namespace DemoParser.Parser.Components.Messages {
 						case 0: // delta
 							if (oldI != newI)
 								throw new ArgumentException("oldEntSlot != newEntSlot");
-							Entity e = snapshot.Entities[newI];
-							iClass = e.ServerClass.DataTableId;
+							iClass = snapshot.Entities[newI].ServerClass.DataTableId;
 							(entClass, fProps) = tableParser.FlattenedProps[iClass];
 							update = new Delta(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef));
 							snapshot.ProcessDelta((Delta)update);

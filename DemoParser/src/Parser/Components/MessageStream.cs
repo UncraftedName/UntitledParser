@@ -13,7 +13,7 @@ namespace DemoParser.Parser.Components {
 	/// </summary>
 	public class MessageStream : DemoComponent, IEnumerable<(MessageType messageType, DemoMessage message)> {
 		
-		public List<(MessageType messageType, DemoMessage message)> Messages;
+		public List<(MessageType messageType, DemoMessage? message)> Messages;
 		
 		
 		public MessageStream(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
@@ -23,29 +23,29 @@ namespace DemoParser.Parser.Components {
 		internal override void ParseStream(BitStreamReader bsr) {
 			uint messagesByteLength = bsr.ReadUInt();
 			BitStreamReader messageBsr = bsr.SubStream(messagesByteLength << 3);
-			Messages = new List<(MessageType, DemoMessage)>();
+			Messages = new List<(MessageType, DemoMessage?)>();
 			byte messageValue = 0;
 			MessageType messageType = MessageType.Unknown;
-			Exception e = null;
+			Exception? e = null;
 			try {
 				do {
 					messageValue = (byte)messageBsr.ReadBitsAsUInt(DemoSettings.NetMsgTypeBits);
 					messageType = DemoMessage.ByteToSvcMessageType(messageValue, DemoSettings);
-					DemoMessage demoMessage = MessageFactory.CreateMessage(DemoRef, messageBsr, messageType);
+					DemoMessage? demoMessage = MessageFactory.CreateMessage(DemoRef, messageBsr, messageType);
 					demoMessage?.ParseStream(messageBsr);
 					Messages.Add((messageType, demoMessage));
 				} while (Messages[^1].Item2 != null && messageBsr.BitsRemaining >= DemoSettings.NetMsgTypeBits);
 			} catch (Exception ex) {
 				Debug.WriteLine(e = ex);
 				// if the stream goes out of bounds, that's not a big deal since the messages are skipped over at the end anyway
-				(MessageType, DemoMessage) pair = (messageType, null);
+				(MessageType, DemoMessage?) pair = (messageType, null);
 				Messages.Add(pair);
 			}
 			
 			#region error logging
 			
 			MessageType lastKey = Messages[^1].Item1;
-			DemoMessage lastValue = Messages[^1].Item2;
+			DemoMessage? lastValue = Messages[^1].Item2;
 			
 			if (e != null
 				|| !Enum.IsDefined(typeof(MessageType), lastKey)

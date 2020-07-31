@@ -64,7 +64,7 @@ namespace DemoParser.Parser.Components.Abstract {
 
 	public static class MessageFactory {
 
-		public static DemoMessage CreateMessage(SourceDemo demoRef, BitStreamReader reader, MessageType messageType) {
+		public static DemoMessage? CreateMessage(SourceDemo demoRef, BitStreamReader reader, MessageType messageType) {
 			return messageType switch {
 				MessageType.NetNop                => new NetNop(demoRef, reader),
 				MessageType.NetDisconnect         => new NetDisconnect(demoRef, reader),

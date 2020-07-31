@@ -11,17 +11,17 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
     public class CurEntitySnapshot {
         
         private readonly SourceDemo _demoRef;
-        public readonly Entity[] Entities;
+        public readonly Entity?[] Entities;
         public uint EngineTick; // set from the packet packet
 
 
         public CurEntitySnapshot(SourceDemo demoRef) {
             _demoRef = demoRef;
-            Entities = new Entity[DemoSettings.MaxEdicts];
+            Entities = new Entity?[DemoSettings.MaxEdicts];
         }
 
 
-        private CurEntitySnapshot(SourceDemo demoRef, Entity[] entities, uint engineTick) {
+        private CurEntitySnapshot(SourceDemo demoRef, Entity?[] entities, uint engineTick) {
             _demoRef = demoRef;
             Entities = entities;
             EngineTick = engineTick;
@@ -41,8 +41,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
             Debug.Assert(_demoRef.CBaseLines != null, "baselines are null");
             if (u.New) // force a recreate
                 Entities[u.EntIndex] = _demoRef.CBaseLines.EntFromBaseLine(u.ServerClass, u.Serial);
-            Entity e = Entities[u.EntIndex];
-            Debug.Assert(e != null, "entity should not be null by now");
+            Entity e = Entities[u.EntIndex]
+                       ?? throw new InvalidOperationException($"entity {u.EntIndex} should not be null by now");
             e.InPvs = true;
             ProcessDelta(u);
             if (msg.UpdateBaseline) { // if update baseline then set the current baseline to the ent props, wacky
@@ -64,7 +64,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
         internal void ProcessDelta(Delta u) {
             foreach ((int propIndex, EntityProperty prop) in u.Props) {
-                ref EntityProperty old = ref Entities[u.EntIndex].Props[propIndex];
+                ref EntityProperty? old = ref Entities[u.EntIndex].Props[propIndex];
                 if (old == null)
                     old = prop.CopyProperty();
                 else
