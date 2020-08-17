@@ -13,6 +13,7 @@ using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
+using static DemoParser.Utils.ParserTextUtils;
 
 namespace ConsoleApp {
 	
@@ -33,7 +34,7 @@ namespace ConsoleApp {
 			if (_folderPath != null) {
 				_curTextWriter?.Flush(); // i can't flush this after it's been closed
 				_curTextWriter?.Close();
-				_curTextWriter = new StreamWriter(Path.Combine(_folderPath, $"{CurDemo.FileName[..^4]} - {suffix}.txt"));
+				_curTextWriter = new StreamWriter(Path.Combine(_folderPath, $"{CurDemo.FileName![..^4]} - {suffix}.txt"));
 			} else {
 				_curTextWriter = Console.Out;
 			}
@@ -47,7 +48,7 @@ namespace ConsoleApp {
 			_curBinWriter?.Flush();
 			_curBinWriter?.Close();
 			_curBinWriter = new BinaryWriter(new FileStream(
-				Path.Combine(_folderPath, $"{CurDemo.FileName[..^4]}-{suffix}.{fileFormat}"), FileMode.Create));
+				Path.Combine(_folderPath, $"{CurDemo.FileName![..^4]}-{suffix}.{fileFormat}"), FileMode.Create));
 		}
 
 
@@ -65,7 +66,9 @@ namespace ConsoleApp {
 			// timespan truncates values, (makes sense since 0.5 minutes is still 0 total minutes) so I round manually
 			TimeSpan t = TimeSpan.FromSeconds(Math.Abs(seconds));
 			int roundedMilli = t.Milliseconds + (int)Math.Round(t.TotalMilliseconds - (long)t.TotalMilliseconds);
-			if (t.Hours > 0)
+			if (t.Days > 0)
+				return $"{sign}{t.Days:D1}.{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}.{roundedMilli:D3}";
+			else if (t.Hours > 0)
 				return $"{sign}{t.Hours:D1}:{t.Minutes:D2}:{t.Seconds:D2}.{roundedMilli:D3}";
 			else if (t.Minutes > 0)
 				return $"{sign}{t.Minutes:D1}:{t.Seconds:D2}.{roundedMilli:D3}";
@@ -85,15 +88,15 @@ namespace ConsoleApp {
 
 
 		// this is basically copied from the old parser, i'll think about improving this
-		private static void ConsFunc_ListDemo(ListdemoOption listdemoOption, bool printWriteMsg) {
+		private static void ConsFunc_ListDemo(
+			ListdemoOption listdemoOption,
+			bool printWriteMsg,
+			bool exceptionDuringParsing)
+		{
 			SetTextWriter("listdemo+");
 			if (printWriteMsg && _runnableOptionCount > 1)
 				Console.WriteLine("Writing listdemo+ output...");
 			ConsoleColor originalColor = Console.ForegroundColor;
-			if (!CurDemo.FilterForPacket<Packet>().Any()) {
-				Console.WriteLine("this demo is janked yo, it doesn't have any packets");
-				return;
-			}
 
 			Console.ForegroundColor = ConsoleColor.Gray;
 			if (listdemoOption == ListdemoOption.DisplayHeader) {
@@ -111,6 +114,14 @@ namespace ConsoleApp {
 					$"\n{"Frames",           -25}: {h.FrameCount}"               +
 					$"\n{"SignOn Length",    -25}: {h.SignOnLength}\n\n");
 			}
+			if (exceptionDuringParsing) // only header
+				return;
+			
+			if (!CurDemo.FilterForPacket<Packet>().Any()) {
+				ConsoleWriteWithColor("This demo is janked yo, it doesn't have any packets!", ConsoleColor.Red);
+				return;
+			}
+			
 			Regex[] regexes = {
 				new Regex("^autosave$"), 
 				new Regex("^autosavedangerous$"),

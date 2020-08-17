@@ -68,5 +68,14 @@ namespace DemoParser.Utils {
 			}
 			return s1.Substring(0, furthestSlash);
 		}
+		
+
+
+		public static void ConsoleWriteWithColor(string s, ConsoleColor color) {
+			var original = Console.ForegroundColor;
+			Console.ForegroundColor = color;
+			Console.Write(s);
+			Console.ForegroundColor = original;
+		}
 	}
 }
