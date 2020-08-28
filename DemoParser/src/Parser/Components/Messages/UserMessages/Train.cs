@@ -1,10 +1,11 @@
+using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class Train : SvcUserMessage {
+	public class Train : UserMessage {
 
 		public byte Pos;
 		
@@ -18,7 +19,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

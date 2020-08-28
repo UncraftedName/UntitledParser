@@ -43,11 +43,13 @@ using System.Text;
  * to see the most recent modifications
  */
 namespace ConsoleApp {
+	
 	public class AlphanumComparator : IComparer<string> {
+
 		private enum ChunkType {
 			Alphanumeric,
 			Numeric
-		};
+		}
 
 
 		private static bool InChunk(char ch, char otherCh) {

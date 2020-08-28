@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
-using DemoParser.Utils;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
@@ -27,7 +26,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			
 			string[] split = name.Split('.');
 
-			if (propInfo.NumBits == 21 && split.Any(s => HandleMatcher.IsMatch(s))) // num bits depends on max edict bits 
+			if (propInfo.NumBits == DemoSettings.NetworkedEHandleBits && split.Any(s => HandleMatcher.IsMatch(s)))
 				return DisplayType.Handle;
 
 			// bool check is kinda dumb, maybe I shouldn't bother tbh
@@ -73,10 +72,10 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					return (val != 0).ToString();
 				case DisplayType.AreaBits:
 					return Convert.ToString(val, 2).PadLeft(DemoSettings.AreaBitsNumBits, '0');
-				case DisplayType.Color:
+				case DisplayType.Color: // pretty sure this is rgba
 					return $"0x{val:X8}";
 				case DisplayType.Handle:
-					return val.IsNullEHandle() 
+					return val == DemoSettings.NullEHandle
 						? "null"
 						: $"(index: {val & (DemoSettings.MaxEdicts - 1)}, serial: {val >> DemoSettings.MaxEdictBits})";
 				case DisplayType.DT_BaseEntity__m_CollisionGroup:
@@ -115,9 +114,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return val;
 		}
 	}
-
-
-	// todo CBaseTrigger.m_spawnflags
+	
 	
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	internal enum DisplayType {
@@ -143,6 +140,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		DT_BaseGrenade__m_fFlags,
 		DT_BasePlayer__m_fFlags,
 		DT_Env_Lightrail_Endpoint__m_spawnflags,
+		DT_Env_Lightrail_Endpoint__m_nState,
 		DT_FireSmoke__m_nFlags,
 		DT_Func_Dust__m_DustFlags,
 		DT_FuncSmokeVolume__m_spawnflags,
@@ -179,7 +177,6 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		DT_TEGaussExplosion__m_nType,
 		DT_TEImpact__m_iType,
 		DT_TEMuzzleFlash__m_nType,
-		DT_TEShatterSurface__m_nSurfaceType,
 		DT_CollisionProperty__m_nSurroundType,
 		DT_LocalWeaponData__m_iPrimaryAmmoType,
 		DT_LocalWeaponData__m_iSecondaryAmmoType,
@@ -191,5 +188,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		DT_CitadelEnergyCore__m_nState,
 		DT_Local__M_iHideHUD,
 		DT_BaseCombatWeapon__m_iState,
+		DT_CPropJeepEpisodic__m_iRadarContactType,
+		DT_BaseTrigger__m_spawnflags
 	}
 }

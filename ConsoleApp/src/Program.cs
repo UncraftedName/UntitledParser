@@ -19,7 +19,7 @@ namespace ConsoleApp {
 		
 		private static string UsageStr => $"Usage: \"{AppDomain.CurrentDomain.FriendlyName}\" <demos/dirs> [options]";
 		private static readonly List<Option> OptionsRequiringFolder = new List<Option>();
-		private static bool _recursive = false;
+		private static bool _recursive;
 		
 		// todo add prop tracker
 		public static void Main(string[] args) {
@@ -38,9 +38,9 @@ namespace ConsoleApp {
 					Demos.Add(new SourceDemo(args[0]));
 					try {
 						CurDemo.Parse();
-						ConsFunc_ListDemo(default, false, false);
+						ConsFunc_ListDemo(default, false, false, true);
 					} catch (Exception e) {
-						ConsFunc_ListDemo(default, false, true);
+						ConsFunc_ListDemo(default, false, true, true);
 						ConsoleWriteWithColor(e.ToString(), ConsoleColor.Red);
 						Console.Read();
 						Environment.Exit(1);
@@ -292,14 +292,23 @@ namespace ConsoleApp {
 					_folderPath = folder.FullName;
 				}
 
-				// sort the same way that windows does
-				IReadOnlyList<FileInfo> orderedPaths = demoPaths.OrderBy(f => f.Name, new AlphanumComparator()).ToList();
-				
-				// these are sorted, so any similarities between the first and last path must be shared between all paths
-				string commonParentPath = orderedPaths.Count == 1 
-					? orderedPaths[0].DirectoryName 
-					: SharedPathSubstring(orderedPaths[0].FullName, orderedPaths[^1].FullName);
+				string commonParent;
+				if (demoPaths.Count == 1) {
+					commonParent = demoPaths.Single().DirectoryName;
+				} else {
+					var ordered = demoPaths.OrderBy(f => f.Name, new AlphanumComparator()).ToList();
+					// any similarities between the first and last path must be shared between all paths
+					commonParent = SharedPathSubstring(ordered.First().FullName, ordered.Last().FullName);
+				}
 
+				// if the common path is empty, that prolly means the demos span multiple drives, so use the full name
+				var orderedPaths = demoPaths.Select(
+					f => (info: f, displayPath: commonParent == "" 
+						? f.FullName
+						: Path.GetRelativePath(commonParent!, f.FullName)))
+					.OrderBy(t => t.displayPath, new AlphanumComparator())
+					.ToList();
+				
 				// the check for options with arguments is pretty dumb, not sure of a better way tho
 				var implicitOptions = new {
 					listDemo = parseResult.Tokens.Any(token => listDemoOpt.HasAlias(token.Value)),
@@ -314,21 +323,15 @@ namespace ConsoleApp {
 				
 				// main loop
 				for (var i = 0; i < orderedPaths.Count; i++) {
-					FileInfo demoPath = orderedPaths[i];
-					// if the common path is empty, that means the demos span multiple drives, so just use the full name
-					string displayPath = commonParentPath == ""
-						? demoPath.Name
-						: Path.GetRelativePath(commonParentPath, demoPath.FullName);
-
 					bool exceptionDuringParsing = false;
 					try {
-						Console.Write($"Parsing \"{displayPath}\"... ");
+						Console.Write($"Parsing \"{orderedPaths[i].displayPath}\"... ");
 
 						using (var progressBar = new ProgressBar()) {
 							// if i'm not linking demos there's no point in keeping all of them
 							if (!link)
 								Demos.Clear();
-							Demos.Add(new SourceDemo(demoPath, progressBar));
+							Demos.Add(new SourceDemo(orderedPaths[i].info.FullName, progressBar));
 							CurDemo.Parse();
 						}
 
@@ -370,7 +373,7 @@ namespace ConsoleApp {
 								TimingAdjustment.ExcludedMaps.Contains((CurDemo.DemoSettings.Game,
 									CurDemo.Header.MapName));
 							_displayMapExcludedMsg = quickHashesMatch && excludedMap;
-							ConsFunc_ListDemo(listdemo, true, exceptionDuringParsing);
+							ConsFunc_ListDemo(listdemo, true, exceptionDuringParsing, false);
 							if (quickHashesMatch && !excludedMap)
 								DemoTickCounts.Add((CurDemo.TickCount(), CurDemo.AdjustedTickCount()));
 						}
@@ -398,13 +401,7 @@ namespace ConsoleApp {
 				if (quickHashesMatch && implicitOptions.listDemo)
 					ConsFunc_DisplayTotalTime();
 				
-				// set to null after so that I can't flush it again, cuz that would cause a crash
-				_curTextWriter?.Flush();
-				_curTextWriter?.Dispose();
-				_curTextWriter = null;
-				_curBinWriter?.Flush();
-				_curBinWriter?.Dispose();
-				_curBinWriter = null;
+				DisposeWriters();
 			}
 
 
@@ -414,8 +411,23 @@ namespace ConsoleApp {
 				string,DirectoryInfo,ListdemoOption,ActPressedDispType,
 				PtpFilterType,ParseResult>)CommandAction);
 
-			
-			rootCommand.Invoke(args);
+			try {
+				rootCommand.Invoke(args);
+			} finally {
+				_folderPath = null;
+				DisposeWriters();
+			}
+		}
+
+
+		// set to null after so that I can't flush it again, cuz that would cause a crash
+		private static void DisposeWriters() {
+			_curTextWriter?.Flush();
+			_curTextWriter?.Dispose();
+			_curTextWriter = null;
+			_curBinWriter?.Flush();
+			_curBinWriter?.Dispose();
+			_curBinWriter = null;
 		}
 		
 		

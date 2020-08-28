@@ -29,7 +29,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
         public CurEntitySnapshot DeepCopy() => 
-            new CurEntitySnapshot(_demoRef, Entities.Select(entity => entity?.Duplicate()).ToArray(), EngineTick);
+            new CurEntitySnapshot(_demoRef, Entities.Select(entity => entity?.DeepCopy()).ToArray(), EngineTick);
 
 
         internal void ClearEntityState() {

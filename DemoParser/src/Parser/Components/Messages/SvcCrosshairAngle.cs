@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
@@ -24,7 +25,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

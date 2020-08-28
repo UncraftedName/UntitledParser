@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
@@ -35,7 +37,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 
@@ -53,7 +55,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 	public class GameEventDescription : DemoComponent {
 
-		public uint EventID;
+		public uint EventId;
 		public string Name;
 		public List<(string Name, EventDescriptorType type)> Keys;
 		
@@ -62,7 +64,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			EventID = bsr.ReadBitsAsUInt(9);
+			EventId = bsr.ReadBitsAsUInt(9);
 			Name = bsr.ReadNullTerminatedString();
 			Keys = new List<(string Name, EventDescriptorType type)>();
 			uint type;
@@ -72,21 +74,21 @@ namespace DemoParser.Parser.Components.Messages {
 
 		
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append($"ID: {EventID}, name: {Name}");
+			iw.Append($"{EventId}: {Name}");
 			iw.FutureIndent++;
 			iw.AppendLine();
-			iw.Append($"keys: {Keys.SequenceToString()}");
+			iw.Append($"keys: {Keys.Select(tup => $"{tup.type.ToString().ToLower()} {tup.Name}").SequenceToString()}");
 			iw.FutureIndent--;
 		}
 	}
 
 
-	public enum EventDescriptorType : uint {
+	public enum EventDescriptorType : byte {
 		String = 1,
 		Float,
 		Int32,

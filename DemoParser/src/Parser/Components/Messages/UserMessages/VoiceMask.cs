@@ -5,7 +5,7 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class VoiceMask : SvcUserMessage {
+	public class VoiceMask : UserMessage {
 		
 		public const int VoiceMaxPlayers = 2; // might be different for different games, should be 2 for p1 & p2
 		public PlayerMask[] PlayerMasks;

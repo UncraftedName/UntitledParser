@@ -29,7 +29,7 @@ namespace DemoParser.Utils.BitStreams {
                 }
             }
             BitStreamWriter writer = new BitStreamWriter((bitCount << 3) + 1);
-            writer.WriteBitsFromInt(0, bitIndex & 0x07);
+            writer.WriteBitsFromSInt(0, bitIndex & 0x07);
             writer.WriteBits(bytes, bitCount);
             byte[] arr = writer.AsArray;
             for (int i = 0; i < bytesModified; i++) 

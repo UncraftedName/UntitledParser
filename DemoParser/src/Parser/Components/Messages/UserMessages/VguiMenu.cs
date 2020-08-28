@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
@@ -5,7 +6,7 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class VguiMenu : SvcUserMessage {
+	public class VguiMenu : UserMessage {
 
 		public string Message;
 		public bool Show;
@@ -29,7 +30,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

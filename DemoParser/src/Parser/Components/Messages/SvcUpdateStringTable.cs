@@ -9,15 +9,15 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
 	
-	public class SvcUpdateStringTables : DemoMessage {
+	public class SvcUpdateStringTable : DemoMessage {
 
 		public byte TableId;
 		public string? TableName; // i want to keep a copy of this if I convert to string later
 		public ushort ChangedEntriesCount;
-		public StringTableUpdate TableUpdate;
+		public StringTableUpdates TableUpdates;
 
 
-		public SvcUpdateStringTables(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public SvcUpdateStringTable(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
@@ -26,8 +26,8 @@ namespace DemoParser.Parser.Components.Messages {
 			ChangedEntriesCount = bsr.ReadUShortIfExists() ?? 1;
 			uint dataLen = bsr.ReadBitsAsUInt(20);
 
-			TableUpdate = new StringTableUpdate(DemoRef, bsr.SubStream(dataLen), TableName, ChangedEntriesCount);
-			TableUpdate.ParseOwnStream();
+			TableUpdates = new StringTableUpdates(DemoRef, bsr.SubStream(dataLen), TableName, ChangedEntriesCount);
+			TableUpdates.ParseOwnStream();
 			
 			bsr.SkipBits(dataLen);
 			SetLocalStreamEnd(bsr);
@@ -46,23 +46,25 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.Append("table update:");
 			iw.FutureIndent++;
 			iw.AppendLine();
-			TableUpdate.AppendToWriter(iw);
+			TableUpdates.AppendToWriter(iw);
 			iw.FutureIndent--;
 		}
 	}
 	
 
 
-	public class StringTableUpdate : DemoComponent {
+	public class StringTableUpdates : DemoComponent {
 		
 		private readonly int _updatedEntries; // just used when parsing
 		private readonly string _tableName;
 		private bool _exceptionWhileParsing;
 		public readonly List<TableUpdate?> TableUpdates;
 		
+		public static implicit operator List<TableUpdate?>(StringTableUpdates u) => u.TableUpdates;
 		
 		
-		public StringTableUpdate(SourceDemo demoRef, BitStreamReader reader, string tableName, int updatedEntries) : base(demoRef, reader) {
+		
+		public StringTableUpdates(SourceDemo demoRef, BitStreamReader reader, string tableName, int updatedEntries) : base(demoRef, reader) {
 			_tableName = tableName;
 			_updatedEntries = updatedEntries;
 			TableUpdates = new List<TableUpdate?>(_updatedEntries);
@@ -185,7 +187,6 @@ namespace DemoParser.Parser.Components.Messages {
 	}
 
 
-	// todo this was a C_update before, it should really be a demo component
 	public class TableUpdate : Appendable {
 
 		internal int PadCount; // just for toString()
@@ -204,13 +205,18 @@ namespace DemoParser.Parser.Components.Messages {
 		public override void AppendToWriter(IndentedWriter iw) { // similar logic to that in string tables
 			iw.Append($"({Index}) {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
 			if (TableEntry?.EntryData != null) {
-				iw.FutureIndent++;
-				if (TableEntry.EntryData.ContentsKnown)
-					iw.AppendLine();
-				else
-					iw.PadLastLine(PadCount + 15, '.');
-				TableEntry.EntryData.AppendToWriter(iw);
-				iw.FutureIndent--;
+				if (TableEntry.EntryData.InlineToString) {
+					iw.Append("; ");
+					TableEntry.EntryData.AppendToWriter(iw);
+				} else {
+					iw.FutureIndent++;
+					if (TableEntry.EntryData.ContentsKnown)
+						iw.AppendLine();
+					else
+						iw.PadLastLine(PadCount + 15, '.');
+					TableEntry.EntryData.AppendToWriter(iw);
+					iw.FutureIndent--;
+				}
 			}
 		}
 	}

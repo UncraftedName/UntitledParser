@@ -1,3 +1,4 @@
+using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -10,8 +11,8 @@ namespace DemoParser.Parser.Components.Messages {
 		public int SpawnCount;
 		// demo protocol 4 only
 		public uint? NumServerPlayers;
-		public byte[] PlayerNetworkIds;
-		public string MapName;
+		public byte[]? PlayerNetworkIds;
+		public string? MapName;
 		
 		
 		public NetSignOnState(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
@@ -36,7 +37,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

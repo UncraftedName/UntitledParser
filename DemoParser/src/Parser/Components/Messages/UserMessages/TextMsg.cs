@@ -1,10 +1,11 @@
+using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class TextMsg : SvcUserMessage {
+	public class TextMsg : UserMessage {
 
 		public const int MessageCount = 5;
 		public TextMsgDestination Destination;
@@ -23,7 +24,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

@@ -1,31 +1,29 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using DemoParser.Parser.Components.Messages.UserMessages;
-using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
-using static DemoParser.Parser.SourceGame;
-
 
 namespace DemoParser.Parser.Components.Abstract {
 	
 	/* The idea here is that the enum corresponding to user messages is shuffled/shifted in different games,
 	 * and the user messages seem to be a byte number of bits long, with every byte of the data being used.
 	 * Therefore, if each byte isn't read, then I know that the message is either being read wrong, or I'm reading
-	 * the wrong user message. Instead of using a separate enums for different games, I have a single list and many
-	 * lookup tables for different games. During parsing, if not every byte is read, then I revert to an unknown
-	 * message type, log an error, and the unknown message type will simply print the contents of the message in
-	 * hex (when converting this to string). The lookup tables can be obtained from the RegisterUserMessages() function.
+	 * the wrong user message. During parsing, if not every byte is read, then I revert to an unknown message type,
+	 * log an error, and the unknown message type will simply print the contents of the message in hex (when converting
+	 * this to string). The lookup tables can be obtained from the RegisterUserMessages() function in server.dll.
 	 */
 	
 	/// <summary>
-	/// The payload in the SvcUserMessageFrame message. 
+	/// The payload in SvcUserMessage.
 	/// </summary>
-	public abstract class SvcUserMessage : DemoComponent {
+	public abstract class UserMessage : DemoComponent {
 		
-		#region lookup tables
+		#region user message lookup tables for different versions
 		
-		private static readonly UserMessageType[] Hl2OeTable = {
+		public static readonly IReadOnlyList<UserMessageType> Hl2OeTable = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
 			UserMessageType.HudText,
@@ -49,10 +47,8 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.AmmoDenied,
 			UserMessageType.CreditsMsg
 		};
-		private static readonly Dictionary<UserMessageType, int> Hl2OeReverseTable = Hl2OeTable.CreateReverseLookupDict();
 		
-		// same as steam
-		private static readonly UserMessageType[] Hl2UnpackTable = {
+		public static readonly IReadOnlyList<UserMessageType> Hl2UnpackTable = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
 			UserMessageType.HudText,
@@ -88,9 +84,8 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapSetConst,
 			UserMessageType.HapMeleeContact
 		};
-		public static readonly Dictionary<UserMessageType, int> Hl2UnpackReverseTable = Hl2UnpackTable.CreateReverseLookupDict();
 		
-		private static readonly UserMessageType[] Portal2Table = {
+		public static readonly IReadOnlyList<UserMessageType> Portal2Table = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
 			UserMessageType.HudText,
@@ -155,9 +150,8 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.ChallengeModCheatSession,
 			UserMessageType.ChallengeModCloseAllUI
 		};
-		private static readonly Dictionary<UserMessageType, int> Portal2ReverseTable = Portal2Table.CreateReverseLookupDict();
 		
-		private static readonly UserMessageType[] Portal3420Table = {
+		public static readonly IReadOnlyList<UserMessageType> Portal3420Table = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
 			UserMessageType.HudText,
@@ -189,9 +183,8 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.EntityPortalled,
 			UserMessageType.KillCam
 		};
-		private static readonly Dictionary<UserMessageType, int> Portal3420ReverseTable = Portal3420Table.CreateReverseLookupDict();
 		
-		private static readonly UserMessageType[] Portal1UnpackTable = {
+		public static readonly IReadOnlyList<UserMessageType> Portal1UnpackTable = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
 			UserMessageType.HudText,
@@ -229,9 +222,8 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapSetConst,
 			UserMessageType.HapMeleeContact
 		};
-		private static readonly Dictionary<UserMessageType, int> Portal1UnpackReverseTable = Portal1UnpackTable.CreateReverseLookupDict();
 		
-		private static readonly UserMessageType[] Portal1SteamTable = {
+		public static readonly IReadOnlyList<UserMessageType> Portal1SteamTable = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
 			UserMessageType.HudText,
@@ -274,9 +266,8 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapSetConst,
 			UserMessageType.HapMeleeContact
 		};
-		private static readonly Dictionary<UserMessageType, int> Portal1SteamReverseTable = Portal1SteamTable.CreateReverseLookupDict();
 		
-		private static readonly UserMessageType[] L4D2SteamTable = {
+		public static readonly IReadOnlyList<UserMessageType> L4D2SteamTable = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
 			UserMessageType.HudText,
@@ -342,54 +333,37 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.VotePass,
 			UserMessageType.VoteFailed // called VoteFail in l4d2
 		};
-		private static readonly Dictionary<UserMessageType, int> L4D2SteamReverseTable = L4D2SteamTable.CreateReverseLookupDict();
-		
-		private static readonly UserMessageType[] L4D2OldSoloTable = L4D2SteamTable[..61]; // all but the last 3 (votes)
-		private static readonly Dictionary<UserMessageType, int> L4D2OldSoloReverseTable = L4D2OldSoloTable.CreateReverseLookupDict();
+
+		// all but the last 3 (the vote uMessages)
+		public static readonly IReadOnlyList<UserMessageType> L4D2OldSoloTable = L4D2SteamTable.Take(61).ToArray();
 		
 		#endregion
 
-		protected SvcUserMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		protected UserMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 		
 		
-		// todo hl2
 		public static UserMessageType ByteToUserMessageType(DemoSettings demoSettings, byte b) {
-			var lookupTable = demoSettings.Game switch {
-				PORTAL_1_UNPACK    => Portal1UnpackTable,
-				PORTAL_1_3420      => Portal3420Table,
-				PORTAL_1_STEAMPIPE => Portal1SteamTable,
-				PORTAL_2           => Portal2Table,
-				L4D2_2000          => L4D2SteamTable,
-				L4D2_2042          => L4D2SteamTable,
-				_ => null
-			};
-			if (lookupTable == null)
-				return UserMessageType.UNKNOWN;
-			else if (b >= lookupTable.Length)
-				return UserMessageType.INVALID;
-			else 
-				return lookupTable[b];
+			var tab = demoSettings.UserMessageTypes;
+			if (tab == null)
+				return UserMessageType.Unknown;
+			else if (b >= tab.Count)
+				return UserMessageType.Invalid;
+			else
+				return tab[b];
 		}
 		
 		
-		public static int UserMessageTypeToByte(DemoSettings demoSettings, UserMessageType m) {
-			var reverseLookupTable = demoSettings.Game switch {
-				PORTAL_1_UNPACK    => Portal1UnpackReverseTable,
-				PORTAL_1_3420      => Portal3420ReverseTable,
-				PORTAL_1_STEAMPIPE => Portal1SteamReverseTable,
-				PORTAL_2           => Portal2ReverseTable,
-				L4D2_2000          => L4D2SteamReverseTable,
-				L4D2_2042          => L4D2SteamReverseTable,
-				_ => throw new ArgumentException($"no reverse user message lookup table for {demoSettings.Game}")
-			};
-			return reverseLookupTable[m];
+		public static byte UserMessageTypeToByte(DemoSettings demoSettings, UserMessageType m) {
+			if (demoSettings.UserMessageTypesReverseLookup.TryGetValue(m, out int i))
+				return (byte)i;
+			throw new ArgumentException($"no user message found for {m}");
 		}
 	}
 	
 	
 	public static class SvcUserMessageFactory {
 		
-		private static readonly HashSet<UserMessageType> EmptyMessages = new HashSet<UserMessageType> {
+		private static readonly ImmutableHashSet<UserMessageType> EmptyMessages = new[] {
 			UserMessageType.GameTitle,
 			UserMessageType.RequestState,
 			UserMessageType.SquadMemberDied,
@@ -403,18 +377,18 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.AllPlayersConnectedGameStarting,
 			UserMessageType.DisconnectToLobby,
 			UserMessageType.HapMeleeContact
-		};
+		}.ToImmutableHashSet();
 		
 		
 		// make sure to pass in a substream, don't call SetLocalStreamEnd() in any of the user messages
-		public static SvcUserMessage CreateUserMessage(
+		public static UserMessage? CreateUserMessage(
 			SourceDemo demoRef,
 			BitStreamReader reader,
 			UserMessageType messageType)
 		{
-			
+
 			if (EmptyMessages.Contains(messageType))
-				return new EmptySvcUserMessage(demoRef, reader);
+				return new EmptyUserMessage(demoRef, reader);
 			
 			return messageType switch {
 				UserMessageType.CloseCaption       => new CloseCaption(demoRef, reader),
@@ -457,9 +431,9 @@ namespace DemoParser.Parser.Components.Abstract {
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[SuppressMessage("ReSharper", "IdentifierTypo")]
 	public enum UserMessageType {
-		// not used in any games just personal book keeping
-		UNKNOWN,
-		INVALID,
+		// book keeping
+		Unknown,
+		Invalid,
 		// 3420 types
 		Geiger,
 		Train,

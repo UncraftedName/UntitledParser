@@ -23,9 +23,9 @@ namespace DemoParser.Utils {
 				foreach (SendTable sendTable in dTables.Tables) {
 					if (checkedStrs.Contains(sendTable.Name))
 						continue;
-					string inheritName = null;
+					string? inheritName = null;
 					if (sendTable.SendProps.Count > 0 && sendTable.SendProps[0].SendPropType == SendPropType.DataTable)
-						inheritName = sendTable.SendProps[0].ExcludeDtName;
+						inheritName = sendTable.SendProps[0].ExcludeDtName!;
 					if (inheritName == null) {
 						AddRoot(sendTable.Name);
 						checkedStrs.Add(sendTable.Name);
@@ -82,7 +82,7 @@ namespace DemoParser.Utils {
 			}
 
 
-			internal TableNode GetElement(string name) {
+			internal TableNode? GetElement(string name) {
 				if (Name == name)
 					return this;
 				else if (_children.Count == 0)

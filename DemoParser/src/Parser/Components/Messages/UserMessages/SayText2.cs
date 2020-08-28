@@ -1,10 +1,11 @@
+using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class SayText2 : SvcUserMessage {
+	public class SayText2 : UserMessage {
 
 		public byte Client;
 		public bool WantsToChat;
@@ -20,7 +21,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

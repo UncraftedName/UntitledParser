@@ -39,10 +39,11 @@ namespace DemoParser.Parser.Components.Messages {
 			_entBsr = bsr.SubStream(dataLen);
 			bsr.SkipBits(dataLen);
 			SetLocalStreamEnd(bsr);
-			
+
+#if !FORCE_PROCESS_ENTS
 			if (!DemoSettings.ProcessEnts)
 				return;
-			
+#endif
 			// now, we do some setup for ent parsing
 			ref CurEntitySnapshot? snapshot = ref DemoRef.CurEntitySnapshot;
 			snapshot ??= new CurEntitySnapshot(DemoRef);

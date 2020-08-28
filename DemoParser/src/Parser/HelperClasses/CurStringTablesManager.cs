@@ -127,7 +127,7 @@ namespace DemoParser.Parser.HelperClasses {
 						newTable = InitNewTable(tableId, CreationLookup[tableId]);
 					} else {
 						// create fake creation info
-						SvcCreateStringTable fakeInfo = new SvcCreateStringTable(null, null) {
+						SvcCreateStringTable fakeInfo = new SvcCreateStringTable(null!, null!) {
 							TableName = table.Name, 
 							MaxEntries = -1,
 							Flags = StringTableFlags.Fake,

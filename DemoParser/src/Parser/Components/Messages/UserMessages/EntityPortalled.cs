@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
@@ -5,7 +6,7 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class EntityPortalled : SvcUserMessage {
+	public class EntityPortalled : UserMessage {
 
 		public int PortalEntIndex;
 		public int PortalSerialNum;
@@ -31,7 +32,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

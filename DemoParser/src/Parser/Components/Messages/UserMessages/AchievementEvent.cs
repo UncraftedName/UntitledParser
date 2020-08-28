@@ -1,10 +1,11 @@
+using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class AchievementEvent : SvcUserMessage {
+	public class AchievementEvent : UserMessage {
 
 		public int AchievementId; // https://nekzor.github.io/portal2/achievements
 		
@@ -13,12 +14,12 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			throw new System.NotImplementedException(); // todo, and figure out the achievements
+			throw new NotImplementedException(); // todo, and figure out the achievements
 		}
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

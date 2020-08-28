@@ -1,3 +1,4 @@
+using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
@@ -11,8 +12,10 @@ namespace DemoParser.Parser.Components.Packets {
 	public class ConsoleCmd : DemoPacket {
 		
 		public string Command;
-		
-		
+
+		public static implicit operator string(ConsoleCmd cmd) => cmd.Command;
+
+
 		public ConsoleCmd(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
 
 
@@ -27,7 +30,7 @@ namespace DemoParser.Parser.Components.Packets {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

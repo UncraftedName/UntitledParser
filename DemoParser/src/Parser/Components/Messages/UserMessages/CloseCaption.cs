@@ -5,7 +5,7 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class CloseCaption : SvcUserMessage {
+	public class CloseCaption : UserMessage {
 
 		public string TokenName;
 		public float Duration;

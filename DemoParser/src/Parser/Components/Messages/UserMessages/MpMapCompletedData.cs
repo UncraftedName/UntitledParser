@@ -8,7 +8,7 @@ using static DemoParser.Parser.DemoSettings;
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
 	// portal 2 specific
-	public class MpMapCompletedData : SvcUserMessage {
+	public class MpMapCompletedData : UserMessage {
 		
 		public List<MapCompletedInfo> Info;
 		
@@ -19,7 +19,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		internal override void ParseStream(BitStreamReader bsr) {
 			Info = new List<MapCompletedInfo>();
 			Span<byte> bytes = stackalloc byte[2 * MaxPortal2CoopBranches * MaxPortal2CoopLevelsPerBranch / 8];
-			bytes.Clear();
 			bsr.ReadBytesToSpan(bytes);
 			int current = 0;
 			int mask = 0x01;

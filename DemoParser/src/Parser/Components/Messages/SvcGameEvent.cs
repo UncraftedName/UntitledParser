@@ -8,9 +8,9 @@ namespace DemoParser.Parser.Components.Messages {
 	
 	public class SvcGameEvent : DemoMessage {
 
-		public uint EventID;
-		public GameEventDescription EventDescription; // i initialize this while parsing and keep a local copy
-		public List<(string, object)> EventDescriptors;
+		public uint EventId;
+		public GameEventDescription EventDescription;
+		public List<(string name, object descriptor)> EventDescriptors;
 		
 
 		public SvcGameEvent(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
@@ -20,8 +20,8 @@ namespace DemoParser.Parser.Components.Messages {
 			uint dataBitLen = bsr.ReadBitsAsUInt(11);
 			int indexBeforeData = bsr.CurrentBitIndex;
 			
-			EventID = bsr.ReadBitsAsUInt(9);
-			EventDescription = DemoRef.GameEventManager.DescriptorsForEvents.Find(description => description.EventID == EventID);
+			EventId = bsr.ReadBitsAsUInt(9);
+			EventDescription = DemoRef.GameEventManager.EventDescriptions[EventId];
 			EventDescriptors = new List<(string, object)>();
 			
 			foreach ((string Name, EventDescriptorType type) descriptor in EventDescription.Keys) {
@@ -36,7 +36,7 @@ namespace DemoParser.Parser.Components.Messages {
 				};
 				EventDescriptors.Add((descriptor.Name, o));
 			}
-			
+
 			bsr.CurrentBitIndex = (int)dataBitLen + indexBeforeData;
 			SetLocalStreamEnd(bsr);
 		}
@@ -48,12 +48,12 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append($"{EventDescription.Name} ({EventID})");
+			iw.Append($"{EventDescription.Name} ({EventId})");
 			if (EventDescriptors != null && EventDescriptors.Count > 0) {
 				iw.FutureIndent++;
-				foreach ((var key, object value) in EventDescriptors) {
+				foreach ((string name, object descriptor) in EventDescriptors) {
 					iw.AppendLine();
-					iw.Append($"{key}: {value}");
+					iw.Append($"{name}: {descriptor}");
 				}
 				iw.FutureIndent--;
 			}

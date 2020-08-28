@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using DemoParser.Parser;
-using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
@@ -35,10 +34,10 @@ namespace DemoParser.Utils {
 		/// <summary>
 		/// Filters for a specific kind of user message from a Packet packet.
 		/// </summary>
-		public static IEnumerable<T> FilterForUserMessage<T>(this Packet packet) where T : SvcUserMessage {
-			return packet.FilterForMessage<SvcUserMessageFrame>()
-				.Where(frame => frame.SvcUserMessage.GetType() == typeof(T))
-				.Select(frame => (T)frame.SvcUserMessage);
+		public static IEnumerable<T> FilterForUserMessage<T>(this Packet packet) where T : UserMessage {
+			return packet.FilterForMessage<SvcUserMessage>()
+				.Where(frame => frame.UserMessage.GetType() == typeof(T))
+				.Select(frame => (T)frame.UserMessage);
 		}
 		
 		
@@ -59,37 +58,55 @@ namespace DemoParser.Utils {
 		/// as well as the tick on which each message occured on.
 		/// </summary>
 		public static IEnumerable<(MessageType messageType, DemoMessage message, int tick)> FilterForMessages(this SourceDemo demo) {
-			foreach (DemoPacket packet in demo.Frames.Select(frame => frame.Packet)) {
-				MessageStream m;
-				Type t = packet.GetType();
-				if (t == typeof(SignOn))
-					m = ((SignOn)packet).MessageStream;
-				else if (t == typeof(Packet))
-					m = ((Packet)packet).MessageStream;
-				else
-					continue;
-				foreach ((MessageType messageType, DemoMessage demoMessage) in m)
-					yield return (messageType, demoMessage, packet.Tick);
-			}
+			return demo.Frames.Select(frame => frame.Packet)
+				.OfType<IContainsMessageStream>()
+				.SelectMany(p => p.MessageStream, 
+					(p, msgs) => (msgs.messageType, msgs.message, ((DemoPacket)p).Tick));
 		}
 		
 		
 		public static IEnumerable<(T message, int tick)> FilterForMessage<T>(this SourceDemo demo) where T : DemoMessage {
-			return FilterForMessages(demo)
-				.Where(tuple => tuple.message != null && tuple.message.GetType() == typeof(T))
-				.Select(tuple => ((T)tuple.message, tuple.tick));
+			return 
+				from tup in FilterForMessages(demo)
+				where tup.message is T
+				select ((T)tup.message, tup.tick);
 		}
 		
 		
-		public static IEnumerable<(T userMessage, int tick)> FilterForUserMessage<T>(this SourceDemo demo) where T : SvcUserMessage {
-			return demo.FilterForMessage<SvcUserMessageFrame>()
-				.Where(tuple => tuple.message.SvcUserMessage.GetType() == typeof(T))
-				.Select(tuple => ((T)tuple.message.SvcUserMessage, tuple.tick));
+		public static IEnumerable<(T userMessage, int tick)> FilterForUserMessage<T>(this SourceDemo demo) where T : UserMessage {
+			return 
+				from tup in demo.FilterForMessage<SvcUserMessage>()
+				where tup.message.UserMessage is T
+				select ((T)tup.message.UserMessage, tup.tick);
+		}
+
+
+		public static IEnumerable<(T entryData, int tick)> FilterForStEntryData<T>(this SourceDemo demo) where T : StringTableEntryData {
+			return 
+				from tables in demo.FilterForPacket<StringTables>()
+				from table in tables.Tables
+				where table.TableEntries != null
+				from entry in table.TableEntries
+				where entry?.EntryData is T
+				select ((T)entry.EntryData!, tables.Tick);
 		}
 		
 		
-		public static IEnumerable<ConsoleCmd> FilterForRegexMatches(this SourceDemo demo, Regex regex) {
-			return demo.FilterForPacket<ConsoleCmd>().Where(cmd => regex.IsMatch(cmd.Command));
+		public static IEnumerable<(ConsoleCmd cmd, MatchCollection matches)> CmdRegexMatches(this SourceDemo demo, Regex re) {
+			return demo.FilterForPacket<ConsoleCmd>()
+				.Select(cmd => (cmd, matches: re.Matches(cmd)))
+				.Where(t => t.matches.Any());
+		}
+
+
+		public static IEnumerable<(ConsoleCmd cmd, MatchCollection matches)> CmdRegexMatches(
+			this SourceDemo demo,
+			string re,
+			RegexOptions options = RegexOptions.None)
+		{
+			return demo.FilterForPacket<ConsoleCmd>()
+				.Select(consoleCmd => (consoleCmd, matches: Regex.Matches(consoleCmd, re, options)))
+				.Where(t => t.matches.Any());
 		}
 		
 		
@@ -121,15 +138,21 @@ namespace DemoParser.Utils {
 		}
 
 
-		internal static Dictionary<T, int> CreateReverseLookupDict<T>(this ICollection<T> lookup) {
-			Debug.Assert(lookup.Count == lookup.Distinct().Count(), "lookup contains duplicate values");
-			return lookup.Select((v,  i) => (v, i)).ToList().ToDictionary(tup => tup.v, tup => tup.i);
+		internal static Dictionary<T, int> CreateReverseLookupDict<T>(
+			this IEnumerable<T> lookup,
+			T? excludeKey = null)
+			where T : struct, Enum 
+		{
+			var indexed = lookup.Select((@enum,  index) => (index, @enum)).ToList();
+			if (excludeKey != null)
+				indexed = indexed.Where(t => !Equals(excludeKey, t.@enum)).ToList();
+			return indexed.ToDictionary(t => t.@enum, t => t.index);
 		}
-
-
-		// if these consts change depending on versions this will have to be fixed
-		public static bool IsNullEHandle(this int val) {
-			return val == (1 << (DemoSettings.MaxEdictBits + DemoSettings.NumNetworkedEHandleBits)) - 1;
+		
+		
+		public static unsafe T ByteSpanToStruct<T>(Span<byte> bytes) where T : struct {
+			fixed (byte* ptr = bytes)
+				return Marshal.PtrToStructure<T>((IntPtr)ptr)!;
 		}
 	}
 }

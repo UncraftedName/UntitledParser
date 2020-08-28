@@ -22,12 +22,12 @@ namespace DemoParser.Parser.Components.Packets {
 	/// <summary>
 	/// Contains server info and messages for the creation of string tables.
 	/// </summary>
-	public class SignOn : DemoPacket {
+	public class SignOn : DemoPacket, IContainsMessageStream {
 
 		public int Unknown1, Unknown2;
-		public MessageStream MessageStream;
-		
-		
+		public MessageStream MessageStream {get;set;}
+
+
 		public SignOn(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
 
 

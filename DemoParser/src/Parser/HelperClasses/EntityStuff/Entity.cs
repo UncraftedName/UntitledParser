@@ -7,7 +7,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		public readonly ServerClass ServerClass;
 		public readonly uint Serial;
-		public readonly EntityProperty?[] Props; // readonly but mutable
+		public readonly EntityProperty?[] Props;
 		public bool InPvs;
 		
 		
@@ -29,7 +29,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 
-		public Entity Duplicate() => 
+		public Entity DeepCopy() => 
 			new Entity(ServerClass, Props.Select(property => property?.CopyProperty()).ToArray(), Serial, InPvs);
 	}
 }
