@@ -17,7 +17,6 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	 * like java's IdentityHashMap.
 	 */
 	public abstract class EntityProperty : Appendable {
-		
 		private class ReferenceComparer : IEqualityComparer<FlattenedProp> {
 			public bool Equals(FlattenedProp a, FlattenedProp b) => ReferenceEquals(a, b);
 			public int GetHashCode(FlattenedProp obj) => RuntimeHelpers.GetHashCode(obj);

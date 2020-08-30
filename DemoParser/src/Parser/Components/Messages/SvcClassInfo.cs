@@ -74,10 +74,8 @@ namespace DemoParser.Parser.Components.Messages {
 		public string ClassName;
 		public string DataTableName; // this is the name of the data table this class refers to
 
-
 		public ServerClass(SourceDemo demoRef, BitStreamReader reader, SvcClassInfo? classInfoRef) 
-			: base(demoRef, reader) 
-		{
+				: base(demoRef, reader) {
 			_classInfoRef = classInfoRef;
 		}
 		

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -67,7 +68,7 @@ namespace DemoParser.Utils.BitStreams {
 			if ((bitCount & 0x07) == 0)
 				return ParserTextUtils.BytesToBinaryString(bytes);
 			else
-				return $"{ParserTextUtils.BytesToBinaryString(bytes[..^1])} {ParserTextUtils.ByteToBinaryString(bytes[^1], bitCount & 0x07)}".Trim();
+				return $"{ParserTextUtils.BytesToBinaryString(bytes.Take(bytes.Length - 1))} {ParserTextUtils.ByteToBinaryString(bytes[^1], bitCount & 0x07)}".Trim();
 		}
 
 
@@ -203,9 +204,7 @@ namespace DemoParser.Utils.BitStreams {
 			Span<byte> bytes = stackalloc byte[4];
 			bytes.Clear();
 			ReadBitsToSpan(bytes, bitCount);
-			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
-				bytes.Reverse();
-			return BitConverter.ToUInt32(bytes);
+			return BitUtils.ToUInt32(bytes, IsLittleEndian);
 		}
 
 
@@ -264,45 +263,37 @@ namespace DemoParser.Utils.BitStreams {
 		public uint ReadUInt() {
 			Span<byte> span = stackalloc byte[sizeof(uint)];
 			ReadBytesToSpan(span);
-			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
-				span.Reverse();
-			return BitConverter.ToUInt32(span);
+			return BitUtils.ToUInt32(span, IsLittleEndian);
 		}
 
 
 		public int ReadSInt() {
 			Span<byte> span = stackalloc byte[sizeof(int)];
 			ReadBytesToSpan(span);
-			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
-				span.Reverse();
-			return BitConverter.ToInt32(span);
+			return (int)BitUtils.ToUInt32(span, IsLittleEndian);
 		}
 		
 		
 		public ushort ReadUShort() {
 			Span<byte> span = stackalloc byte[sizeof(ushort)];
 			ReadBytesToSpan(span);
-			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
-				span.Reverse();
-			return BitConverter.ToUInt16(span);
+			return BitUtils.ToUInt16(span, IsLittleEndian);
 		}
 
 
 		public short ReadSShort() {
 			Span<byte> span = stackalloc byte[sizeof(short)];
 			ReadBytesToSpan(span);
-			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
-				span.Reverse();
-			return BitConverter.ToInt16(span);
+			return (short)BitUtils.ToUInt16(span, IsLittleEndian);
 		}
 		
 
 		public float ReadFloat() {
 			Span<byte> span = stackalloc byte[sizeof(float)];
 			ReadBytesToSpan(span);
-			if (BitConverter.IsLittleEndian ^ IsLittleEndian)
-				span.Reverse();
-			return BitConverter.ToSingle(span);
+			// float bytes shouldn't get swapped, so treat as same as system endian
+			return BitUtils.Int32BitsToSingle((int)BitUtils.ToUInt32(
+					span, BitConverter.IsLittleEndian));
 		}
 
 

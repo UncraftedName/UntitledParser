@@ -5,14 +5,8 @@ obj/
 *.DotSettings
 /Tests/sample demos/verbose output/
 /Tests/sample demos/demo output/
+.vs/
 *.iws
-
-.idea/**/contentModel.xml
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
-.idea/**/projectSettingsUpdater.xml
-.idea/**/modules.xml
-.idea/**/riderModule.iml
+*.ipr
+*.iml
+.idea/

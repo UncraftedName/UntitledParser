@@ -42,7 +42,6 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		
 		// called once 
 		internal void ParseBaseLineData(PropLookup propLookup) {
-
 			_propLookup = propLookup;
 			int id = int.Parse(_entryName);
 			ServerClassRef = _propLookup[id].serverClass;

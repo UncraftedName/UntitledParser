@@ -27,7 +27,7 @@ namespace DemoParser.Parser.Components.Messages {
 					PlayerNetworkIds = bsr.ReadBytes(length);
 				length = (int)bsr.ReadUInt();
 				if (length > 0) // the string still seams to be null terminated (sometimes?)
-					MapName = bsr.ReadStringOfLength(length).Split('\0', 2)[0];
+					MapName = bsr.ReadStringOfLength(length).Split(new char[]{'\0'}, 2)[0];
 			}
 			SetLocalStreamEnd(bsr);
 			if (SignOnState == SignOnState.PreSpawn)

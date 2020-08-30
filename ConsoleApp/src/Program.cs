@@ -320,7 +320,7 @@ namespace ConsoleApp {
 					// if the common path is empty, that means the demos span multiple drives, so just use the full name
 					string displayPath = commonParentPath == ""
 						? demoPath.Name
-						: Path.GetRelativePath(commonParentPath, demoPath.FullName);
+						: PathExt.GetRelativePath(commonParentPath, demoPath.FullName);
 
 					try {
 						Console.Write($"Parsing \"{displayPath}\"... ");
@@ -428,15 +428,13 @@ namespace ConsoleApp {
 			return null;
 		}
 
-
+		private static HashSet<char> invalidchars = new HashSet<char>(Path.GetInvalidPathChars().AsEnumerable());
 		private static string CheckIfValidFolderName(string name) {
 			try {
-				Path.GetFullPath(name);
-				// i don't understand, this ^ doesn't work :/
-				if (Path.GetInvalidPathChars().AsEnumerable().ToHashSet().Intersect(name.ToCharArray().AsEnumerable()).Any())
-					return "path name contains invalid characters";
 				if (name.Length > 240)
 					return "path name too long";
+				if (invalidchars.Intersect(name.ToCharArray().AsEnumerable()).Any())
+					return "path name contains invalid characters";
 			} catch (Exception e) {
 				return e.Message;
 			}

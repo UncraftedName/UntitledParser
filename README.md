@@ -14,7 +14,7 @@ This can be used to time individual demos like listdemo+ or entire runs. The sou
 
 ## How do I use this?
 
-Go to the releases tab and download the most recent exe (windows might say it's a virus or something). Currently it is only a console application and there is no GUI. To use it you can drag a demo over it or an entire folder from a run.
+Go to the releases tab and download the most recent exe. Currently it is only a console application and there is no GUI. To use it you can drag a demo over it or an entire folder from a run.
 ![](github-resources/example-usage.gif "example usage") \
 Similarly, you can also set the parser as the default application to open .dem files instead of listdemo+. You can also do all of this and more complicated stuff from the console to get more juicy information from demos.
 
@@ -23,7 +23,9 @@ You can use `--help` to get more information on the usage. If you're just curiou
 
 ## How do I code with it?
 
-Get netcore v3.1. To build the project you can use use the .bat in the ConsoleApp project to create a release build. See https://docs.microsoft.com/en-us/dotnet/core/deploying/deploy-with-cli for more details. I don't have an API set up for the parser because I'm still making a lot of changes to a lot of the core code very frequently; unfortunately, demos are pretty darn complicated and not documented anywhere. If you would like to learn more about how to extract information from them, feel free to get in touch with me. 
+This project uses .NET 4.6.1. To build the project, just build the solution with Visual Studio or MSBuild. If you build a release build, all the assemblies get merged into one .exe which is easy to just send people or whatever.
+
+There is no proper API set up for the parser because I'm still making a lot of changes to a lot of the core code very frequently; unfortunately, demos are pretty darn complicated and not documented anywhere. If you would like to learn more about how to extract information from them, feel free to get in touch with me.
 
 Here's an example to get the player position on every tick:
 

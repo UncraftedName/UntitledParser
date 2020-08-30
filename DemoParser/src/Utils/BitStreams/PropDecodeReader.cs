@@ -97,7 +97,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		// same thing as just reading float????????????
-		public float ReadBitFloat() => BitConverter.Int32BitsToSingle((int)ReadUInt());
+		public float ReadBitFloat() => BitUtils.Int32BitsToSingle((int)ReadUInt());
 
 
 		public float DecodeFloat(SendTableProp propInfo) {

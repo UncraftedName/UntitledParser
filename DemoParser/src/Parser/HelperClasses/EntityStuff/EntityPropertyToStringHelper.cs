@@ -18,7 +18,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		internal static DisplayType IdentifyTypeForInt(string name, SendTableProp propInfo) {
-			if (propInfo.NumBits == 32 && name.Contains("color", StringComparison.OrdinalIgnoreCase))
+			if (propInfo.NumBits == 32 && name.ToLower().Contains("color"))
 				return DisplayType.Color;
 			string[] split = name.Split('.');
 			
@@ -32,11 +32,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 			// bool check is kinda dumb, maybe I shouldn't bother tbh
 			if (propInfo.NumBits == 1) {
+				var lowername = name.ToLower();
 				if (split.Any(s => BoolMatcher.IsMatch(s))
 				|| name.Contains("Has")
 				|| name.Contains("Is")
-				|| name.Contains("disable", StringComparison.OrdinalIgnoreCase)
-				|| name.Contains("enable", StringComparison.OrdinalIgnoreCase))
+				|| lowername.Contains("disable")
+				|| lowername.Contains("enable"))
 					return DisplayType.Bool;
 			}
 			

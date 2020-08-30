@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
@@ -126,10 +128,38 @@ namespace DemoParser.Utils {
 			return lookup.Select((v,  i) => (v, i)).ToList().ToDictionary(tup => tup.v, tup => tup.i);
 		}
 
-
 		// if these consts change depending on versions this will have to be fixed
 		public static bool IsNullEHandle(this int val) {
 			return val == (1 << (DemoSettings.MaxEdictBits + DemoSettings.NumNetworkedEHandleBits)) - 1;
+		}
+
+		internal static Dictionary<T, int> CreateReverseLookupDict<T>(this Memory<T> lookup) {
+			// TODO: @uncrafted you can worry about this assert if you really want
+			//Debug.Assert(lookup.Count == lookup.Span.Distinct().Count(), "lookup contains duplicate values");
+			Dictionary<T, int> d = new Dictionary<T, int>();
+			int i = 0;
+			foreach (T x in lookup.Span) d.Add(x, i++);
+			return d;
+		}
+
+		/* Another C# 8.0 thing not in .NET Framework */
+		internal static void Deconstruct<K, V>(this KeyValuePair<K, V> kv, out K k, out V v) {
+			k = kv.Key;
+			v = kv.Value;
+		}
+
+		/* And another */
+		internal static IEnumerable<T> SkipLast<T>(this IEnumerable<T> e, int n) {
+			for (int i = 0; i < e.Count() - 1; ++i) yield return e.ElementAt(i);
+		}
+
+		/* Aaaannnd another */
+		internal static V GetValueOrDefault<K, V>(this Dictionary<K, V> dict, K k, V d) {
+			return dict.TryGetValue(k, out V v) ? v : d;
+		}
+
+		internal static V GetValueOrDefault<K, V>(this Dictionary<K, V> dict, K k) {
+			return dict.TryGetValue(k, out V v) ? v : default;
 		}
 	}
 }

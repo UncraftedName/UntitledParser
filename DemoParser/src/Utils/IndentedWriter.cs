@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace DemoParser.Utils {
 	
@@ -96,27 +97,26 @@ namespace DemoParser.Utils {
 				outLen += _lines[i].Length;
 				outLen += _indentCount[i] * indentLen;
 			}
-			
-			return string.Create<object>(outLen, null!, (chars, _) => {
-				ReadOnlySpan<char> indent = new ReadOnlySpan<char>(string.Concat(Enumerable.Repeat(indentStr, _maxIndent)).ToCharArray());
-				ReadOnlySpan<char> newLine = Environment.NewLine.AsSpan();
 
-				int index = 0; // index in entire string
-				
-				for (int i = 0; i < _lines.Count; i++) {
-					// copy indent
-					indent.Slice(0, _indentCount[i]).CopyTo(chars.Slice(index));
-					index += _indentCount[i] * indentStr.Length;
-					// copy line
-					_lines[i].AsSpan().CopyTo(chars.Slice(index));
-					index += _lines[i].Length;
-					// copy new line (unless on last line)
-					if (i != _lines.Count - 1) {
-						newLine.CopyTo(chars.Slice(index));
-						index += newLine.Length;
-					}
+			Span<char> buf = new char[outLen].AsSpan();
+			ReadOnlySpan<char> indent = new ReadOnlySpan<char>(string.Concat(Enumerable.Repeat(indentStr, _maxIndent)).ToCharArray());
+			ReadOnlySpan<char> newLine = Environment.NewLine.AsSpan();
+
+			int index = 0; // index in entire string
+			for (int i = 0; i < _lines.Count; i++) {
+				// copy indent
+				indent.Slice(0, _indentCount[i]).CopyTo(buf.Slice(index));
+				index += _indentCount[i] * indentStr.Length;
+				// copy line
+				_lines[i].AsSpan().CopyTo(buf.Slice(index));
+				index += _lines[i].Length;
+				// copy new line (unless on last line)
+				if (i != _lines.Count - 1) {
+					newLine.CopyTo(buf.Slice(index));
+					index += newLine.Length;
 				}
-			});
+			}
+			return buf.ToString();
 		}
 
 

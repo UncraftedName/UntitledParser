@@ -343,8 +343,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.VoteFailed // called VoteFail in l4d2
 		};
 		private static readonly Dictionary<UserMessageType, int> L4D2SteamReverseTable = L4D2SteamTable.CreateReverseLookupDict();
-		
-		private static readonly UserMessageType[] L4D2OldSoloTable = L4D2SteamTable[..61]; // all but the last 3 (votes)
+		private static readonly Memory<UserMessageType> L4D2OldSoloTable = L4D2SteamTable.AsMemory()[..61]; // all but the last 3 (votes)
 		private static readonly Dictionary<UserMessageType, int> L4D2OldSoloReverseTable = L4D2OldSoloTable.CreateReverseLookupDict();
 		
 		#endregion

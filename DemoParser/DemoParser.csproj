@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net461</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Version>2.3.0.0</Version>
         <PackageVersion>2.3.0.0</PackageVersion>
@@ -13,16 +13,8 @@
         <PackageIconUrl>https://raw.githubusercontent.com/UncraftedName/UncraftedDemoParser/master/github-resources/investigation.ico</PackageIconUrl>
         <Platforms>AnyCPU;x64</Platforms>
         <Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
-        <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
-        <LangVersion>latest</LangVersion>
-        <Nullable>enable</Nullable>
+        <LangVersion>8.0</LangVersion>
     </PropertyGroup>
-
-    <ItemGroup>
-        <AssemblyAttribute Include="DemoParser.Utils.BuildDateAttribute">
-            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-        </AssemblyAttribute>
-    </ItemGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <DefineConstants>TRACE</DefineConstants>
@@ -38,4 +30,24 @@
       <NoWarn>1701;1702;8618;8602</NoWarn>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ProcessEnts|AnyCPU'">
+      <Optimize>false</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ProcessEnts|x64'">
+      <Optimize>false</Optimize>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.0" />
+      <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
+      <PackageReference Include="System.Memory" Version="4.5.4" />
+      <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AssemblyAttribute Include="DemoParser.Utils.BuildDateAttribute">
+        <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+      </AssemblyAttribute>
+    </ItemGroup>
 </Project>

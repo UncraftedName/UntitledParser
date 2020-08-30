@@ -2,28 +2,24 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
+        <TargetFramework>net461</TargetFramework>
         <ApplicationIcon>../github-resources/investigation.ico</ApplicationIcon>
-        <AssemblyName>UntitledParser</AssemblyName>
         <Platforms>AnyCPU;x64</Platforms>
         <Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
-        <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
-        <LangVersion>latest</LangVersion>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
-        <Title>UntitledParser</Title>
-        <Description>A console wrapper for the UncraftedDemoParser</Description>
+        <LangVersion>8.0</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AssemblyName>UntitledParser</AssemblyName>
     </PropertyGroup>
-
-    <ItemGroup>
-        <AssemblyAttribute Include="DemoParser.Utils.BuildDateAttribute">
-            <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-        </AssemblyAttribute>
-    </ItemGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <TargetName>UntitledParser.Unmerged</TargetName>
+    </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug_ProcessEnts' ">
       <DefineConstants>TRACE;DEBUG</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13" />
       <PackageReference Include="System.CommandLine.Experimental" Version="0.3.0-alpha.19577.1" />
     </ItemGroup>
 
@@ -32,7 +28,26 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="obj\Debug\netcoreapp3.1" />
+      <AssemblyAttribute Include="DemoParser.Utils.BuildDateAttribute">
+        <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+      </AssemblyAttribute>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="build-release-and-pack.bat" />
+    </ItemGroup>
+
+    <Target Condition=" '$(Configuration)' == 'Release' " Name="Merge" AfterTargets="Build">
+      <PropertyGroup>
+        <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
+      </PropertyGroup>
+      <ILRepack
+           OutputType="$(OutputType)"
+           MainAssembly="$(AssemblyName).Unmerged.exe"
+           OutputAssembly="UntitledParser.exe"
+           InputAssemblies="$(WorkingDirectory)\*.dll"
+           WilcardInputAssemblies="true"
+           WorkingDirectory="$(WorkingDirectory)"
+      />
+    </Target>
 </Project>

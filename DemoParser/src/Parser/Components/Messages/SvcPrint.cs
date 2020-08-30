@@ -27,7 +27,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public override void AppendToWriter(IndentedWriter iw) {
 			string trimmed = Str.Trim();
 			iw.Append("string: ");
-			if (trimmed.Contains('\n')) {
+			if (trimmed.Contains("\n")) {
 				iw.FutureIndent++;
 				iw.AppendLine();
 				iw.Append(trimmed);
