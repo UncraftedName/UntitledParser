@@ -20,9 +20,9 @@ namespace ConsoleApp {
 	
 	public static partial class ConsoleFunctions {
 
-		private static string _folderPath;
-		private static TextWriter _curTextWriter;
-		private static BinaryWriter _curBinWriter;
+		private static string? _folderPath;
+		private static TextWriter? _curTextWriter;
+		private static BinaryWriter? _curBinWriter;
 		// I only save all demos if I need to
 		private static readonly List<SourceDemo> Demos = new List<SourceDemo>();
 		private static SourceDemo CurDemo => Demos[^1];
@@ -84,7 +84,7 @@ namespace ConsoleApp {
 		private static void ConsFunc_VerboseDump() {
 			SetTextWriter("verbose dump");
 			Console.WriteLine("Dumping verbose output...");
-			CurDemo.WriteVerboseString(_curTextWriter);
+			CurDemo.WriteVerboseString(_curTextWriter!);
 		}
 
 
@@ -103,8 +103,8 @@ namespace ConsoleApp {
 			if (listdemoOption == ListdemoOption.DisplayHeader) {
 				DemoHeader h = CurDemo.Header;
 				if (printFileName)
-					_curTextWriter.WriteLine($"{"File name",-25}: {CurDemo.FileName}");
-				_curTextWriter.Write(
+					_curTextWriter!.WriteLine($"{"File name",-25}: {CurDemo.FileName}");
+				_curTextWriter!.Write(
 					$"{"Demo protocol",    -25}: {h.DemoProtocol}"               +
 					$"\n{"Network protocol", -25}: {h.NetworkProtocol}"          +
 					$"\n{"Server name",      -25}: {h.ServerName}"               +
@@ -164,7 +164,7 @@ namespace ConsoleApp {
 					timeMadPad = times.Max(s => s.Length);
 
 				int customCount = customGroups.SelectMany(g => g).Count();
-				string previousDesc = null;
+				string previousDesc = null!;
 				for (int i = 0; i < descriptions.Count; i++) {
 					if (i < customCount) {
 						Console.ForegroundColor = ConsoleColor.DarkYellow;
@@ -176,24 +176,24 @@ namespace ConsoleApp {
 						}
 					}
 					previousDesc = descriptions[i];
-					_curTextWriter.WriteLine($"{descriptions[i].PadLeft(maxDescPad)} on tick " +
+					_curTextWriter!.WriteLine($"{descriptions[i].PadLeft(maxDescPad)} on tick " +
 											 $"{tickStrs[i].PadLeft(tickMaxPad)}, time: {times[i].PadLeft(timeMadPad)}");
 				}
 			}
 			
 			if (listdemoOption == ListdemoOption.DisplayHeader)
-				_curTextWriter.WriteLine();
+				_curTextWriter!.WriteLine();
 			
 			Console.ForegroundColor = ConsoleColor.Cyan;
-			_curTextWriter.WriteLine(
+			_curTextWriter!.WriteLine(
 				$"{"Measured time ",  -25}: {FormatTime((CurDemo.TickCount() - 1) * tickInterval)}" +
 				$"\n{"Measured ticks ", -25}: {CurDemo.TickCount() - 1}");
 
 			if (CurDemo.TickCount() != CurDemo.AdjustedTickCount()) {
-				_curTextWriter.WriteLine(
+				_curTextWriter!.WriteLine(
 					$"{"Adjusted time ",-25}: {FormatTime((CurDemo.AdjustedTickCount() - 1) *  tickInterval)}");
-				_curTextWriter.Write($"{"Adjusted ticks ",-25}: {CurDemo.AdjustedTickCount() - 1}");
-				_curTextWriter.WriteLine($" ({CurDemo.StartAdjustmentTick}-{CurDemo.EndAdjustmentTick})");
+				_curTextWriter!.Write($"{"Adjusted ticks ",-25}: {CurDemo.AdjustedTickCount() - 1}");
+				_curTextWriter!.WriteLine($" ({CurDemo.StartAdjustmentTick}-{CurDemo.EndAdjustmentTick})");
 			}
 
 			if (_displayMapExcludedMsg)
@@ -201,7 +201,7 @@ namespace ConsoleApp {
 
 			Console.ForegroundColor = originalColor;
 			
-			if (listdemoOption == ListdemoOption.DisplayHeader && _curTextWriter == Console.Out)
+			if (listdemoOption == ListdemoOption.DisplayHeader && _curTextWriter! == Console.Out)
 				Console.WriteLine();
 		}
 
@@ -246,7 +246,7 @@ namespace ConsoleApp {
 				if (_runnableOptionCount > 1)
 					Console.WriteLine();
 				SetTextWriter("regex matches");
-				matches.ForEach(cmd => {_curTextWriter.WriteLine($"[{cmd.Tick}] {cmd.Command}");});
+				matches.ForEach(cmd => {_curTextWriter!.WriteLine($"[{cmd.Tick}] {cmd.Command}");});
 			}
 		}
 
@@ -259,11 +259,11 @@ namespace ConsoleApp {
 			if (matches.Count == 0) {
 				const string s = "no jumps found";
 				Console.WriteLine($" {s}");
-				if (_curTextWriter != Console.Out)
-					_curTextWriter.WriteLine(s);
+				if (_curTextWriter! != Console.Out)
+					_curTextWriter!.WriteLine(s);
 			} else {
 				Console.WriteLine();
-				matches.ForEach(cmd => {_curTextWriter.WriteLine($"[{cmd.Tick}] {cmd.Command}");});
+				matches.ForEach(cmd => {_curTextWriter!.WriteLine($"[{cmd.Tick}] {cmd.Command}");});
 			}
 		}
 
@@ -282,10 +282,10 @@ namespace ConsoleApp {
 				const string s = "no cheats found";
 				Console.WriteLine($" {s}");
 				if (_curTextWriter != Console.Out)
-					_curTextWriter.WriteLine(s);
+					_curTextWriter!.WriteLine(s);
 			} else {
 				Console.WriteLine();
-				matches.ForEach(cmd => {_curTextWriter.WriteLine($"[{cmd.Tick}] {cmd.Command}");});
+				matches.ForEach(cmd => {_curTextWriter!.WriteLine($"[{cmd.Tick}] {cmd.Command}");});
 			}
 		}
 
@@ -306,11 +306,11 @@ namespace ConsoleApp {
 			Console.WriteLine();
 			
 			int changedPackets = 0;
-			_curBinWriter.Write(CurDemo.Header.Reader.ReadRemainingBits().bytes);
+			_curBinWriter!.Write(CurDemo.Header.Reader.ReadRemainingBits().bytes);
 			
 			foreach (PacketFrame frame in CurDemo.Frames) {
 				if (frame.Packet != closeCaptionPackets[changedPackets]) {
-					_curBinWriter.Write(frame.Reader.ReadRemainingBits().bytes); // write frames that aren't changed
+					_curBinWriter!.Write(frame.Reader.ReadRemainingBits().bytes); // write frames that aren't changed
 				} else {
 					Packet p = (Packet)frame.Packet;
 					BitStreamWriter bsw = new BitStreamWriter(frame.Reader.ByteLength);
@@ -324,13 +324,13 @@ namespace ConsoleApp {
 							caption.Reader.BitLength + typeInfoLen)));
 					bsw.WriteUntilByteBoundary();
 					bsw.EditIntAtIndex((bsw.BitLength - msgSizeOffset - 32) >> 3, msgSizeOffset, 32);
-					_curBinWriter.Write(bsw.AsArray);
+					_curBinWriter!.Write(bsw.AsArray);
 					
 					// if we've edited all the packets, write the rest of the data in the demo
 					if (++changedPackets == closeCaptionPackets.Length) {
 						BitStreamReader tmp = CurDemo.Reader;
 						tmp.SkipBits(frame.Reader.Start + frame.Reader.BitLength);
-						_curBinWriter.Write(tmp.ReadRemainingBits().bytes);
+						_curBinWriter!.Write(tmp.ReadRemainingBits().bytes);
 						break;
 					}
 				}
@@ -344,26 +344,26 @@ namespace ConsoleApp {
 				Console.WriteLine("Dumping data tables...");
 			foreach ((DataTables tables, int j) in CurDemo.FilterForPacket<DataTables>().Select((tables, i) => (tables, i))) {
 				if (j > 0)
-					_curTextWriter.Write("\n\n\n");
+					_curTextWriter!.Write("\n\n\n");
 				if (dispType == DataTablesDispType.Default) {
-					_curTextWriter.WriteLine(tables.ToString());
+					_curTextWriter!.WriteLine(tables.ToString());
 				} else {
 					var tableParser = new DataTableParser(CurDemo, tables);
 					tableParser.FlattenClasses();
 					foreach ((ServerClass sClass, List<FlattenedProp> fProps) in tableParser.FlattenedProps) {
-						_curTextWriter.WriteLine($"{sClass.ClassName} ({sClass.DataTableName}) ({fProps.Count} props):");
+						_curTextWriter!.WriteLine($"{sClass.ClassName} ({sClass.DataTableName}) ({fProps.Count} props):");
 						for (var i = 0; i < fProps.Count; i++) {
 							FlattenedProp fProp = fProps[i];
-							_curTextWriter.Write($"\t({i}): ");
-							_curTextWriter.Write(fProp.TypeString().PadRight(12));
-							_curTextWriter.WriteLine(fProp.ArrayElementProp == null
+							_curTextWriter!.Write($"\t({i}): ");
+							_curTextWriter!.Write(fProp.TypeString().PadRight(12));
+							_curTextWriter!.WriteLine(fProp.ArrayElementProp == null
 								? fProp.Prop.ToStringNoType()
 								: fProp.ArrayElementProp.ToStringNoType());
 						}
 					}
 				}
-				_curTextWriter.Write("\n\nClass hierarchy:\n\n");
-				_curTextWriter.Write(new DataTableTree(tables, true));
+				_curTextWriter!.Write("\n\nClass hierarchy:\n\n");
+				_curTextWriter!.Write(new DataTableTree(tables, true));
 			}
 		}
 
@@ -373,21 +373,21 @@ namespace ConsoleApp {
 			if (_runnableOptionCount > 1)
 				Console.WriteLine("Getting actions pressed...");
 			foreach (UserCmd userCmd in CurDemo.FilterForPacket<UserCmd>()) {
-				_curTextWriter.Write($"[{userCmd.Tick}] ");
+				_curTextWriter!.Write($"[{userCmd.Tick}] ");
 				if (!userCmd.Buttons.HasValue) {
-					_curTextWriter.WriteLine("null");
+					_curTextWriter!.WriteLine("null");
 					continue;
 				}
 				Buttons b = userCmd.Buttons.Value;
 				switch (opt) {
 					case ActPressedDispType.AsTextFlags:
-						_curTextWriter.WriteLine(b.ToString());
+						_curTextWriter!.WriteLine(b.ToString());
 						break;
 					case ActPressedDispType.AsInt:
-						_curTextWriter.WriteLine((uint)b);
+						_curTextWriter!.WriteLine((uint)b);
 						break;
 					case ActPressedDispType.AsBinaryFlags:
-						_curTextWriter.WriteLine(Convert.ToString((uint)b, 2).PadLeft(32, '0'));
+						_curTextWriter!.WriteLine(Convert.ToString((uint)b, 2).PadLeft(32, '0'));
 						break;
 					default:
 						throw new ArgumentOutOfRangeException(nameof(opt), opt, "unsupported buttons pressed option");
@@ -410,16 +410,16 @@ namespace ConsoleApp {
 				if (_runnableOptionCount > 1)
 					Console.WriteLine();
 				foreach ((EntityPortalled userMessage, int tick) in msgList) {
-					_curTextWriter.Write($"[{tick}]");
-					_curTextWriter.WriteLine(verbose
+					_curTextWriter!.Write($"[{tick}]");
+					_curTextWriter!.WriteLine(verbose
 						? $"\n{userMessage.ToString()}"
 						: $" entity {userMessage.PortalledEntIndex} went through portal {userMessage.PortalEntIndex}");
 				}
 			} else {
 				string s = playerOnly ? "player never went through a portal" : "no entities went through portals";
 				Console.WriteLine($" {s}");
-				if (_curTextWriter != Console.Out)
-					_curTextWriter.WriteLine(s);
+				if (_curTextWriter! != Console.Out)
+					_curTextWriter!.WriteLine(s);
 			}
 		}
 
@@ -432,7 +432,7 @@ namespace ConsoleApp {
 			} else {
 				Console.WriteLine();
 				SetTextWriter("errors");
-				CurDemo.ErrorList.ForEach(s => _curTextWriter.WriteLine(s));
+				CurDemo.ErrorList.ForEach(s => _curTextWriter!.WriteLine(s));
 			}
 		}
 
@@ -449,18 +449,18 @@ namespace ConsoleApp {
 				BitStreamReader bsr = CurDemo.Reader;
 				byte[] dirBytes = Encoding.ASCII.GetBytes(dir);
 				
-				_curBinWriter.Write(bsr.ReadBytes(796));
-				_curBinWriter.Write(dirBytes); // header doesn't matter but I change it anyway
-				_curBinWriter.Write(new byte[260 - dir.Length]);
+				_curBinWriter!.Write(bsr.ReadBytes(796));
+				_curBinWriter!.Write(dirBytes); // header doesn't matter but I change it anyway
+				_curBinWriter!.Write(new byte[260 - dir.Length]);
 				bsr.SkipBytes(260);
-				_curBinWriter.Write(bsr.ReadBytes(12));
+				_curBinWriter!.Write(bsr.ReadBytes(12));
 				// change header signOn byteCount; this number might be wrong if the endianness is big but whatever
-				_curBinWriter.Write((uint)(bsr.ReadUInt() + lenDiff)); 
+				_curBinWriter!.Write((uint)(bsr.ReadUInt() + lenDiff)); 
 
 				foreach (SignOn signOn in CurDemo.FilterForPacket<SignOn>().Where(signOn => signOn.FilterForMessage<SvcServerInfo>().Any())) {
 					// catch up to signOn packet
 					int byteCount = (signOn.Reader.AbsoluteBitIndex - bsr.AbsoluteBitIndex) / 8;
-					_curBinWriter.Write(bsr.ReadBytes(byteCount));
+					_curBinWriter!.Write(bsr.ReadBytes(byteCount));
 					bsr.SkipBits(signOn.Reader.BitLength);
 					
 					BitStreamWriter bsw = new BitStreamWriter();
@@ -477,9 +477,9 @@ namespace ConsoleApp {
 					int editIndex = serverInfo.Reader.AbsoluteBitIndex - signOn.Reader.AbsoluteBitIndex + 186 + CurDemo.DemoSettings.SvcServerInfoUnknownBits;
 					bsw.RemoveBitsAtIndex(editIndex, old.Length * 8);
 					bsw.InsertBitsAtIndex(dirBytes, editIndex, dir.Length * 8);
-					_curBinWriter.Write(bsw.AsArray);
+					_curBinWriter!.Write(bsw.AsArray);
 				}
-				_curBinWriter.Write(bsr.ReadRemainingBits().bytes);
+				_curBinWriter!.Write(bsr.ReadRemainingBits().bytes);
 				
 				Console.WriteLine("done.");
 			}

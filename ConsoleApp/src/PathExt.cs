@@ -13,10 +13,12 @@ using System.IO;
 using System.Text;
 
 namespace ConsoleApp {
+	
 	internal static class PathExt {
+		
 		private static bool IsDirectorySeparator(char c) => c == '\\' || c == '/';
 		private static bool EndsInDirectorySeparator(string path)
-			=> path.Length > 0 && IsDirectorySeparator(path[path.Length - 1]);
+			=> path.Length > 0 && IsDirectorySeparator(path[^1]);
 
 		private static unsafe int EqualStartingCharacterCount(string? first, string? second, bool ignoreCase) {
 			if (string.IsNullOrEmpty(first) || string.IsNullOrEmpty(second)) return 0;
@@ -26,8 +28,8 @@ namespace ConsoleApp {
 			fixed (char* s = second) {
 				char* l = f;
 				char* r = s;
-				char* leftEnd = l + first.Length;
-				char* rightEnd = r + second.Length;
+				char* leftEnd = l + first!.Length;
+				char* rightEnd = r + second!.Length;
 
 				while (l != leftEnd && r != rightEnd
 					&& (*l == *r || (ignoreCase && char.ToUpperInvariant(*l) == char.ToUpperInvariant(*r)))) {
@@ -41,7 +43,7 @@ namespace ConsoleApp {
 		}
 
 		private static int GetCommonPathLength(string first, string second, bool ignoreCase) {
-			int commonChars = EqualStartingCharacterCount(first, second, ignoreCase: ignoreCase);
+			int commonChars = EqualStartingCharacterCount(first, second, ignoreCase);
 			if (commonChars == 0) return commonChars;
 			if (commonChars == first.Length && (commonChars == second.Length ||
 					IsDirectorySeparator(second[commonChars])))
@@ -116,12 +118,10 @@ namespace ConsoleApp {
 					i = deviceUnc ? UncExtendedPrefixLength : UncPrefixLength;
 					int n = 2;
 					while (i < pathLength && (!IsDirectorySeparator(path[i]) || --n > 0)) i++;
-				}
-				else {
+				} else {
 					i = 1;
 				}
-			}
-			else if (deviceSyntax) {
+			} else if (deviceSyntax) {
 				i = DevicePrefixLength;
 				while (i < pathLength && !IsDirectorySeparator(path[i])) i++;
 				if (i < pathLength && i > DevicePrefixLength && IsDirectorySeparator(path[i])) i++;
@@ -137,9 +137,9 @@ namespace ConsoleApp {
 
 		public static string GetRelativePath(string relativeTo, string path, StringComparison comparisonType = StringComparison.OrdinalIgnoreCase) {
 			if (relativeTo == null) throw new ArgumentNullException(nameof(relativeTo));
-			if (String.IsNullOrWhiteSpace(path)) throw new ArgumentException("Empty path", nameof(relativeTo));
+			if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Empty path", nameof(relativeTo));
 			if (path == null) throw new ArgumentNullException(nameof(path));
-			if (String.IsNullOrWhiteSpace(path)) throw new ArgumentException("Empty path", nameof(path));
+			if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Empty path", nameof(path));
 			relativeTo = Path.GetFullPath(relativeTo);
 			path = Path.GetFullPath(path);
 			if (!AreRootsEqual(relativeTo, path, comparisonType)) return path;

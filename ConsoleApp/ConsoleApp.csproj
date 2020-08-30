@@ -9,6 +9,7 @@
         <LangVersion>8.0</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AssemblyName>UntitledParser</AssemblyName>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <TargetName>UntitledParser.Unmerged</TargetName>
@@ -41,13 +42,6 @@
       <PropertyGroup>
         <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
       </PropertyGroup>
-      <ILRepack
-           OutputType="$(OutputType)"
-           MainAssembly="$(AssemblyName).Unmerged.exe"
-           OutputAssembly="UntitledParser.exe"
-           InputAssemblies="$(WorkingDirectory)\*.dll"
-           WilcardInputAssemblies="true"
-           WorkingDirectory="$(WorkingDirectory)"
-      />
+      <ILRepack OutputType="$(OutputType)" MainAssembly="$(AssemblyName).Unmerged.exe" OutputAssembly="UntitledParser.exe" InputAssemblies="$(WorkingDirectory)\*.dll" WilcardInputAssemblies="true" WorkingDirectory="$(WorkingDirectory)" />
     </Target>
 </Project>

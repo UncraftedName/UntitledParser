@@ -277,7 +277,7 @@ namespace ConsoleApp {
 						if (!dirOrPath.Name.EndsWith(".dem"))
 							PrintErrorAndExit($"{dirOrPath} is not a demo file");
 						else
-							demoPaths.Add(dirOrPath.FileInfo);
+							demoPaths.Add(dirOrPath.FileInfo!);
 					}
 				}
 				
@@ -439,7 +439,7 @@ namespace ConsoleApp {
 		}
 		
 		
-		private static string CheckIfValidRegex(string pattern) {
+		private static string? CheckIfValidRegex(string pattern) {
 			try {
 				new Regex(pattern);
 			} catch (Exception e) {
@@ -448,12 +448,12 @@ namespace ConsoleApp {
 			return null;
 		}
 
-		private static HashSet<char> invalidchars = new HashSet<char>(Path.GetInvalidPathChars().AsEnumerable());
-		private static string CheckIfValidFolderName(string name) {
+		private static readonly HashSet<char> InvalidChars = new HashSet<char>(Path.GetInvalidPathChars().AsEnumerable());
+		private static string? CheckIfValidFolderName(string name) {
 			try {
 				if (name.Length > 240)
 					return "path name too long";
-				if (invalidchars.Intersect(name.ToCharArray().AsEnumerable()).Any())
+				if (InvalidChars.Intersect(name.ToCharArray().AsEnumerable()).Any())
 					return "path name contains invalid characters";
 			} catch (Exception e) {
 				return e.Message;
