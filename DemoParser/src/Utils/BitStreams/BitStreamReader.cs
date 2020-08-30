@@ -173,6 +173,7 @@ namespace DemoParser.Utils.BitStreams {
 			Span<byte> fullBytes = byteSpan.Slice(0, bitCount >> 3);
 			ReadBytesToSpan(fullBytes);
 			bitCount &= 0x07;
+			EnsureCapacity(bitCount);
 			if (bitCount > 0) {
 				int lastByte;
 				int bitsLeftInByte = 8 - IndexInByte;
@@ -192,15 +193,14 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public (byte[] bytes, int bitCount) ReadRemainingBits() {
-			int bitsRemaining = BitsRemaining;
-			return (ReadBits(bitsRemaining), bitsRemaining);
+			int rem = BitsRemaining;
+			return (ReadBits(rem), rem);
 		}
 
 
 		public uint ReadBitsAsUInt(int bitCount) {
 			if (bitCount > 32 || bitCount < 0)
 				throw new ArgumentException("the number of bits requested must fit in an int", nameof(bitCount));
-			EnsureCapacity(bitCount);
 			Span<byte> bytes = stackalloc byte[4];
 			bytes.Clear();
 			ReadBitsToSpan(bytes, bitCount);
@@ -259,6 +259,13 @@ namespace DemoParser.Utils.BitStreams {
 		}
 		
 		// I need to write these manually because I can't do Func<Span<byte>, T> cuz Span is a ref struct. 
+
+
+		public ulong ReadULong() {
+			Span<byte> span = stackalloc byte[sizeof(ulong)];
+			ReadBytesToSpan(span);
+			return BitUtils.ToUInt64(span, IsLittleEndian);
+		}
 		
 		public uint ReadUInt() {
 			Span<byte> span = stackalloc byte[sizeof(uint)];
@@ -267,13 +274,9 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		public int ReadSInt() {
-			Span<byte> span = stackalloc byte[sizeof(int)];
-			ReadBytesToSpan(span);
-			return (int)BitUtils.ToUInt32(span, IsLittleEndian);
-		}
-		
-		
+		public int ReadSInt() => (int)ReadUInt();
+
+
 		public ushort ReadUShort() {
 			Span<byte> span = stackalloc byte[sizeof(ushort)];
 			ReadBytesToSpan(span);
@@ -327,16 +330,6 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		public byte[] ReadBytesIfExists(int byteCount) {
-			return ReadBool() ? ReadBytes(byteCount) : null;
-		}
-
-
-		public byte[] ReadBitsIfExists(int bitCount) {
-			return ReadBool() ? ReadBits(bitCount) : null;
-		}
-
-
 		public uint? ReadBitsAsUIntIfExists(int bitCount) {
 			return ReadBool() ? ReadBitsAsUInt(bitCount) : (uint?)null;
 		}
@@ -344,11 +337,6 @@ namespace DemoParser.Utils.BitStreams {
 
 		public int? ReadBitsAsSIntIfExists(int bitCount) {
 			return ReadBool() ? ReadBitsAsSInt(bitCount) : (int?)null;
-		}
-
-
-		public string ReadStringIfExists() {
-			return ReadBool() ? ReadNullTerminatedString() : null;
 		}
 	}
 }

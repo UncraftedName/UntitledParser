@@ -1,10 +1,11 @@
+using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class KillCam : SvcUserMessage {
+	public class KillCam : UserMessage {
 
 		public byte NewMode; // todo
 		public byte Target1;
@@ -24,7 +25,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

@@ -17,10 +17,10 @@ namespace DemoParser.Utils.BitStreams {
                 WriteBool(signBit);
                 if (intVal != 0) {
                     intVal--;
-                    WriteBitsFromInt(intVal, CoordIntBits);
+                    WriteBitsFromSInt(intVal, CoordIntBits);
                 }
                 if (fractVal != 0)
-                    WriteBitsFromInt(fractVal, CoordFracBits);
+                    WriteBitsFromSInt(fractVal, CoordFracBits);
             }
         }
     }

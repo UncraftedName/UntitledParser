@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
@@ -5,7 +6,7 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class VguiMenu : SvcUserMessage {
+	public class VguiMenu : UserMessage {
 
 		public string Message;
 		public bool Show;
@@ -29,7 +30,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 
@@ -39,8 +40,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			if (KeyValues.Count > 0) {
 				iw.Append($"{KeyValues.Count} key value pair{(KeyValues.Count > 1 ? "s" : "")}: ");
 				iw.FutureIndent++;
-				foreach ((string key, string value) in KeyValues)
-					iw.Append($"\n{{{key}, {value}}}");
+				foreach (var kv in KeyValues)
+					iw.Append($"\n{{{kv.Key}, {kv.Value}}}");
 			} else {
 				iw.Append("no key value pairs");
 			}

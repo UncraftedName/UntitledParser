@@ -1,12 +1,11 @@
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace DemoParser.Utils {
 	
 	/*
 	 * It's one thing when different games have different lists of enums, it's another when those enums are used as
-	 * flags. This provides a way to create an object which which only needs to implement the 'HasFlag()' function
+	 * flags. This provides a way to create an object which only needs to implement the 'HasFlag()' function
 	 * and then it can be used to determine if a specific flag exists from an int or for converting the int to a string.
 	 * Since the objects are demo specific, they should be stored in the DemoSettings class and preferably created in
 	 * the constructor.
@@ -23,6 +22,11 @@ namespace DemoParser.Utils {
 
 		public bool HasFlags(long val, T flag1, T flag2) {
 			return HasFlag(val, flag1) || HasFlag(val, flag2);
+		}
+		
+		
+		public bool HasFlags(long val, T flag1, T flag2, T flag3) {
+			return HasFlag(val, flag1) || HasFlag(val, flag2) || HasFlag(val, flag3);
 		}
 
 
@@ -49,7 +53,6 @@ namespace DemoParser.Utils {
 		}
 
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		protected static bool CheckBit(long val, int bit) {
 			return (val & ((long)1 << bit)) != 0;
 		}

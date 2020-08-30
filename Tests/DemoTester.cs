@@ -11,12 +11,14 @@ using DemoParser.Utils;
 using NUnit.Framework;
 
 namespace Tests {
+	
 	public class DemoTester {
+		
 		private static readonly string ProjectDir =
 			// bin/Debug/net461 -> ../../..
 			Directory.GetParent(
 				Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
-				.Parent.Parent.FullName;
+				.Parent!.Parent!.FullName;
 
 		[OneTimeSetUp]
 		public void Init() {
@@ -71,7 +73,7 @@ namespace Tests {
 			// assert that all the non-caption and non-nop messages are the same
 			CollectionAssert.AreEqual(
 				before.FilterForMessages().Where(tuple => tuple.messageType != MessageType.NetNop)
-					.Where(tuple => (tuple.message as SvcUserMessageFrame)?.MessageType != UserMessageType.CloseCaption)
+					.Where(tuple => (tuple.message as SvcUserMessage)?.MessageType != UserMessageType.CloseCaption)
 					.Select(tuple => tuple.messageType),
 				after.FilterForMessages().Where(tuple => tuple.messageType != MessageType.NetNop)
 					.Select(tuple => tuple.messageType)

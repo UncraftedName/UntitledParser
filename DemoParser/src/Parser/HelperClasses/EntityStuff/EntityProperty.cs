@@ -11,7 +11,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
 	/* Every type of entity property gets a 'display type' which determines how the ToString() representation will be
 	 * displayed. Actually determining this type is not the fastest thing in the world considering that every
-	 * EntityUpdate ToString() needs to use it. So I have a lookup which says if the type has already been determined
+	 * EntityUpdate ToString() needs to use it. So I have a lookup which has the type if it has already been determined
 	 * for this property based on the FlattenedProp it references. Those fProps should be unique and initialized only
 	 * once for every type of prop that appears in the demo, so the lookup is a dict that uses reference comparisons
 	 * like java's IdentityHashMap.
@@ -262,7 +262,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 		private protected override DisplayType DetermineDisplayType() {
-			return EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.ArrayElementProp);
+			return EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.ArrayElementProp!);
 		}
 
 
@@ -456,7 +456,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			IReadOnlyList<FlattenedProp> fProps,
 			SourceDemo demoRef)
 		{
-			var props = new List<(int propIndex, EntityProperty prop)>(fProps.Count);
+			var props = new List<(int propIndex, EntityProperty prop)>();
 			
 			int i = -1;
 			if (demoRef.DemoSettings.NewDemoProtocol) {

@@ -38,7 +38,7 @@ namespace DemoParser.Utils.BitStreams {
 			if (IsByteAligned)
 				return ParserTextUtils.BytesToBinaryString(_data);
 			else
-				return ParserTextUtils.BytesToBinaryString(_data.SkipLast(1)) + ParserTextUtils.ByteToBinaryString(_data[^1], IndexInByte);
+				return ParserTextUtils.BytesToBinaryString(_data.Take(_data.Count - 1)) + ParserTextUtils.ByteToBinaryString(_data[^1], IndexInByte);
 		}
 
 
@@ -86,16 +86,19 @@ namespace DemoParser.Utils.BitStreams {
 		public void WriteBits((byte[] bytes, int bitCount) t) => WriteBits(t.bytes, t.bitCount);
 
 
-		public void WriteBitsFromInt(int i, int bitCount) {
+		public void WriteBitsFromSInt(int i, int bitCount) {
+			i |= (i & (1 << 31)) >> (32 - bitCount);
+			WriteBitsFromUInt((uint)i, bitCount);
+		}
+
+
+		public void WriteBitsFromUInt(uint i, int bitCount) {
 			byte[] bytes = BitConverter.GetBytes(i);
 			if (BitConverter.IsLittleEndian ^ IsLittleEndian) // this might be the opposite
 				Array.Reverse(bytes);
 			WriteBits(bytes, bitCount);
 		}
 
-
-		public void WriteBitsFromInt(uint i, int bitCount) => WriteBitsFromInt((int)i, bitCount);
-		
 
 		public void WriteBytes(byte[] bytes) {
 			if (IsByteAligned) {
@@ -231,7 +234,7 @@ namespace DemoParser.Utils.BitStreams {
 		public void WriteBitsFromUIntIfExists(uint? i, int bitCount) {
 			if (i != null) {
 				WriteBool(true);
-				WriteBitsFromInt(i.Value, bitCount);
+				WriteBitsFromUInt(i.Value, bitCount);
 			} else {
 				WriteBool(false);
 			}

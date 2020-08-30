@@ -11,6 +11,7 @@ namespace DemoParser.Parser.Components.Abstract {
 	public abstract class StringTableEntryData : DemoComponent {
 		
 		internal virtual bool ContentsKnown => true; // for pretty printing
+		internal virtual bool InlineToString => false;
 		
 		protected StringTableEntryData(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 	}
@@ -21,13 +22,14 @@ namespace DemoParser.Parser.Components.Abstract {
 		// Pass in substream. If prop lookup is populated the baseline will get parsed right away.
 		public static StringTableEntryData CreateData(
 			SourceDemo demoRef, BitStreamReader bsr, string tableName, string entryName, // mandatory stuff
-			PropLookup propLookup = null) // if parsing baseline now
+			PropLookup? propLookup = null) // if parsing baseline now
 		{
 			return tableName switch {
-				TableNames.UserInfo          => new UserInfo(demoRef, bsr),
+				TableNames.UserInfo          => new PlayerInfo(demoRef, bsr),
 				TableNames.ServerQueryInfo   => new QueryPort(demoRef, bsr),
 				TableNames.InstanceBaseLine  => new InstanceBaseline(demoRef, bsr, entryName, propLookup),
 				TableNames.GameRulesCreation => new GameRulesCreation(demoRef, bsr),
+				TableNames.LightStyles       => new LightStyle(demoRef, bsr),
 				_ => new UnknownStringTableEntryData(demoRef, bsr)
 			};
 		}

@@ -50,7 +50,7 @@ namespace DemoParser.Parser {
 
 
 		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null, string demoName = "") 
-			: base(null, new BitStreamReader(data)) 
+			: base(null!, new BitStreamReader(data))
 		{
 			_parseProgress = parseProgress;
 			FileName = demoName;

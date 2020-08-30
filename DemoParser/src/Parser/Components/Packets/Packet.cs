@@ -13,14 +13,14 @@ namespace DemoParser.Parser.Components.Packets {
 	/// <summary>
 	/// Contains client player location and server-side messages.
 	/// </summary>
-	public class Packet : DemoPacket {
+	public class Packet : DemoPacket, IContainsMessageStream {
 
 		public CmdInfo[] PacketInfo;
 		public uint InSequence;
 		public uint OutSequence;
-		public MessageStream MessageStream;
-		
-		
+		public MessageStream MessageStream {get;set;}
+
+
 		public Packet(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
 
 

@@ -5,7 +5,7 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class Fade : SvcUserMessage {
+	public class Fade : UserMessage {
 
 		public float Duration;
 		public ushort HoldTime; // yeah idk what this is about

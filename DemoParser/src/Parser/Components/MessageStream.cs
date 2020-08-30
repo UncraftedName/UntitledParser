@@ -5,6 +5,7 @@ using System.Diagnostics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
+using static DemoParser.Parser.Components.Abstract.MessageType;
 
 namespace DemoParser.Parser.Components {
 	
@@ -13,7 +14,9 @@ namespace DemoParser.Parser.Components {
 	/// </summary>
 	public class MessageStream : DemoComponent, IEnumerable<(MessageType messageType, DemoMessage message)> {
 		
-		public List<(MessageType messageType, DemoMessage message)> Messages;
+		public List<(MessageType messageType, DemoMessage? message)> Messages;
+		
+		public static implicit operator List<(MessageType messageType, DemoMessage? message)>(MessageStream m) => m.Messages;
 		
 		
 		public MessageStream(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
@@ -23,47 +26,47 @@ namespace DemoParser.Parser.Components {
 		internal override void ParseStream(BitStreamReader bsr) {
 			uint messagesByteLength = bsr.ReadUInt();
 			BitStreamReader messageBsr = bsr.SubStream(messagesByteLength << 3);
-			Messages = new List<(MessageType, DemoMessage)>();
+			Messages = new List<(MessageType, DemoMessage?)>();
 			byte messageValue = 0;
-			MessageType messageType = MessageType.Unknown;
-			Exception e = null;
+			MessageType messageType = Unknown;
+			Exception? e = null;
 			try {
 				do {
 					messageValue = (byte)messageBsr.ReadBitsAsUInt(DemoSettings.NetMsgTypeBits);
 					messageType = DemoMessage.ByteToSvcMessageType(messageValue, DemoSettings);
-					DemoMessage demoMessage = MessageFactory.CreateMessage(DemoRef, messageBsr, messageType);
+					DemoMessage? demoMessage = MessageFactory.CreateMessage(DemoRef, messageBsr, messageType);
 					demoMessage?.ParseStream(messageBsr);
 					Messages.Add((messageType, demoMessage));
-				} while (Messages[^1].Item2 != null && messageBsr.BitsRemaining >= DemoSettings.NetMsgTypeBits);
+				} while (Messages[^1].message != null && messageBsr.BitsRemaining >= DemoSettings.NetMsgTypeBits);
 			} catch (Exception ex) {
 				Debug.WriteLine(e = ex);
 				// if the stream goes out of bounds, that's not a big deal since the messages are skipped over at the end anyway
-				(MessageType, DemoMessage) pair = (messageType, null);
+				(MessageType, DemoMessage?) pair = (messageType, null);
 				Messages.Add(pair);
 			}
 			
 			#region error logging
 			
-			MessageType lastKey = Messages[^1].Item1;
-			DemoMessage lastValue = Messages[^1].Item2;
+			MessageType lastType = Messages[^1].messageType;
+			DemoMessage? lastMessage = Messages[^1].message;
 			
 			if (e != null
-				|| !Enum.IsDefined(typeof(MessageType), lastKey)
-				|| lastKey == MessageType.Unknown
-				|| lastValue == null) 
+				|| !Enum.IsDefined(typeof(MessageType), lastType)
+				|| lastType == Unknown
+				|| lastMessage == null) 
 			{
-				var lastNonNopMessage = Messages.FindLast(tuple => tuple.Item1 != MessageType.NetNop && tuple.Item2 != null).Item1;
-				lastNonNopMessage = lastNonNopMessage == MessageType.NetNop ? MessageType.Unknown : lastNonNopMessage;
+				var lastNonNopMessage = Messages.FindLast(tuple => tuple.messageType != NetNop && tuple.message != null).messageType;
+				lastNonNopMessage = lastNonNopMessage == NetNop ? Unknown : lastNonNopMessage;
 				string errorStr = "error while parsing message stream, " +
 								  $"{(Messages.Count > 1 ? $"last non-nop message: {lastNonNopMessage}," : "first message,")} ";
 				errorStr += $"{messageBsr.BitsRemaining} bit{(messageBsr.BitsRemaining == 1 ? "" : "s")} left to read, ";
 				if (e != null) {
-					errorStr += $"exception when parsing {lastKey}";
+					errorStr += $"exception when parsing {lastType}";
 					errorStr += $"\n\texception: {e.Message}";
-				} else if (!Enum.IsDefined(typeof(MessageType), lastKey) || lastKey == MessageType.Unknown) {
+				} else if (!Enum.IsDefined(typeof(MessageType), lastType) || lastType == Unknown) {
 					errorStr += $"unknown message value: {messageValue}";
 				} else {
-					errorStr += $"unimplemented message type - {Messages[^1].Item1}";
+					errorStr += $"unimplemented message type - {Messages[^1].messageType}";
 				}
 
 				DemoRef.LogError(errorStr);
@@ -83,13 +86,13 @@ namespace DemoParser.Parser.Components {
 
 		public override void AppendToWriter(IndentedWriter iw) {
 			int i = 0;
-			while (i < Messages?.Count && Messages[i].Item2 != null) {
-				iw.Append($"message: {Messages[i].Item1} " +
-						  $"({DemoMessage.MessageTypeToByte(Messages[i].Item1, DemoSettings)})");
-				if (Messages[i].Item2.MayContainData) {
+			while (i < Messages?.Count && Messages[i].message != null) {
+				iw.Append($"message: {Messages[i].messageType} " +
+						  $"({DemoMessage.MessageTypeToByte(Messages[i].messageType, DemoSettings)})");
+				if (Messages[i].message.MayContainData) {
 					iw.FutureIndent++;
 					iw.AppendLine();
-					Messages[i].Item2.AppendToWriter(iw);
+					Messages[i].message.AppendToWriter(iw);
 					iw.FutureIndent--;
 				}
 				if (i != Messages.Count - 1)
@@ -98,9 +101,9 @@ namespace DemoParser.Parser.Components {
 			}
 			if (i < Messages?.Count) {
 				iw.Append("more messages remaining... ");
-				iw.Append(Enum.IsDefined(typeof(MessageType), Messages[i].Item1)
-					? $"type: {Messages[i].Item1}"
-					: $"unknown type: {Messages[i].Item1}");
+				iw.Append(Enum.IsDefined(typeof(MessageType), Messages[i].messageType)
+					? $"type: {Messages[i].messageType}"
+					: $"unknown type: {Messages[i].messageType}");
 			}
 		}
 		

@@ -196,7 +196,7 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 
 
-		// using net cmd's s is probably a bit more tamper safe, but this could easily be set to search in ConsoleCmd
+		// using net cmd's is probably a bit more tamper safe, but this could easily be set to search in ConsoleCmd
 		private static bool PreludeEndCheck(Packet packet) {
 			var commands = packet.FilterForMessage<NetStringCmd>().Select(cmd => cmd.Command).ToList();
 			return commands.Any(s => s.StartsWith("crosshair 0")) &&
@@ -237,7 +237,7 @@ namespace DemoParser.Parser.HelperClasses {
 						   .First(delta => delta.EntIndex == 1).Props
 						   .Select(tuple => tuple.prop)
 						   .OfType<IntEntProp>()
-						   .Any(prop => prop.Value.IsNullEHandle() && prop.Name == "m_hViewEntity"));
+						   .Any(prop => prop.Value == NullEHandle && prop.Name == "m_hViewEntity"));
 		}
 
 
@@ -321,8 +321,7 @@ namespace DemoParser.Parser.HelperClasses {
 				.First(delta => delta.EntIndex == 1).Props
 				.Select(tuple => tuple.prop)
 				.OfType<IntEntProp>()
-				.Any(prop => prop.Value == (1 << (MaxEdictBits + NumNetworkedEHandleBits)) - 1 && // null
-							 prop.Name == "m_hActiveWeapon");
+				.Any(prop => prop.Value == NullEHandle && prop.Name == "m_hActiveWeapon");
 		}
 
 

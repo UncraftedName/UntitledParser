@@ -49,7 +49,7 @@ namespace DemoParser.Utils {
 		public static string SequenceToString(this IEnumerable enumerable, string separator = ", ", string start = "[", string end = "]") {
 			StringBuilder builder = new StringBuilder(start);
 			bool containsElements = false;
-			foreach (object x in enumerable) {
+			foreach (object? x in enumerable) {
 				builder.Append($"{x}{separator}");
 				containsElements = true;
 			}
@@ -67,6 +67,15 @@ namespace DemoParser.Utils {
 					furthestSlash = i;
 			}
 			return s1.Substring(0, furthestSlash);
+		}
+		
+
+
+		public static void ConsoleWriteWithColor(string s, ConsoleColor color) {
+			var original = Console.ForegroundColor;
+			Console.ForegroundColor = color;
+			Console.Write(s);
+			Console.ForegroundColor = original;
 		}
 	}
 }

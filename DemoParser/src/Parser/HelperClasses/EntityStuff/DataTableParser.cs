@@ -213,6 +213,5 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	}
 
 
-	// typedef todo explicit lookup?
 	public class PropLookup : List<(ServerClass serverClass, List<FlattenedProp> flattenedProps)> {} 
 }

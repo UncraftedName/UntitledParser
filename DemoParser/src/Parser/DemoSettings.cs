@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components;
+using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
@@ -13,16 +14,20 @@ namespace DemoParser.Parser {
 	/// A class containing many useful constants used while parsing the demo.
 	/// </summary>
 	public class DemoSettings {
+		
 		// these seem to be constant in all games
 		public const int MaxEdictBits = 11;
 		public const int MaxEdicts = 1 << MaxEdictBits;
+		public const int NetworkedEHandleSerialNumBits = 10;
+		public const int NetworkedEHandleBits = MaxEdictBits + NetworkedEHandleSerialNumBits;
+		public const int NullEHandle = (1 << NetworkedEHandleBits) - 1; // INVALID_NETWORKED_EHANDLE_VALUE
 		public const int SubStringBits = 5;
-		public const int NumNetworkedEHandleBits = 10;
 		public const int MaxUserDataBits = 14;
 		public const uint HandleSerialNumberBits = 10;
 		public const int MaxPortal2CoopBranches = 6;
 		public const int MaxPortal2CoopLevelsPerBranch = 16;
 		public const int MaxNetMessage = 6;
+		public const int AreaBitsNumBits = 8;
 		
 		public const int MaxSndIndexBits = 13;
 		public const int SndSeqNumberBits = 10;
@@ -30,6 +35,10 @@ namespace DemoParser.Parser {
 		public const int MaxSndDelayMSecEncodeBits = 13;
 		public const float SndDelayOffset = 0.1f;
 		public const int SndSeqNumMask = (1 << SndSeqNumberBits) - 1;
+
+		public const int MaxPlayerNameLength = 32;
+		public const int SignedGuidLen = 32;
+		public const int MaxCustomFiles = 4;
 		
 
 		// initialized from the header
@@ -37,7 +46,6 @@ namespace DemoParser.Parser {
 		public readonly int MaxSplitscreenPlayers;
 		public readonly int SignOnGarbageBytes;
 		public readonly int SvcServerInfoUnknownBits;
-		public float TickInterval; // to be determined while parsing in SvcServerInfo
 		public readonly bool ProcessEnts; // only do ent stuff if you're testing or the game is supported
 		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		public readonly int SendPropFlagBits;
@@ -46,71 +54,125 @@ namespace DemoParser.Parser {
 		public readonly int NetMsgTypeBits;
 		public readonly int UserMessageLengthBits;
 		public readonly int SendPropNumBitsToGetNumBits;
+		public readonly int NumNetFileFlagBits;
+		public float TickInterval; // I set the tick interval here just in case but it should get set from SvcServerInfo
 		
 		
 		// game specific enum lists
 		public readonly AbstractFlagChecker<SendPropEnums.PropFlag> PropFlagChecker;
-		public readonly PropEnums.Collision_Group_t[] CollisionsGroupList;
 		public readonly AbstractFlagChecker<PropEnums.PlayerMfFlags_t> PlayerMfFlagChecker;
-		public readonly SendPropEnums.SendPropType[] SendPropTypes;
-		public readonly Dictionary<SendPropEnums.SendPropType, int> SendPropTypesReverseLookup;
-		// todo add user message/packet list
+		public readonly IReadOnlyList<PropEnums.Collision_Group_t> CollisionsGroupList;
+		
+		public readonly IReadOnlyList<SendPropEnums.SendPropType> SendPropTypes;
+		public readonly IReadOnlyDictionary<SendPropEnums.SendPropType, int> SendPropTypesReverseLookup;
+		public readonly IReadOnlyList<PacketType> PacketTypes;
+		public readonly IReadOnlyDictionary<PacketType, int> PacketTypesReverseLookup;
+		public readonly IReadOnlyList<MessageType> MessageTypes;
+		public readonly IReadOnlyDictionary<MessageType, int> MessageTypesReverseLookup;
+		public readonly IReadOnlyList<UserMessageType> UserMessageTypes;
+		public readonly IReadOnlyDictionary<UserMessageType, int> UserMessageTypesReverseLookup;
 		
 		
 		public DemoSettings(DemoHeader h) {
 			switch (h.DemoProtocol) {
-				case 3 when h.NetworkProtocol == 14:
-					Game = PORTAL_1_3420;
+				case 3:
+					switch (h.NetworkProtocol) {
+						case 7:
+							Game = HL2_OE;
+							PacketTypes = DemoPacket.Portal3420Table;
+							UserMessageTypes = UserMessage.Hl2OeTable;
+							ProcessEnts = true;
+							MaxSplitscreenPlayers = 1;
+							SignOnGarbageBytes = 76;
+							TickInterval = 1f / 66;
+							break;
+						case 14:
+							Game = PORTAL_1_3420;
+							PacketTypes = DemoPacket.Portal3420Table;
+							UserMessageTypes = UserMessage.Portal3420Table;
+							ProcessEnts = true;
+							MaxSplitscreenPlayers = 1;
+							SignOnGarbageBytes = 76;
+							TickInterval = 1f / 66;
+							break;
+						case 15:
+							Game = PORTAL_1_UNPACK;
+							PacketTypes = DemoPacket.Portal1UnpackTable;
+							UserMessageTypes = UserMessage.Portal1UnpackTable;
+							ProcessEnts = true;
+							MaxSplitscreenPlayers = 1;
+							SignOnGarbageBytes = 76;
+							TickInterval = 1f / 66;
+							break;
+						case 24:
+							Game = PORTAL_1_STEAMPIPE;
+							PacketTypes = DemoPacket.Portal1UnpackTable;
+							UserMessageTypes = UserMessage.Portal1SteamTable;
+							MaxSplitscreenPlayers = 1;
+							SignOnGarbageBytes = 76;
+							TickInterval = 1f / 66;
+							break;
+						default:
+							Game = UNKNOWN;
+							// just guess, (copy of steampipe)
+							PacketTypes = DemoPacket.Portal1UnpackTable;
+							UserMessageTypes = UserMessage.Portal1SteamTable;
+							MaxSplitscreenPlayers = 1;
+							SignOnGarbageBytes = 76;
+							break;
+					}
 					break;
-				case 3 when h.NetworkProtocol == 15:
-					Game = PORTAL_1_UNPACK;
-					break;
-				case 3 when h.NetworkProtocol == 24:
-					Game = PORTAL_1_STEAMPIPE;
-					break;
-				case 4 when h.NetworkProtocol == 2001:
-					Game = PORTAL_2;
-					break;
-				case 4 when h.NetworkProtocol == 2000:
-					Game = L4D2_2000;
-					break;
-				case 4 when h.NetworkProtocol == 2042:
-					Game = L4D2_2042;
+				case 4:
+					switch (h.NetworkProtocol) {
+						case 2000:
+							Game = L4D2_2000;
+							PacketTypes = DemoPacket.DemoProtocol4Table;
+							UserMessageTypes = UserMessage.L4D2SteamTable;
+							MaxSplitscreenPlayers = 4;
+							SignOnGarbageBytes = 304;
+							TickInterval = 1f / 30;
+							break;
+						case 2001:
+							Game = PORTAL_2;
+							PacketTypes = DemoPacket.DemoProtocol4Table;
+							UserMessageTypes = UserMessage.Portal2Table;
+							ProcessEnts = true;
+							MaxSplitscreenPlayers = 2;
+							SignOnGarbageBytes = 152;
+							TickInterval = 1f / 60;
+							break;
+						case 2042:
+							Game = L4D2_2042;
+							PacketTypes = DemoPacket.DemoProtocol4Table;
+							UserMessageTypes = UserMessage.L4D2SteamTable;
+							MaxSplitscreenPlayers = 4;
+							SignOnGarbageBytes = 304;
+							TickInterval = 1f / 30;
+							break;
+						default:
+							Game = UNKNOWN;
+							// just guess, (copy of p2)
+							PacketTypes = DemoPacket.DemoProtocol4Table;
+							UserMessageTypes = UserMessage.Portal2Table;
+							ProcessEnts = true;
+							MaxSplitscreenPlayers = 2;
+							SignOnGarbageBytes = 152;
+							TickInterval = 1f / 60;
+							break;
+					}
 					break;
 				default:
 					Game = UNKNOWN;
-					Console.WriteLine($"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n");
 					break;
 			}
-			
-			switch (Game) {
-				case PORTAL_1_UNPACK:
-				case PORTAL_1_3420:
-					ProcessEnts = true;
-					goto case PORTAL_1_STEAMPIPE;
-				case PORTAL_1_STEAMPIPE:
-					MaxSplitscreenPlayers = 1;
-					SignOnGarbageBytes = 76;
-					break;
-				case PORTAL_2:
-					ProcessEnts = true;
-					MaxSplitscreenPlayers = 2;
-					SignOnGarbageBytes = 152;
-					break;
-				case L4D2_2000:
-				case L4D2_2042:
-					MaxSplitscreenPlayers = 4;
-					SignOnGarbageBytes = 304;
-					break;
-				case UNKNOWN:
-					MaxSplitscreenPlayers = 4;
-					SignOnGarbageBytes = 152;
-					break;
-				default:
-					throw new Exception("You fool, you absolute buffoon! " +
-										"You added a game type but didn't add a case for it!");
+			UserMessageTypesReverseLookup = UserMessageTypes.CreateReverseLookupDict();
+			PacketTypesReverseLookup = PacketTypes.CreateReverseLookupDict(PacketType.Invalid);
+			if (Game == UNKNOWN) {
+				ParserTextUtils.ConsoleWriteWithColor(
+					$"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n",
+					ConsoleColor.Magenta);
 			}
-			
+
 			// these should all come last after the game and other constants have already been determined
 
 			if (h.NetworkProtocol <= 14) {
@@ -137,6 +199,10 @@ namespace DemoParser.Parser {
 					PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsOldDemoProtocol();
 					CollisionsGroupList = PropEnums.CollisionGroupListOldDemoProtocol;
 					UserMessageLengthBits = 11;
+					NumNetFileFlagBits = 1;
+					MessageTypes = h.NetworkProtocol >= 24
+						? DemoMessage.SteamPipeMessageList
+						: DemoMessage.OldProtocolMessageList;
 					break;
 				case 4:
 					NewDemoProtocol = true;
@@ -151,10 +217,13 @@ namespace DemoParser.Parser {
 						PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsNewDemoProtocol();
 						CollisionsGroupList = PropEnums.CollisionGroupListNewDemoProcol;
 					}
+					NumNetFileFlagBits = 2;
+					MessageTypes = DemoMessage.NewProtocolMessageList;
 					break;
 				default:
 					throw new ArgumentException($"What the heck is demo protocol version {h.DemoProtocol}?");
 			}
+			MessageTypesReverseLookup = MessageTypes.CreateReverseLookupDict(MessageType.Invalid);
 			
 			if (Game == L4D2_2042)
 				SvcServerInfoUnknownBits = 33;
@@ -166,15 +235,12 @@ namespace DemoParser.Parser {
 				SvcServerInfoUnknownBits = 0;
 			
 			TimeAdjustmentTypes = TimingAdjustment.AdjustmentTypeFromMap(h.MapName, Game);
-			
-#if FORCE_PROCESS_ENTS
-			ProcessEnts = true; // be prepared for lots of exceptions
-#endif
 		}
 	}
 	
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum SourceGame {
+		HL2_OE,
 		PORTAL_1_UNPACK, // todo add hl2
 		PORTAL_1_3420,
 		PORTAL_1_STEAMPIPE,

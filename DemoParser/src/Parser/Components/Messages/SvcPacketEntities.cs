@@ -39,10 +39,11 @@ namespace DemoParser.Parser.Components.Messages {
 			_entBsr = bsr.SubStream(dataLen);
 			bsr.SkipBits(dataLen);
 			SetLocalStreamEnd(bsr);
-			
+
+#if !FORCE_PROCESS_ENTS
 			if (!DemoSettings.ProcessEnts)
 				return;
-			
+#endif
 			// now, we do some setup for ent parsing
 			ref CurEntitySnapshot? snapshot = ref DemoRef.CurEntitySnapshot;
 			snapshot ??= new CurEntitySnapshot(DemoRef);
@@ -90,8 +91,7 @@ namespace DemoParser.Parser.Components.Messages {
 						case 0: // delta
 							if (oldI != newI)
 								throw new ArgumentException("oldEntSlot != newEntSlot");
-							Entity e = snapshot.Entities[newI];
-							iClass = e.ServerClass.DataTableId;
+							iClass = snapshot.Entities[newI].ServerClass.DataTableId;
 							(entClass, fProps) = tableParser.FlattenedProps[iClass];
 							update = new Delta(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef));
 							snapshot.ProcessDelta((Delta)update);

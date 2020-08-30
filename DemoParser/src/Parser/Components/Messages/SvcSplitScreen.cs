@@ -5,24 +5,23 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
 	
-	public class SvcMenu : DemoMessage {
+	public class SvcSplitScreen : DemoMessage {
 
-		public ushort MenuType;
-		private BitStreamReader _data;
-		public BitStreamReader Data => _data.FromBeginning(); // todo
-		
+		public bool RemoveUser;
+		public BitStreamReader Data {get;private set;}
 
-		public SvcMenu(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
+
+		public SvcSplitScreen(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+
+
 		internal override void ParseStream(BitStreamReader bsr) {
-			MenuType = bsr.ReadUShort();
-			uint dataLen = bsr.ReadUInt();
-			_data = bsr.SubStream(dataLen);
+			RemoveUser = bsr.ReadBool();
+			uint dataLen = bsr.ReadBitsAsUInt(11);
+			Data = bsr.SubStream(dataLen);
 			bsr.SkipBits(dataLen);
 			SetLocalStreamEnd(bsr);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -30,8 +29,8 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.AppendLine($"menu type: {MenuType}");
-			iw.Append($"data length in bits: {_data.BitLength}");
+			iw.AppendLine(RemoveUser ? "remove user" : "add user");
+			iw.Append($"data of length {Data.BitLength}");
 		}
 	}
 }

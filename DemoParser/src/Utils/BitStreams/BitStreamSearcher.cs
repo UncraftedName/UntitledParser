@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,9 +73,9 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		public (int offset, T component) FindComponentWithProperty<T>(Func<T, bool> property, SourceDemo demoRef) where T : DemoComponent {
+		public (int offset, T? component) FindComponentWithProperty<T>(Func<T, bool> property, SourceDemo demoRef) where T : DemoComponent {
 			while (BitsRemaining > 0) {
-				T inst = (T)Activator.CreateInstance(typeof(T), demoRef, SubStream());
+				T inst = (T)Activator.CreateInstance(typeof(T), demoRef, SubStream())!;
 				try {
 					inst.ParseStream(SubStream());
 				}

@@ -7,18 +7,18 @@ namespace DemoParser.Parser.Components.Messages {
 	
 	public class NetFile : DemoMessage {
 
-		public uint TransferID;
+		public uint TransferId;
 		public string FileName;
-		public NetFileFlags FileFlags; // i'm just guessing that these are flags, but there's two bits
+		public NetFileFlags FileFlags;
 		
 		
 		public NetFile(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 		
 		
 		internal override void ParseStream(BitStreamReader bsr) {
-			TransferID = bsr.ReadUInt();
+			TransferId = bsr.ReadUInt();
 			FileName = bsr.ReadNullTerminatedString();
-			FileFlags = (NetFileFlags)bsr.ReadBitsAsUInt(2); // might be portal 2 only
+			FileFlags = (NetFileFlags)bsr.ReadBitsAsUInt(DemoSettings.NumNetFileFlagBits);
 			SetLocalStreamEnd(bsr);
 		}
 		
@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.AppendLine($"transfer ID: {TransferID}");
+			iw.AppendLine($"transfer ID: {TransferId}");
 			iw.AppendLine($"file name: {FileName}");
 			iw.Append($"flags: {FileFlags}");
 		}

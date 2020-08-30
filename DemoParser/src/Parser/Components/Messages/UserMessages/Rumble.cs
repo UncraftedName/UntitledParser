@@ -5,7 +5,7 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class Rumble : SvcUserMessage {
+	public class Rumble : UserMessage {
 
 		public RumbleLookup RumbleType;
 		public float Scale;

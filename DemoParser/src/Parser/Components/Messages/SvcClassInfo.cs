@@ -25,7 +25,7 @@ namespace DemoParser.Parser.Components.Messages {
 			CreateOnClient = bsr.ReadBool();
 			if (!CreateOnClient) {
 				
-				// if this ever gets used then it should update the C_tables
+				// if this ever gets used then it should update the CurTables
 				string s = $"I haven't implemented {GetType().Name} to update the C_string tables.";
 				DemoRef.LogError(s);
 				Debug.WriteLine(s);
@@ -41,8 +41,7 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 			SetLocalStreamEnd(bsr);
 			
-			if (DemoRef.CBaseLines == null) // init baselines here if still null
-				DemoRef.CBaseLines = new CurBaseLines(ClassCount, DemoRef);
+			DemoRef.CBaseLines ??= new CurBaseLines(ClassCount, DemoRef);
 		}
 		
 

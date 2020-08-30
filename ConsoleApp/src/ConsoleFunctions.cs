@@ -13,6 +13,8 @@ using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
+using static System.Text.RegularExpressions.RegexOptions;
+using static DemoParser.Utils.ParserTextUtils;
 
 namespace ConsoleApp {
 	
@@ -33,7 +35,7 @@ namespace ConsoleApp {
 			if (_folderPath != null) {
 				_curTextWriter?.Flush(); // i can't flush this after it's been closed
 				_curTextWriter?.Close();
-				_curTextWriter = new StreamWriter(Path.Combine(_folderPath, $"{CurDemo.FileName[..^4]} - {suffix}.txt"));
+				_curTextWriter = new StreamWriter(Path.Combine(_folderPath, $"{CurDemo.FileName![..^4]} - {suffix}.txt"));
 			} else {
 				_curTextWriter = Console.Out;
 			}
@@ -47,7 +49,7 @@ namespace ConsoleApp {
 			_curBinWriter?.Flush();
 			_curBinWriter?.Close();
 			_curBinWriter = new BinaryWriter(new FileStream(
-				Path.Combine(_folderPath, $"{CurDemo.FileName[..^4]}-{suffix}.{fileFormat}"), FileMode.Create));
+				Path.Combine(_folderPath, $"{CurDemo.FileName![..^4]}-{suffix}.{fileFormat}"), FileMode.Create));
 		}
 
 
@@ -65,7 +67,9 @@ namespace ConsoleApp {
 			// timespan truncates values, (makes sense since 0.5 minutes is still 0 total minutes) so I round manually
 			TimeSpan t = TimeSpan.FromSeconds(Math.Abs(seconds));
 			int roundedMilli = t.Milliseconds + (int)Math.Round(t.TotalMilliseconds - (long)t.TotalMilliseconds);
-			if (t.Hours > 0)
+			if (t.Days > 0)
+				return $"{sign}{t.Days:D1}.{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}.{roundedMilli:D3}";
+			else if (t.Hours > 0)
 				return $"{sign}{t.Hours:D1}:{t.Minutes:D2}:{t.Seconds:D2}.{roundedMilli:D3}";
 			else if (t.Minutes > 0)
 				return $"{sign}{t.Minutes:D1}:{t.Seconds:D2}.{roundedMilli:D3}";
@@ -84,23 +88,24 @@ namespace ConsoleApp {
 		}
 
 
-		// this is basically copied from the old parser, i'll think about improving this
-		private static void ConsFunc_ListDemo(ListdemoOption listdemoOption, bool printWriteMsg) {
+		private static void ConsFunc_ListDemo(
+			ListdemoOption listdemoOption,
+			bool printWriteMsg,
+			bool exceptionDuringParsing,
+			bool printFileName)
+		{
 			SetTextWriter("listdemo+");
 			if (printWriteMsg && _runnableOptionCount > 1)
 				Console.WriteLine("Writing listdemo+ output...");
 			ConsoleColor originalColor = Console.ForegroundColor;
-			if (!CurDemo.FilterForPacket<Packet>().Any()) {
-				Console.WriteLine("this demo is janked yo, it doesn't have any packets");
-				return;
-			}
 
 			Console.ForegroundColor = ConsoleColor.Gray;
 			if (listdemoOption == ListdemoOption.DisplayHeader) {
 				DemoHeader h = CurDemo.Header;
+				if (printFileName)
+					_curTextWriter.WriteLine($"{"File name",-25}: {CurDemo.FileName}");
 				_curTextWriter.Write(
-					$"{"File name",          -25}: {CurDemo.FileName}"           +
-					$"\n{"Demo protocol",    -25}: {h.DemoProtocol}"             +
+					$"{"Demo protocol",    -25}: {h.DemoProtocol}"               +
 					$"\n{"Network protocol", -25}: {h.NetworkProtocol}"          +
 					$"\n{"Server name",      -25}: {h.ServerName}"               +
 					$"\n{"Client name",      -25}: {h.ClientName}"               +
@@ -111,76 +116,73 @@ namespace ConsoleApp {
 					$"\n{"Frames",           -25}: {h.FrameCount}"               +
 					$"\n{"SignOn Length",    -25}: {h.SignOnLength}\n\n");
 			}
-			Regex[] regexes = {
-				new Regex("^autosave$"), 
-				new Regex("^autosavedangerous$"),
-				new Regex("^autosavedangerousissafe$")
-			};
-			// all appended by "detected on tick..."
-			string[] names = {
-				"Autosavedangerous command",
-				"Autosavedangerousissafe command",
-				"Autosave command"
-			};
-			Console.ForegroundColor = ConsoleColor.DarkYellow;
-			for (int i = 0; i < regexes.Length; i++) {
-				foreach (ConsoleCmd cmd in CurDemo.FilterForRegexMatches(regexes[i]).DistinctBy(cmd => cmd.Tick)) {
-					_curTextWriter.WriteLine($"{names[i]} detected on tick {cmd.Tick}, " +
-											 $"time {FormatTime(cmd.Tick * CurDemo.DemoSettings.TickInterval)}");
-				}
-			}
-			// matches any flag like 'echo #some_flag_name#`
-			Regex flagMatcher = new Regex(@"^\s*echo\s+#(?<flag_name>\S*?)#\s*$", RegexOptions.IgnoreCase);
- 			
-			// gets all flags, then groups them by the flag type, and sorts the ticks of each type
-			// in this case, #flag# is treated the same as #FLAG#
+			if (exceptionDuringParsing) // only header
+				return;
 			
-			// todo convert to query expression?
-			var flagGroups = CurDemo.FilterForRegexMatches(flagMatcher)
-				.Select(cmd => (
-						Matches: flagMatcher.Matches(cmd.Command)[0].Groups["flag_name"].Value.ToUpper(), 
-						cmd.Tick)
-					)
-				.GroupBy(tuple => tuple.Matches)
-				.ToDictionary(tuples => tuples.Key,
-					tuples => 
-						tuples
-						.Select(tuple => tuple.Tick)
-						.Distinct()
-						.OrderBy(i => i)
-						.ToList()
-						)
-				.Select(pair => Tuple.Create(pair.Key, pair.Value));
- 
+			if (!CurDemo.FilterForPacket<Packet>().Any()) {
+				ConsoleWriteWithColor("This demo is janked yo, it doesn't have any packets!", ConsoleColor.Red);
+				return;
+			}
+
+			(string str, Regex re)[] customRe = {
+				("Autosave",                new Regex(@"^\s*autosave\s*$",                IgnoreCase)),
+				("Autosavedangerous",       new Regex(@"^\s*autosavedangerous\s*$",       IgnoreCase)),
+				("Autosavedangerousissafe", new Regex(@"^\s*autosavedangerousissafe\s*$", IgnoreCase))
+			};
+			
+			var customGroups = customRe.SelectMany(
+					t => CurDemo.CmdRegexMatches(t.re),
+					(t, matchTup) => (t.str, matchTup.cmd.Tick))
+				.OrderBy(reInfo => reInfo.Tick)
+				.GroupBy(reInfo => reInfo.str, reInfo => reInfo.Tick)
+				.OrderBy(grouping => grouping.Min())
+				.ToList();
+
+			Regex flagRe = new Regex(@"^\s*echo\s+#(?<flag_name>.*)#\s*$", IgnoreCase);
+
+			var flagGroups = CurDemo.CmdRegexMatches(flagRe)
+				.OrderBy(t => t.cmd.Tick)
+				.GroupBy(t => t.matches[0].Groups["flag_name"].Value.ToUpper(), t => t.cmd.Tick)
+				.OrderBy(grouping => grouping.Min())
+				.ToList();
+
 			double tickInterval = CurDemo.DemoSettings.TickInterval;
-			
-			foreach ((string flagName, List<int> ticks) in flagGroups) {
-				
-				Console.ForegroundColor = Console.ForegroundColor == ConsoleColor.Yellow 
-					? ConsoleColor.Magenta 
-					: ConsoleColor.Yellow;
-				
-				foreach (int i in ticks) {
-					_curTextWriter.WriteLine(
-						$"'{flagName}' flag detected on tick {i}, time {FormatTime(i * tickInterval)}");
+
+			List<int> ticks = customGroups.SelectMany(g => g)
+				.Concat(flagGroups.SelectMany(g => g)).ToList();
+
+			List<string>
+				descriptions = customGroups.Select(g => Enumerable.Repeat(g.Key, g.Count()))
+					.Concat(flagGroups.Select(g => Enumerable.Repeat($"'{g.Key}' flag", g.Count())))
+					.SelectMany(e => e).ToList(),
+				tickStrs = ticks.Select(i => i.ToString()).ToList(),
+				times = ticks.Select(i => FormatTime(i * tickInterval)).ToList();
+
+			if (descriptions.Any()) {
+				int maxDescPad = descriptions.Max(s => s.Length),
+					tickMaxPad = tickStrs.Max(s => s.Length),
+					timeMadPad = times.Max(s => s.Length);
+
+				int customCount = customGroups.SelectMany(g => g).Count();
+				string previousDesc = null;
+				for (int i = 0; i < descriptions.Count; i++) {
+					if (i < customCount) {
+						Console.ForegroundColor = ConsoleColor.DarkYellow;
+					} else {
+						if (previousDesc == null || descriptions[i] != previousDesc) {
+							Console.ForegroundColor = Console.ForegroundColor == ConsoleColor.Yellow
+								? ConsoleColor.Magenta
+								: ConsoleColor.Yellow;
+						}
+					}
+					previousDesc = descriptions[i];
+					_curTextWriter.WriteLine($"{descriptions[i].PadLeft(maxDescPad)} on tick " +
+											 $"{tickStrs[i].PadLeft(tickMaxPad)}, time: {times[i].PadLeft(timeMadPad)}");
 				}
 			}
-
-			/*CurDemo.FilterForUserMessage<Rumble>()
-				.Where(tuple =>
-					tuple.userMessage.RumbleType == RumbleLookup.PortalgunLeft ||
-					tuple.userMessage.RumbleType == RumbleLookup.PortalgunRight)
-				.Select(tuple => (tuple.tick, tuple.userMessage.RumbleType))
-				.ToList()
-				.ForEach(tuple => {
-					(int tick, RumbleLookup rumbleType) = tuple;
-					ConsoleWriteWithColor(
-						$"Portal fired on tick {tick,4}, time: {FormatTime(tick * tickInterval),10}\n",
-						rumbleType == RumbleLookup.PortalgunLeft ? ConsoleColor.Cyan : ConsoleColor.Red);
-				});*/
-
+			
 			if (listdemoOption == ListdemoOption.DisplayHeader)
-				Console.WriteLine();
+				_curTextWriter.WriteLine();
 			
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			_curTextWriter.WriteLine(
@@ -199,12 +201,11 @@ namespace ConsoleApp {
 
 			Console.ForegroundColor = originalColor;
 			
-			if (listdemoOption == ListdemoOption.DisplayHeader)
+			if (listdemoOption == ListdemoOption.DisplayHeader && _curTextWriter == Console.Out)
 				Console.WriteLine();
 		}
 
-
-
+		
 		private static void ConsFunc_DisplayTotalTime() {
 			ConsoleColor originalColor = Console.ForegroundColor;
 			
@@ -238,7 +239,7 @@ namespace ConsoleApp {
 		private static void ConsFunc_RegexSearch(string pattern) {
 			if (_runnableOptionCount > 1)
 				Console.Write("Finding regex matches...");
-			List<ConsoleCmd> matches = CurDemo.FilterForRegexMatches(new Regex(pattern)).ToList();
+			List<ConsoleCmd> matches = CurDemo.CmdRegexMatches(pattern).Select(t => t.cmd).ToList();
 			if (matches.Count == 0) {
 				Console.WriteLine(" no matches found");
 			} else {
@@ -254,7 +255,7 @@ namespace ConsoleApp {
 			SetTextWriter("jump dump");
 			if (_runnableOptionCount > 1)
 				Console.Write("Finding jumps...");
-			List<ConsoleCmd> matches = CurDemo.FilterForRegexMatches(new Regex("[-+]jump")).ToList();
+			List<ConsoleCmd> matches = CurDemo.CmdRegexMatches("[-+]jump").Select(t => t.cmd).ToList();
 			if (matches.Count == 0) {
 				const string s = "no jumps found";
 				Console.WriteLine($" {s}");
@@ -271,12 +272,12 @@ namespace ConsoleApp {
 			SetTextWriter("cheat dump");
 			if (_runnableOptionCount > 1)
 				Console.WriteLine("Finding cheats...");
-			List<ConsoleCmd> matches = CurDemo.FilterForRegexMatches(new Regex(new[] {
+			List<ConsoleCmd> matches = CurDemo.CmdRegexMatches(new Regex(new[] {
 				"host_timescale", "god", "sv_cheats", "buddha", "host_framerate", "sv_accelerate", "gravity", 
 				"sv_airaccelerate", "noclip", "impulse", "ent_", "sv_gravity", "upgrade_portalgun", 
 				"phys_timescale", "notarget", "give", "fire_energy_ball", "_spt_", "plugin_load", 
 				"ent_parent", "!picker", "ch_"
-			}.SequenceToString(")|(", "(", ")"))).ToList();
+			}.SequenceToString(")|(", "(", ")"))).Select(t => t.cmd).ToList();
 			if (matches.Count == 0) {
 				const string s = "no cheats found";
 				Console.WriteLine($" {s}");
@@ -294,7 +295,7 @@ namespace ConsoleApp {
 				Console.Write("Removing captions...");
 			
 			Packet[] closeCaptionPackets = CurDemo.FilterForPacket<Packet>()
-				.Where(packet => packet.FilterForMessage<SvcUserMessageFrame>()
+				.Where(packet => packet.FilterForMessage<SvcUserMessage>()
 					.Any(frame => frame.MessageType == UserMessageType.CloseCaption)).ToArray();
 
 			if (closeCaptionPackets.Length == 0) {
@@ -488,7 +489,7 @@ namespace ConsoleApp {
 		// todo add portals shot to csv
 
 
-		private static void ConsFunc_LinkDemos() { // todo when this sets the writer, give it a custom name
+		private static void ConsFunc_LinkDemos() { // when this sets the writer, give it a custom name
 			Console.WriteLine("Link demos feature not implemented yet.");
 		}
 		

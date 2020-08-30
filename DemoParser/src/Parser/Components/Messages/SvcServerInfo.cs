@@ -1,3 +1,4 @@
+using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
@@ -16,8 +17,8 @@ namespace DemoParser.Parser.Components.Messages {
 		public uint MapCrc;
 		public byte PlayerCount;
 		public byte MaxClients;
-		private BitStreamReader _unknown;
-		public BitStreamReader Unknown => _unknown?.FromBeginning();
+		private BitStreamReader? _unknown;
+		public BitStreamReader? Unknown => _unknown?.FromBeginning();
 		public float TickInterval;
 		public char Platform;
 		public string GameDir;
@@ -37,7 +38,7 @@ namespace DemoParser.Parser.Components.Messages {
 			IsDedicated = bsr.ReadBool();
 			ClientCrc = bsr.ReadUInt();
 			MaxServerClasses = bsr.ReadUShort();
-			MapCrc = bsr.ReadUInt(); // network protocol < 18
+			MapCrc = bsr.ReadUInt(); // network protocol < 18?
 			PlayerCount = bsr.ReadByte();
 			MaxClients = bsr.ReadByte();
 			int skip = DemoSettings.SvcServerInfoUnknownBits; // todo, also fields are out of order for p2
@@ -65,7 +66,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

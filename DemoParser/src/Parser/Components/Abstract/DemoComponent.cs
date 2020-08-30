@@ -19,7 +19,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		
 		protected DemoComponent(SourceDemo demoRef, BitStreamReader reader) {
 			DemoRef = demoRef;
-			_reader = reader?.SubStream(); // makes current bit the beginning, todo get rid of this?
+			_reader = reader?.SubStream()!; // makes current bit the beginning, todo get rid of this?
 		}
 
 

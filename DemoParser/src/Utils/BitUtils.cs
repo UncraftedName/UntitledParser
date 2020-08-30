@@ -31,20 +31,35 @@ namespace DemoParser.Utils {
 
 
 		public static int HighestBitIndex(int i) => HighestBitIndex((uint)i);
+		
 
 		/* replacement for dotnetcore equivalent in BitConverter */
 		public static float Int32BitsToSingle(int i) {
 			unsafe { return *(float *)(&i); }
 		}
+		
+		
+		public static ulong ToUInt64(Span<byte> bytes, bool little) {
+			if (little)
+				return ((ulong)bytes[0] << 0) | ((ulong)bytes[1] << 8) | ((ulong)bytes[2] << 16) |
+					   ((ulong)bytes[3] << 24) | ((ulong)bytes[4] << 32) | ((ulong)bytes[5] << 40) |
+					   ((ulong)bytes[6] << 48) | ((ulong)bytes[7] << 56);
+			else
+				return ((ulong)bytes[7] << 0) | ((ulong)bytes[6] << 8) | ((ulong)bytes[5] << 16) |
+					   ((ulong)bytes[4] << 24) | ((ulong)bytes[3] << 32) | ((ulong)bytes[2] << 40) |
+					   ((ulong)bytes[1] << 48) | ((ulong)bytes[0] << 56);
+		}
+		
 
 		public static uint ToUInt32(Span<byte> bytes, bool little) {
 			if (little) return (uint)(bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24));
 			/* big: */	return (uint)(bytes[3] | (bytes[2] << 8) | (bytes[1] << 16) | (bytes[0] << 24));
 		}
+		
 
 		public static ushort ToUInt16(Span<byte> bytes, bool little) {
 			if (little) return (ushort)(bytes[0] | (bytes[1] << 8));
-			/* big: */	return (ushort)(bytes[3] | (bytes[2] << 8));
+			/* big: */	return (ushort)(bytes[1] | (bytes[0] << 8));
 		}
 	}
 }

@@ -1,8 +1,6 @@
-using System;
-using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
+// ReSharper disable once CheckNamespace
 namespace System.Runtime.CompilerServices {
 	/*
 	 * Polyfill for RuntimeHelpers.GetSubArray to allow range-based indexing of arrays.
@@ -29,16 +27,17 @@ namespace System.Runtime.CompilerServices {
 			return dest;
 		}
 
-		private static MethodInfo realGetHashCode;
+		private static readonly MethodInfo RealGetHashCode;
 
 		static RuntimeHelpers() {
 			var t = Type.GetType("System.Runtime.CompilerServices.RuntimeHelpers, mscorlib");
-			realGetHashCode = t.GetMethod("GetHashCode", new[] {typeof(object)});
+			RealGetHashCode = t!.GetMethod("GetHashCode", new[] {typeof(object)});
 		}
+		
 
 		/* Have to do some sad wrapping here because otherwise this function is simply gone */
 		public static int GetHashCode(object o) {
-			return (int)realGetHashCode.Invoke(null, new[] {o});
+			return (int)RealGetHashCode.Invoke(null, new[] {o});
 		}
 	}
 }

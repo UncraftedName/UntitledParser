@@ -5,7 +5,7 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class KeyHintText : SvcUserMessage {
+	public class KeyHintText : UserMessage {
 
 		public int Count; // should always be 1 lmao
 		public string KeyString;

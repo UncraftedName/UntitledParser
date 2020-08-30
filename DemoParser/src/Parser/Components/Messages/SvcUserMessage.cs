@@ -7,14 +7,13 @@ using DemoParser.Utils.BitStreams;
 namespace DemoParser.Parser.Components.Messages {
 	
 	// similar to a packet frame, contains the type of user message
-	public class SvcUserMessageFrame : DemoMessage {
+	public class SvcUserMessage : DemoMessage {
 
-		
 		public UserMessageType MessageType;
-		public SvcUserMessage SvcUserMessage;
+		public UserMessage UserMessage;
 		
 
-		public SvcUserMessageFrame(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public SvcUserMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
 
 
 		/* Okay, this is pretty wacky. First I read a byte, and based off of that I try to determine the type of
@@ -25,26 +24,26 @@ namespace DemoParser.Parser.Components.Messages {
 		 */
 		internal override void ParseStream(BitStreamReader bsr) {
 			byte typeVal = bsr.ReadByte();
-			MessageType = SvcUserMessage.ByteToUserMessageType(DemoSettings, typeVal);
+			MessageType = UserMessage.ByteToUserMessageType(DemoSettings, typeVal);
 			uint messageLength = bsr.ReadBitsAsUInt(DemoSettings.UserMessageLengthBits);
 
 			var uMessageReader = bsr.SubStream(messageLength);
-			string errorStr = null;
+			string? errorStr = null;
 			
 			switch (MessageType) {
-				case UserMessageType.UNKNOWN:
+				case UserMessageType.Unknown:
 					errorStr = $"There is no SvcUserMessage list for this game, type {typeVal} was found";
 					break;
-				case UserMessageType.INVALID:
+				case UserMessageType.Invalid:
 					errorStr = $"SvcUserMessage with value {typeVal} is invalid";
 					break;
 				default:
-					SvcUserMessage = SvcUserMessageFactory.CreateUserMessage(DemoRef, uMessageReader, MessageType);
-					if (SvcUserMessage == null) {
+					UserMessage = SvcUserMessageFactory.CreateUserMessage(DemoRef, uMessageReader, MessageType)!;
+					if (UserMessage == null) {
 						errorStr = $"Unimplemented SvcUserMessage: {MessageType}";
 					} else {
 						try { // empty messages might still have 1-2 bytes, might need to do something 'bout that
-							if (SvcUserMessage.ParseOwnStream() != 0)
+							if (UserMessage.ParseOwnStream() != 0)
 								errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) didn't parse all bits";
 						} catch (Exception e) {
 							errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) " + 
@@ -61,7 +60,7 @@ namespace DemoParser.Parser.Components.Messages {
 				int rem = uMessageReader.BitsRemaining;
 				DemoRef.LogError($"{errorStr}, ({rem} bit{(rem == 1 ? "" : "s")}) - " +
 								 $"{uMessageReader.FromBeginning().ToHexString()}");
-				SvcUserMessage = new UnknownSvcUserMessage(DemoRef, uMessageReader);
+				UserMessage = new UnknownUserMessage(DemoRef, uMessageReader);
 			}
 
 			#endregion
@@ -77,18 +76,18 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			if (MessageType == UserMessageType.UNKNOWN || MessageType == UserMessageType.INVALID) {
+			if (MessageType == UserMessageType.Unknown || MessageType == UserMessageType.Invalid) {
 				iw.Append("Unknown type");
 			} else {
-				if (SvcUserMessage is UnknownSvcUserMessage)
+				if (UserMessage is UnknownUserMessage)
 					iw.Append("(unimplemented) ");
 				iw.Append(MessageType.ToString());
-				iw.Append($" ({SvcUserMessage.UserMessageTypeToByte(DemoSettings, MessageType)})");
+				iw.Append($" ({UserMessage.UserMessageTypeToByte(DemoSettings, MessageType)})");
 			}
-			if (SvcUserMessage.MayContainData) {
+			if (UserMessage.MayContainData) {
 				iw.FutureIndent++;
 				iw.AppendLine();
-				SvcUserMessage.AppendToWriter(iw);
+				UserMessage.AppendToWriter(iw);
 				iw.FutureIndent--;
 			}
 		}

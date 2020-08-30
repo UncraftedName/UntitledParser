@@ -41,7 +41,7 @@ namespace Tests {
 				(uint val, int size) r = ((uint)_random.Next(), _random.Next(1, 33));
 				r.val &= uint.MaxValue >> (32 - r.size);
 				bits.Add(r);
-				bsw.WriteBitsFromInt(r.val, r.size);
+				bsw.WriteBitsFromUInt(r.val, r.size);
 			}
 			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
 			for (int i = 0; i < Iterations; i++) 
@@ -60,7 +60,7 @@ namespace Tests {
 				if ((r.val & (1 << (r.size - 1))) != 0) // sign extend, not necessary for primitive types
 					r.val |= int.MaxValue << r.size;    // can use int here since the leftmost 0 will get shifted away anyway
 				bits.Add(r);
-				bsw.WriteBitsFromInt(r.val, r.size);
+				bsw.WriteBitsFromSInt(r.val, r.size);
 			}
 			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
 			for (int i = 0; i < Iterations; i++) 
@@ -91,7 +91,7 @@ namespace Tests {
 			for (int i = 0; i < Iterations; i++) {
 				int skip = i % 16;
 				BitStreamWriter bsw = new BitStreamWriter();
-				bsw.WriteBitsFromInt(_random.Next(), skip);
+				bsw.WriteBitsFromSInt(_random.Next(), skip);
 				bsw.WriteBitCoord((float)((_random.NextDouble() - 0.5) * 100000));
 				BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
 				bsr.SkipBits(skip);
@@ -100,7 +100,7 @@ namespace Tests {
 				float f = bsr.ReadBitCoord();
 				// Now do all the same stuff we just did but with the constrained float.
 				bsw = new BitStreamWriter();
-				bsw.WriteBitsFromInt(_random.Next(), skip);
+				bsw.WriteBitsFromSInt(_random.Next(), skip);
 				bsw.WriteBitCoord(f);
 				bsr = new BitStreamReader(bsw.AsArray);
 				bsr.SkipBits(skip);
@@ -114,7 +114,7 @@ namespace Tests {
 			for (int i = 0; i < Iterations; i++) {
 				int skip = i % 16;
 				BitStreamWriter bsw = new BitStreamWriter();
-				bsw.WriteBitsFromInt(_random.Next(), skip);
+				bsw.WriteBitsFromSInt(_random.Next(), skip);
 				int bitLen = _random.Next(1, 100);
 				byte[] rand = new byte[(bitLen >> 3) + ((bitLen & 0x07) == 0 ? 0 : 1)];
 				_random.NextBytes(rand);
@@ -134,12 +134,12 @@ namespace Tests {
 				int skipBefore = i % 16;
 				int skipAfter = i % 17 % 16;
 				BitStreamWriter bsw = new BitStreamWriter();
-				bsw.WriteBitsFromInt(_random.Next(), skipBefore);
+				bsw.WriteBitsFromSInt(_random.Next(), skipBefore);
 				int bitLen = _random.Next(1, 100);
 				byte[] rand = new byte[(bitLen >> 3) + ((bitLen & 0x07) == 0 ? 0 : 1)];
 				_random.NextBytes(rand);
 				bsw.WriteBits(rand, bitLen);
-				bsw.WriteBitsFromInt(_random.Next(), skipAfter);
+				bsw.WriteBitsFromSInt(_random.Next(), skipAfter);
 				// now we have written some random data to a fixed location, let's edit it
 				_random.NextBytes(rand);
 				bsw.EditBitsAtIndex(rand, skipBefore, bitLen);
@@ -160,16 +160,16 @@ namespace Tests {
 				int testIntBits = _random.Next(1, 32);
 				int testInt = _random.Next(0, 1 << (testIntBits - 1));
 				BitStreamWriter bsw = new BitStreamWriter();
-				bsw.WriteBitsFromInt(_random.Next(), skip);
+				bsw.WriteBitsFromSInt(_random.Next(), skip);
 				byte[] rand = new byte[10];
 				_random.NextBytes(rand);
 				int randCount = _random.Next(1, 80);
 				bsw.WriteBits(rand, randCount);
-				bsw.WriteBitsFromInt(testInt, testIntBits);
+				bsw.WriteBitsFromSInt(testInt, testIntBits);
 				bsw.RemoveBitsAtIndex(skip, randCount);
 				BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
 				bsr.SkipBits(skip);
-				Assert.AreEqual((int)bsr.ReadBitsAsUInt(testIntBits), testInt);
+				Assert.AreEqual((int)bsr.ReadBitsAsSInt(testIntBits), testInt);
 			}
 		}
 	}

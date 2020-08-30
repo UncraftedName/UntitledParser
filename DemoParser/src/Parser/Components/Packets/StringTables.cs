@@ -179,10 +179,15 @@ namespace DemoParser.Parser.Components.Packets {
 			if (EntryData != null) {
 				if (EntryData.ContentsKnown) {
 					iw.Append(Name);
-					iw.FutureIndent++;
-					iw.AppendLine();
-					EntryData.AppendToWriter(iw);
-					iw.FutureIndent--;
+					if (EntryData.InlineToString) {
+						iw.Append(": ");
+						EntryData.AppendToWriter(iw);
+					} else {
+						iw.FutureIndent++;
+						iw.AppendLine();
+						EntryData.AppendToWriter(iw);
+						iw.FutureIndent--;
+					}
 				} else {
 					iw.Append(Name.PadRight(PadLength + 2, '.'));
 					EntryData.AppendToWriter(iw);

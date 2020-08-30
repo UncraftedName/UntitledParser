@@ -1,3 +1,4 @@
+using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -6,6 +7,7 @@ namespace DemoParser.Parser.Components.Messages {
 	
 	public class SvcPaintMapData : DemoMessage {
 
+		// maybe try CPaintmapDataManager::GetPaintmapDataRLE
 		private BitStreamReader _data; // todo, it looks like this uses RLE so guess i'll die
 		public BitStreamReader Data => _data.FromBeginning();
 		
@@ -20,7 +22,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 
 

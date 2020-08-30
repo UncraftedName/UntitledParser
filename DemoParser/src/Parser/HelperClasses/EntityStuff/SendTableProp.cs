@@ -29,7 +29,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		internal override void ParseStream(BitStreamReader bsr) {
-			SendPropType = DemoSettings.SendPropTypes[bsr.ReadBitsAsUInt(5)];
+			SendPropType = DemoSettings.SendPropTypes[(int)bsr.ReadBitsAsUInt(5)];
 			Name = bsr.ReadNullTerminatedString();
 			Flags = (int)bsr.ReadBitsAsUInt(DemoSettings.SendPropFlagBits);
 			if (DemoSettings.NewDemoProtocol)

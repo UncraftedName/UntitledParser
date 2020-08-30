@@ -11,24 +11,21 @@ using System.Text.RegularExpressions;
 using DemoParser.Parser;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
+using static DemoParser.Utils.ParserTextUtils;
 
 namespace ConsoleApp {
 	
 	public static partial class ConsoleFunctions {
 		
 		private static string UsageStr => $"Usage: \"{AppDomain.CurrentDomain.FriendlyName}\" <demos/dirs> [options]";
-		private static readonly List<Option> OptionsRequiringFolder = new List<Option>(); 
+		private static readonly List<Option> OptionsRequiringFolder = new List<Option>();
+		private static bool _recursive;
 		
 		// todo add prop tracker
 		public static void Main(string[] args) {
 			
-			Console.WriteLine("UntitledParser by UncraftedName");
-
-			// override default version behavior
-			if (args.Contains("--version")) {
-				PrintVersionInfo();
-				Environment.Exit(0);
-			}
+			if (!_recursive)
+				Console.WriteLine("UntitledParser by UncraftedName");
 
 			switch (args.Length) {
 				case 0:
@@ -37,26 +34,27 @@ namespace ConsoleApp {
 					Console.Read();
 					Environment.Exit(0);
 					break;
-				case 1 when Directory.Exists(args[0]):
-					Main(new[] {args[0], "--listdemo", ListdemoOption.SuppressHeader.ToString()});
-					Console.Read();
-					Environment.Exit(1);
-					return;
-				case 1 when File.Exists(args[0]): // todo accept multiple demo files/folders
-					// just behave like listdemo+
+				case 1 when File.Exists(args[0]): // behave just like listdemo+
 					Demos.Add(new SourceDemo(args[0]));
 					try {
 						CurDemo.Parse();
-						ConsFunc_ListDemo(default, false);
-					}
-					catch (Exception e) {
-						Console.WriteLine($"there was a problem while parsing... {e.Message}");
+						ConsFunc_ListDemo(default, false, false, true);
+					} catch (Exception e) {
+						ConsFunc_ListDemo(default, false, true, true);
+						ConsoleWriteWithColor(e.ToString(), ConsoleColor.Red);
 						Console.Read();
 						Environment.Exit(1);
 					}
-
 					Console.Read();
 					Environment.Exit(0);
+					break;
+				default:
+					if (!_recursive && args.All(s => File.Exists(s) || Directory.Exists(s))) {
+						_recursive = true;
+						Main(args.Concat(new [] {"--listdemo", ListdemoOption.SuppressHeader.ToString()}).ToArray());
+						Console.Read();
+						Environment.Exit(0);
+					}
 					break;
 			}
 
@@ -271,9 +269,9 @@ namespace ConsoleApp {
 				
 				// add paths to set to make sure i don't parse the same demo several times
 				HashSet<FileInfo> demoPaths = new HashSet<FileInfo>();
-				foreach (DirOrPath dirOrPath in paths) {
+				foreach (DirOrPath dirOrPath in paths!) {
 					if (dirOrPath.IsDir) {
-						demoPaths.UnionWith(dirOrPath.DirectoryInfo.EnumerateFiles("*.dem", 
+						demoPaths.UnionWith(dirOrPath.DirectoryInfo!.EnumerateFiles("*.dem", 
 							recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly));
 					} else {
 						if (!dirOrPath.Name.EndsWith(".dem"))
@@ -294,14 +292,23 @@ namespace ConsoleApp {
 					_folderPath = folder.FullName;
 				}
 
-				// sort the same way that windows does
-				IReadOnlyList<FileInfo> orderedPaths = demoPaths.OrderBy(f => f.Name, new NaturalCompare()).ToList();
-				
-				// these are sorted, so any similarities between the first and last path must be shared between all paths
-				string commonParentPath = orderedPaths.Count == 1 
-					? orderedPaths[0].DirectoryName 
-					: ParserTextUtils.SharedPathSubstring(orderedPaths[0].FullName, orderedPaths[^1].FullName);
+				string commonParent;
+				if (demoPaths.Count == 1) {
+					commonParent = demoPaths.Single().DirectoryName;
+				} else {
+					var ordered = demoPaths.OrderBy(f => f.Name, new AlphanumComparator()).ToList();
+					// any similarities between the first and last path must be shared between all paths
+					commonParent = SharedPathSubstring(ordered.First().FullName, ordered.Last().FullName);
+				}
 
+				// if the common path is empty, that prolly means the demos span multiple drives, so use the full name
+				var orderedPaths = demoPaths.Select(
+					f => (info: f, displayPath: commonParent == "" 
+						? f.FullName
+						: PathExt.GetRelativePath(commonParent!, f.FullName)))
+					.OrderBy(t => t.displayPath, new AlphanumComparator())
+					.ToList();
+				
 				// the check for options with arguments is pretty dumb, not sure of a better way tho
 				var implicitOptions = new {
 					listDemo = parseResult.Tokens.Any(token => listDemoOpt.HasAlias(token.Value)),
@@ -316,34 +323,21 @@ namespace ConsoleApp {
 				
 				// main loop
 				for (var i = 0; i < orderedPaths.Count; i++) {
-					FileInfo demoPath = orderedPaths[i];
-					// if the common path is empty, that means the demos span multiple drives, so just use the full name
-					string displayPath = commonParentPath == ""
-						? demoPath.Name
-						: PathExt.GetRelativePath(commonParentPath, demoPath.FullName);
-
+					bool exceptionDuringParsing = false;
 					try {
-						Console.Write($"Parsing \"{displayPath}\"... ");
+						Console.Write($"Parsing \"{orderedPaths[i].displayPath}\"... ");
 
 						using (var progressBar = new ProgressBar()) {
 							// if i'm not linking demos there's no point in keeping all of them
 							if (!link)
 								Demos.Clear();
-							Demos.Add(new SourceDemo(demoPath, progressBar));
+							Demos.Add(new SourceDemo(orderedPaths[i].info.FullName, progressBar));
 							CurDemo.Parse();
 						}
 
-						Console.WriteLine("done.");
+						ConsoleWriteWithColor("done.\n", ConsoleColor.Green);
 
 						// run all the standard options
-
-						if (implicitOptions.listDemo) {
-							bool excludedMap = TimingAdjustment.ExcludedMaps.Contains((CurDemo.DemoSettings.Game, CurDemo.Header.MapName));
-							_displayMapExcludedMsg = quickHashesMatch && excludedMap;
-							ConsFunc_ListDemo(listdemo, true);
-							if (quickHashesMatch && !excludedMap)
-								DemoTickCounts.Add((CurDemo.TickCount(), CurDemo.AdjustedTickCount()));
-						}
 
 						if (implicitOptions.actionsPressed)
 							ConsFunc_DumpActions(actionsPressed);
@@ -369,10 +363,27 @@ namespace ConsoleApp {
 						ConsoleWriteWithColor($"failed.\nMessage: {e.Message}\n", ConsoleColor.Red);
 						if (quickHashesMatch)
 							DemoTickCounts.Add((int.MinValue, int.MinValue));
+						exceptionDuringParsing = true;
 					}
+					// other options might still recover from a parsing exception so put these in a separate try-catch
 
-					if (verbose && Demos.Count > 0)
-						ConsFunc_VerboseDump(); // verbose output can still recover from some exceptions
+					try {
+						if (implicitOptions.listDemo) {
+							bool excludedMap =
+								TimingAdjustment.ExcludedMaps.Contains((CurDemo.DemoSettings.Game,
+									CurDemo.Header.MapName));
+							_displayMapExcludedMsg = quickHashesMatch && excludedMap;
+							ConsFunc_ListDemo(listdemo, true, exceptionDuringParsing, false);
+							if (quickHashesMatch && !excludedMap)
+								DemoTickCounts.Add((CurDemo.TickCount(), CurDemo.AdjustedTickCount()));
+						}
+
+						if (verbose && Demos.Count > 0)
+							ConsFunc_VerboseDump();
+						
+					} catch (Exception e) {
+						ConsoleWriteWithColor($"Tried to continue, but something went terrible wrong:\n{e}\n", ConsoleColor.Red);
+					}
 
 					if (i == 0)
 						prevDemoQuickHash = CurDemoHeaderQuickHash();
@@ -390,13 +401,7 @@ namespace ConsoleApp {
 				if (quickHashesMatch && implicitOptions.listDemo)
 					ConsFunc_DisplayTotalTime();
 				
-				// set to null after so that I can't flush it again, cuz that would cause a crash
-				_curTextWriter?.Flush();
-				_curTextWriter?.Dispose();
-				_curTextWriter = null;
-				_curBinWriter?.Flush();
-				_curBinWriter?.Dispose();
-				_curBinWriter = null;
+				DisposeWriters();
 			}
 
 
@@ -406,8 +411,23 @@ namespace ConsoleApp {
 				string,DirectoryInfo,ListdemoOption,ActPressedDispType,
 				PtpFilterType,ParseResult>)CommandAction);
 
-			
-			rootCommand.Invoke(args);
+			try {
+				rootCommand.Invoke(args);
+			} finally {
+				_folderPath = null;
+				DisposeWriters();
+			}
+		}
+
+
+		// set to null after so that I can't flush it again, cuz that would cause a crash
+		private static void DisposeWriters() {
+			_curTextWriter?.Flush();
+			_curTextWriter?.Dispose();
+			_curTextWriter = null;
+			_curBinWriter?.Flush();
+			_curBinWriter?.Dispose();
+			_curBinWriter = null;
 		}
 		
 		
@@ -455,14 +475,6 @@ namespace ConsoleApp {
 		private static void PrintVersionInfo() {
 			DateTime dt = BuildDateAttribute.GetBuildDate(Assembly.GetExecutingAssembly());
 			Console.WriteLine($"Build time: {dt.ToString("R", CultureInfo.CurrentCulture)}");
-		}
-
-
-		private static void ConsoleWriteWithColor(string s, ConsoleColor color) {
-			var original = Console.ForegroundColor;
-			Console.ForegroundColor = color;
-			Console.Write(s);
-			Console.ForegroundColor = original;
 		}
 	}
 

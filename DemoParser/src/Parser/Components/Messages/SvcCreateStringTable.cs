@@ -14,7 +14,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public int UserDataSize;
 		public int UserDataSizeBits;
 		public StringTableFlags? Flags;
-		public StringTableUpdate TableUpdate;
+		public StringTableUpdates TableUpdates;
 		
 
 		public SvcCreateStringTable(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
@@ -32,8 +32,8 @@ namespace DemoParser.Parser.Components.Messages {
 				Flags = (StringTableFlags)bsr.ReadBitsAsUInt(DemoSettings.NewDemoProtocol ? 2 : 1);
 			
 			DemoRef.CurStringTablesManager.CreateStringTable(this);
-			TableUpdate = new StringTableUpdate(DemoRef, bsr.SubStream(dataLen), TableName, NumEntries);
-			TableUpdate.ParseOwnStream();
+			TableUpdates = new StringTableUpdates(DemoRef, bsr.SubStream(dataLen), TableName, NumEntries);
+			TableUpdates.ParseOwnStream();
 			
 			bsr.SkipBits(dataLen);
 			SetLocalStreamEnd(bsr);
@@ -57,10 +57,10 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.Append("table update:");
 			iw.FutureIndent++;
 			iw.AppendLine();
-			if (TableUpdate == null)
+			if (TableUpdates == null)
 				iw.Append("table update could not be parsed");
 			else
-				TableUpdate.AppendToWriter(iw);
+				TableUpdates.AppendToWriter(iw);
 			iw.FutureIndent--;
 		}
 	}
@@ -71,7 +71,7 @@ namespace DemoParser.Parser.Components.Messages {
 		None              = 0,
 		DictionaryEnabled = 1,
 		Unknown           = 1 << 1,
-		// V "I created this SvcCreateStringTable object myself and it's fake" V
-		Fake              = 1 << 30
+		
+		Fake              = 1 << 30 // I created this SvcCreateStringTable object myself and it's fake
 	} 
 }

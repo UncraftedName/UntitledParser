@@ -1,10 +1,11 @@
+using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
-	public class MpMapCompleted : SvcUserMessage {
+	public class MpMapCompleted : UserMessage {
 
 		public byte Branch; // course probably
 		public byte Level;
@@ -20,7 +21,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		
 		
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 		
 		
