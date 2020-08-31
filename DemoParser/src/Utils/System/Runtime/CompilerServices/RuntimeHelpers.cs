@@ -1,6 +1,5 @@
 using System.Reflection;
 
-// ReSharper disable once CheckNamespace
 namespace System.Runtime.CompilerServices {
 	/*
 	 * Polyfill for RuntimeHelpers.GetSubArray to allow range-based indexing of arrays.

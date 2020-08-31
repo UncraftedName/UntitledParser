@@ -35,7 +35,7 @@ namespace DemoParser.Parser.HelperClasses {
 	
 
 	// Keeps the original string tables passed here untouched, and keeps a separate "current copy"
-	// since the tables can be updated/modified as the demo runs from SvcUpdateStringTable.
+	// since the tables can be updated/modified as the parser reads from SvcUpdateStringTable.
 	internal class CurStringTablesManager { // todo any object taken from the tables should not be taken until the tables are updated for that tick
 		
 		// the list here can be updated and is meant to be separate from the list in the stringtables packet

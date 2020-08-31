@@ -41,7 +41,7 @@ namespace DemoParser.Parser.Components.Messages {
 				? $"sound: {SoundName}" 
 				: "sound index:");
 			
-			iw.Append($" ({SoundIndex})");
+			iw.Append($" [{SoundIndex}]");
 		}
 	}
 }

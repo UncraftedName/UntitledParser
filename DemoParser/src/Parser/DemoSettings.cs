@@ -200,9 +200,12 @@ namespace DemoParser.Parser {
 					CollisionsGroupList = PropEnums.CollisionGroupListOldDemoProtocol;
 					UserMessageLengthBits = 11;
 					NumNetFileFlagBits = 1;
-					MessageTypes = h.NetworkProtocol >= 24
-						? DemoMessage.SteamPipeMessageList
-						: DemoMessage.OldProtocolMessageList;
+					if (h.NetworkProtocol <= 7)
+						MessageTypes = DemoMessage.OeMessageList;
+					else if (h.NetworkProtocol < 24)
+						MessageTypes = DemoMessage.OldProtocolMessageList;
+					else
+						MessageTypes = DemoMessage.SteamPipeMessageList;
 					break;
 				case 4:
 					NewDemoProtocol = true;

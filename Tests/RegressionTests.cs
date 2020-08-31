@@ -1,8 +1,10 @@
-using NUnit.Framework;
 using System.Runtime.CompilerServices;
+using NUnit.Framework;
 
 namespace Tests {
-	class RegressionTests {
+	
+	public class RegressionTests {
+		
 		[Test]
 		public void TestStupidReflectionHack() {
 			object o = new int[1];

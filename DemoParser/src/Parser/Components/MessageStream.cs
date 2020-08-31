@@ -39,7 +39,8 @@ namespace DemoParser.Parser.Components {
 					Messages.Add((messageType, demoMessage));
 				} while (Messages[^1].message != null && messageBsr.BitsRemaining >= DemoSettings.NetMsgTypeBits);
 			} catch (Exception ex) {
-				Debug.WriteLine(e = ex);
+				e = ex;
+				Debug.WriteLine(e);
 				// if the stream goes out of bounds, that's not a big deal since the messages are skipped over at the end anyway
 				(MessageType, DemoMessage?) pair = (messageType, null);
 				Messages.Add(pair);
@@ -53,6 +54,7 @@ namespace DemoParser.Parser.Components {
 			if (e != null
 				|| !Enum.IsDefined(typeof(MessageType), lastType)
 				|| lastType == Unknown
+				|| lastType == Invalid
 				|| lastMessage == null) 
 			{
 				var lastNonNopMessage = Messages.FindLast(tuple => tuple.messageType != NetNop && tuple.message != null).messageType;
@@ -63,7 +65,7 @@ namespace DemoParser.Parser.Components {
 				if (e != null) {
 					errorStr += $"exception when parsing {lastType}";
 					errorStr += $"\n\texception: {e.Message}";
-				} else if (!Enum.IsDefined(typeof(MessageType), lastType) || lastType == Unknown) {
+				} else if (!Enum.IsDefined(typeof(MessageType), lastType) || lastType == Unknown || lastType == Invalid) {
 					errorStr += $"unknown message value: {messageValue}";
 				} else {
 					errorStr += $"unimplemented message type - {Messages[^1].messageType}";

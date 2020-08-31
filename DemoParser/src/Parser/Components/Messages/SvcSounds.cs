@@ -218,7 +218,7 @@ namespace DemoParser.Parser.Components.Messages {
 				else
 					iw.Append("sound num:");
 			}
-			iw.AppendLine($" ({SoundNum})");
+			iw.AppendLine($" [{SoundNum}]");
 
 			iw.AppendLine($"flags: {Flags}");
 			iw.AppendLine($"channel: {Chan}");

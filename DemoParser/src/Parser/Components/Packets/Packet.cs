@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
@@ -40,7 +39,8 @@ namespace DemoParser.Parser.Components.Packets {
 			// Most things should be processed during parsing, but any additional checks should be done here.
 
 			var netTickMessages = MessageStream.Where(tuple => tuple.messageType == MessageType.NetTick).ToList();
-			Debug.Assert(netTickMessages.Count < 2, "there's more than 2 net tick messages in this packet");
+			if (netTickMessages.Count > 1)
+				DemoRef.LogError("there's more than 2 net tick messages in this packet");
 			NetTick tickInfo = (NetTick)netTickMessages.FirstOrDefault().message;
 			if (tickInfo != null) {
 				if (DemoRef.CurEntitySnapshot != null)

@@ -64,7 +64,9 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		
 		
-		public StringTableUpdates(SourceDemo demoRef, BitStreamReader reader, string tableName, int updatedEntries) : base(demoRef, reader) {
+		public StringTableUpdates(SourceDemo demoRef, BitStreamReader reader, string tableName, int updatedEntries)
+			: base(demoRef, reader)
+		{
 			_tableName = tableName;
 			_updatedEntries = updatedEntries;
 			TableUpdates = new List<TableUpdate?>(_updatedEntries);
@@ -203,7 +205,7 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		
 		public override void AppendToWriter(IndentedWriter iw) { // similar logic to that in string tables
-			iw.Append($"({Index}) {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
+			iw.Append($"[{Index}] {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
 			if (TableEntry?.EntryData != null) {
 				if (TableEntry.EntryData.InlineToString) {
 					iw.Append("; ");

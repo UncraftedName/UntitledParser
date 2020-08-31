@@ -10,8 +10,8 @@ namespace DemoParser.Parser.Components.Messages {
 		private const float NetTickScaleUp = 100000.0f;
 
 		public uint EngineTick;
-		public float HostFrameTime;
-		public float HostFrameTimeStdDev;
+		public float? HostFrameTime;
+		public float? HostFrameTimeStdDev;
 		
 		
 		public NetTick(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
@@ -19,8 +19,10 @@ namespace DemoParser.Parser.Components.Messages {
 
 		internal override void ParseStream(BitStreamReader bsr) {
 			EngineTick = bsr.ReadUInt();
-			HostFrameTime = bsr.ReadUShort() / NetTickScaleUp;
-			HostFrameTimeStdDev = bsr.ReadUShort() / NetTickScaleUp;
+			if (DemoRef.Header.NetworkProtocol >= 14) {
+				HostFrameTime = bsr.ReadUShort() / NetTickScaleUp;
+				HostFrameTimeStdDev = bsr.ReadUShort() / NetTickScaleUp;
+			}
 			SetLocalStreamEnd(bsr);
 		}
 		
@@ -31,9 +33,11 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.AppendLine($"engine tick: {EngineTick}");
-			iw.AppendLine($"host frame time: {HostFrameTime}");
-			iw.Append($"host frame time std dev: {HostFrameTimeStdDev}");
+			iw.Append($"engine tick: {EngineTick}");
+			if (DemoRef.Header.NetworkProtocol >= 14) {
+				iw.AppendLine($"\nhost frame time: {HostFrameTime}");
+				iw.Append($"host frame time std dev: {HostFrameTimeStdDev}");
+			}
 		}
 	}
 }

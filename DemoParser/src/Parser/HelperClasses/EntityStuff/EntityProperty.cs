@@ -16,6 +16,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	 * once for every type of prop that appears in the demo, so the lookup is a dict that uses reference comparisons
 	 * like java's IdentityHashMap.
 	 */
+	// todo maybe just use a single class
 	public abstract class EntityProperty : Appendable {
 		
 		private class ReferenceComparer : IEqualityComparer<FlattenedProp> {

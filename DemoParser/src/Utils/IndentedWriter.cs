@@ -32,11 +32,6 @@ namespace DemoParser.Utils {
 		}
 
 
-		public void Append(Appendable appendable) {
-			appendable.AppendToWriter(this);
-		}
-
-
 		public void Append(string s) {
 			// string[] newLines = s.Split(new[] {"\r\n", "\r", "\n"}, StringSplitOptions.None);
 			string[] newLines = s.Split('\n');
@@ -139,7 +134,7 @@ namespace DemoParser.Utils {
 		
 		public new virtual string ToString() {
 			IndentedWriter iw = new IndentedWriter();
-			iw.Append(this);
+			AppendToWriter(iw);
 			return iw.ToString();
 		}
 	}

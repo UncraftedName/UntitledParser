@@ -43,7 +43,7 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.Append(mgr.TableReadable.GetValueOrDefault(TableNames.DecalPreCache)
 				? $"decal texture: {mgr.Tables[TableNames.DecalPreCache].Entries[DecalTextureIndex]}"
 				: "decal texture index:");
-			iw.AppendLine($" ({DecalTextureIndex})");
+			iw.AppendLine($" [{DecalTextureIndex}]");
 			if (EntityIndex.HasValue) {
 				iw.AppendLine($"entity index: {EntityIndex}");
 				iw.AppendLine($"model index: {ModelIndex}");

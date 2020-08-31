@@ -15,6 +15,42 @@ namespace DemoParser.Parser.Components.Abstract {
 
 		#region SVC/Net message lists for different versions
 
+		public static readonly IReadOnlyList<MessageType> OeMessageList = new[] {
+			MessageType.NetNop,
+			MessageType.NetDisconnect,
+			MessageType.NetFile,
+			MessageType.NetTick,
+			MessageType.NetStringCmd,
+			MessageType.NetSetConVar,
+			MessageType.NetSignOnState,
+			MessageType.SvcPrint,
+			MessageType.SvcServerInfo,
+			MessageType.SvcSendTable,
+			MessageType.SvcClassInfo,
+			MessageType.SvcSetPause,
+			MessageType.SvcCreateStringTable,
+			MessageType.SvcUpdateStringTable,
+			MessageType.SvcVoiceInit,
+			MessageType.SvcVoiceData,
+			MessageType.Invalid, // would be svc_HLTV
+			MessageType.SvcSounds,
+			MessageType.SvcSetView,
+			MessageType.SvcFixAngle,
+			MessageType.SvcCrosshairAngle,
+			MessageType.SvcBspDecal,
+			MessageType.SvcTerrainMod,
+			MessageType.SvcUserMessage,
+			MessageType.SvcEntityMessage,
+			MessageType.SvcGameEvent,
+			MessageType.SvcPacketEntities,
+			MessageType.SvcTempEntities,
+			MessageType.SvcPrefetch,
+			MessageType.SvcMenu,
+			MessageType.SvcGameEventList,
+			MessageType.SvcGetCvarValue
+		};
+		
+		// same as oe but without terrain mod
 		public static readonly IReadOnlyList<MessageType> OldProtocolMessageList = new[] {
 			MessageType.NetNop,
 			MessageType.NetDisconnect,
@@ -193,6 +229,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		SvcGetCvarValue,
 		SvcCmdKeyValues,
 		SvcPaintmapData,
+		SvcTerrainMod
 	}
 	
 

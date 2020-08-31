@@ -13,7 +13,7 @@ namespace DemoParser.Utils.BitStreams {
 	// mostly just an extra class to keep this nasty unusual stuff separate
 	public partial class BitStreamReader  {
 
-		// todo
+		// todo, prevent special float from getting called each time
 		public void DecodeVector3(SendTableProp propInfo, out Vector3 vec3) { // src_main\engine\dt_encode.cpp line 158
 			vec3.X = DecodeFloat(propInfo);
 			vec3.Y = DecodeFloat(propInfo);

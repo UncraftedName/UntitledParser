@@ -52,7 +52,7 @@ namespace DemoParser.Parser.Components.Messages {
 				// If the messages ever arrive in a different order I should queue them,
 				// but for now just exit if we're updating from a non-existent snapshot.
 				DemoRef.LogError(
-					$"{GetType().Name} failed to process entity delta, " + 
+					$"{GetType().Name} failed to process entity delta, " +
 					$"attempted to retrieve non existent snapshot on engine tick: {DeltaFrom}");
 				return;
 			}
@@ -60,6 +60,11 @@ namespace DemoParser.Parser.Components.Messages {
 			Updates = new List<EntityUpdate>(UpdatedEntries);
 			DataTableParser tableParser = DemoRef.DataTableParser;
 			Entity?[] ents = snapshot.Entities; // current entity state
+
+			if (tableParser == null) {
+				DemoRef.LogError("ent parsing cannot continue because data tables are not set");
+				return;
+			}
 			
 			try { // the journey begins in src_main\engine\servermsghandler.cpp line 663, warning: it goes 8 layers deep
 				if (!IsDelta)
