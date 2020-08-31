@@ -181,9 +181,6 @@ namespace ConsoleApp {
 				}
 			}
 			
-			if (listdemoOption == ListdemoOption.DisplayHeader)
-				_curTextWriter!.WriteLine();
-			
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			_curTextWriter!.WriteLine(
 				$"{"Measured time ",  -25}: {FormatTime((CurDemo.TickCount() - 1) * tickInterval)}" +

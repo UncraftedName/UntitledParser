@@ -51,7 +51,7 @@ namespace ConsoleApp {
 				default:
 					if (!_recursive && args.All(s => File.Exists(s) || Directory.Exists(s))) {
 						_recursive = true;
-						Main(args.Concat(new [] {"--listdemo", ListdemoOption.SuppressHeader.ToString()}).ToArray());
+						Main(args.Concat(new [] {"--listdemo", ListdemoOption.DisplayHeader.ToString()}).ToArray());
 						Console.Read();
 						Environment.Exit(0);
 					}
