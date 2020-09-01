@@ -38,7 +38,6 @@ namespace DemoParser.Parser {
 
 		public const int MaxPlayerNameLength = 32;
 		public const int SignedGuidLen = 32;
-		public const int MaxCustomFiles = 4;
 		
 
 		// initialized from the header

@@ -42,7 +42,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 		
 		
-		public struct PlayerMask { // todo
+		public struct PlayerMask {
 			public int GameRulesMask;
 			public int BanMask;
 		}
