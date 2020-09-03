@@ -124,17 +124,26 @@ namespace DemoParser.Utils {
 			textWriter.Flush();
 		}
 	}
+	
+	
+	public interface IAppendable {
+		void AppendToWriter(IndentedWriter iw);
+	}
 
 
 	// This lets me see the toString() representation by just using the append function that I implemented for every
 	// demo component anyway.
-	public abstract class Appendable {
+	public abstract class AppendableClass : IAppendable {
 		
 		public abstract void AppendToWriter(IndentedWriter iw);
 		
 		public new virtual string ToString() {
+			return AppendHelper(this);
+		}
+
+		public static string AppendHelper(IAppendable ia) {
 			IndentedWriter iw = new IndentedWriter();
-			AppendToWriter(iw);
+			ia.AppendToWriter(iw);
 			return iw.ToString();
 		}
 	}

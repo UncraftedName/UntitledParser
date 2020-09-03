@@ -9,6 +9,7 @@ using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using static DemoParser.Parser.DemoSettings;
+using static DemoParser.Parser.HelperClasses.EntityStuff.EntityProperty;
 using static DemoParser.Parser.HelperClasses.EntityStuff.PropEnums.PlayerMfFlags_t;
 using static DemoParser.Parser.HelperClasses.TimingAdjustment.AdjustmentType;
 using static DemoParser.Parser.SourceGame;
@@ -236,8 +237,8 @@ namespace DemoParser.Parser.HelperClasses {
 						   .OfType<Delta>()
 						   .First(delta => delta.EntIndex == 1).Props
 						   .Select(tuple => tuple.prop)
-						   .OfType<IntEntProp>()
-						   .Any(prop => prop.Value == NullEHandle && prop.Name == "m_hViewEntity"));
+						   .Where(prop => prop.PropType == PType.Int)
+						   .Any(prop => prop.AsInt == NullEHandle && prop.Name == "m_hViewEntity"));
 		}
 
 
@@ -248,13 +249,13 @@ namespace DemoParser.Parser.HelperClasses {
 				.Where(delta => delta.ServerClass.ClassName == "CProp_Portal")
 				.SelectMany(delta => delta.Props)
 				.Select(tuple => tuple.prop)
-				.OfType<Vec3EntProp>()
+				.Where(prop => prop.PropType == PType.Vec3)
 				.ToList();
 			
 			bool originCheck = false, rotationCheck = false;
 			
-			foreach (Vec3EntProp prop in portalVecDeltas) {
-				ref Vector3 val = ref prop.Value;
+			foreach (EntityProperty prop in portalVecDeltas) {
+				Vector3 val = prop.AsVec3;
 				if (prop.Name == "m_angRotation")
 					rotationCheck = val.X == 90 && val.Z == 0;
 				else if (prop.Name == "m_ptOrigin")
@@ -288,9 +289,9 @@ namespace DemoParser.Parser.HelperClasses {
 						   .OfType<Delta>()
 						   .First(delta => delta.EntIndex == 1).Props
 						   .Select(tuple => tuple.prop)
-						   .OfType<IntEntProp>()
+						   .Where(prop => prop.PropType == PType.Int)
 						   .Any(prop => prop.Name == "m_fFlags" && packet.DemoRef.DemoSettings.PlayerMfFlagChecker.HasFlags(
-							   prop.Value, FL_ONGROUND, FL_CLIENT)));
+							   prop.AsInt, FL_ONGROUND, FL_CLIENT)));
 		}
 
 
@@ -302,9 +303,9 @@ namespace DemoParser.Parser.HelperClasses {
 					   .OfType<Delta>()
 					   .First(delta => delta.EntIndex == 1).Props
 					   .Select(tuple => tuple.prop)
-					   .OfType<IntEntProp>()
+					   .Where(prop => prop.PropType == PType.Int)
 					   .Any(prop => prop.Name == "m_fFlags" && packet.DemoRef.DemoSettings.PlayerMfFlagChecker.HasFlags(
-						   prop.Value, FL_ONGROUND, FL_FROZEN, FL_CLIENT));
+						   prop.AsInt, FL_ONGROUND, FL_FROZEN, FL_CLIENT));
 		}
 
 
@@ -320,8 +321,8 @@ namespace DemoParser.Parser.HelperClasses {
 				.OfType<Delta>()
 				.First(delta => delta.EntIndex == 1).Props
 				.Select(tuple => tuple.prop)
-				.OfType<IntEntProp>()
-				.Any(prop => prop.Value == NullEHandle && prop.Name == "m_hActiveWeapon");
+				.Where(prop => prop.PropType == PType.Int)
+				.Any(prop => prop.AsInt == NullEHandle && prop.Name == "m_hActiveWeapon");
 		}
 
 

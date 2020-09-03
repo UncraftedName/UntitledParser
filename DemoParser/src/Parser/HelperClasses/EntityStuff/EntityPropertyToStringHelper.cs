@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
-	internal static class EntPropToStringHelper {
+	internal static class PropToStringHelper {
 
 		internal static readonly Exception E =
 			new ArgumentException("bro a property doesn't have an implemented display type wtf");
@@ -17,6 +17,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		internal static DisplayType IdentifyTypeForInt(string name, SendTableProp propInfo) {
+			
 			if (propInfo.NumBits == 32 && name.ToLower().Contains("color"))
 				return DisplayType.Color;
 			
@@ -31,12 +32,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 			// bool check is kinda dumb, maybe I shouldn't bother tbh
 			if (propInfo.NumBits == 1) {
-				var lowername = name.ToLower();
+				var lower = name.ToLower();
 				if (split.Any(s => BoolMatcher.IsMatch(s))
 				|| name.Contains("Has")
 				|| name.Contains("Is")
-				|| lowername.Contains("disable")
-				|| lowername.Contains("enable"))
+				|| lower.Contains("disable")
+				|| lower.Contains("enable"))
 					return DisplayType.Bool;
 			}
 			

@@ -5,7 +5,7 @@ using DemoParser.Utils;
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 	// base class
-	public abstract class EntityUpdate : Appendable {
+	public abstract class EntityUpdate : AppendableClass {
 		
 		public readonly ServerClass ServerClass;
 		

@@ -33,22 +33,26 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
         // this might be wrong, it's possible all updates are stored to a new baseline, so effectively only the last one matters
         public void UpdateBaseLine(
             ServerClass serverClass, 
-            IEnumerable<(int propIndex, EntityProperty? prop)> props,
+            IEnumerable<(int propIndex, EntityProperty prop)> props,
             int entPropCount) 
         {
             int i = serverClass.DataTableId;
             if (ClassBaselines[i] == default) { // just init that class slot, i'll write the properties next anyway
                 ClassBaselines[i].serverClass = serverClass;
-                ClassBaselines[i].entityProperties = new EntityProperty[entPropCount];
+                ClassBaselines[i].entityProperties = new EntityProperty?[entPropCount];
             }
             
             // update the slot
-            foreach ((int propIndex, EntityProperty? from) in props) {
+            foreach ((int propIndex, EntityProperty from) in props) {
                 ref EntityProperty? to = ref ClassBaselines[i].entityProperties[propIndex];
-                if (to == null)
-                    to = from.CopyProperty();
-                else
-                    from.CopyPropertyTo(to); // I think this is only necessary for arrays, where old elements may be kept
+                if (to.HasValue) {
+                    // I think this is only necessary for arrays, where old elements may be kept
+                    var tmp = to.Value;
+                    from.CopyPropertyTo(ref tmp);
+                    to = tmp;
+                } else {
+                    to = from;
+                }
             }
         }
 
@@ -66,16 +70,16 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
                                   $"creating new empty baseline for class: ({serverClass.ToString()})");
                 
                 List<FlattenedProp> fProps = _demoRef.DataTableParser.FlattenedProps[classIndex].flattenedProps;
-                props = new EntityProperty[fProps.Count];
+                props = new EntityProperty?[fProps.Count];
                 ClassBaselines[classIndex].serverClass = serverClass;
             }
             
-            EntityProperty?[] newEntProps = new EntityProperty[props.Length];
+            EntityProperty?[] newEntProps = new EntityProperty?[props.Length];
             for (int i = 0; i < newEntProps.Length; i++) {
-                if (props[i] == null)
-                    newEntProps[i] = null;
+                if (props[i].HasValue)
+                    newEntProps[i] = props[i];
                 else
-                    newEntProps[i] = props[i].CopyProperty();
+                    newEntProps[i] = null;
             }
 
             return new Entity(serverClass, newEntProps, serial);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using DemoParser.Parser;
 using DemoParser.Parser.Components.Abstract;
@@ -151,6 +152,14 @@ namespace DemoParser.Utils {
 
 		public static TV GetValueOrDefault<TK, TV>(this IDictionary<TK, TV> dict, TK key, TV defVal = default) {
 			return dict.TryGetValue(key, out TV val) ? val : defVal;
+		}
+		
+		
+		internal class ReferenceComparer<T> : IEqualityComparer<T> {
+			public bool Equals(T a, T b) => ReferenceEquals(a, b);
+#pragma warning disable CS0436
+			public int GetHashCode(T obj) => RuntimeHelpers.GetHashCode(obj);
+#pragma warning restore CS0436
 		}
 	}
 }

@@ -6,7 +6,7 @@ namespace DemoParser.Parser.Components.Abstract {
 	/// <summary>
 	/// Represents a well-defined 'chunk' of data in the demo.
 	/// </summary>
-	public abstract class DemoComponent : Appendable {
+	public abstract class DemoComponent : AppendableClass {
 		
 		internal readonly SourceDemo DemoRef; // if null, this IS the SourceDemo class
 		protected DemoSettings DemoSettings => DemoRef.DemoSettings;

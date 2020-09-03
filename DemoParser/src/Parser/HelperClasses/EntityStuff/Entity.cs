@@ -1,4 +1,4 @@
-using System.Linq;
+using System;
 using DemoParser.Parser.Components.Messages;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
@@ -12,7 +12,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		
 		// assume props array is deep-copied
-		private Entity(ServerClass serverClass, EntityProperty?[] props, uint serial, bool inPvs) { 
+		private Entity(ServerClass serverClass, EntityProperty?[] props, uint serial, bool inPvs) {
 			ServerClass = serverClass;
 			Props = props;
 			Serial = serial;
@@ -20,8 +20,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 		
-		public Entity(ServerClass serverClass, EntityProperty?[] props, uint serial) 
-			: this (serverClass, props, serial, true){}
+		public Entity(ServerClass serverClass, EntityProperty?[] props, uint serial)
+			: this (serverClass, props, serial, true) {}
 
 
 		public override string ToString() {
@@ -29,7 +29,10 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 
-		public Entity DeepCopy() => 
-			new Entity(ServerClass, Props.Select(property => property?.CopyProperty()).ToArray(), Serial, InPvs);
+		public Entity DeepCopy() {
+			EntityProperty?[] newProps = new EntityProperty?[Props.Length];
+			Array.Copy(Props, newProps, Props.Length);
+			return new Entity(ServerClass, newProps, Serial, InPvs);
+		}
 	}
 }

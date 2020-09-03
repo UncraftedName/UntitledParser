@@ -32,8 +32,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			["m_nRenderMode"] = m_nRenderMode
 		};
 		
-		private static readonly Dictionary<(string tableName, string propName), DisplayType> TableSpecificPropNames = 
-			new Dictionary<(string, string), DisplayType> 
+		private static readonly Dictionary<(string tableName, string propName), DisplayType> TableSpecificPropNames =
+			new Dictionary<(string, string), DisplayType>
 			{
 				[("DT_PlayerState", "deadflag")]                  = Bool,
 				[("DT_Portal_Player", "m_pHeldObjectPortal")]     = Handle,
@@ -126,7 +126,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				DT_Precipitation__m_nPrecipType           => ((PrecipitationType_t)val).ToString(),
 				DT_CPropJeepEpisodic__m_iRadarContactType => ((EpisodicRadarContactType)val).ToString(),
 				DT_BaseTrigger__m_spawnflags              => $"({(SF_BaseTrigger)val})",
-				_ => throw EntPropToStringHelper.E
+				_ => throw PropToStringHelper.E
 			};
 		}
 	}
@@ -138,8 +138,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		[Flags]
 		public enum SolidFlags_t {
 			None                        = 0,
-			FSOLID_CUSTOMRAYTEST        = 0x0001, // Ignore solid type + always call into the entity for ray tests
-			FSOLID_CUSTOMBOXTEST        = 0x0002, // Ignore solid type + always call into the entity for swept box tests
+			FSOLID_CUSTOMRAYTEST        = 0x0001, // Ignore solid Type + always call into the entity for ray tests
+			FSOLID_CUSTOMBOXTEST        = 0x0002, // Ignore solid Type + always call into the entity for swept box tests
 			FSOLID_NOT_SOLID            = 0x0004, // Are we currently not solid?
 			FSOLID_TRIGGER              = 0x0008, // This is something may be collideable but fires touch functions
 			                                      // even when it's not collideable (when the FSOLID_NOT_SOLID flag is set)
@@ -163,7 +163,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 
-		public enum SolidType_t { // Solid type basically describes how the bounding volume of the object is represented
+		public enum SolidType_t { // Solid Type basically describes how the bounding volume of the object is represented
 			SOLID_NONE     = 0,   // no solid model
 			SOLID_BSP      = 1,   // a BSP tree
 			SOLID_BBOX     = 2,   // an AABB
@@ -752,8 +752,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			DMG_SONIC                 = 1 << 9,  // sound pulse shockwave
 			DMG_ENERGYBEAM            = 1 << 10, // laser or other high energy beam 
 			DMG_PREVENT_PHYSICS_FORCE = 1 << 11, // Prevent a physics force 
-			DMG_NEVERGIB              = 1 << 12, // with this bit OR'd in, no damage type will be able to gib victims upon death
-			DMG_ALWAYSGIB             = 1 << 13, // with this bit OR'd in, any damage type can be made to gib victims upon death.
+			DMG_NEVERGIB              = 1 << 12, // with this bit OR'd in, no damage Type will be able to gib victims upon death
+			DMG_ALWAYSGIB             = 1 << 13, // with this bit OR'd in, any damage Type can be made to gib victims upon death.
 			DMG_DROWN                 = 1 << 14, // Drowning
 			DMG_PARALYZE              = 1 << 15, // slows affected creature down
 			DMG_NERVEGAS              = 1 << 16, // nerve toxins, very bad

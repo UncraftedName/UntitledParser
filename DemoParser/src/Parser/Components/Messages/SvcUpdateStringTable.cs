@@ -189,7 +189,7 @@ namespace DemoParser.Parser.Components.Messages {
 	}
 
 
-	public class TableUpdate : Appendable {
+	public class TableUpdate : AppendableClass {
 
 		internal int PadCount; // just for toString()
 		public readonly CurStringTableEntry? TableEntry;

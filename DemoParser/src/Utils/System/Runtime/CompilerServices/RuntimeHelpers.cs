@@ -35,7 +35,7 @@ namespace System.Runtime.CompilerServices {
 		
 
 		/* Have to do some sad wrapping here because otherwise this function is simply gone */
-		public static int GetHashCode(object o) {
+		public static int GetHashCode(object? o) {
 			return (int)RealGetHashCode.Invoke(null, new[] {o});
 		}
 	}

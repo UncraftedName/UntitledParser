@@ -41,14 +41,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
             Debug.Assert(_demoRef.CBaseLines != null, "baselines are null");
             if (u.New) // force a recreate
                 Entities[u.EntIndex] = _demoRef.CBaseLines.EntFromBaseLine(u.ServerClass, u.Serial);
-            Entity e = Entities[u.EntIndex]
-                       ?? throw new InvalidOperationException($"entity {u.EntIndex} should not be null by now");
+            Entity e = Entities[u.EntIndex] ?? throw new InvalidOperationException($"entity {u.EntIndex} should not be null by now");
             e.InPvs = true;
             ProcessDelta(u);
             if (msg.UpdateBaseline) { // if update baseline then set the current baseline to the ent props, wacky
                 _demoRef.CBaseLines.UpdateBaseLine(
                     u.ServerClass,
-                    e.Props.Select((property, i) => (i, property)).Where(tuple => tuple.property != null),
+                    e.Props.Select((prop, i) => (i, prop)).Where(tuple => tuple.prop.HasValue).Select(tuple => (tuple.i, tuple.prop!.Value)),
                     e.Props.Length);
             }
         }
@@ -65,10 +64,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
         internal void ProcessDelta(Delta u) {
             foreach ((int propIndex, EntityProperty prop) in u.Props) {
                 ref EntityProperty? old = ref Entities[u.EntIndex].Props[propIndex];
-                if (old == null)
-                    old = prop.CopyProperty();
-                else
-                    prop.CopyPropertyTo(old);
+                if (old.HasValue) {
+                    var tmp = old.Value;
+                    prop.CopyPropertyTo(ref tmp);
+                    old = tmp;
+                } else {
+                    old = prop;
+                }
             }
         }
     }
