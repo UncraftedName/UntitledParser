@@ -353,9 +353,9 @@ namespace ConsoleApp {
 							FlattenedProp fProp = fProps[i];
 							_curTextWriter!.Write($"\t({i}): ");
 							_curTextWriter!.Write(fProp.TypeString().PadRight(12));
-							_curTextWriter!.WriteLine(fProp.ArrayElementProp == null
-								? fProp.Prop.ToStringNoType()
-								: fProp.ArrayElementProp.ToStringNoType());
+							_curTextWriter!.WriteLine(fProp.ArrayElementPropInfo == null
+								? fProp.PropInfo.ToStringNoType()
+								: fProp.ArrayElementPropInfo.ToStringNoType());
 						}
 					}
 				}

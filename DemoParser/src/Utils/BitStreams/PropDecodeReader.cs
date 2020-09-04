@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
@@ -190,25 +189,25 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public List<int> DecodeIntArr(FlattenedProp propInfo) {
-			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.NumElements!.Value) + 1);
+			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<int> result = new List<int>(count);
 			for (int i = 0; i < count; i++) 
-				result.Add(DecodeInt(propInfo.ArrayElementProp!));
+				result.Add(DecodeInt(propInfo.ArrayElementPropInfo!));
 			return result;
 		}
 
 
 		public List<float> DecodeFloatArr(FlattenedProp propInfo) {
-			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.NumElements!.Value) + 1);
+			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<float> result = new List<float>(count);
 			for (int i = 0; i < count; i++) 
-				result.Add(DecodeFloat(propInfo.ArrayElementProp!));
+				result.Add(DecodeFloat(propInfo.ArrayElementPropInfo!));
 			return result;
 		}
 
 
 		public List<string> DecodeStringArr(FlattenedProp propInfo) {
-			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.NumElements!.Value) + 1);
+			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<string> result = new List<string>(count);
 			for (int i = 0; i < count; i++) 
 				result.Add(DecodeString());
@@ -217,10 +216,10 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public List<Vector3> DecodeVector3Arr(FlattenedProp propInfo) {
-			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.NumElements!.Value) + 1);
+			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<Vector3> result = new List<Vector3>(count);
 			for (int i = 0; i < count; i++) {
-				DecodeVector3(propInfo.ArrayElementProp!, out Vector3 v3);
+				DecodeVector3(propInfo.ArrayElementPropInfo!, out Vector3 v3);
 				result.Add(v3);
 			}
 			return result;
@@ -228,10 +227,10 @@ namespace DemoParser.Utils.BitStreams {
 		
 		
 		public List<Vector2> DecodeVector2Arr(FlattenedProp propInfo) {
-			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.Prop.NumElements!.Value) + 1);
+			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<Vector2> result = new List<Vector2>(count);
 			for (int i = 0; i < count; i++) {
-				DecodeVector2(propInfo.ArrayElementProp!, out Vector2 v2);
+				DecodeVector2(propInfo.ArrayElementPropInfo!, out Vector2 v2);
 				result.Add(v2);
 			}
 			return result;

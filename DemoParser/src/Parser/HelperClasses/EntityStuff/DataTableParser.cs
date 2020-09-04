@@ -50,14 +50,14 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				// smaller index. In the new protocol the priority of the props is also taken into account.
 				if (_demoRef.DemoSettings.NewDemoProtocol) {
 					List<int> priorities = new List<int> {64};
-					priorities.AddRange(fProps.Select(entry => entry.Prop.Priority!.Value).Distinct());
+					priorities.AddRange(fProps.Select(entry => entry.PropInfo.Priority!.Value).Distinct());
 					priorities.Sort();
 					int start = 0;
 					foreach (int priority in priorities) {
 						while (true) {
 							int currentProp = start;
 							while (currentProp < fProps.Count) {
-								SendTableProp prop = fProps[currentProp].Prop;
+								SendTableProp prop = fProps[currentProp].PropInfo;
 								// ChangesOften gets the same priority as 64
 								if (prop.Priority == priority || (DemSet.PropFlagChecker.HasFlag(prop.Flags, ChangesOften) && priority == 64)) {
 									if (start != currentProp) {
@@ -80,7 +80,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 						int i;
 						for (i = start; i < fProps.Count; i++) {
 							FlattenedProp p = fProps[i];
-							if (DemSet.PropFlagChecker.HasFlag(p.Prop.Flags, ChangesOften)) {
+							if (DemSet.PropFlagChecker.HasFlag(p.PropInfo.Flags, ChangesOften)) {
 								fProps[i] = fProps[start];
 								fProps[start] = p;
 								start++;
@@ -175,7 +175,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		public ServerClass GetClassByDtName(string dtName) {
-			return _dtRef.ServerClasses.Single(serverClass => serverClass.DataTableName == dtName);
+			return _dtRef.ServerClasses!.Single(serverClass => serverClass.DataTableName == dtName);
 		}
 	}
 	
@@ -184,20 +184,20 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		internal readonly DemoSettings DemoSettings;
 		public readonly string Name;
-		public readonly SendTableProp Prop;
-		public readonly SendTableProp? ArrayElementProp;
+		public readonly SendTableProp PropInfo;
+		public readonly SendTableProp? ArrayElementPropInfo;
 		
 
-		public FlattenedProp(DemoSettings demoSettings, string name, SendTableProp prop, SendTableProp? arrayElementProp) {
-			Prop = prop;
-			ArrayElementProp = arrayElementProp;
+		public FlattenedProp(DemoSettings demoSettings, string name, SendTableProp propInfo, SendTableProp? arrayElementPropInfo) {
+			PropInfo = propInfo;
+			ArrayElementPropInfo = arrayElementPropInfo;
 			DemoSettings = demoSettings;
 			Name = name;
 		}
 		
 
 		public override string ToString() {
-			SendTableProp displayProp = DemoSettings.PropFlagChecker.HasFlag(Prop.Flags, InsideArray) ? ArrayElementProp! : Prop;
+			SendTableProp displayProp = DemoSettings.PropFlagChecker.HasFlag(PropInfo.Flags, InsideArray) ? ArrayElementPropInfo! : PropInfo;
 			return $"{TypeString()} {Name}, " +
 				   $"{displayProp.NumBits} bit{(displayProp.NumBits == 1 ? "" : "s")}, " +
 				   $"flags: {displayProp.Flags}";
@@ -206,9 +206,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		// if elements are of array type, converts from something like "int" to something like "int[32]"
 		public string TypeString() {
-			return Prop.SendPropType == SendPropType.Array
-				? $"{ArrayElementProp?.SendPropType.ToString().ToLower()}[{Prop.NumElements}]" 
-				: Prop.SendPropType.ToString().ToLower();
+			return PropInfo.SendPropType == SendPropType.Array
+				? $"{ArrayElementPropInfo?.SendPropType.ToString().ToLower()}[{PropInfo.NumElements}]" 
+				: PropInfo.SendPropType.ToString().ToLower();
 		}
 	}
 

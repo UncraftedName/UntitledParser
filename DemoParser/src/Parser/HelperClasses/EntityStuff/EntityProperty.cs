@@ -202,12 +202,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				return "UNPARSED_DATA";
 			} else if (!DisplayLookup.TryGetValue(PropInfo, out dispType)) { 
 				dispType = PropType switch {
-					PType.Int      => IdentifyTypeForInt(Name, PropInfo.Prop),
+					PType.Int      => IdentifyTypeForInt(Name, PropInfo.PropInfo),
 					PType.Float    => IdentifyTypeForFloat(Name),
 					PType.Vec2     => IdentifyTypeForVec2(Name),
 					PType.Vec3     => IdentifyTypeForVec3(Name),
 					PType.Str      => IdentifyTypeForString(Name),
-					PType.IntArr   => IdentifyTypeForInt(Name, PropInfo.ArrayElementProp!),
+					PType.IntArr   => IdentifyTypeForInt(Name, PropInfo.ArrayElementPropInfo!),
 					PType.FloatArr => IdentifyTypeForFloat(Name),
 					PType.Vec2Arr  => IdentifyTypeForVec2(Name),
 					PType.Vec3Arr  => IdentifyTypeForVec3(Name),
@@ -267,51 +267,51 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		
 		// all of this fun jazz can be found in src_main/engine/dt_encode.cpp, a summary with comments is at the very end
-		private static EntityProperty CreateAndReadProp(FlattenedProp prop, BitStreamReader bsr) {
+		private static EntityProperty CreateAndReadProp(FlattenedProp fProp, BitStreamReader bsr) {
 			
 			const string exceptionMsg = "an impossible entity PropType has appeared while creating/reading props ";
 			try {
 				int offset = bsr.AbsoluteBitIndex;
-				switch (prop.Prop.SendPropType) {
+				switch (fProp.PropInfo.SendPropType) {
 					case SendPropType.Int:
-						int i = bsr.DecodeInt(prop.Prop);
-						return new EntityProperty(prop, offset, bsr.AbsoluteBitIndex - offset, i);
+						int i = bsr.DecodeInt(fProp.PropInfo);
+						return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, i);
 					case SendPropType.Float:
-						float f = bsr.DecodeFloat(prop.Prop);
-						return new EntityProperty(prop, offset, bsr.AbsoluteBitIndex - offset, f);
+						float f = bsr.DecodeFloat(fProp.PropInfo);
+						return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, f);
 					case SendPropType.Vector3:
-						bsr.DecodeVector3(prop.Prop, out Vector3 v3);
-						return new EntityProperty(prop, offset, bsr.AbsoluteBitIndex - offset, ref v3);
+						bsr.DecodeVector3(fProp.PropInfo, out Vector3 v3);
+						return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, ref v3);
 					case SendPropType.Vector2:
-						bsr.DecodeVector2(prop.Prop, out Vector2 v2);
-						return new EntityProperty(prop, offset, bsr.AbsoluteBitIndex - offset, ref v2);
+						bsr.DecodeVector2(fProp.PropInfo, out Vector2 v2);
+						return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, ref v2);
 					case SendPropType.String:
 						string s = bsr.DecodeString();
-						return new EntityProperty(prop, offset, bsr.AbsoluteBitIndex - offset, s);
+						return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, s);
 					case SendPropType.Array:
-						switch (prop.ArrayElementProp!.SendPropType) {
+						switch (fProp.ArrayElementPropInfo!.SendPropType) {
 							case SendPropType.Int: {
-								List<int> tmp = bsr.DecodeIntArr(prop);
-								return new EntityProperty(prop, offset, bsr.AbsoluteBitIndex - offset, tmp);
+								List<int> tmp = bsr.DecodeIntArr(fProp);
+								return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, tmp);
 							} case SendPropType.Float: {
-								List<float> tmp = bsr.DecodeFloatArr(prop);
-								return new EntityProperty(prop, offset, bsr.AbsoluteBitIndex - offset, tmp);
+								List<float> tmp = bsr.DecodeFloatArr(fProp);
+								return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, tmp);
 							} case SendPropType.Vector2: {
-								List<Vector2> tmp = bsr.DecodeVector2Arr(prop);
-								return new EntityProperty(prop, offset, bsr.AbsoluteBitIndex - offset, tmp);
+								List<Vector2> tmp = bsr.DecodeVector2Arr(fProp);
+								return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, tmp);
 							} case SendPropType.Vector3: {
-								List<Vector3> tmp = bsr.DecodeVector3Arr(prop);
-								return new EntityProperty(prop, offset, bsr.AbsoluteBitIndex - offset, tmp);
+								List<Vector3> tmp = bsr.DecodeVector3Arr(fProp);
+								return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, tmp);
 							} case SendPropType.String: {
-								List<string> tmp = bsr.DecodeStringArr(prop);
-								return new EntityProperty(prop, offset, bsr.AbsoluteBitIndex - offset, tmp);
+								List<string> tmp = bsr.DecodeStringArr(fProp);
+								return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, tmp);
 							} default:
-								throw new ArgumentException(exceptionMsg, nameof(prop.Prop.SendPropType));
+								throw new ArgumentException(exceptionMsg, nameof(fProp.PropInfo.SendPropType));
 						}
 				}
-				throw new ArgumentException(exceptionMsg, nameof(prop.Prop.SendPropType));
+				throw new ArgumentException(exceptionMsg, nameof(fProp.PropInfo.SendPropType));
 			} catch (ArgumentOutOfRangeException) { // catch errors during parsing
-				return new EntityProperty(prop);
+				return new EntityProperty(fProp);
 			}
 		}
 	}
