@@ -21,6 +21,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		public float? HighValue;
 		public uint? NumBits;
 		public uint? NumElements;
+		// cache for faster parsing
+		internal FloatParseType? FloatParseType;
 
 
 		public SendTableProp(SourceDemo demoRef, BitStreamReader reader, SendTable tableRef) : base(demoRef, reader) {

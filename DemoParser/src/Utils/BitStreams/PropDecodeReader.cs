@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
@@ -13,11 +14,10 @@ namespace DemoParser.Utils.BitStreams {
 	// mostly just an extra class to keep this nasty unusual stuff separate
 	public partial class BitStreamReader  {
 
-		// todo, prevent special float from getting called each time. also add to float array
 		public void DecodeVector3(SendTableProp propInfo, out Vector3 vec3) { // src_main\engine\dt_encode.cpp line 158
 			vec3.X = DecodeFloat(propInfo);
 			vec3.Y = DecodeFloat(propInfo);
-			if (propInfo.DemoRef.DemoSettings.PropFlagChecker.HasFlag(propInfo.Flags, PropFlag.Normal)) {
+			if (propInfo.FloatParseType == FloatParseType.Normal) {
 				// Don't read in the third component for normals
 				bool sign = ReadBool();
 				float distSqr = vec3.X * vec3.X + vec3.Y * vec3.Y;
@@ -39,51 +39,14 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		private bool DecodeSpecialFloat(SendTableProp propInfo, out float val) {
-			int flags = propInfo.Flags;
-			AbstractFlagChecker<PropFlag> checker = propInfo.DemoRef.DemoSettings.PropFlagChecker;
-			if (checker.HasFlag(flags, PropFlag.Coord)) {
-				val = ReadBitCoord();
-				return true;
-			} else if (checker.HasFlag(flags, PropFlag.CoordMp)) {
-				val = ReadBitCoordMp(false, false);
-				return true;
-			} else if (checker.HasFlag(flags, PropFlag.CoordMpLp)) {
-				val = ReadBitCoordMp(false, true);
-				return true;
-			} else if (checker.HasFlag(flags, PropFlag.CoordMpInt)) {
-				val = ReadBitCoordMp(true, false);
-				return true;
-			} else if (checker.HasFlag(flags, PropFlag.NoScale)) {
-				val = ReadBitFloat();
-				return true;
-			} else if (checker.HasFlag(flags, PropFlag.Normal)) {
-				val = ReadBitNormal();
-				return true;
-			} else if (propInfo.DemoRef.DemoSettings.NewDemoProtocol) {
-				if (checker.HasFlag(flags, PropFlag.CellCoord)) {
-					val = ReadBitCellCoord(propInfo.NumBits!.Value, BitChordType.None);
-					return true;
-				} else if (checker.HasFlag(flags, PropFlag.CellCoordLp)) {
-					val = ReadBitCellCoord(propInfo.NumBits!.Value, BitChordType.LowPrecision);
-					return true;
-				} else if (checker.HasFlag(flags, PropFlag.CellCoordInt)) {
-					val = ReadBitCellCoord(propInfo.NumBits!.Value, BitChordType.Integral);
-					return true;
-				}
-			}
-			val = default;
-			return false;
-		}
-
-
-		private float ReadBitCellCoord(uint numBits, BitChordType type) {
-			if (type == BitChordType.Integral) {
-				return ReadBitsAsUInt(numBits);
+		private float ReadBitCellCoord(SendTableProp propInfo) {
+			uint intval = ReadBitsAsUInt(propInfo.NumBits!.Value);
+			if (propInfo.FloatParseType == FloatParseType.BitCellChordInt) {
+				return intval;
 			} else {
-				uint intval = ReadBitsAsUInt(numBits);
-				uint fractVal = ReadBitsAsUInt(type == BitChordType.LowPrecision ? CoordFracBitsMpLp : CoordFracBits);
-				return intval + fractVal * (type == BitChordType.LowPrecision ? CoordResLp : CoordRes);
+				bool lp = propInfo.FloatParseType == FloatParseType.BitCellChordLp;
+				uint fractVal = ReadBitsAsUInt(lp ? CoordFracBitsMpLp : CoordFracBits);
+				return intval + fractVal * (lp ? CoordResLp : CoordRes);
 			}
 		}
 
@@ -97,17 +60,72 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		// same thing as just reading float????????????
-		public float ReadBitFloat() => BitUtils.Int32BitsToSingle((int)ReadUInt());
-
-
 		public float DecodeFloat(SendTableProp propInfo) {
-			if (DecodeSpecialFloat(propInfo, out float val)) // check for special flags
-				return val;
+			if (propInfo.FloatParseType == null)
+				SetFloatParseType(propInfo);
+
+			return propInfo.FloatParseType switch {
+				FloatParseType.Standard        => ReadStandardFloat(propInfo),
+				FloatParseType.Coord           => ReadBitCoord(),
+				FloatParseType.BitCoordMp      => ReadBitCoordMp(propInfo),
+				FloatParseType.BitCoordMpLp    => ReadBitCoordMp(propInfo),
+				FloatParseType.BitCoordMpInt   => ReadBitCoordMp(propInfo),
+				FloatParseType.NoScale         => ReadFloat(),
+				FloatParseType.Normal          => ReadBitNormal(),
+				FloatParseType.BitCellChord    => ReadBitCellCoord(propInfo),
+				FloatParseType.BitCellChordLp  => ReadBitCellCoord(propInfo),
+				FloatParseType.BitCellChordInt => ReadBitCellCoord(propInfo),
+				_ => throw new ArgumentOutOfRangeException(nameof(propInfo.FloatParseType))
+			};
+		}
+
+
+		private float ReadStandardFloat(SendTableProp propInfo) {
 			int bits = (int)propInfo.NumBits!.Value;
 			uint dwInterp = ReadBitsAsUInt(bits);
-			val = (float)dwInterp / ((1 << bits) - 1);
+			float val = (float)dwInterp / ((1 << bits) - 1);
 			return propInfo.LowValue!.Value + (propInfo.HighValue!.Value - propInfo.LowValue.Value) * val;
+		}
+
+
+		private static void SetFloatParseType(SendTableProp propInfo) {
+			int flags = propInfo.Flags;
+			AbstractFlagChecker<PropFlag> checker = propInfo.DemoRef.DemoSettings.PropFlagChecker;
+			ref FloatParseType? pType = ref propInfo.FloatParseType; 
+			if (checker.HasFlag(flags, PropFlag.Coord)) {
+				pType = FloatParseType.Coord;
+			} else if (checker.HasFlag(flags, PropFlag.CoordMp)) {
+				pType = FloatParseType.BitCoordMp;
+			} else if (checker.HasFlag(flags, PropFlag.CoordMpLp)) {
+				pType = FloatParseType.BitCoordMpLp;
+			} else if (checker.HasFlag(flags, PropFlag.CoordMpInt)) {
+				pType = FloatParseType.BitCoordMpInt;
+			} else if (checker.HasFlag(flags, PropFlag.NoScale)) {
+				pType = FloatParseType.NoScale;
+			} else if (checker.HasFlag(flags, PropFlag.Normal)) {
+				pType = FloatParseType.Normal;
+			} else if (propInfo.DemoRef.DemoSettings.NewDemoProtocol) {
+				if (checker.HasFlag(flags, PropFlag.CellCoord)) {
+					pType = FloatParseType.BitCellChord;
+				} else if (checker.HasFlag(flags, PropFlag.CellCoordLp)) {
+					pType = FloatParseType.BitCellChordLp;
+				} else if (checker.HasFlag(flags, PropFlag.CellCoordInt)) {
+					pType = FloatParseType.BitCellChordInt;
+				}
+			}
+			pType ??= FloatParseType.Standard;
+#if DEBUG
+			// I assume in the vec3 parsing that if the float is a normal that these values before it are not set.
+			// (if normal -> no other float flags before the normal flag are set)
+			if (pType == FloatParseType.Coord ||
+				pType == FloatParseType.BitCoordMp ||
+				pType == FloatParseType.BitCoordMpLp ||
+				pType == FloatParseType.BitCoordMpInt ||
+				pType == FloatParseType.NoScale)
+			{
+				Debug.Assert(!checker.HasFlag(flags, PropFlag.Normal));
+			}
+#endif
 		}
 
 
@@ -128,11 +146,11 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		public float ReadBitCoordMp(bool bIntegral, bool bLowPrecision) { // src_main\tier1\newbitbuf.cpp line 578
+		public float ReadBitCoordMp(SendTableProp propInfo) { // src_main\tier1\newbitbuf.cpp line 578
 			bool sign = false;
 			float val = 0;
 			bool bInBounds = ReadBool();
-			if (bIntegral) {
+			if (propInfo.FloatParseType == FloatParseType.BitCoordMpInt) {
 				if (ReadBool()) {
 					sign = ReadBool();
 					if (bInBounds)
@@ -149,8 +167,9 @@ namespace DemoParser.Utils.BitStreams {
 					else
 						intval = ReadBitsAsUInt(CoordIntBits) + 1;
 				}
-				uint fractval = ReadBitsAsUInt(bLowPrecision ? CoordFracBitsMpLp : CoordFracBits);
-				val = intval + fractval * (bLowPrecision ? CoordResLp : CoordRes);
+				bool lp = propInfo.FloatParseType == FloatParseType.BitCoordMpLp;
+				uint fractval = ReadBitsAsUInt(lp ? CoordFracBitsMpLp : CoordFracBits);
+				val = intval + fractval * (lp ? CoordResLp : CoordRes);
 			}
 			if (sign)
 				val = -val;
@@ -297,9 +316,16 @@ namespace DemoParser.Utils.BitStreams {
 	}
 
 
-	internal enum BitChordType {
-		None,
-		LowPrecision,
-		Integral
+	internal enum FloatParseType {
+		Standard,
+		Coord,
+		BitCoordMp,
+		BitCoordMpLp,
+		BitCoordMpInt,
+		NoScale,
+		Normal,
+		BitCellChord,
+		BitCellChordLp,
+		BitCellChordInt,
 	}
 }
