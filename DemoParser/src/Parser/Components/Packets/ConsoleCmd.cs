@@ -16,15 +16,14 @@ namespace DemoParser.Parser.Components.Packets {
 		public static implicit operator string(ConsoleCmd cmd) => cmd.Command;
 
 
-		public ConsoleCmd(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
+		public ConsoleCmd(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			uint len = bsr.ReadUInt();
 			int indexBefore = bsr.CurrentBitIndex;
 			Command = bsr.ReadNullTerminatedString();
 			bsr.CurrentBitIndex = (int)(indexBefore + len * 8); // to prevent null bytes from hecking this up
-			SetLocalStreamEnd(bsr);
 			TimingAdjustment.AdjustFromConsoleCmd(this);
 		}
 		

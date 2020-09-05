@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DemoParser.Parser.Components.Messages;
-using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
 	
@@ -11,7 +10,7 @@ namespace DemoParser.Parser.Components.Abstract {
 	/// </summary>
 	public abstract class DemoMessage : DemoComponent {
 
-		protected DemoMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		protected DemoMessage(SourceDemo? demoRef) : base(demoRef) {}
 
 		#region SVC/Net message lists for different versions
 
@@ -150,41 +149,41 @@ namespace DemoParser.Parser.Components.Abstract {
 
 	public static class MessageFactory {
 
-		public static DemoMessage? CreateMessage(SourceDemo demoRef, BitStreamReader reader, MessageType messageType) {
+		public static DemoMessage? CreateMessage(SourceDemo? demoRef, MessageType messageType) {
 			return messageType switch {
-				MessageType.NetNop               => new NetNop(demoRef, reader),
-				MessageType.NetDisconnect        => new NetDisconnect(demoRef, reader),
-				MessageType.NetFile              => new NetFile(demoRef, reader),
-				MessageType.NetSplitScreenUser   => new NetSplitScreenUser(demoRef, reader),
-				MessageType.NetTick              => new NetTick(demoRef, reader),
-				MessageType.NetStringCmd         => new NetStringCmd(demoRef, reader),
-				MessageType.NetSetConVar         => new NetSetConVar(demoRef, reader),
-				MessageType.NetSignOnState       => new NetSignOnState(demoRef, reader),
-				MessageType.SvcServerInfo        => new SvcServerInfo(demoRef, reader),
-				MessageType.SvcSendTable         => new SvcSendTable(demoRef, reader),
-				MessageType.SvcClassInfo         => new SvcClassInfo(demoRef, reader),
-				MessageType.SvcSetPause          => new SvcSetPause(demoRef, reader),
-				MessageType.SvcCreateStringTable => new SvcCreateStringTable(demoRef, reader),
-				MessageType.SvcUpdateStringTable => new SvcUpdateStringTable(demoRef, reader),
-				MessageType.SvcVoiceInit         => new SvcVoiceInit(demoRef, reader),
-				MessageType.SvcPrint             => new SvcPrint(demoRef, reader),
-				MessageType.SvcSounds            => new SvcSounds(demoRef, reader),
-				MessageType.SvcSetView           => new SvcSetView(demoRef, reader),
-				MessageType.SvcFixAngle          => new SvcFixAngle(demoRef, reader),
-				MessageType.SvcCrosshairAngle    => new SvcCrosshairAngle(demoRef, reader),
-				MessageType.SvcBspDecal          => new SvcBspDecal(demoRef, reader),
-				MessageType.SvcUserMessage       => new SvcUserMessage(demoRef, reader),
-				MessageType.SvcEntityMessage     => new SvcEntityMessage(demoRef, reader),
-				MessageType.SvcGameEvent         => new SvcGameEvent(demoRef, reader),
-				MessageType.SvcPacketEntities    => new SvcPacketEntities(demoRef, reader),
-				MessageType.SvcTempEntities      => new SvcTempEntities(demoRef, reader),
-				MessageType.SvcPrefetch          => new SvcPrefetch(demoRef, reader),
-				MessageType.SvcMenu              => new SvcMenu(demoRef, reader),
-				MessageType.SvcGameEventList     => new SvcGameEventList(demoRef, reader),
-				MessageType.SvcGetCvarValue      => new SvcGetCvarValue(demoRef, reader),
-				MessageType.SvcCmdKeyValues      => new SvcCmdKeyValues(demoRef, reader),
-				MessageType.SvcPaintmapData      => new SvcPaintMapData(demoRef, reader),
-				MessageType.SvcSplitScreen       => new SvcSplitScreen(demoRef, reader),
+				MessageType.NetNop               => new NetNop(demoRef),
+				MessageType.NetDisconnect        => new NetDisconnect(demoRef),
+				MessageType.NetFile              => new NetFile(demoRef),
+				MessageType.NetSplitScreenUser   => new NetSplitScreenUser(demoRef),
+				MessageType.NetTick              => new NetTick(demoRef),
+				MessageType.NetStringCmd         => new NetStringCmd(demoRef),
+				MessageType.NetSetConVar         => new NetSetConVar(demoRef),
+				MessageType.NetSignOnState       => new NetSignOnState(demoRef),
+				MessageType.SvcServerInfo        => new SvcServerInfo(demoRef),
+				MessageType.SvcSendTable         => new SvcSendTable(demoRef),
+				MessageType.SvcClassInfo         => new SvcClassInfo(demoRef),
+				MessageType.SvcSetPause          => new SvcSetPause(demoRef),
+				MessageType.SvcCreateStringTable => new SvcCreateStringTable(demoRef),
+				MessageType.SvcUpdateStringTable => new SvcUpdateStringTable(demoRef),
+				MessageType.SvcVoiceInit         => new SvcVoiceInit(demoRef),
+				MessageType.SvcPrint             => new SvcPrint(demoRef),
+				MessageType.SvcSounds            => new SvcSounds(demoRef),
+				MessageType.SvcSetView           => new SvcSetView(demoRef),
+				MessageType.SvcFixAngle          => new SvcFixAngle(demoRef),
+				MessageType.SvcCrosshairAngle    => new SvcCrosshairAngle(demoRef),
+				MessageType.SvcBspDecal          => new SvcBspDecal(demoRef),
+				MessageType.SvcUserMessage       => new SvcUserMessage(demoRef),
+				MessageType.SvcEntityMessage     => new SvcEntityMessage(demoRef),
+				MessageType.SvcGameEvent         => new SvcGameEvent(demoRef),
+				MessageType.SvcPacketEntities    => new SvcPacketEntities(demoRef),
+				MessageType.SvcTempEntities      => new SvcTempEntities(demoRef),
+				MessageType.SvcPrefetch          => new SvcPrefetch(demoRef),
+				MessageType.SvcMenu              => new SvcMenu(demoRef),
+				MessageType.SvcGameEventList     => new SvcGameEventList(demoRef),
+				MessageType.SvcGetCvarValue      => new SvcGetCvarValue(demoRef),
+				MessageType.SvcCmdKeyValues      => new SvcCmdKeyValues(demoRef),
+				MessageType.SvcPaintmapData      => new SvcPaintMapData(demoRef),
+				MessageType.SvcSplitScreen       => new SvcSplitScreen(demoRef),
 				_ => null
 			};
 		}

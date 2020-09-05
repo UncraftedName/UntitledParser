@@ -11,10 +11,10 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public byte[]? Values;
 
 
-		public LightStyle(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public LightStyle(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			string str = bsr.ReadNullTerminatedString(); // yes
 			if (str.Length != 0)
 				Values = str.ToCharArray().Select(c => (byte)((c - 'a') * 22)).ToArray();

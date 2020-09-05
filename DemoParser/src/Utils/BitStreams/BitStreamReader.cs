@@ -5,20 +5,21 @@ using System.Runtime.CompilerServices;
 
 namespace DemoParser.Utils.BitStreams {
 	
-	public partial class BitStreamReader {
+	public partial struct BitStreamReader {
 		
 		public readonly byte[] Data;
 		public int BitLength;
-		public int ByteLength => BitLength >> 3;
 		public readonly int Start; // index of first readable bit
+		internal bool IsLittleEndian; // this doesn't work w/ big endian atm, probably won't try to fix it since it's not necessary
+		
 		public int AbsoluteBitIndex {get;private set;}
+		public int ByteLength => BitLength >> 3;
 		private int AbsoluteByteIndex => AbsoluteBitIndex >> 3;
 		public int CurrentBitIndex {
 			get => AbsoluteBitIndex - Start;
 			set => AbsoluteBitIndex = Start + value;
 		}
 		public int BitsRemaining => Start + BitLength - AbsoluteBitIndex;
-		internal bool IsLittleEndian; // this doesn't work w/ big endian atm, probably won't try to fix it since it's not necessary
 		private byte CurrentByte => Data[AbsoluteByteIndex];  // same as Pointer / 8
 		private byte IndexInByte => (byte)(AbsoluteBitIndex & 0x07); // same as Pointer % 8
 		private byte RemainingBitMask => (byte)(0xff << IndexInByte); // mask to get remaining bits in this byte
@@ -28,7 +29,7 @@ namespace DemoParser.Utils.BitStreams {
 		public BitStreamReader(byte[] data, bool isLittleEndian = true) : this(data, data.Length << 3, 0, isLittleEndian) {}
 
 
-		private BitStreamReader(byte[] data, int bitLength, int start, bool isLittleEndian) {
+		public BitStreamReader(byte[] data, int bitLength, int start, bool isLittleEndian = true) {
 			Data = data;
 			BitLength = bitLength;
 			AbsoluteBitIndex = Start = start;
@@ -37,22 +38,32 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		// splits this stream, and returns a stream which starts at the (same) next readable bit
-		public BitStreamReader SubStream() => SubStream(BitsRemaining);
+		public BitStreamReader Split() => this;
 
 
-		public BitStreamReader SubStream(uint bitLength) => SubStream((int)bitLength);
+		public BitStreamReader Split(uint bitLength) => Split((int)bitLength);
 		
 		
-		public BitStreamReader SubStream(int bitLength) => SubStream(CurrentBitIndex, bitLength);
+		public BitStreamReader Split(int bitLength) => Split(CurrentBitIndex, bitLength);
 		
 		
-		public BitStreamReader SubStream(int fromBitIndex, int bitCount) {
+		public BitStreamReader Split(int fromBitIndex, int bitCount) {
 			if (bitCount < 0)
 				throw new ArgumentOutOfRangeException(nameof(bitCount), $"{nameof(bitCount)} cannot be less than 0");
 			if (fromBitIndex + bitCount > CurrentBitIndex + BitsRemaining)
 				throw new ArgumentOutOfRangeException(nameof(bitCount),
 					$"{BitsRemaining} bits remaining, attempted to create a substream with {fromBitIndex + bitCount - BitsRemaining} too many bits");
 			return new BitStreamReader(Data, bitCount, Start + fromBitIndex, IsLittleEndian);
+		}
+
+
+		public BitStreamReader SplitAndSkip(uint bits) => SplitAndSkip((int)bits);
+
+
+		public BitStreamReader SplitAndSkip(int bits) {
+			BitStreamReader ret = Split(bits);
+			AbsoluteBitIndex += bits;
+			return ret;
 		}
 		
 
@@ -83,6 +94,10 @@ namespace DemoParser.Utils.BitStreams {
 		public void SkipBytes(uint byteCount) => SkipBits(byteCount << 3);
 		public void SkipBytes(int byteCount) => SkipBits(byteCount << 3);
 		public void SkipBits(uint bitCount) => SkipBits((int)bitCount);
+
+
+		// to suppress debug warnings that I didn't finish reading a component
+		internal void SkipToEnd() => SkipBits(BitsRemaining);
 
 
 		public void SkipBits(int bitCount) {

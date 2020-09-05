@@ -29,25 +29,25 @@ namespace DemoParser.Parser.Components.Packets {
 		public List<ServerClass>? ServerClasses;
 		
 		
-		public DataTables(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
+		public DataTables(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			int byteSize = (int)bsr.ReadUInt();
 			int indexBeforeData = bsr.CurrentBitIndex;
 			try {
 				Tables = new List<SendTable>();
 				while (bsr.ReadBool()) {
-					Tables.Add(new SendTable(DemoRef, bsr));
-					Tables[^1].ParseStream(bsr);
+					Tables.Add(new SendTable(DemoRef));
+					Tables[^1].ParseStream(ref bsr);
 				}
 
 				ushort classCount = bsr.ReadUShort();
 				ServerClasses = new List<ServerClass>(classCount);
 				for (int i = 0; i < classCount; i++) {
 					// class info's come at the end
-					ServerClasses.Add(new ServerClass(DemoRef, Reader, null));
-					ServerClasses[^1].ParseStream(bsr);
+					ServerClasses.Add(new ServerClass(DemoRef, null));
+					ServerClasses[^1].ParseStream(ref bsr);
 					// this is an assumption I make in the structure of all the entity stuff, very critical
 					if (i != ServerClasses[i].DataTableId)
 						throw new ConstraintException("server class ID does not match its index in the list");
@@ -66,7 +66,6 @@ namespace DemoParser.Parser.Components.Packets {
 			}
 
 			bsr.CurrentBitIndex = indexBeforeData + (byteSize << 3);
-			SetLocalStreamEnd(bsr);
 		}
 		
 
@@ -107,19 +106,18 @@ namespace DemoParser.Parser.Components.Packets {
 		public List<SendTableProp> SendProps;
 		
 		
-		public SendTable(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SendTable(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			NeedsDecoder = bsr.ReadBool();
 			Name = bsr.ReadNullTerminatedString();
 			uint propCount = bsr.ReadBitsAsUInt(10);
 			SendProps = new List<SendTableProp>((int)propCount);
 			for (int i = 0; i < propCount; i++) {
-				SendProps.Add(new SendTableProp(DemoRef, bsr, this));
-				SendProps[^1].ParseStream(bsr);
+				SendProps.Add(new SendTableProp(DemoRef, this));
+				SendProps[^1].ParseStream(ref bsr);
 			}
-			SetLocalStreamEnd(bsr);
 		}
 		
 

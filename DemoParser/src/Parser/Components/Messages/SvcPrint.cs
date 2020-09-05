@@ -10,12 +10,11 @@ namespace DemoParser.Parser.Components.Messages {
 		public string Str;
 		
 		
-		public SvcPrint(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcPrint(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Str = bsr.ReadNullTerminatedString();
-			SetLocalStreamEnd(bsr);
 		}
 		
 

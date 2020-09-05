@@ -20,9 +20,9 @@ namespace DemoParser.Parser.Components {
 		public uint SignOnLength;
 		
 		
-		public DemoHeader(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public DemoHeader(SourceDemo? demoRef) : base(demoRef) {}
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			FileStamp = bsr.ReadCharArray(8);
 			DemoProtocol = bsr.ReadUInt();
 			NetworkProtocol = bsr.ReadUInt();
@@ -34,7 +34,6 @@ namespace DemoParser.Parser.Components {
 			TickCount = bsr.ReadSInt();
 			FrameCount = bsr.ReadSInt();
 			SignOnLength = bsr.ReadUInt();
-			SetLocalStreamEnd(bsr);
 		}
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {

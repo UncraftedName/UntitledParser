@@ -11,7 +11,7 @@ namespace DemoParser.Parser.Components {
 	public class PacketFrame : DemoComponent {
 		
 		public byte? PlayerSlot; // demo protocol 4 only
-		public DemoPacket Packet;
+		public DemoPacket? Packet;
 		// in the demo the tick is stored as part of the packet frame, 
 		// but for convenience I store it as part of the packet
 		public int Tick {
@@ -21,10 +21,10 @@ namespace DemoParser.Parser.Components {
 		public PacketType Type;
 		
 		
-		public PacketFrame(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public PacketFrame(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			
 			byte typeVal = bsr.ReadByte();
 			Type = DemoPacket.ByteToPacketType(DemoSettings, typeVal);
@@ -42,10 +42,9 @@ namespace DemoParser.Parser.Components {
 			if (DemoSettings.NewDemoProtocol && bsr.BitsRemaining > 0) // last player slot byte is cut off in l4d2 demos
 				PlayerSlot = bsr.ReadByte();
 			
-			Packet = PacketFactory.CreatePacket(DemoRef, bsr, tick, Type);
-			Packet.ParseStream(bsr);
+			Packet = PacketFactory.CreatePacket(DemoRef!, tick, Type);
+			Packet.ParseStream(ref bsr);
 			bsr.EnsureByteAlignment(); // make sure the next frame starts on a byte boundary
-			SetLocalStreamEnd(bsr);
 		}
 		
 		

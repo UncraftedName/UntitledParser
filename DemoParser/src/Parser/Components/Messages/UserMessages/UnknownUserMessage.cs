@@ -10,10 +10,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 	public sealed class UnknownUserMessage : UserMessage {
 		
 		// make sure to pass in a substream here
-		public UnknownUserMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public UnknownUserMessage(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {}
+		protected override void Parse(ref BitStreamReader bsr) {}
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {

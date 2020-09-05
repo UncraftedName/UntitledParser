@@ -107,10 +107,10 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 
 
-		internal CurStringTableEntry? SetEntryData(CurStringTable table, CurStringTableEntry entry, BitStreamReader entryStream) {
+		internal CurStringTableEntry? SetEntryData(CurStringTable table, CurStringTableEntry entry) {
 			if (!TableReadable[table.Name])
 				return null;
-			entry.EntryData = StringTableEntryDataFactory.CreateData(_demoRef, entryStream, table.Name, entry.EntryName);
+			entry.EntryData = StringTableEntryDataFactory.CreateData(_demoRef, table.Name, entry.EntryName);
 			return entry;
 		}
 
@@ -127,7 +127,7 @@ namespace DemoParser.Parser.HelperClasses {
 						newTable = InitNewTable(tableId, CreationLookup[tableId]);
 					} else {
 						// create fake creation info
-						SvcCreateStringTable fakeInfo = new SvcCreateStringTable(null!, null!) {
+						SvcCreateStringTable fakeInfo = new SvcCreateStringTable(null) {
 							TableName = table.Name, 
 							MaxEntries = -1,
 							Flags = StringTableFlags.Fake,
@@ -206,8 +206,8 @@ namespace DemoParser.Parser.HelperClasses {
 			_tableRef = tableRef;
 			EntryName = entryName;
 			if (entryStream != null) {
-				EntryData = StringTableEntryDataFactory.CreateData(demoRef, entryStream, tableRef.Name, entryName, demoRef?.DataTableParser?.FlattenedProps);
-				EntryData.ParseOwnStream(); // todo instead of reparsing the data maybe clone it instead?
+				EntryData = StringTableEntryDataFactory.CreateData(demoRef, tableRef.Name, entryName, demoRef?.DataTableParser.FlattenedProps);
+				EntryData.ParseStream(entryStream.Value); // todo instead of reparsing the data maybe clone it instead?
 			}
 		}
 

@@ -11,10 +11,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public string KeyString;
 		
 		
-		public KeyHintText(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public KeyHintText(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Count = bsr.ReadByte();
 			if (Count != 1)
 				DemoRef.LogError($"{GetType()} is borking, there should only be one string but count is {Count}");

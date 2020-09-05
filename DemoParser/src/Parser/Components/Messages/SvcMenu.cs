@@ -12,15 +12,13 @@ namespace DemoParser.Parser.Components.Messages {
 		public BitStreamReader Data => _data.FromBeginning(); // todo
 		
 
-		public SvcMenu(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcMenu(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			MenuType = bsr.ReadUShort();
 			uint dataLen = bsr.ReadUInt();
-			_data = bsr.SubStream(dataLen);
-			bsr.SkipBits(dataLen);
-			SetLocalStreamEnd(bsr);
+			_data = bsr.SplitAndSkip(dataLen);
 		}
 		
 

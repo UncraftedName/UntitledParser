@@ -16,10 +16,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public Vector3 NewAngles;
 		
 		
-		public EntityPortalled(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public EntityPortalled(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			uint eHandle = bsr.ReadUInt();
 			PortalEntIndex = (int)(eHandle & ((1 << DemoSettings.MaxEdictBits) - 1));
 			PortalSerialNum = (int)(eHandle >> DemoSettings.MaxEdictBits);

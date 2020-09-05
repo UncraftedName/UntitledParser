@@ -13,7 +13,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public UserMessage UserMessage;
 		
 
-		public SvcUserMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public SvcUserMessage(SourceDemo? demoRef) : base(demoRef) {}
 
 
 		/* Okay, this is pretty wacky. First I read a byte, and based off of that I try to determine the type of
@@ -22,13 +22,13 @@ namespace DemoParser.Parser.Components.Messages {
 		 * log an error. Finally, if not all bits of the message are parsed, then it's likely that I did something
 		 * wrong, (since it seems like the user messages use up all the bits in the message) so log an error.
 		 */
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			byte typeVal = bsr.ReadByte();
 			MessageType = UserMessage.ByteToUserMessageType(DemoSettings, typeVal);
 			uint messageLength = bsr.ReadBitsAsUInt(DemoSettings.UserMessageLengthBits);
-
-			var uMessageReader = bsr.SubStream(messageLength);
 			string? errorStr = null;
+
+			var uMessageReader = bsr.SplitAndSkip(messageLength);
 			
 			switch (MessageType) {
 				case UserMessageType.Unknown:
@@ -38,12 +38,12 @@ namespace DemoParser.Parser.Components.Messages {
 					errorStr = $"SvcUserMessage with value {typeVal} is invalid";
 					break;
 				default:
-					UserMessage = SvcUserMessageFactory.CreateUserMessage(DemoRef, uMessageReader, MessageType)!;
+					UserMessage = SvcUserMessageFactory.CreateUserMessage(DemoRef, MessageType)!;
 					if (UserMessage == null) {
 						errorStr = $"Unimplemented SvcUserMessage: {MessageType}";
 					} else {
 						try { // empty messages might still have 1-2 bytes, might need to do something 'bout that
-							if (UserMessage.ParseOwnStream() != 0)
+							if (UserMessage.ParseStream(uMessageReader) != 0)
 								errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) didn't parse all bits";
 						} catch (Exception e) {
 							errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) " + 
@@ -60,13 +60,10 @@ namespace DemoParser.Parser.Components.Messages {
 				int rem = uMessageReader.BitsRemaining;
 				DemoRef.LogError($"{errorStr}, ({rem} bit{(rem == 1 ? "" : "s")}) - " +
 								 $"{uMessageReader.FromBeginning().ToHexString()}");
-				UserMessage = new UnknownUserMessage(DemoRef, uMessageReader);
+				UserMessage = new UnknownUserMessage(DemoRef);
 			}
 
 			#endregion
-
-			bsr.SkipBits(messageLength);
-			SetLocalStreamEnd(bsr);
 		}
 		
 

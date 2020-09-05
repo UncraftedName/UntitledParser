@@ -12,10 +12,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public bool PlayerModEnable;
 		
 		
-		public VoiceMask(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public VoiceMask(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			PlayerMasks = new PlayerMask[VoiceMaxPlayers];
 			for (int i = 0; i < VoiceMaxPlayers; i++)
 				PlayerMasks[i] = new PlayerMask {GameRulesMask = bsr.ReadSInt(), BanMask = bsr.ReadSInt()};

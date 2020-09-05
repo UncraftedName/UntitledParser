@@ -11,10 +11,10 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public uint Port;
 
 
-		public QueryPort(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
+		public QueryPort(SourceDemo? demoRef) : base(demoRef) {}
 
-		internal override void ParseStream(BitStreamReader bsr) {
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Port = bsr.ReadUInt();
 		}
 

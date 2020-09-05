@@ -16,10 +16,10 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool LowPriority;
 		
 
-		public SvcBspDecal(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcBspDecal(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			bsr.ReadVectorCoord(out Pos);
 			DecalTextureIndex = (int)bsr.ReadBitsAsUInt(9);
 			if (bsr.ReadBool()) {
@@ -27,7 +27,6 @@ namespace DemoParser.Parser.Components.Messages {
 				ModelIndex = bsr.ReadBitsAsUInt(DemoSettings.MaxEdictBits);
 			}
 			LowPriority = bsr.ReadBool();
-			SetLocalStreamEnd(bsr);
 		}
 		
 

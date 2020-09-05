@@ -10,12 +10,11 @@ namespace DemoParser.Parser.Components.Messages {
 		public uint EntityIndex;
 		
 		
-		public SvcSetView(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public SvcSetView(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			EntityIndex = bsr.ReadBitsAsUInt(DemoSettings.MaxEdictBits);
-			SetLocalStreamEnd(bsr);
 		}
 		
 

@@ -15,10 +15,10 @@ namespace DemoParser.Parser.Components.Messages {
 		public string? MapName;
 		
 		
-		public NetSignOnState(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public NetSignOnState(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			SignOnState = (SignOnState)bsr.ReadByte();
 			SpawnCount = bsr.ReadSInt();
 			if (DemoSettings.NewDemoProtocol) {
@@ -30,7 +30,6 @@ namespace DemoParser.Parser.Components.Messages {
 				if (length > 0) // the string still seams to be null terminated (sometimes?)
 					MapName = bsr.ReadStringOfLength(length).Split(new char[]{'\0'}, 2)[0];
 			}
-			SetLocalStreamEnd(bsr);
 			if (SignOnState == SignOnState.PreSpawn)
 				DemoRef.ClientSoundSequence = 1; // reset sound sequence number after receiving SignOn sounds
 		}

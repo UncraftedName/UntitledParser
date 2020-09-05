@@ -10,7 +10,7 @@ namespace DemoParser.Utils.BitStreams {
     // This file will have all of the brute force searching utilities,
     // these should never be used when parsing the demo, only for finding new patters and offsets.
     // Be sure to create a substream if you don't want the offset of the reader to be affected.
-    public partial class BitStreamReader {
+    public partial struct BitStreamReader {
         
 		
 		public int FindUInt(uint val) => FindUInt(val, BitUtils.HighestBitIndex(val) + 1);
@@ -48,7 +48,7 @@ namespace DemoParser.Utils.BitStreams {
 			byte[] resized = new byte[((bitCount - 1) >> 3) + 1]; // ensure that resized is the minimum length
 			Array.Copy(arr, resized, resized.Length);
 			while (BitsRemaining >= bitCount) {
-				if (SubStream().ReadBits(bitCount).SequenceEqual(resized))
+				if (Split().ReadBits(bitCount).SequenceEqual(resized))
 					return CurrentBitIndex;
 				AbsoluteBitIndex++;
 			}
@@ -66,18 +66,18 @@ namespace DemoParser.Utils.BitStreams {
 			byte[] resized = new byte[((bitCount - 1) >> 3) + 1]; // ensure that resized is the minimum length
 			Array.Copy(arr, resized, resized.Length);
 			while (BitsRemaining >= bitCount) {
-				if (SubStream().ReadBits(bitCount).SequenceEqual(resized))
+				if (Split().ReadBits(bitCount).SequenceEqual(resized))
 					yield return CurrentBitIndex;
 				AbsoluteBitIndex++;
 			}
 		}
 
 
-		public (int offset, T? component) FindComponentWithProperty<T>(Func<T, bool> property, SourceDemo demoRef) where T : DemoComponent {
+		public (int offset, T? component) FindComponentWithProperty<T>(Func<T, bool> property, SourceDemo? demoRef) where T : DemoComponent {
 			while (BitsRemaining > 0) {
-				T inst = (T)Activator.CreateInstance(typeof(T), demoRef, SubStream())!;
+				T inst = (T)Activator.CreateInstance(typeof(T), demoRef)!;
 				try {
-					inst.ParseStream(SubStream());
+					inst.ParseStream(this);
 				}
 				catch (Exception) {} // the whole point is to push past exceptions for a brute force search
 				if (property.Invoke(inst))

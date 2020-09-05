@@ -20,10 +20,10 @@ namespace DemoParser.Parser.Components.Packets {
 		public uint? WeaponSelect, WeaponSubtype;
 		public short? MouseDx, MouseDy;
 		
-		public UserCmd(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
+		public UserCmd(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			Cmd = bsr.ReadUInt();
 			uint byteSize = bsr.ReadUInt();
 			int indexBeforeData = bsr.CurrentBitIndex;
@@ -44,7 +44,6 @@ namespace DemoParser.Parser.Components.Packets {
 			MouseDx = (short?)bsr.ReadUShortIfExists();
 			MouseDy = (short?)bsr.ReadUShortIfExists();
 			bsr.CurrentBitIndex = indexBeforeData + (int)(byteSize << 3);
-			SetLocalStreamEnd(bsr);
 		}
 
 		

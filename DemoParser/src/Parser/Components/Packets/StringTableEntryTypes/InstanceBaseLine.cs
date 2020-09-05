@@ -25,23 +25,29 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public IReadOnlyList<(int propIndex, EntityProperty prop)> Properties;
 
 
-		public InstanceBaseline(SourceDemo demoRef, BitStreamReader reader, string entryName,
-			PropLookup? propLookup) : base(demoRef, reader) 
-		{
+		public InstanceBaseline(SourceDemo? demoRef, string entryName, PropLookup? propLookup) : base(demoRef) {
 			_entryName = entryName;
 			_propLookup = propLookup;
 		}
 		
-		 // if we're parsing this before the data tables, just leave it for now
-		internal override void ParseStream(BitStreamReader bsr) {
-			_bsr = bsr;
-			if (_propLookup != null)
-				ParseBaseLineData(_propLookup);
+		// if we're parsing this before the data tables, just leave it for now
+		protected override void Parse(ref BitStreamReader bsr) {
+			if (_propLookup != null) {
+				ParseBaseLineData(_propLookup, ref bsr);
+				if (bsr.BitsRemaining < 8) // suppress warnings
+					bsr.SkipToEnd();
+			} else {
+				_bsr = bsr;
+				bsr.SkipToEnd();
+			}
 		}
 
-		
+
+		internal void ParseBaseLineData(PropLookup propLookup) => ParseBaseLineData(propLookup, ref _bsr);
+		 
+		 
 		// called once 
-		internal void ParseBaseLineData(PropLookup propLookup) {
+		private void ParseBaseLineData(PropLookup propLookup, ref BitStreamReader bsr) {
 			_propLookup = propLookup;
 			int id = int.Parse(_entryName);
 			ServerClassRef = _propLookup[id].serverClass;
@@ -54,8 +60,8 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			List<FlattenedProp> fProps = propLookup[id].flattenedProps;
 
 			try {
-				Properties = _bsr.ReadEntProps(fProps, DemoRef);
-				// once we're done, update the C_baselines so I can actually use this for prop creation
+				Properties = bsr.ReadEntProps(fProps, DemoRef);
+				// once we're done, update the Cur baselines so I can actually use this for prop creation
 				if (DemoSettings.ProcessEnts)
 					DemoRef.CBaseLines?.UpdateBaseLine(ServerClassRef, Properties!, fProps.Count);
 			} catch (Exception e) {

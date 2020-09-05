@@ -16,22 +16,19 @@ namespace DemoParser.Parser.Components.Packets {
 		public CustomDataMessage DataMessage;
 
 
-		public CustomData(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
+		public CustomData(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			DataType = (CustomDataType)bsr.ReadSInt();
 			uint size = bsr.ReadUInt();
-			DataMessage = CustomDataFactory.CreateCustomDataMessage(DemoRef, bsr.SubStream(size * 8), DataType);
+			DataMessage = CustomDataFactory.CreateCustomDataMessage(DemoRef, DataType);
 			try {
-				DataMessage.ParseOwnStream();
+				DataMessage.ParseStream(bsr.SplitAndSkip(size * 8));
 			} catch (Exception e) {
 				DemoRef.LogError($"error while parsing custom data of type: {DataType}... {e.Message}");
-				DataMessage = new UnknownCustomDataMessage(DemoRef, DataMessage.Reader);
-				DataMessage.ParseOwnStream();
+				DataMessage = new UnknownCustomDataMessage(DemoRef);
 			}
-			bsr.SkipBytes(size);
-			SetLocalStreamEnd(bsr);
 		}
 		
 

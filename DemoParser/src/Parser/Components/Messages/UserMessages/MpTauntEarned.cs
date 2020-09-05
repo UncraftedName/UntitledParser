@@ -11,10 +11,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public bool AwardSilently;
 		
 		
-		public MpTauntEarned(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public MpTauntEarned(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			TauntName = bsr.ReadNullTerminatedString();
 			AwardSilently = bsr.ReadByte() != 0;
 		}

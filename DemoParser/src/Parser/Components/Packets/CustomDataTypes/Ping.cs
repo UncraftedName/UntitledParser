@@ -9,10 +9,10 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 
 		public uint X, Y;
 		
-		public Ping(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public Ping(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			X = bsr.ReadUInt();
 			Y = bsr.ReadUInt();
 		}

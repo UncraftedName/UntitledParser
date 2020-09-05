@@ -14,16 +14,15 @@ namespace DemoParser.Parser.Components.Messages {
 		public float? HostFrameTimeStdDev;
 		
 		
-		public NetTick(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public NetTick(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			EngineTick = bsr.ReadUInt();
 			if (DemoRef.Header.NetworkProtocol >= 14) {
 				HostFrameTime = bsr.ReadUShort() / NetTickScaleUp;
 				HostFrameTimeStdDev = bsr.ReadUShort() / NetTickScaleUp;
 			}
-			SetLocalStreamEnd(bsr);
 		}
 		
 

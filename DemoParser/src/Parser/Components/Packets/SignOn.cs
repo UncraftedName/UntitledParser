@@ -28,18 +28,17 @@ namespace DemoParser.Parser.Components.Packets {
 		public MessageStream MessageStream {get;set;}
 
 
-		public SignOn(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
+		public SignOn(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			byte[] garbage = bsr.ReadBytes(DemoSettings.SignOnGarbageBytes);
 			Unknown1 = bsr.ReadSInt();
 			Unknown2 = bsr.ReadSInt();
 			if (garbage.Any(b => b != 0))
 				DemoRef.LogError("SignOn garbage data is not all 0's! Data: " + garbage.SequenceToString());
-			MessageStream = new MessageStream(DemoRef, bsr);
-			MessageStream.ParseStream(bsr);
-			SetLocalStreamEnd(bsr);
+			MessageStream = new MessageStream(DemoRef);
+			MessageStream.ParseStream(ref bsr);
 		}
 		
 

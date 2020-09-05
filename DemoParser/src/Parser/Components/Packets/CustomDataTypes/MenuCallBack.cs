@@ -11,10 +11,10 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 		public string CallbackStr;
 		
 		
-		public MenuCallBack(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public MenuCallBack(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Unknown = bsr.ReadSInt();
 			CallbackStr = bsr.ReadNullTerminatedString();
 		}

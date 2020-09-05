@@ -9,11 +9,10 @@ namespace DemoParser.Parser.Components.Messages {
 		public override bool MayContainData => false;
 		
 
-		public NetNop(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public NetNop(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
-			SetLocalStreamEnd(bsr);
+		protected override void Parse(ref BitStreamReader bsr) {
 		}
 		
 

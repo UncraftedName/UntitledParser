@@ -1,5 +1,4 @@
 using DemoParser.Parser.Components.Packets.CustomDataTypes;
-using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
 	
@@ -7,18 +6,18 @@ namespace DemoParser.Parser.Components.Abstract {
 	/// A 'sub-packet' in the CustomData packet.
 	/// </summary>
 	public abstract class CustomDataMessage : DemoComponent {
-		protected CustomDataMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		protected CustomDataMessage(SourceDemo? demoRef) : base(demoRef) {}
 	}
 
 
 	public static class CustomDataFactory {
 
 		// pass in a substream of correct length
-		public static CustomDataMessage CreateCustomDataMessage(SourceDemo demoRef, BitStreamReader bsr, CustomDataType type) {
+		public static CustomDataMessage CreateCustomDataMessage(SourceDemo? demoRef, CustomDataType type) {
 			CustomDataMessage result = type switch {
-				CustomDataType.MenuCallback => new MenuCallBack(demoRef, bsr),
-				CustomDataType.Ping         => new Ping(demoRef, bsr),
-				_ => new UnknownCustomDataMessage(demoRef, bsr)
+				CustomDataType.MenuCallback => new MenuCallBack(demoRef),
+				CustomDataType.Ping         => new Ping(demoRef),
+				_ => new UnknownCustomDataMessage(demoRef) 
 			};
 			
 			if (result.GetType() == typeof(UnknownCustomDataMessage))

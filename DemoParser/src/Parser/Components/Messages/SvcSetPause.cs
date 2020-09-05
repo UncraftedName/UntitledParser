@@ -9,12 +9,11 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public bool IsPaused;
 		
-		public SvcSetPause(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public SvcSetPause(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			IsPaused = bsr.ReadBool();
-			SetLocalStreamEnd(bsr);
 		}
 		
 

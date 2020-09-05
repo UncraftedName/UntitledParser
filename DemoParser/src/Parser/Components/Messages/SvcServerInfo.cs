@@ -27,11 +27,11 @@ namespace DemoParser.Parser.Components.Messages {
 		public string HostName;
 		
 		
-		public SvcServerInfo(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public SvcServerInfo(SourceDemo? demoRef) : base(demoRef) {}
 		
 		
 		// src_main/common/netmessages.cpp  SVC_ServerInfo::WriteToBuffer
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			NetworkProtocol = bsr.ReadUShort();
 			ServerCount = bsr.ReadUInt();
 			IsHltv = bsr.ReadBool();
@@ -42,10 +42,8 @@ namespace DemoParser.Parser.Components.Messages {
 			PlayerCount = bsr.ReadByte();
 			MaxClients = bsr.ReadByte();
 			int skip = DemoSettings.SvcServerInfoUnknownBits; // todo, also fields are out of order for p2
-			if (skip != 0) {
-				_unknown = bsr.SubStream(skip);
-				bsr.SkipBits(skip);
-			}
+			if (skip != 0)
+				_unknown = bsr.SplitAndSkip(skip);
 			TickInterval = bsr.ReadFloat();
 			Platform = (char)bsr.ReadByte();
 			GameDir = bsr.ReadNullTerminatedString();
@@ -53,7 +51,6 @@ namespace DemoParser.Parser.Components.Messages {
 			SkyName = bsr.ReadNullTerminatedString();
 			HostName = bsr.ReadNullTerminatedString();
 			//HasReplay = bsr.ReadBool(); // protocol version ?
-			SetLocalStreamEnd(bsr);
 
 			DemoSettings.TickInterval = TickInterval;
 			// this packet always(?) appears before the creation of any tables
@@ -80,9 +77,9 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.AppendLine($"server map CRC: {MapCrc}"); // change to hex?
 			iw.AppendLine($"current player count: {PlayerCount}");
 			iw.AppendLine($"max player count: {MaxClients}");
-			int unknownCount = DemoSettings.SvcServerInfoUnknownBits;
-			if (unknownCount != 0)
-				iw.AppendLine($"{unknownCount} unknown bits: 0x{Unknown.ToHexString().Replace(" ", " 0x")}");
+			var tmp = Unknown;
+			if (tmp.HasValue)
+				iw.AppendLine($"{tmp.Value.BitLength} unknown bits: 0x{tmp.Value.ToHexString().Replace(" ", " 0x")}");
 			iw.AppendLine($"interval per tick: {TickInterval}");
 			iw.AppendLine($"platform: {Platform}");
 			iw.AppendLine($"game directory: {GameDir}");

@@ -13,17 +13,15 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool? Unknown;
 		
 
-		public SvcTempEntities(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcTempEntities(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			EntryCount = bsr.ReadByte();
 			uint bitLen = bsr.ReadBitsAsUInt(17);
-			_data = bsr.SubStream(bitLen);
-			bsr.SkipBits(bitLen);
+			_data = bsr.SplitAndSkip(bitLen);
 			if (DemoSettings.Game == SourceGame.L4D2_2042)
 				Unknown = bsr.ReadBool();
-			SetLocalStreamEnd(bsr);
 			
 			// todo
 		}

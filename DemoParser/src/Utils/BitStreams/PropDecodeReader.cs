@@ -11,7 +11,7 @@ using static DemoParser.Utils.BitStreams.PropDecodeConsts;
 namespace DemoParser.Utils.BitStreams {
 	
 	// mostly just an extra class to keep this nasty unusual stuff separate
-	public partial class BitStreamReader  {
+	public partial struct BitStreamReader  {
 
 		public void DecodeVector3(SendTableProp propInfo, out Vector3 vec3) { // src_main\engine\dt_encode.cpp line 158
 			vec3.X = DecodeFloat(propInfo);

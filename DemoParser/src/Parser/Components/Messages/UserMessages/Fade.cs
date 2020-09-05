@@ -13,10 +13,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public byte R, G, B, A;
 		
 		
-		public Fade(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public Fade(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Duration = bsr.ReadUShort() / (float)(1 << 9); // might be useful: #define SCREENFADE_FRACBITS 9
 			HoldTime = bsr.ReadUShort();
 			Flags = (FadeFlags)bsr.ReadUShort();

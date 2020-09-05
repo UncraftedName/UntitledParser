@@ -10,10 +10,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public float Time;
 		
 		
-		public LogoTimeMsg(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public LogoTimeMsg(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Time = bsr.ReadFloat();
 		}
 		

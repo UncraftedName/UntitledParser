@@ -17,10 +17,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public Vector3 Angles;
 		
 		
-		public PortalFxSurface(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public PortalFxSurface(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			PortalEnt = bsr.ReadUShort();
 			OwnerEnt = bsr.ReadUShort();
 			Team = bsr.ReadByte();

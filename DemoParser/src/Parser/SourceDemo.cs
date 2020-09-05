@@ -20,6 +20,9 @@ namespace DemoParser.Parser {
 	/// </summary>
 	public class SourceDemo : DemoComponent {
 
+		private BitStreamReader _privateReader;
+		public override BitStreamReader Reader => _privateReader.FromBeginning();
+		
 		public readonly string? FileName;
 		public new DemoSettings DemoSettings;
 		public DemoHeader Header;
@@ -50,17 +53,18 @@ namespace DemoParser.Parser {
 
 
 		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null, string demoName = "") 
-			: base(null!, new BitStreamReader(data))
+			: base(null)
 		{
 			_parseProgress = parseProgress;
 			FileName = demoName;
+			_privateReader = new BitStreamReader(data);
 		}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			// make sure we set the demo settings first
-			Header = new DemoHeader(DemoRef, bsr);
-			Header.ParseStream(bsr);
+			Header = new DemoHeader(DemoRef);
+			Header.ParseStream(ref bsr);
 			DemoSettings = new DemoSettings(Header);
 			// it might be worth it to implement updating helper classes with listeners, but it's not a huge deal atm
 			CurStringTablesManager = new CurStringTablesManager(this); 
@@ -69,8 +73,8 @@ namespace DemoParser.Parser {
 			StartTick = 0;
 			try {
 				do {
-					Frames.Add(new PacketFrame(this, bsr));
-					Frames[^1].ParseStream(bsr);
+					Frames.Add(new PacketFrame(this));
+					Frames[^1].ParseStream(ref bsr);
 					_parseProgress?.Report((double)bsr.CurrentBitIndex / bsr.BitLength);
 				} while (Frames[^1].Type != PacketType.Stop && bsr.BitsRemaining >= 24); // would be 32 but the last byte is often cut off
 				
@@ -100,7 +104,8 @@ namespace DemoParser.Parser {
 
 
 		public void Parse() {
-			ParseStream(Reader);
+			_privateReader.CurrentBitIndex = 0;
+			Parse(ref _privateReader);
 		}
 
 
@@ -138,6 +143,11 @@ namespace DemoParser.Parser {
 			IndentedWriter iw = new IndentedWriter();
 			AppendToWriter(iw);
 			iw.WriteLines(textWriter, indentStr);
+		}
+		
+		
+		internal BitStreamReader ReaderFromOffset(int offset, int bitLength) {
+			return new BitStreamReader(_privateReader.Data, bitLength, offset);
 		}
 		
 

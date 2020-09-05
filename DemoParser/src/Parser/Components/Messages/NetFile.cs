@@ -12,14 +12,13 @@ namespace DemoParser.Parser.Components.Messages {
 		public NetFileFlags FileFlags;
 		
 		
-		public NetFile(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public NetFile(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			TransferId = bsr.ReadUInt();
 			FileName = bsr.ReadNullTerminatedString();
 			FileFlags = (NetFileFlags)bsr.ReadBitsAsUInt(DemoSettings.NumNetFileFlagBits);
-			SetLocalStreamEnd(bsr);
 		}
 		
 

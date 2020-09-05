@@ -13,10 +13,10 @@ namespace DemoParser.Parser.Components.Messages {
 		public List<(string name, object descriptor)> EventDescriptors;
 		
 
-		public SvcGameEvent(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcGameEvent(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			uint dataBitLen = bsr.ReadBitsAsUInt(11);
 			int indexBeforeData = bsr.CurrentBitIndex;
 			
@@ -38,7 +38,6 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 
 			bsr.CurrentBitIndex = (int)dataBitLen + indexBeforeData;
-			SetLocalStreamEnd(bsr);
 		}
 		
 

@@ -10,10 +10,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public byte Pos;
 		
 		
-		public Train(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public Train(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Pos = bsr.ReadByte();
 		}
 		

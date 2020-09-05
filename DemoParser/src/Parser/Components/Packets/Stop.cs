@@ -11,10 +11,10 @@ namespace DemoParser.Parser.Components.Packets {
 		public override bool MayContainData => false;
 		
 
-		public Stop(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
+		public Stop(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {}
+		protected override void Parse(ref BitStreamReader bsr) {}
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {}

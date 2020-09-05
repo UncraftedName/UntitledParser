@@ -17,10 +17,10 @@ namespace DemoParser.Parser.Components.Messages {
 		public ushort ClassCount;
 		
 		
-		public SvcClassInfo(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcClassInfo(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			ClassCount = bsr.ReadUShort();
 			CreateOnClient = bsr.ReadBool();
 			if (!CreateOnClient) {
@@ -32,14 +32,13 @@ namespace DemoParser.Parser.Components.Messages {
 				
 				ServerClasses = new ServerClass[ClassCount];
 				for (int i = 0; i < ServerClasses.Length; i++) {
-					ServerClasses[i] = new ServerClass(DemoRef, bsr, this);
-					ServerClasses[i].ParseStream(bsr);
+					ServerClasses[i] = new ServerClass(DemoRef, this);
+					ServerClasses[i].ParseStream(ref bsr);
 					// this is an assumption I make in the structure of all the entity stuff, very critical
 					if (i != ServerClasses[i].DataTableId)
 						throw new ConstraintException("server class ID does not match it's index in the list");
 				}
 			}
-			SetLocalStreamEnd(bsr);
 			
 			DemoRef.CBaseLines ??= new CurBaseLines(ClassCount, DemoRef);
 		}
@@ -73,19 +72,17 @@ namespace DemoParser.Parser.Components.Messages {
 		public string ClassName;
 		public string DataTableName; // this is the name of the data table this class refers to
 
-		public ServerClass(SourceDemo demoRef, BitStreamReader reader, SvcClassInfo? classInfoRef) 
-				: base(demoRef, reader) {
+		public ServerClass(SourceDemo? demoRef, SvcClassInfo? classInfoRef) : base(demoRef) {
 			_classInfoRef = classInfoRef;
 		}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			DataTableId = _classInfoRef == null
 				? bsr.ReadUShort()
 				: (int)bsr.ReadBitsAsUInt(DemoRef.DataTableParser.ServerClassBits);
 			ClassName = bsr.ReadNullTerminatedString();
 			DataTableName = bsr.ReadNullTerminatedString();
-			SetLocalStreamEnd(bsr);
 		}
 		
 

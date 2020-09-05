@@ -11,16 +11,15 @@ namespace DemoParser.Parser.Components.Messages {
 		public List<(string, string)> ConVars;
 
 
-		public NetSetConVar(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public NetSetConVar(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			//ConVars = new List<(CharArray, CharArray)>();
 			byte count = bsr.ReadByte();
 			ConVars = new List<(string, string)>(count);
 			for (int i = 0; i < count; i++)
 				ConVars.Add((bsr.ReadNullTerminatedString(), bsr.ReadNullTerminatedString()));
-			SetLocalStreamEnd(bsr);
 		}
 		
 

@@ -13,10 +13,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		//public bool? Unknown; // this is either "chat" or "text all chat"
 
 
-		public SayText(SourceDemo demoRef, BitStreamReader reader): base(demoRef, reader) {}
+		public SayText(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			ClientId = bsr.ReadByte();
 			Str = bsr.ReadNullTerminatedString();
 			WantsToChat = bsr.ReadByte() != 0;

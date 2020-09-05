@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Packets;
-using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
 	
@@ -49,7 +48,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		
 		#endregion
 		
-		protected DemoPacket(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader) {
+		protected DemoPacket(SourceDemo? demoRef, int tick) : base(demoRef) {
 			Tick = tick;
 		}
 		
@@ -77,17 +76,17 @@ namespace DemoParser.Parser.Components.Abstract {
 	
 	public static class PacketFactory {
 		
-		public static DemoPacket CreatePacket(SourceDemo demoRef, BitStreamReader reader, int tick, PacketType packetType) {
+		public static DemoPacket CreatePacket(SourceDemo demoRef, int tick, PacketType packetType) {
 			return packetType switch {
-				PacketType.SignOn       => new SignOn(demoRef, reader, tick),
-				PacketType.Packet       => new Packet(demoRef, reader, tick),
-				PacketType.SyncTick     => new SyncTick(demoRef, reader, tick),
-				PacketType.ConsoleCmd   => new ConsoleCmd(demoRef, reader, tick),
-				PacketType.UserCmd      => new UserCmd(demoRef, reader, tick),
-				PacketType.DataTables   => new DataTables(demoRef, reader, tick),
-				PacketType.Stop         => new Stop(demoRef, reader, tick),
-				PacketType.StringTables => new StringTables(demoRef, reader, tick),
-				PacketType.CustomData   => new CustomData(demoRef, reader, tick),
+				PacketType.SignOn       => new SignOn(demoRef, tick),
+				PacketType.Packet       => new Packet(demoRef, tick),
+				PacketType.SyncTick     => new SyncTick(demoRef, tick),
+				PacketType.ConsoleCmd   => new ConsoleCmd(demoRef, tick),
+				PacketType.UserCmd      => new UserCmd(demoRef, tick),
+				PacketType.DataTables   => new DataTables(demoRef, tick),
+				PacketType.Stop         => new Stop(demoRef, tick),
+				PacketType.StringTables => new StringTables(demoRef, tick),
+				PacketType.CustomData   => new CustomData(demoRef, tick),
 				_ => throw new NotSupportedException($"unknown or unsupported packet type: {packetType}")
 			};
 		}

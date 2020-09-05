@@ -11,15 +11,13 @@ namespace DemoParser.Parser.Components.Messages {
 		public BitStreamReader Data {get;private set;}
 
 
-		public SvcSplitScreen(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public SvcSplitScreen(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			RemoveUser = bsr.ReadBool();
 			uint dataLen = bsr.ReadBitsAsUInt(11);
-			Data = bsr.SubStream(dataLen);
-			bsr.SkipBits(dataLen);
-			SetLocalStreamEnd(bsr);
+			Data = bsr.SplitAndSkip(dataLen);
 		}
 
 

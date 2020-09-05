@@ -11,15 +11,14 @@ namespace DemoParser.Parser.Components.Messages {
 		public byte Quality;
 		public float? Unknown;
 		
-		public SvcVoiceInit(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcVoiceInit(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Codec = bsr.ReadNullTerminatedString();
 			Quality = bsr.ReadByte();
 			if (Quality == 255)
 				Unknown = bsr.ReadFloat();
-			SetLocalStreamEnd(bsr);
 		}
 		
 

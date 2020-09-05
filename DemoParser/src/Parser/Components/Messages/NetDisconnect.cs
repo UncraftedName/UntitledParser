@@ -11,10 +11,10 @@ namespace DemoParser.Parser.Components.Messages {
 		public string Reason;
 		
 		
-		public NetDisconnect(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public NetDisconnect(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Reason = bsr.ReadNullTerminatedString();
 		}
 		

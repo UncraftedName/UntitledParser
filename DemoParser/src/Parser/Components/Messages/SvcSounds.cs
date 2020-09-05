@@ -16,24 +16,22 @@ namespace DemoParser.Parser.Components.Messages {
 		public List<SoundInfo>? Sounds;
 		
 		
-		public SvcSounds(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcSounds(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Reliable = bsr.ReadBool();
 			uint soundCount = Reliable ? (uint)1 : bsr.ReadByte();
 			int dataBitLen = (int)bsr.ReadBitsAsUInt(Reliable ? 8 : 16);
 			
-			BitStreamReader soundBsr = bsr.SubStream(dataBitLen);
-			bsr.SkipBits(dataBitLen);
-			SetLocalStreamEnd(bsr);
+			BitStreamReader soundBsr = bsr.SplitAndSkip(dataBitLen);
 			
 			Exception? e = null;
 			try {
 				Sounds = new List<SoundInfo>();
 				for (int i = 0; i < soundCount; i++) {
-					SoundInfo info = new SoundInfo(DemoRef, soundBsr);
-					info.ParseStream(soundBsr);
+					SoundInfo info = new SoundInfo(DemoRef);
+					info.ParseStream(ref soundBsr);
 					if (Reliable) { // client is incrementing the reliable sequence numbers itself
 						DemoRef.ClientSoundSequence = ++DemoRef.ClientSoundSequence & SndSeqNumMask;
 						if (info.SequenceNumber != 0)
@@ -99,7 +97,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public int SpeakerEntity;
 		
 		
-		public SoundInfo(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public SoundInfo(SourceDemo? demoRef) : base(demoRef) {}
 		
 		
 		private void SetDefault() {
@@ -130,9 +128,9 @@ namespace DemoParser.Parser.Components.Messages {
 			Origin = default;
 			SpeakerEntity = -1;
 		}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			SetDefault();
 			EntityIndex = bsr.ReadBool() ? bsr.ReadBitsAsUInt(bsr.ReadBool() ? 5 : MaxEdictBits) : EntityIndex;
 			
@@ -198,7 +196,6 @@ namespace DemoParser.Parser.Components.Messages {
 			} else {
 				ClearStopFields();
 			}
-			SetLocalStreamEnd(bsr);
 		}
 		
 		

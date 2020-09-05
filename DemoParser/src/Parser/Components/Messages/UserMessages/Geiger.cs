@@ -9,10 +9,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 		public byte GeigerRange;
 		
-		public Geiger(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public Geiger(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			GeigerRange = bsr.ReadByte();
 		}
 		

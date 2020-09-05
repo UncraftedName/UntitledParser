@@ -11,10 +11,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public byte Level;
 		
 		
-		public MpMapCompleted(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public MpMapCompleted(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Branch = bsr.ReadByte();
 			Level = bsr.ReadByte();
 		}
@@ -33,6 +33,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
 	
 	public class MpMapIncomplete : MpMapCompleted {
-		public MpMapIncomplete(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public MpMapIncomplete(SourceDemo? demoRef) : base(demoRef) {}
 	} 
 }

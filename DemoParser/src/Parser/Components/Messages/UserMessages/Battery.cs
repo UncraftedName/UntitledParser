@@ -10,10 +10,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		// range: 0 - 100
 		public ushort BatteryVal;
 
-		public Battery(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public Battery(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			BatteryVal = bsr.ReadUShort();
 		}
 		

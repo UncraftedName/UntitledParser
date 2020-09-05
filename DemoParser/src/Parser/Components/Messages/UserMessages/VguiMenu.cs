@@ -13,10 +13,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public List<KeyValuePair<string, string>> KeyValues;
 		
 		
-		public VguiMenu(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public VguiMenu(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Message = bsr.ReadNullTerminatedString();
 			Show = bsr.ReadByte() != 0;
 			int count = bsr.ReadByte();

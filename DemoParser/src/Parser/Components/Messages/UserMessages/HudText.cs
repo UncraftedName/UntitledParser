@@ -12,10 +12,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public byte[]? SstEncryptedMessage;
 		
 		
-		public HudText(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public HudText(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			if (bsr.ReadByte() == 0 && bsr.BitsRemaining > 0) {
 				SstEncryptedMessage = bsr.ReadRemainingBits().bytes;
 			} else {

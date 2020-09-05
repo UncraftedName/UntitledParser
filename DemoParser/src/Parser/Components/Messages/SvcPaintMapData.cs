@@ -12,12 +12,11 @@ namespace DemoParser.Parser.Components.Messages {
 		public BitStreamReader Data => _data.FromBeginning();
 		
 		
-		public SvcPaintMapData(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
-			_data = bsr.SubStream(bsr.ReadUInt());
-			SetLocalStreamEnd(bsr);
+		public SvcPaintMapData(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
+			_data = bsr.Split(bsr.ReadUInt());
 		}
 		
 

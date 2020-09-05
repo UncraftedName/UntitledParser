@@ -11,16 +11,15 @@ namespace DemoParser.Parser.Components.Messages {
 		public Vector3 Angle;
 		
 		
-		public SvcCrosshairAngle(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcCrosshairAngle(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Angle = new Vector3 {
 				X = bsr.ReadBitAngle(16),
 				Y = bsr.ReadBitAngle(16),
 				Z = bsr.ReadBitAngle(16),
 			};
-			SetLocalStreamEnd(bsr);
 		}
 		
 

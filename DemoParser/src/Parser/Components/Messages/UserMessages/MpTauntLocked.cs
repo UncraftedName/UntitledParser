@@ -10,10 +10,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public string TauntName;
 		
 		
-		public MpTauntLocked(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public MpTauntLocked(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			TauntName = bsr.ReadNullTerminatedString();
 		}
 		

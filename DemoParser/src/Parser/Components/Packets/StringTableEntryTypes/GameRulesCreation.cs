@@ -11,10 +11,10 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
         public string ClassName;
 
 
-        public GameRulesCreation(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+        public GameRulesCreation(SourceDemo? demoRef) : base(demoRef) {}
 
-        
-        internal override void ParseStream(BitStreamReader bsr) {
+
+        protected override void Parse(ref BitStreamReader bsr) {
             ClassName = bsr.ReadNullTerminatedString();
         }
 

@@ -13,10 +13,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public byte Unknown;
 		
 		
-		public KillCam(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public KillCam(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			NewMode = bsr.ReadByte();
 			Target1 = bsr.ReadByte();
 			Target2 = bsr.ReadByte();

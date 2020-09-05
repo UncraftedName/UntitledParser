@@ -14,22 +14,21 @@ namespace DemoParser.Parser.Components.Messages {
 		public List<GameEventDescription> Descriptors;
 		
 
-		public SvcGameEventList(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcGameEventList(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			EventCount = (int)bsr.ReadBitsAsUInt(9);
 			int dataLen = (int)bsr.ReadBitsAsUInt(20);
 			int indexBeforeData = bsr.CurrentBitIndex;
 			
 			Descriptors = new List<GameEventDescription>(EventCount);
 			for (int i = 0; i < EventCount; i++) {
-				Descriptors.Add(new GameEventDescription(DemoRef, bsr));
-				Descriptors[^1].ParseStream(bsr);
+				Descriptors.Add(new GameEventDescription(DemoRef));
+				Descriptors[^1].ParseStream(ref bsr);
 			}
 			
 			bsr.CurrentBitIndex = dataLen + indexBeforeData;
-			SetLocalStreamEnd(bsr);
 			
 			// used for parsing SvcGameEvent
 			DemoRef.GameEventManager = new GameEventManager(Descriptors);
@@ -60,10 +59,10 @@ namespace DemoParser.Parser.Components.Messages {
 		public List<(string Name, EventDescriptorType type)> Keys;
 		
 		
-		public GameEventDescription(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public GameEventDescription(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			EventId = bsr.ReadBitsAsUInt(9);
 			Name = bsr.ReadNullTerminatedString();
 			Keys = new List<(string Name, EventDescriptorType type)>();

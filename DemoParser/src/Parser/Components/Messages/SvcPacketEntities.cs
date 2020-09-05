@@ -23,10 +23,10 @@ namespace DemoParser.Parser.Components.Messages {
 		public List<EntityUpdate>? Updates;
 		
 
-		public SvcPacketEntities(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcPacketEntities(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			
 			// first, we read the main message info here
 			MaxEntries = (ushort)bsr.ReadBitsAsUInt(11);
@@ -36,9 +36,7 @@ namespace DemoParser.Parser.Components.Messages {
 			UpdatedEntries = (ushort)bsr.ReadBitsAsUInt(11);
 			uint dataLen = bsr.ReadBitsAsUInt(20);
 			UpdateBaseline = bsr.ReadBool();
-			_entBsr = bsr.SubStream(dataLen);
-			bsr.SkipBits(dataLen);
-			SetLocalStreamEnd(bsr);
+			_entBsr = bsr.SplitAndSkip(dataLen);
 
 #if !FORCE_PROCESS_ENTS
 			if (!DemoSettings.ProcessEnts)

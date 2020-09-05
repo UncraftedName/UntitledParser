@@ -13,10 +13,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public List<MapCompletedInfo> Info;
 		
 		
-		public MpMapCompletedData(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public MpMapCompletedData(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Info = new List<MapCompletedInfo>();
 			Span<byte> bytes = stackalloc byte[2 * MaxPortal2CoopBranches * MaxPortal2CoopLevelsPerBranch / 8];
 			bsr.ReadBytesToSpan(bytes);

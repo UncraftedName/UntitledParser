@@ -11,10 +11,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public bool WantsToChat;
 		
 		
-		public SayText2(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SayText2(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Client = bsr.ReadByte();
 			WantsToChat = bsr.ReadBool();
 		}

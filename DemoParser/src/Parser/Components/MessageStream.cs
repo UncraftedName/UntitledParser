@@ -19,13 +19,13 @@ namespace DemoParser.Parser.Components {
 		public static implicit operator List<(MessageType messageType, DemoMessage? message)>(MessageStream m) => m.Messages;
 		
 		
-		public MessageStream(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public MessageStream(SourceDemo? demoRef) : base(demoRef) {}
 		
 		
 		// this starts on the int before the messages which says the size of the message stream in bytes
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			uint messagesByteLength = bsr.ReadUInt();
-			BitStreamReader messageBsr = bsr.SubStream(messagesByteLength << 3);
+			BitStreamReader messageBsr = bsr.SplitAndSkip(messagesByteLength << 3);
 			Messages = new List<(MessageType, DemoMessage?)>();
 			byte messageValue = 0;
 			MessageType messageType = Unknown;
@@ -34,8 +34,8 @@ namespace DemoParser.Parser.Components {
 				do {
 					messageValue = (byte)messageBsr.ReadBitsAsUInt(DemoSettings.NetMsgTypeBits);
 					messageType = DemoMessage.ByteToSvcMessageType(messageValue, DemoSettings);
-					DemoMessage? demoMessage = MessageFactory.CreateMessage(DemoRef, messageBsr, messageType);
-					demoMessage?.ParseStream(messageBsr);
+					DemoMessage? demoMessage = MessageFactory.CreateMessage(DemoRef,messageType);
+					demoMessage?.ParseStream(ref messageBsr);
 					Messages.Add((messageType, demoMessage));
 				} while (Messages[^1].message != null && messageBsr.BitsRemaining >= DemoSettings.NetMsgTypeBits);
 			} catch (Exception ex) {
@@ -75,9 +75,6 @@ namespace DemoParser.Parser.Components {
 			}
 			
 			#endregion
-			
-			bsr.SkipBytes(messagesByteLength);
-			SetLocalStreamEnd(bsr);
 		}
 		
 

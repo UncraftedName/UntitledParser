@@ -20,20 +20,19 @@ namespace DemoParser.Parser.Components.Packets {
 		public MessageStream MessageStream {get;set;}
 
 
-		public Packet(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
+		public Packet(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			PacketInfo = new CmdInfo[DemoSettings.MaxSplitscreenPlayers];
 			for (int i = 0; i < PacketInfo.Length; i++) {
-				PacketInfo[i] = new CmdInfo(DemoRef, bsr);
-				PacketInfo[i].ParseStream(bsr);
+				PacketInfo[i] = new CmdInfo(DemoRef);
+				PacketInfo[i].ParseStream(ref bsr);
 			}
 			InSequence = bsr.ReadUInt();
 			OutSequence = bsr.ReadUInt();
-			MessageStream = new MessageStream(DemoRef, bsr);
-			MessageStream.ParseStream(bsr);
-			SetLocalStreamEnd(bsr);
+			MessageStream = new MessageStream(DemoRef);
+			MessageStream.ParseStream(ref bsr);
 			
 			// After we're doing with the packet, we can process all the messages.
 			// Most things should be processed during parsing, but any additional checks should be done here.
@@ -41,7 +40,7 @@ namespace DemoParser.Parser.Components.Packets {
 			var netTickMessages = MessageStream.Where(tuple => tuple.messageType == MessageType.NetTick).ToList();
 			if (netTickMessages.Count > 1)
 				DemoRef.LogError("there's more than 2 net tick messages in this packet");
-			NetTick tickInfo = (NetTick)netTickMessages.FirstOrDefault().message;
+			NetTick? tickInfo = (NetTick)netTickMessages.FirstOrDefault().message;
 			if (tickInfo != null) {
 				if (DemoRef.CurEntitySnapshot != null)
 					DemoRef.CurEntitySnapshot.EngineTick = tickInfo.EngineTick;
@@ -81,15 +80,14 @@ namespace DemoParser.Parser.Components.Packets {
 		private static readonly bool[] UseDegreeSymbol = {false, true, true, false, true, true};
 
 
-		public CmdInfo(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public CmdInfo(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			Flags = (InterpFlags)bsr.ReadUInt();
 			_floats = new Vector3[6];
 			for (int i = 0; i < _floats.Length; i++)
 				bsr.ReadVector3(out _floats[i]);
-			SetLocalStreamEnd(bsr);
 		}
 		
 

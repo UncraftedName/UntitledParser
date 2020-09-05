@@ -17,20 +17,17 @@ namespace DemoParser.Parser.Components.Messages {
 		public StringTableUpdates TableUpdates;
 
 
-		public SvcUpdateStringTable(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcUpdateStringTable(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			TableId = (byte)bsr.ReadBitsAsUInt(5);
 			TableName = DemoRef.CurStringTablesManager.TableById(TableId).Name;
 			ChangedEntriesCount = bsr.ReadUShortIfExists() ?? 1;
 			uint dataLen = bsr.ReadBitsAsUInt(20);
 
-			TableUpdates = new StringTableUpdates(DemoRef, bsr.SubStream(dataLen), TableName, ChangedEntriesCount);
-			TableUpdates.ParseOwnStream();
-			
-			bsr.SkipBits(dataLen);
-			SetLocalStreamEnd(bsr);
+			TableUpdates = new StringTableUpdates(DemoRef, TableName, ChangedEntriesCount);
+			TableUpdates.ParseStream(bsr.SplitAndSkip(dataLen));
 		}
 		
 
@@ -64,26 +61,27 @@ namespace DemoParser.Parser.Components.Messages {
 		
 		
 		
-		public StringTableUpdates(SourceDemo demoRef, BitStreamReader reader, string tableName, int updatedEntries)
-			: base(demoRef, reader)
-		{
+		public StringTableUpdates(SourceDemo? demoRef, string tableName, int updatedEntries) : base(demoRef) {
 			_tableName = tableName;
 			_updatedEntries = updatedEntries;
 			TableUpdates = new List<TableUpdate?>(_updatedEntries);
 		}
-		
-		internal override void ParseStream(BitStreamReader bsr) { 
+
+
+		protected override void Parse(ref BitStreamReader bsr) { 
 			
 			CurStringTablesManager manager = DemoRef.CurStringTablesManager;
 			if (!manager.TableReadable.GetValueOrDefault(_tableName)) {
 				DemoRef.LogError($"{_tableName} table is marked as non-readable, can't update :/");
 				_exceptionWhileParsing = true;
+				bsr.SkipToEnd();
 				return;
 			}
 
 			if (manager.CreationLookup.Single(table => table.TableName == _tableName).Flags == StringTableFlags.Fake) {
 				DemoRef.LogError($"{_tableName} table was created manually - not parsed in SvcServerInfo");
 				_exceptionWhileParsing = true;
+				bsr.SkipToEnd();
 				return;
 			}
 			
@@ -115,13 +113,12 @@ namespace DemoParser.Parser.Components.Messages {
 
 					BitStreamReader? entryStream = null;
 
-					int streamLen = 0;
 					if (bsr.ReadBool()) {
-						if (tableToUpdate.UserDataFixedSize)
-							streamLen = tableToUpdate.UserDataSizeBits;
-						else
-							streamLen = (int)bsr.ReadBitsAsUInt(DemoSettings.MaxUserDataBits) * 8;
-						entryStream = bsr.SubStream(streamLen);
+						int streamLen = tableToUpdate.UserDataFixedSize
+							? tableToUpdate.UserDataSizeBits
+							: (int)bsr.ReadBitsAsUInt(DemoSettings.MaxUserDataBits) * 8;
+						
+						entryStream = bsr.SplitAndSkip(streamLen);
 					}
 
 					// Check if we are updating an old entry or adding a new one
@@ -138,11 +135,10 @@ namespace DemoParser.Parser.Components.Messages {
 								tableToUpdate.Entries.Count - 1)); // sub 1 since we update the table 2 lines up
 						} else {
 							TableUpdates.Add(new TableUpdate(
-								manager.SetEntryData(tableToUpdate, tableToUpdate.Entries[j], entryStream!), 
+								manager.SetEntryData(tableToUpdate, tableToUpdate.Entries[j]), 
 								TableUpdateType.ChangeEntryData,
 								j));
 						}
-						bsr.SkipBits(streamLen);
 					}
 
 					if (history.Count > 31)
@@ -154,6 +150,7 @@ namespace DemoParser.Parser.Components.Messages {
 				DemoRef.LogError($"error while parsing {GetType().Name} for table {_tableName}: {e.Message}");
 				_exceptionWhileParsing = true;
 				manager.TableReadable[_tableName] = false;
+				bsr.SkipToEnd();
 			}
 		}
 		
@@ -178,7 +175,7 @@ namespace DemoParser.Parser.Components.Messages {
 					.DefaultIfEmpty(2)
 					.Max();
 				
-				for (var i = 0; i < TableUpdates.Count; i++) {
+				for (int i = 0; i < TableUpdates.Count; i++) {
 					if (i != 0)
 						iw.AppendLine();
 					TableUpdates[i].PadCount = padCount;

@@ -24,11 +24,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public byte FilesDownloaded; // this counter increases each time the server downloaded a new file
 		
 		
-		public PlayerInfo(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public PlayerInfo(SourceDemo? demoRef) : base(demoRef) {}
 
 
 		// since we're reading a struct, alignment needs to be taken into account
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			if (DemoSettings.NewDemoProtocol)
 				SteamId = (CSteamId)bsr.ReadULong();
 			Name = bsr.ReadCharArray(DemoSettings.MaxPlayerNameLength);

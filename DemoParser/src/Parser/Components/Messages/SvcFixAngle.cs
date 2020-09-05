@@ -11,17 +11,16 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool Relative;
 		public Vector3 Angle;
 		
-		public SvcFixAngle(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public SvcFixAngle(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			Relative = bsr.ReadBool();
 			Angle = new Vector3 {
 				X = bsr.ReadBitAngle(16),
 				Y = bsr.ReadBitAngle(16),
 				Z = bsr.ReadBitAngle(16),
 			};
-			SetLocalStreamEnd(bsr);
 		}
 		
 

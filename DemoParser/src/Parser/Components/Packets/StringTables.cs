@@ -25,21 +25,20 @@ namespace DemoParser.Parser.Components.Packets {
 		public List<StringTable> Tables;
 		
 		
-		public StringTables(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
+		public StringTables(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			uint dataLen = bsr.ReadUInt();
 			int indexBeforeTables = bsr.CurrentBitIndex;
 			byte tableCount = bsr.ReadByte();
 			Tables = new List<StringTable>(tableCount);
 			for (int i = 0; i < tableCount; i++) {
-				Tables.Add(new StringTable(DemoRef, bsr));
-				Tables[^1].ParseStream(bsr);
+				Tables.Add(new StringTable(DemoRef));
+				Tables[^1].ParseStream(ref bsr);
 			}
 
 			bsr.CurrentBitIndex = indexBeforeTables + (int)(dataLen << 3);
-			SetLocalStreamEnd(bsr);
 			
 			// if this packet exists make sure to create the C_tables after we parse this
 			DemoRef.CurStringTablesManager.CreateTablesFromPacket(this);
@@ -69,28 +68,27 @@ namespace DemoParser.Parser.Components.Packets {
 		internal short? MaxEntries; // initialized in the manager
 
 
-		public StringTable(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public StringTable(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Name = bsr.ReadNullTerminatedString();
 			ushort entryCount = bsr.ReadUShort();
 			if (entryCount > 0) {
 				TableEntries = new List<StringTableEntry>(entryCount);
 				for (int i = 0; i < entryCount; i++) {
-					TableEntries.Add(new StringTableEntry(DemoRef, bsr, this));
-					TableEntries[^1].ParseStream(bsr);
+					TableEntries.Add(new StringTableEntry(DemoRef,this));
+					TableEntries[^1].ParseStream(ref bsr);
 				}
 			}
 			if (bsr.ReadBool()) {
 				ushort classCount = bsr.ReadUShort();
 				Classes = new List<StringTableClass>(classCount);
 				for (int i = 0; i < classCount; i++) {
-					Classes.Add(new StringTableClass(DemoRef, bsr));
-					Classes[^1].ParseStream(bsr);
+					Classes.Add(new StringTableClass(DemoRef));
+					Classes[^1].ParseStream(ref bsr);
 				}
 			}
-			SetLocalStreamEnd(bsr);
 		}
 		
 
@@ -145,27 +143,25 @@ namespace DemoParser.Parser.Components.Packets {
 		internal int PadLength; // used to convert to string
 
 
-		public StringTableEntry(SourceDemo demoRef, BitStreamReader reader, StringTable tableRef) : base(demoRef, reader) {
+		public StringTableEntry(SourceDemo? demoRef, StringTable tableRef) : base(demoRef) {
 			TableRef = tableRef;
 		}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Name = bsr.ReadNullTerminatedString();
 			if (bsr.ReadBool()) {
 				ushort dataLen = bsr.ReadUShort();
 				
 				Debug.Assert(DemoRef.DataTableParser.FlattenedProps != null);
+
 				EntryData = StringTableEntryDataFactory.CreateData(
-					DemoRef, 
-					bsr.SubStream(dataLen << 3), 
+					DemoRef,
 					TableRef.Name, 
 					Name, 
 					DemoRef.DataTableParser.FlattenedProps);
 				
-				EntryData.ParseOwnStream();
-				bsr.SkipBytes(dataLen);
-				SetLocalStreamEnd(bsr);
+				EntryData.ParseStream(bsr.SplitAndSkip(dataLen << 3));
 			}
 		}
 		
@@ -206,16 +202,15 @@ namespace DemoParser.Parser.Components.Packets {
 		public string? Data;
 		
 		
-		public StringTableClass(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public StringTableClass(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Name = bsr.ReadNullTerminatedString();
 			if (bsr.ReadBool()) {
 				ushort dataLen = bsr.ReadUShort();
 				Data = bsr.ReadStringOfLength(dataLen);
 			}
-			SetLocalStreamEnd(bsr);
 		}
 		
 

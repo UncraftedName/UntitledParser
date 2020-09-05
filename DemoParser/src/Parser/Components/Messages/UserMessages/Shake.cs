@@ -13,10 +13,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public float Duration;
 		
 		
-		public Shake(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public Shake(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Command = (ShakeCommand)bsr.ReadByte();
 			Amplitude = bsr.ReadFloat();
 			Frequency = bsr.ReadFloat();

@@ -64,12 +64,12 @@ namespace DemoParser.Parser {
 		
 		public readonly IReadOnlyList<SendPropEnums.SendPropType> SendPropTypes;
 		public readonly IReadOnlyDictionary<SendPropEnums.SendPropType, int> SendPropTypesReverseLookup;
-		public readonly IReadOnlyList<PacketType> PacketTypes;
-		public readonly IReadOnlyDictionary<PacketType, int> PacketTypesReverseLookup;
-		public readonly IReadOnlyList<MessageType> MessageTypes;
-		public readonly IReadOnlyDictionary<MessageType, int> MessageTypesReverseLookup;
-		public readonly IReadOnlyList<UserMessageType> UserMessageTypes;
-		public readonly IReadOnlyDictionary<UserMessageType, int> UserMessageTypesReverseLookup;
+		public readonly IReadOnlyList<PacketType>? PacketTypes;
+		public readonly IReadOnlyDictionary<PacketType, int>? PacketTypesReverseLookup;
+		public readonly IReadOnlyList<MessageType>? MessageTypes;
+		public readonly IReadOnlyDictionary<MessageType, int>? MessageTypesReverseLookup;
+		public readonly IReadOnlyList<UserMessageType>? UserMessageTypes;
+		public readonly IReadOnlyDictionary<UserMessageType, int>? UserMessageTypesReverseLookup;
 		
 		
 		public DemoSettings(DemoHeader h) {
@@ -164,8 +164,8 @@ namespace DemoParser.Parser {
 					Game = UNKNOWN;
 					break;
 			}
-			UserMessageTypesReverseLookup = UserMessageTypes.CreateReverseLookupDict();
-			PacketTypesReverseLookup = PacketTypes.CreateReverseLookupDict(PacketType.Invalid);
+			UserMessageTypesReverseLookup = UserMessageTypes?.CreateReverseLookupDict();
+			PacketTypesReverseLookup = PacketTypes?.CreateReverseLookupDict(PacketType.Invalid);
 			if (Game == UNKNOWN) {
 				ParserTextUtils.ConsoleWriteWithColor(
 					$"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n",

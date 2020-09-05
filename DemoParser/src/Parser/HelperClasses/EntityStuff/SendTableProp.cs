@@ -25,12 +25,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		internal FloatParseType? FloatParseType;
 
 
-		public SendTableProp(SourceDemo demoRef, BitStreamReader reader, SendTable tableRef) : base(demoRef, reader) {
+		public SendTableProp(SourceDemo? demoRef, SendTable tableRef) : base(demoRef) {
 			TableRef = tableRef;
 		}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			SendPropType = DemoSettings.SendPropTypes[(int)bsr.ReadBitsAsUInt(5)];
 			Name = bsr.ReadNullTerminatedString();
 			Flags = (int)bsr.ReadBitsAsUInt(DemoSettings.SendPropFlagBits);

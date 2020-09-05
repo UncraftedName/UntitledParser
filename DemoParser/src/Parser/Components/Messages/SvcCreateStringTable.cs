@@ -14,13 +14,13 @@ namespace DemoParser.Parser.Components.Messages {
 		public int UserDataSize;
 		public int UserDataSizeBits;
 		public StringTableFlags? Flags;
-		public StringTableUpdates TableUpdates;
+		public StringTableUpdates? TableUpdates;
 		
 
-		public SvcCreateStringTable(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcCreateStringTable(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			TableName = bsr.ReadNullTerminatedString();
 			MaxEntries = (short)bsr.ReadUShort();
 			NumEntries = (int)bsr.ReadBitsAsUInt(BitUtils.HighestBitIndex(MaxEntries) + 1);
@@ -32,11 +32,8 @@ namespace DemoParser.Parser.Components.Messages {
 				Flags = (StringTableFlags)bsr.ReadBitsAsUInt(DemoSettings.NewDemoProtocol ? 2 : 1);
 			
 			DemoRef.CurStringTablesManager.CreateStringTable(this);
-			TableUpdates = new StringTableUpdates(DemoRef, bsr.SubStream(dataLen), TableName, NumEntries);
-			TableUpdates.ParseOwnStream();
-			
-			bsr.SkipBits(dataLen);
-			SetLocalStreamEnd(bsr);
+			TableUpdates = new StringTableUpdates(DemoRef, TableName, NumEntries);
+			TableUpdates.ParseStream(bsr.SplitAndSkip(dataLen));
 		}
 		
 

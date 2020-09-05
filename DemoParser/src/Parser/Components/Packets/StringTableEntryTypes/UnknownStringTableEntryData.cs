@@ -10,10 +10,12 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		internal override bool ContentsKnown => false;
 		
 
-		public UnknownStringTableEntryData(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {}
+		public UnknownStringTableEntryData(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
+			bsr.SkipToEnd();
+		}
 		
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {

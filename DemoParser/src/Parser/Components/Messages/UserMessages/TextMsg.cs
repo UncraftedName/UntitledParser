@@ -12,10 +12,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public string[] Messages;
 		
 		
-		public TextMsg(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public TextMsg(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Destination = (TextMsgDestination)bsr.ReadByte();
 			Messages = new string[MessageCount];
 			for (int i = 0; i < MessageCount; i++) 

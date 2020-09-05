@@ -12,10 +12,10 @@ namespace DemoParser.Parser.Components.Messages {
 		public string? SoundName;
 		
 		
-		public SvcPrefetch(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcPrefetch(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			SoundIndex = (int)bsr.ReadBitsAsUInt(13);
 			
 			var mgr = DemoRef.CurStringTablesManager;
@@ -26,8 +26,6 @@ namespace DemoParser.Parser.Components.Messages {
 				else if (SoundIndex != 0)
 					SoundName = mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName;
 			}
-			
-			SetLocalStreamEnd(bsr);
 		}
 		
 

@@ -10,12 +10,11 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool Bool;
 		
 		
-		public NetSplitScreenUser(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public NetSplitScreenUser(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Bool = bsr.ReadBool();
-			SetLocalStreamEnd(bsr);
 		}
 		
 

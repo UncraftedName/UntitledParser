@@ -9,12 +9,11 @@ namespace DemoParser.Parser.Components.Messages {
 	
 		public string Command;
 
-		public NetStringCmd(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
+		public NetStringCmd(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
+		protected override void Parse(ref BitStreamReader bsr) {
 			Command = bsr.ReadNullTerminatedString();
-			SetLocalStreamEnd(bsr);
 		}
 		
 

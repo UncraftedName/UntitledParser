@@ -13,14 +13,13 @@ namespace DemoParser.Parser.Components.Messages {
 		public BitStreamReader Data => _data.FromBeginning();
 		
 
-		public SvcEntityMessage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcEntityMessage(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			EntityIndex = bsr.ReadBitsAsUInt(DemoSettings.MaxEdictBits);
 			ClassId = bsr.ReadBitsAsUInt(9);
-			_data = bsr.SubStream(bsr.ReadBitsAsUInt(11));
-			SetLocalStreamEnd(bsr);
+			_data = bsr.Split(bsr.ReadBitsAsUInt(11));
 		}
 		
 

@@ -14,10 +14,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public Vector3 VecFrom;
 		
 		
-		public Damage(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public Damage(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Armor = bsr.ReadByte();
 			DamageTaken = bsr.ReadByte();
 			BitsDamage = bsr.ReadSInt();

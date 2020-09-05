@@ -12,17 +12,17 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public HudMsgInfo? MsgInfo;
 		
 
-		public HudMsg(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public HudMsg(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Channel = (HudChannel)(bsr.ReadByte() % DemoSettings.MaxNetMessage);
 			// if ( !pNetMessage || !pNetMessage->pMessage )
 			// return;
 			// ^ Since this is what the game does, I will simply keep reading if there are more bytes left
 			if (bsr.BitsRemaining >= 148) {
-				MsgInfo = new HudMsgInfo(DemoRef, bsr);
-				MsgInfo.ParseStream(bsr);
+				MsgInfo = new HudMsgInfo(DemoRef);
+				MsgInfo.ParseStream(ref bsr);
 			}
 		}
 		
@@ -52,10 +52,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			public string Message;
 			
 			
-			public HudMsgInfo(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-			
-			
-			internal override void ParseStream(BitStreamReader bsr) {
+			public HudMsgInfo(SourceDemo? demoRef) : base(demoRef) {}
+
+
+			protected override void Parse(ref BitStreamReader bsr) {
 				X = bsr.ReadFloat();
 				Y = bsr.ReadFloat();
 				R1 = bsr.ReadByte();

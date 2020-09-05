@@ -11,13 +11,12 @@ namespace DemoParser.Parser.Components.Messages {
 		public string CvarName;
 		
 		
-		public SvcGetCvarValue(SourceDemo demoRef, BitStreamReader reader) : base(demoRef, reader) {}
-		
-		
-		internal override void ParseStream(BitStreamReader bsr) {
+		public SvcGetCvarValue(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		protected override void Parse(ref BitStreamReader bsr) {
 			Cookie = bsr.ReadSInt();
 			CvarName = bsr.ReadNullTerminatedString();
-			SetLocalStreamEnd(bsr);
 		}
 		
 

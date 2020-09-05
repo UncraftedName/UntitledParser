@@ -246,20 +246,20 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		// this right here is the real juice, it's how prop info is decoded
 		public static List<(int propIndex, EntityProperty prop)> ReadEntProps(
-			this BitStreamReader bsr,
+			this ref BitStreamReader bsr,
 			IReadOnlyList<FlattenedProp> fProps,
-			SourceDemo demoRef)
+			SourceDemo? demoRef)
 		{
 			var props = new List<(int propIndex, EntityProperty prop)>();
 			int i = -1;
 			if (demoRef.DemoSettings.NewDemoProtocol) {
 				bool newWay = bsr.ReadBool();
 				while ((i = bsr.ReadFieldIndex(i, newWay)) != -1)
-					props.Add((i, CreateAndReadProp(fProps[i], bsr)));
+					props.Add((i, bsr.CreateAndReadProp(fProps[i])));
 			} else {
 				while (bsr.ReadBool()) {
 					i += (int)bsr.ReadUBitVar() + 1;
-					props.Add((i, CreateAndReadProp(fProps[i], bsr)));
+					props.Add((i, bsr.CreateAndReadProp(fProps[i])));
 				}
 			}
 			return props;
@@ -267,7 +267,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		
 		// all of this fun jazz can be found in src_main/engine/dt_encode.cpp, a summary with comments is at the very end
-		private static EntityProperty CreateAndReadProp(FlattenedProp fProp, BitStreamReader bsr) {
+		private static EntityProperty CreateAndReadProp(this ref BitStreamReader bsr, FlattenedProp fProp) {
 			
 			const string exceptionMsg = "an impossible entity PropType has appeared while creating/reading props ";
 			try {

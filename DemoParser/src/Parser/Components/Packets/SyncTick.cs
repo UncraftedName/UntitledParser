@@ -11,11 +11,10 @@ namespace DemoParser.Parser.Components.Packets {
 		public override bool MayContainData => false;
 		
 
-		public SyncTick(SourceDemo demoRef, BitStreamReader reader, int tick) : base(demoRef, reader, tick) {}
+		public SyncTick(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
 
 
-		internal override void ParseStream(BitStreamReader bsr) {
-			SetLocalStreamEnd(bsr);
+		protected override void Parse(ref BitStreamReader bsr) {
 		}
 		
 
