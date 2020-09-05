@@ -9,21 +9,21 @@ namespace DemoParser.Utils.BitStreams {
 		
 		public readonly byte[] Data;
 		public int BitLength;
-		public readonly int Start; // index of first readable bit
+		public readonly int AbsoluteStart; // index of first readable bit
 		internal bool IsLittleEndian; // this doesn't work w/ big endian atm, probably won't try to fix it since it's not necessary
 		
 		public int AbsoluteBitIndex {get;private set;}
-		public int ByteLength => BitLength >> 3;
-		private int AbsoluteByteIndex => AbsoluteBitIndex >> 3;
+		public readonly int ByteLength => BitLength >> 3;
+		public readonly int AbsoluteByteIndex => AbsoluteBitIndex >> 3;
 		public int CurrentBitIndex {
-			get => AbsoluteBitIndex - Start;
-			set => AbsoluteBitIndex = Start + value;
+			readonly get => AbsoluteBitIndex - AbsoluteStart;
+			set => AbsoluteBitIndex = AbsoluteStart + value;
 		}
-		public int BitsRemaining => Start + BitLength - AbsoluteBitIndex;
-		private byte CurrentByte => Data[AbsoluteByteIndex];  // same as Pointer / 8
-		private byte IndexInByte => (byte)(AbsoluteBitIndex & 0x07); // same as Pointer % 8
-		private byte RemainingBitMask => (byte)(0xff << IndexInByte); // mask to get remaining bits in this byte
-		private bool IsByteAligned => IndexInByte == 0;
+		public readonly int BitsRemaining => AbsoluteStart + BitLength - AbsoluteBitIndex;
+		private readonly byte CurrentByte => Data[AbsoluteByteIndex];  // same as Pointer / 8
+		private readonly byte IndexInByte => (byte)(AbsoluteBitIndex & 0x07); // same as Pointer % 8
+		private readonly byte RemainingBitMask => (byte)(0xff << IndexInByte); // mask to get remaining bits in this byte
+		private readonly bool IsByteAligned => IndexInByte == 0;
 		
 
 		public BitStreamReader(byte[] data, bool isLittleEndian = true) : this(data, data.Length << 3, 0, isLittleEndian) {}
@@ -32,28 +32,28 @@ namespace DemoParser.Utils.BitStreams {
 		public BitStreamReader(byte[] data, int bitLength, int start, bool isLittleEndian = true) {
 			Data = data;
 			BitLength = bitLength;
-			AbsoluteBitIndex = Start = start;
+			AbsoluteBitIndex = AbsoluteStart = start;
 			IsLittleEndian = isLittleEndian;
 		}
 
 
 		// splits this stream, and returns a stream which starts at the (same) next readable bit
-		public BitStreamReader Split() => this;
+		public readonly BitStreamReader Split() => Split(AbsoluteBitIndex, BitsRemaining);
 
 
-		public BitStreamReader Split(uint bitLength) => Split((int)bitLength);
+		public readonly BitStreamReader Split(uint bitLength) => Split((int)bitLength);
 		
 		
-		public BitStreamReader Split(int bitLength) => Split(CurrentBitIndex, bitLength);
+		public readonly BitStreamReader Split(int bitLength) => Split(CurrentBitIndex, bitLength);
 		
 		
-		public BitStreamReader Split(int fromBitIndex, int bitCount) {
+		public readonly BitStreamReader Split(int fromBitIndex, int bitCount) {
 			if (bitCount < 0)
 				throw new ArgumentOutOfRangeException(nameof(bitCount), $"{nameof(bitCount)} cannot be less than 0");
 			if (fromBitIndex + bitCount > CurrentBitIndex + BitsRemaining)
 				throw new ArgumentOutOfRangeException(nameof(bitCount),
 					$"{BitsRemaining} bits remaining, attempted to create a substream with {fromBitIndex + bitCount - BitsRemaining} too many bits");
-			return new BitStreamReader(Data, bitCount, Start + fromBitIndex, IsLittleEndian);
+			return new BitStreamReader(Data, bitCount, AbsoluteStart + fromBitIndex, IsLittleEndian);
 		}
 
 
@@ -67,15 +67,13 @@ namespace DemoParser.Utils.BitStreams {
 		}
 		
 
-		public BitStreamReader FromBeginning() {
-			return new BitStreamReader(Data, BitLength, Start, IsLittleEndian);
+		public readonly BitStreamReader FromBeginning() {
+			return new BitStreamReader(Data, BitLength, AbsoluteStart, IsLittleEndian);
 		}
 
 
-		public string ToBinaryString() {
-			int tmp = AbsoluteBitIndex;
-			(byte[] bytes, int bitCount) = ReadRemainingBits();
-			AbsoluteBitIndex = tmp;
+		public readonly string ToBinaryString() {
+			(byte[] bytes, int bitCount) = Split().ReadRemainingBits();
 			if ((bitCount & 0x07) == 0)
 				return ParserTextUtils.BytesToBinaryString(bytes);
 			else
@@ -83,10 +81,8 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		public string ToHexString(string separator = " ") {
-			int tmp = AbsoluteBitIndex;
-			(byte[] bytes, int _) = ReadRemainingBits();
-			AbsoluteBitIndex = tmp;
+		public readonly string ToHexString(string separator = " ") {
+			(byte[] bytes, int _) = Split().ReadRemainingBits();
 			return ParserTextUtils.BytesToHexString(bytes, separator);
 		}
 
@@ -113,14 +109,14 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void EnsureCapacity(long bitCount) {
+		private readonly void EnsureCapacity(long bitCount) {
 			if (bitCount > BitsRemaining)
 				throw new ArgumentOutOfRangeException(nameof(bitCount),
 					$"{nameof(EnsureCapacity)} failed - {bitCount} bits were needed but only {BitsRemaining} were left");
 		}
 		
 		
-		private byte BitMask(int bitCount) {
+		private readonly byte BitMask(int bitCount) {
 			return (byte)(RemainingBitMask & ~(0xff << (bitCount + IndexInByte)));
 		}
 		

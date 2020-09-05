@@ -312,12 +312,12 @@ namespace ConsoleApp {
 					Packet p = (Packet)frame.Packet;
 					BitStreamWriter bsw = new BitStreamWriter(frame.Reader.ByteLength);
 					var last = p.MessageStream.Last().message;
-					int len = last.Reader.Start - frame.Reader.Start + last.Reader.BitLength;
+					int len = last.Reader.AbsoluteStart - frame.Reader.AbsoluteStart + last.Reader.BitLength;
 					bsw.WriteBits(frame.Reader.ReadBits(len), len);
-					int msgSizeOffset = p.MessageStream.Reader.Start - frame.Reader.Start;
+					int msgSizeOffset = p.MessageStream.Reader.AbsoluteStart - frame.Reader.AbsoluteStart;
 					int typeInfoLen = CurDemo.DemoSettings.NetMsgTypeBits + CurDemo.DemoSettings.UserMessageLengthBits + 8;
 					bsw.RemoveBitsAtIndices(p.FilterForUserMessage<CloseCaption>()
-						.Select(caption => (caption.Reader.Start - frame.Reader.Start - typeInfoLen, 
+						.Select(caption => (caption.Reader.AbsoluteStart - frame.Reader.AbsoluteStart - typeInfoLen, 
 							caption.Reader.BitLength + typeInfoLen)));
 					bsw.WriteUntilByteBoundary();
 					bsw.EditIntAtIndex((bsw.BitLength - msgSizeOffset - 32) >> 3, msgSizeOffset, 32);
@@ -326,7 +326,7 @@ namespace ConsoleApp {
 					// if we've edited all the packets, write the rest of the data in the demo
 					if (++changedPackets == closeCaptionPackets.Length) {
 						BitStreamReader tmp = CurDemo.Reader;
-						tmp.SkipBits(frame.Reader.Start + frame.Reader.BitLength);
+						tmp.SkipBits(frame.Reader.AbsoluteStart + frame.Reader.BitLength);
 						_curBinWriter!.Write(tmp.ReadRemainingBits().bytes);
 						break;
 					}
