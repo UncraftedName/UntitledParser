@@ -14,6 +14,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public LightStyle(SourceDemo? demoRef) : base(demoRef) {}
 
 
+		internal override StringTableEntryData CreateCopy() {
+			return new LightStyle(DemoRef) {Values = Values};
+		}
+
+
 		protected override void Parse(ref BitStreamReader bsr) {
 			string str = bsr.ReadNullTerminatedString(); // yes
 			if (str.Length != 0)

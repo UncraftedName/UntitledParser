@@ -27,6 +27,22 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public PlayerInfo(SourceDemo? demoRef) : base(demoRef) {}
 
 
+		internal override StringTableEntryData CreateCopy() {
+			return new PlayerInfo(DemoRef) {
+				SteamId = SteamId,
+				Name = Name,
+				UserId = UserId,
+				Guid = Guid,
+				FriendsId = FriendsId,
+				FriendsName = FriendsName,
+				FakePlayer = FakePlayer,
+				IsHlTv = IsHlTv,
+				CustomFiles = CustomFiles,
+				FilesDownloaded = FilesDownloaded
+			};
+		}
+
+
 		// since we're reading a struct, alignment needs to be taken into account
 		protected override void Parse(ref BitStreamReader bsr) {
 			if (DemoSettings.NewDemoProtocol)

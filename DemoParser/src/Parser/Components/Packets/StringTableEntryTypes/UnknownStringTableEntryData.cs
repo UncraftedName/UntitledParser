@@ -13,6 +13,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public UnknownStringTableEntryData(SourceDemo? demoRef) : base(demoRef) {}
 
 
+		internal override StringTableEntryData CreateCopy() {
+			return new UnknownStringTableEntryData(DemoRef);
+		}
+
+
 		protected override void Parse(ref BitStreamReader bsr) {
 			bsr.SkipToEnd();
 		}

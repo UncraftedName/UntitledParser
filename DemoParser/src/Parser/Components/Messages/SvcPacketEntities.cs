@@ -56,7 +56,7 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 			
 			Updates = new List<EntityUpdate>(UpdatedEntries);
-			DataTableParser tableParser = DemoRef.DataTableParser;
+			DataTableParser? tableParser = DemoRef.DataTableParser;
 			Entity?[] ents = snapshot.Entities; // current entity state
 
 			if (tableParser == null) {

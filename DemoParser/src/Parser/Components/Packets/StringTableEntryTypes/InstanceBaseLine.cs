@@ -22,13 +22,20 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		// might not get set until later
 		private PropLookup? _propLookup;
 		public ServerClass? ServerClassRef;
-		public IReadOnlyList<(int propIndex, EntityProperty prop)> Properties;
+		public IReadOnlyList<(int propIndex, EntityProperty prop)>? Properties;
 
 
 		public InstanceBaseline(SourceDemo? demoRef, string entryName, PropLookup? propLookup) : base(demoRef) {
 			_entryName = entryName;
 			_propLookup = propLookup;
 		}
+
+
+		internal override StringTableEntryData CreateCopy() {
+			return new InstanceBaseline(DemoRef, _entryName, _propLookup)
+				{ServerClassRef = ServerClassRef, Properties = Properties};
+		}
+		
 		
 		// if we're parsing this before the data tables, just leave it for now
 		protected override void Parse(ref BitStreamReader bsr) {

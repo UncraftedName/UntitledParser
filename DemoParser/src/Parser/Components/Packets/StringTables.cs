@@ -157,8 +157,8 @@ namespace DemoParser.Parser.Components.Packets {
 
 				EntryData = StringTableEntryDataFactory.CreateData(
 					DemoRef,
-					TableRef.Name, 
-					Name, 
+					TableRef.Name,
+					Name,
 					DemoRef.DataTableParser.FlattenedProps);
 				
 				EntryData.ParseStream(bsr.SplitAndSkip(dataLen << 3));

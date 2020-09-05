@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;

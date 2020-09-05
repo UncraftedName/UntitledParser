@@ -20,7 +20,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		private readonly DataTables _dtRef;
 		private readonly ImmutableDictionary<string, SendTable> _tableLookup;
 		public int ServerClassBits => BitUtils.HighestBitIndex((uint)_dtRef.ServerClasses.Count) + 1; // this might be off for powers of 2
-		public readonly PropLookup FlattenedProps; // not initialized during the server class info
+		public readonly PropLookup? FlattenedProps; // not initialized during the server class info
 		
 		
 		
@@ -104,7 +104,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					.Select(entry => entry.EntryData)
 					.Cast<InstanceBaseline>()
 					.ToList()
-					.ForEach(baseline => baseline.ParseBaseLineData(FlattenedProps));
+					.ForEach(baseline => baseline.ParseBaseLineData(FlattenedProps!));
 			}
 		}
 

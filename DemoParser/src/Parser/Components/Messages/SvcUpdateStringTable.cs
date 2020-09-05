@@ -130,12 +130,12 @@ namespace DemoParser.Parser.Components.Messages {
 						int j = tableToUpdate.Entries.FindIndex(tableEntry => tableEntry.EntryName == entryName);
 						if (j == -1) {
 							TableUpdates.Add(new TableUpdate(
-								manager.AddTableEntry(tableToUpdate, entryStream, entryName), 
+								manager.AddTableEntry(tableToUpdate, ref entryStream, entryName), 
 								TableUpdateType.NewEntry,
 								tableToUpdate.Entries.Count - 1)); // sub 1 since we update the table 2 lines up
 						} else {
 							TableUpdates.Add(new TableUpdate(
-								manager.SetEntryData(tableToUpdate, tableToUpdate.Entries[j]), 
+								manager.SetEntryData(tableToUpdate, tableToUpdate.Entries[j]),
 								TableUpdateType.ChangeEntryData,
 								j));
 						}

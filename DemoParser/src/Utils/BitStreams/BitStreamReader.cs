@@ -38,7 +38,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		// splits this stream, and returns a stream which starts at the (same) next readable bit
-		public readonly BitStreamReader Split() => Split(AbsoluteBitIndex, BitsRemaining);
+		public readonly BitStreamReader Split() => Split(CurrentBitIndex, BitsRemaining);
 
 
 		public readonly BitStreamReader Split(uint bitLength) => Split((int)bitLength);

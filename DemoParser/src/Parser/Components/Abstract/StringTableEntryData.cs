@@ -13,6 +13,8 @@ namespace DemoParser.Parser.Components.Abstract {
 		internal virtual bool InlineToString => false;
 		
 		protected StringTableEntryData(SourceDemo? demoRef) : base(demoRef) {}
+
+		internal abstract StringTableEntryData CreateCopy();
 	}
 
 
@@ -20,8 +22,8 @@ namespace DemoParser.Parser.Components.Abstract {
 		
 		// Pass in substream. If prop lookup is populated the baseline will get parsed right away.
 		public static StringTableEntryData CreateData(
-			SourceDemo? demoRef, string tableName, string entryName, // mandatory stuff
-			PropLookup? propLookup = null) // if parsing baseline now
+			SourceDemo? demoRef, string tableName, string entryName,
+			PropLookup? propLookup = null)
 		{
 			return tableName switch {
 				TableNames.UserInfo          => new PlayerInfo(demoRef),

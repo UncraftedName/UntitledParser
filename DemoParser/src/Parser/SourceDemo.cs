@@ -37,7 +37,7 @@ namespace DemoParser.Parser {
 		// a local copy of any objects from those tables.
 		public List<string> ErrorList;
 		internal GameEventManager GameEventManager;
-		public DataTableParser DataTableParser;
+		public DataTableParser? DataTableParser;
 		internal CurStringTablesManager CurStringTablesManager;
 		internal CurEntitySnapshot? CurEntitySnapshot;
 		internal CurBaseLines? CBaseLines;

@@ -91,10 +91,27 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 
 
-		internal CurStringTableEntry? AddTableEntry(CurStringTable table, BitStreamReader? entryStream, string entryName) {
+		internal CurStringTableEntry? AddTableEntry(CurStringTable table, ref BitStreamReader? entryStream,
+			string entryName)
+		{
+			var entry = AddTableEntry(table, null, entryName);
+			
+			if (entryStream.HasValue && entry != null) {
+				entry.EntryData = StringTableEntryDataFactory.CreateData(
+					_demoRef, table.Name, entryName, _demoRef.DataTableParser.FlattenedProps);
+				
+				entry.EntryData.ParseStream(entryStream.Value);
+			}
+			return entry;
+		}
+
+
+		internal CurStringTableEntry? AddTableEntry(CurStringTable table, StringTableEntryData? eData,
+			string entryName)
+		{
 			if (!TableReadable[table.Name])
 				return null;
-			table.Entries.Add(new CurStringTableEntry(_demoRef, table, entryStream, entryName));
+			table.Entries.Add(new CurStringTableEntry(_demoRef, table, eData, entryName));
 			return table.Entries[^1];
 		}
 
@@ -143,7 +160,7 @@ namespace DemoParser.Parser.HelperClasses {
 					
 					if (table.TableEntries != null)
 						foreach (StringTableEntry entry in table.TableEntries)
-							AddTableEntry(newTable, entry?.EntryData?.Reader, entry.Name);
+							AddTableEntry(newTable, entry?.EntryData?.CreateCopy(), entry.Name);
 					if (table.Classes != null)
 						foreach (CurStringTableClass tableClass in newTable.Classes)
 							AddTableClass(newTable, tableClass.Name, tableClass.Data);
@@ -201,14 +218,11 @@ namespace DemoParser.Parser.HelperClasses {
 		public StringTableEntryData? EntryData;
 		
 		
-		public CurStringTableEntry(SourceDemo demoRef, CurStringTable tableRef, BitStreamReader? entryStream, string entryName) {
+		public CurStringTableEntry(SourceDemo demoRef, CurStringTable tableRef, StringTableEntryData? eData, string entryName) {
 			_demoRef = demoRef;
 			_tableRef = tableRef;
+			EntryData = eData;
 			EntryName = entryName;
-			if (entryStream != null) {
-				EntryData = StringTableEntryDataFactory.CreateData(demoRef, tableRef.Name, entryName, demoRef?.DataTableParser.FlattenedProps);
-				EntryData.ParseStream(entryStream.Value); // todo instead of reparsing the data maybe clone it instead?
-			}
 		}
 
 

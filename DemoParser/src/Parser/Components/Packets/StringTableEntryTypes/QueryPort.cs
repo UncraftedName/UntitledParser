@@ -14,6 +14,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public QueryPort(SourceDemo? demoRef) : base(demoRef) {}
 
 
+		internal override StringTableEntryData CreateCopy() {
+			return new QueryPort(DemoRef) {Port = Port};
+		}
+
+
 		protected override void Parse(ref BitStreamReader bsr) {
 			Port = bsr.ReadUInt();
 		}
