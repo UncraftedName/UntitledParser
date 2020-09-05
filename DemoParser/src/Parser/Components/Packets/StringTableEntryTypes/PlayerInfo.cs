@@ -39,6 +39,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			FriendsName = bsr.ReadCharArray(DemoSettings.MaxPlayerNameLength);
 			FakePlayer = bsr.ReadByte() != 0;
 			IsHlTv = bsr.ReadByte() != 0;
+			bsr.SkipBytes(2);
 			CustomFiles = new[] {bsr.ReadUInt(), bsr.ReadUInt(), bsr.ReadUInt(), bsr.ReadUInt()};
 			FilesDownloaded = bsr.ReadByte();
 			bsr.SkipBytes(3);
