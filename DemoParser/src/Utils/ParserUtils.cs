@@ -153,9 +153,9 @@ namespace DemoParser.Utils {
 		public static TV GetValueOrDefault<TK, TV>(this IDictionary<TK, TV> dict, TK key, TV defVal = default) {
 			return dict.TryGetValue(key, out TV val) ? val : defVal;
 		}
-		
-		
-		internal class ReferenceComparer<T> : IEqualityComparer<T> {
+
+
+		public class ReferenceComparer<T> : IEqualityComparer<T> {
 			public bool Equals(T a, T b) => ReferenceEquals(a, b);
 #pragma warning disable CS0436
 			public int GetHashCode(T obj) => RuntimeHelpers.GetHashCode(obj);

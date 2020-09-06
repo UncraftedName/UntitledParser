@@ -33,11 +33,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append($"({EntIndex}) DELTA - ({ServerClass.ToString()})");
+			iw.Append($"({EntIndex}) DELTA - ");
+			ServerClass.AppendToWriter(iw);
 			iw.FutureIndent++;
 			foreach ((int propIndex, EntityProperty prop) in Props) {
 				iw.AppendLine();
-				iw.Append($"({propIndex}) {prop.ToString()}");
+				iw.Append($"({propIndex}) ");
+				prop.AppendToWriter(iw);
 			}
 			iw.FutureIndent--;
 		}
@@ -67,13 +69,15 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append($"({EntIndex}) {(New ? "CREATE" : "ENTER_PVS")} - ({ServerClass.ToString()})");
+			iw.Append($"({EntIndex}) {(New ? "CREATE" : "ENTER_PVS")} - ");
+			ServerClass.AppendToWriter(iw);
 			if (New)
 				iw.Append($", serial: {Serial}");
 			iw.FutureIndent++;
 			foreach ((int propIndex, EntityProperty prop) in Props) {
 				iw.AppendLine();
-				iw.Append($"({propIndex}) {prop.ToString()}");
+				iw.Append($"({propIndex}) ");
+				prop.AppendToWriter(iw);
 			}
 			iw.FutureIndent--;
 		}
@@ -96,7 +100,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 
 		public override void AppendToWriter(IndentedWriter iw) {
-			iw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - ({ServerClass.ToString()})");
+			iw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - ");
+			ServerClass.AppendToWriter(iw);
 		}
 	}
 }
