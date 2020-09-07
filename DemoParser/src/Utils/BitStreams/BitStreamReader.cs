@@ -24,6 +24,16 @@ namespace DemoParser.Utils.BitStreams {
 		private readonly byte IndexInByte => (byte)(AbsoluteBitIndex & 0x07); // same as Pointer % 8
 		private readonly byte RemainingBitMask => (byte)(0xff << IndexInByte); // mask to get remaining bits in this byte
 		private readonly bool IsByteAligned => IndexInByte == 0;
+		private static readonly byte[,] BitMaskLookup;
+		private readonly byte BitMask(int bitCount) => BitMaskLookup[AbsoluteBitIndex & 0x07, bitCount];
+
+
+		static BitStreamReader() {
+			BitMaskLookup = new byte[8,8];
+			for (int inByte = 0; inByte < 8; inByte++)
+			for (int count = 0; count < 8; count++)
+				BitMaskLookup[inByte, count] = (byte)((0xff << inByte) & ~(0xff << (count + inByte)));
+		}
 		
 
 		public BitStreamReader(byte[] data, bool isLittleEndian = true) : this(data, data.Length << 3, 0, isLittleEndian) {}
@@ -114,12 +124,7 @@ namespace DemoParser.Utils.BitStreams {
 				throw new ArgumentOutOfRangeException(nameof(bitCount),
 					$"{nameof(EnsureCapacity)} failed - {bitCount} bits were needed but only {BitsRemaining} were left");
 		}
-		
-		
-		private readonly byte BitMask(int bitCount) {
-			return (byte)(RemainingBitMask & ~(0xff << (bitCount + IndexInByte)));
-		}
-		
+
 
 		public bool ReadBool() {
 			EnsureCapacity(1);
