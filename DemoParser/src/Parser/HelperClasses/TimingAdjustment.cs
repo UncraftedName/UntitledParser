@@ -213,8 +213,8 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 
 
-		private static bool RexauraEndCheck(Packet packet) {
-			return packet.FilterForUserMessage<KillCam>().Any(cam => cam.NewMode == 172) && Portal1GunRemoved(packet);
+		private static bool RexauraEndCheck(Packet packet) { // yeah idk
+			return packet.FilterForUserMessage<KillCam>().Any(cam => (byte)cam.SpecMode == 172) && Portal1GunRemoved(packet);
 		}
 
 

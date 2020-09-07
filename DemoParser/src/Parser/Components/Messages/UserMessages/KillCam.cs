@@ -7,7 +7,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 	
 	public class KillCam : UserMessage {
 
-		public byte NewMode; // todo
+		public SpectatorMode SpecMode;
 		public byte Target1;
 		public byte Target2;
 		public byte Unknown;
@@ -17,7 +17,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			NewMode = bsr.ReadByte();
+			SpecMode = (SpectatorMode)bsr.ReadByte();
 			Target1 = bsr.ReadByte();
 			Target2 = bsr.ReadByte();
 			Unknown = bsr.ReadByte();
@@ -30,7 +30,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 
 		public override void AppendToWriter(IIndentedWriter iw) {
-			iw.AppendLine($"new mode: {NewMode}");
+			iw.AppendLine($"spectator mode: {SpecMode}");
 			iw.AppendLine($"target 1: {Target1}");
 			iw.AppendLine($"target 2: {Target2}");
 			iw.Append($"unknown: {Unknown}");
