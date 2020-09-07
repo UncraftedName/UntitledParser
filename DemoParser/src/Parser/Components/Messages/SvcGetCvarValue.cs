@@ -25,7 +25,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"cookie: {Cookie}");
 			iw.Append($"cvar name: {CvarName}");
 		}

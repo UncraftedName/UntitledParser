@@ -49,7 +49,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"create on client: {CreateOnClient}");
 			iw.Append($"{ServerClasses?.Length ?? ClassCount} server classes{(CreateOnClient ? "" : ":")}");
 			if (!CreateOnClient && ServerClasses != null) {
@@ -91,7 +91,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"[{DataTableId}] {ClassName} ({DataTableName})");
 		}
 

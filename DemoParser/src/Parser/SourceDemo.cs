@@ -109,7 +109,7 @@ namespace DemoParser.Parser {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine("Untitled parser by UncraftedName, build date: " +
 						  $"{BuildDateAttribute.GetBuildDate(Assembly.GetExecutingAssembly()):R}");
 			if (FileName != null)
@@ -138,11 +138,13 @@ namespace DemoParser.Parser {
 		}
 
 		
-		// close the writer yourself
-		public void WriteVerboseString(TextWriter textWriter, string indentStr = "\t") {
-			IndentedWriter iw = new IndentedWriter();
+		public void WriteVerboseString(Stream stream, string indentStr = "\t", bool disposeAfterWriting = false) {
+			IndentedTextWriter iw = new IndentedTextWriter(stream, indentStr: indentStr, bufferSize: 100000);
 			AppendToWriter(iw);
-			iw.WriteLines(textWriter, indentStr);
+			if (disposeAfterWriting) {
+				iw.Flush();
+				iw.Dispose();
+			}
 		}
 		
 		

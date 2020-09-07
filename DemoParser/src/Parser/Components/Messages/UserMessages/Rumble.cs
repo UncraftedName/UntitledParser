@@ -27,7 +27,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"type: {RumbleType}");
 			iw.AppendLine($"scale: {Scale}");
 			iw.Append($"flags: {RumbleFlags}");

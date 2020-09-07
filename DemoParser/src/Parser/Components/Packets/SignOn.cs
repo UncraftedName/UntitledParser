@@ -47,7 +47,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine(DemoSettings.SignOnGarbageBytes + " bytes with no data");
 			iw.AppendLine($"2 unknown ints: {Unknown1}, {Unknown2}");
 			MessageStream.AppendToWriter(iw);

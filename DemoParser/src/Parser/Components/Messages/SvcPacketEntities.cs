@@ -144,7 +144,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"max entries: {MaxEntries}");
 			iw.AppendLine($"is delta: {IsDelta}");
 			if (IsDelta)

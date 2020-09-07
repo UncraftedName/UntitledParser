@@ -30,7 +30,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"client ID: {ClientId}");
 			iw.AppendLine($"string: {Str.Replace("\n", @"\n")}");
 			iw.Append($"wants to chat: {WantsToChat}");

@@ -55,7 +55,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			foreach (CmdInfo cmdInfo in PacketInfo) 
 				cmdInfo.AppendToWriter(iw);
 			iw.AppendLine($"in sequence: {InSequence}");
@@ -96,7 +96,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"flags: {Flags}");
 			for (int i = 0; i < _floats.Length; i++) {
 				string dSym = UseDegreeSymbol[i] ? "°" : " ";

@@ -72,7 +72,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			if (MessageType == UserMessageType.Unknown || MessageType == UserMessageType.Invalid) {
 				iw.Append("Unknown type");
 			} else {

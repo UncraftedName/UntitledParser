@@ -58,7 +58,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 		
 		
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"reliable: {Reliable}");
 			if (Sounds != null) {
 				for (int i = 0; i < Sounds.Count; i++) {
@@ -204,7 +204,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 		
 		
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"entity index: {EntityIndex}");
 
 			if ((Flags & SoundFlags.IsScriptHandle) != 0) {

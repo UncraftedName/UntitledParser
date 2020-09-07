@@ -33,7 +33,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"channel: {Channel}");
 			if (MsgInfo != null) {
 				iw.AppendLine();
@@ -80,7 +80,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			}
 
 
-			public override void AppendToWriter(IndentedWriter iw) {
+			public override void AppendToWriter(IIndentedWriter iw) {
 				iw.AppendLine($"x: {X}, y: {Y}");
 				iw.AppendLine($"RGBA1: {R1} {G1} {B1} {A1}");
 				iw.AppendLine($"RGBA2: {R2} {G2} {B2} {A2}");

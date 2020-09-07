@@ -36,7 +36,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append(TableName != null ? $"table: {TableName}" : "table id:");
 			iw.AppendLine($" ({TableId})");
 			iw.AppendLine($"number of changed entries: {ChangedEntriesCount}");
@@ -160,7 +160,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			if (_exceptionWhileParsing) {
 				iw.Append("error while parsing");
 				return;
@@ -201,7 +201,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 		
 		
-		public override void AppendToWriter(IndentedWriter iw) { // similar logic to that in string tables
+		public override void AppendToWriter(IIndentedWriter iw) { // similar logic to that in string tables
 			iw.Append($"[{Index}] {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
 			if (TableEntry?.EntryData != null) {
 				if (TableEntry.EntryData.InlineToString) {

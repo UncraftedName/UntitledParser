@@ -83,7 +83,7 @@ namespace DemoParser.Parser.Components {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			int i = 0;
 			while (i < Messages?.Count && Messages[i].message != null) {
 				iw.Append($"message: {Messages[i].messageType} " +

@@ -46,7 +46,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"{EventDescription.Name} ({EventId})");
 			if (EventDescriptors != null && EventDescriptors.Count > 0) {
 				iw.FutureIndent++;

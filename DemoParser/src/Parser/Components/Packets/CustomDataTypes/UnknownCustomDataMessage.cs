@@ -18,7 +18,7 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"unknown data: {Reader.ToHexString()}");
 		}
 	}

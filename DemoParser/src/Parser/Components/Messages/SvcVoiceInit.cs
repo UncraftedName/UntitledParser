@@ -27,7 +27,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"codec: {Codec}");
 			iw.Append($"quality: {Quality}");
 			if (Quality == 255)

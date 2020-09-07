@@ -182,7 +182,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 		
-		public void AppendToWriter(IndentedWriter iw) {
+		public void AppendToWriter(IIndentedWriter iw) {
 			int tmp = iw.LastLineLength;
 			iw.Append(PropInfo.TypeString());
 			iw.PadLastLine(tmp + 12, ' ');

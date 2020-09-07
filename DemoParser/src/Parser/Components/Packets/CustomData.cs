@@ -37,7 +37,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"type: {DataType}");
 			iw.FutureIndent++;
 			iw.AppendLine();

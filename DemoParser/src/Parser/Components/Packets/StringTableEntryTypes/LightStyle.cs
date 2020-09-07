@@ -32,7 +32,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 
 		// see src_main/engine/gl_rlight.cpp
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append(Values == null
 				? "0 frames (256)"
 				: $"{Values.Length} frame{(Values.Length > 1 ? "s" : "")}: {Values.SequenceToString().Replace(",", "")}");

@@ -48,7 +48,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		internal abstract void WriteToStreamWriter(BitStreamWriter bsw);
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"Not Implemented - {GetType().FullName}");
 		}
 	}

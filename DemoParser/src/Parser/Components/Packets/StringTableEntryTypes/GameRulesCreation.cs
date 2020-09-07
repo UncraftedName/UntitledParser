@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
         }
 
 
-        public override void AppendToWriter(IndentedWriter iw) {
+        public override void AppendToWriter(IIndentedWriter iw) {
             iw.Append(ClassName);
         }
     }

@@ -42,7 +42,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"name: {TableName}");
 			iw.AppendLine($"max entries: {MaxEntries}");
 			iw.AppendLine($"number of entries: {NumEntries}");

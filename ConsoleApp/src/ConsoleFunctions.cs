@@ -31,15 +31,19 @@ namespace ConsoleApp {
 		private static bool _displayMapExcludedMsg;
 
 
-		private static void SetTextWriter(string suffix) {
+		private static void SetTextWriter(string suffix, int bufferSize = 1024) {
 			if (_folderPath != null) {
 				_curTextWriter?.Flush(); // i can't flush this after it's been closed
 				_curTextWriter?.Close();
-				_curTextWriter = new StreamWriter(Path.Combine(_folderPath, $"{CurDemo.FileName![..^4]} - {suffix}.txt"));
+				_curTextWriter = new StreamWriter(CreateFileStream(suffix), Encoding.UTF8, bufferSize);
 			} else {
 				_curTextWriter = Console.Out;
 			}
 		}
+
+
+		private static FileStream CreateFileStream(string suffix) =>
+			new FileStream(Path.Combine(_folderPath!, $"{CurDemo.FileName![..^4]} - {suffix}.txt"), FileMode.Create);
 
 
 		// if changing how the output is named, change the tests as well
@@ -82,9 +86,9 @@ namespace ConsoleApp {
 		
 
 		private static void ConsFunc_VerboseDump() {
-			SetTextWriter("verbose dump");
 			Console.WriteLine("Dumping verbose output...");
-			CurDemo.WriteVerboseString(_curTextWriter!);
+			var fs = CreateFileStream("verbose dump");
+			CurDemo.WriteVerboseString(fs, disposeAfterWriting: true);
 		}
 
 

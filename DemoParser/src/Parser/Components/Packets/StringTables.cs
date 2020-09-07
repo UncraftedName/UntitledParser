@@ -50,7 +50,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			foreach (StringTable table in Tables) {
 				table.AppendToWriter(iw);
 				iw.AppendLine();
@@ -97,7 +97,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"table name: {Name}");
 			iw.FutureIndent++;
 			iw.AppendLine();
@@ -171,7 +171,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			if (EntryData != null) {
 				if (EntryData.ContentsKnown) {
 					iw.Append(Name);
@@ -219,7 +219,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"name: {Name}");
 			if (Data != null)
 				iw.Append($", data: {Data}");

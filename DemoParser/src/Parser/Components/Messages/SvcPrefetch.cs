@@ -34,7 +34,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append(SoundName != null 
 				? $"sound: {SoundName}" 
 				: "sound index:");

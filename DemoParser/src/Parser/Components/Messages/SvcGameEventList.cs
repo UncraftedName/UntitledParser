@@ -40,7 +40,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"{EventCount} events:");
 			iw.FutureIndent++;
 			foreach (GameEventDescription descriptor in Descriptors) {
@@ -77,7 +77,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"{EventId}: {Name}");
 			iw.FutureIndent++;
 			iw.AppendLine();

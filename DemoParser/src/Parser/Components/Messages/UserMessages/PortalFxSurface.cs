@@ -36,7 +36,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 		
 		
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"portal entity: {PortalEnt}");
 			iw.AppendLine($"owner entity: {OwnerEnt}");
 			iw.AppendLine($"team: {Team}");

@@ -40,7 +40,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"sign on state: {SignOnState}");
 			iw.Append($"spawn count: {SpawnCount}");
 			if (DemoSettings.NewDemoProtocol) {

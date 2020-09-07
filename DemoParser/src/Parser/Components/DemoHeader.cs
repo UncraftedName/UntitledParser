@@ -41,7 +41,7 @@ namespace DemoParser.Parser.Components {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"file stamp: {FileStamp}");
 			iw.AppendLine($"demo protocol: {DemoProtocol}");
 			iw.AppendLine($"network protocol: {NetworkProtocol}");

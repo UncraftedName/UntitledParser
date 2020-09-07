@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"new mode: {NewMode}");
 			iw.AppendLine($"target 1: {Target1}");
 			iw.AppendLine($"target 2: {Target2}");

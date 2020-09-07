@@ -53,7 +53,7 @@ namespace DemoParser.Parser.Components {
 		}
 		
 		
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			if (Packet != null) {
 				iw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(DemoSettings, Type)})");
 				if (DemoSettings.NewDemoProtocol && PlayerSlot.HasValue)

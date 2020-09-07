@@ -65,13 +65,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"{SendPropType.ToString().ToLower(),-10}");
 			AppendToWriterWithoutType(iw);
 		}
 
 
-		private void AppendToWriterWithoutType(IndentedWriter iw) {
+		private void AppendToWriterWithoutType(IIndentedWriter iw) {
 			if (ExcludeDtName != null) {
 				iw.Append($"{Name}{(ExcludeDtName == null ? "" : $" : {ExcludeDtName}")}".PadRight(50));
 			} else {
@@ -104,7 +104,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		public string ToStringNoType() { // just for pretty toString() from the console app
-			var iw = new IndentedWriter();
+			var iw = new IndentedToStringWriter();
 			AppendToWriterWithoutType(iw);
 			return iw.ToString();
 		}

@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.AppendLine($"needs decoder: {NeedsDecoder}");
 			iw.Append($"data length in bits: {_props.BitLength}");
 		}

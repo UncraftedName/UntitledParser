@@ -74,7 +74,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			Debug.Assert(Tables.Count > 0, "there's no tables hmmmmmmmmmmmm");
 			iw.Append($"{Tables.Count} send table{(Tables.Count > 1 ? "s" : "")}:");
 			iw.FutureIndent++;
@@ -126,7 +126,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"{Name}{(NeedsDecoder ? "*" : "")} (");
 			if (SendProps.Count > 0) {
 				iw.Append($"{SendProps.Count} prop{(SendProps.Count > 1 ? "s" : "")}):");

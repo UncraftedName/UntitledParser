@@ -32,7 +32,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 		
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"({EntIndex}) DELTA - ");
 			ServerClass.AppendToWriter(iw);
 			iw.FutureIndent++;
@@ -68,7 +68,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"({EntIndex}) {(New ? "CREATE" : "ENTER_PVS")} - ");
 			ServerClass.AppendToWriter(iw);
 			if (New)
@@ -99,7 +99,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 
-		public override void AppendToWriter(IndentedWriter iw) {
+		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - ");
 			ServerClass.AppendToWriter(iw);
 		}
