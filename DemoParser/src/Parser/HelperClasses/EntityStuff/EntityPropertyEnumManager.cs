@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Utils;
 using static DemoParser.Parser.HelperClasses.EntityStuff.DisplayType;
 using static DemoParser.Parser.HelperClasses.EntityStuff.PropEnums;
@@ -75,7 +76,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				[("DT_Precipitation", "m_nPrecipType")]           = DT_Precipitation__m_nPrecipType,
 				[("DT_CPropJeepEpisodic", "m_iRadarContactType")] = DT_CPropJeepEpisodic__m_iRadarContactType,
 				[("DT_BaseTrigger", "m_spawnflags")]              = DT_BaseTrigger__m_spawnflags,
-				[("DT_Sun", "m_clrOverlay")]                      = Color
+				[("DT_Sun", "m_clrOverlay")]                      = Color,
+				[("DT_PropPaintBomb", "m_nPaintPowerType")]       = DT_PropPaintBomb__m_nPaintPowerType
 			};
 		
 		
@@ -126,6 +128,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				DT_Precipitation__m_nPrecipType           => ((PrecipitationType_t)val).ToString(),
 				DT_CPropJeepEpisodic__m_iRadarContactType => ((EpisodicRadarContactType)val).ToString(),
 				DT_BaseTrigger__m_spawnflags              => $"({(SF_BaseTrigger)val})",
+				DT_PropPaintBomb__m_nPaintPowerType       => ((PaintType)val).ToString(),
 				_ => throw PropToStringHelper.E
 			};
 		}

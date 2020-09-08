@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using DemoParser.Utils;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
@@ -77,9 +78,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				case DisplayType.Color: // pretty sure this is rgba
 					return $"0x{val:X8}";
 				case DisplayType.Handle:
-					return val == DemoSettings.NullEHandle
-						? "null"
-						: $"(index: {val & (DemoSettings.MaxEdicts - 1)}, serial: {val >> DemoSettings.MaxEdictBits})";
+					return ((EHandle)val).ToString();
 				case DisplayType.DT_BaseEntity__m_CollisionGroup:
 					return demoSettings.CollisionsGroupList[val].ToString();
 				case DisplayType.DT_BasePlayer__m_fFlags:
@@ -191,6 +190,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		DT_Local__M_iHideHUD,
 		DT_BaseCombatWeapon__m_iState,
 		DT_CPropJeepEpisodic__m_iRadarContactType,
-		DT_BaseTrigger__m_spawnflags
+		DT_BaseTrigger__m_spawnflags,
+		DT_PropPaintBomb__m_nPaintPowerType
 	}
 }

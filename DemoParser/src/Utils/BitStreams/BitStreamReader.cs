@@ -316,6 +316,16 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
+		public EHandle ReadEHandle() => (EHandle)ReadUInt();
+		
+		
+		public T ReadStruct<T>(int size) where T : struct {
+			Span<byte> span = stackalloc byte[size];
+			ReadBytesToSpan(span);
+			return ParserUtils.ByteSpanToStruct<T>(span);
+		}
+
+
 		public void ReadVector3(out Vector3 vec3) {
 			vec3.X = ReadFloat();
 			vec3.Y = ReadFloat();

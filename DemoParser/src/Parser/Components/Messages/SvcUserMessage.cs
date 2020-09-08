@@ -7,7 +7,7 @@ using DemoParser.Utils.BitStreams;
 namespace DemoParser.Parser.Components.Messages {
 	
 	// similar to a packet frame, contains the type of user message
-	public class SvcUserMessage : DemoMessage {
+	public sealed class SvcUserMessage : DemoMessage {
 
 		public UserMessageType MessageType;
 		public UserMessage UserMessage;
@@ -61,6 +61,7 @@ namespace DemoParser.Parser.Components.Messages {
 				DemoRef.LogError($"{errorStr}, ({rem} bit{(rem == 1 ? "" : "s")}) - " +
 								 $"{uMessageReader.FromBeginning().ToHexString()}");
 				UserMessage = new UnknownUserMessage(DemoRef);
+				UserMessage.ParseStream(uMessageReader);
 			}
 
 			#endregion

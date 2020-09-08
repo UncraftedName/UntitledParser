@@ -416,6 +416,8 @@ namespace DemoParser.Parser.Components.Abstract {
 				UserMessageType.MPTauntEarned      => new MpTauntEarned(demoRef),
 				UserMessageType.MPTauntLocked      => new MpTauntLocked(demoRef),
 				UserMessageType.HudText            => new HudText(demoRef),
+				UserMessageType.PaintWorld         => new PaintWorld(demoRef),
+				UserMessageType.PaintEntity        => new PaintEntity(demoRef),
 				_ => null // I do a check for this so that I don't have to allocate the unknown type twice
 			};
 		}

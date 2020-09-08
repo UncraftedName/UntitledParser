@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using DemoParser.Parser;
 using DemoParser.Parser.Components.Abstract;
@@ -161,5 +162,37 @@ namespace DemoParser.Utils {
 			public int GetHashCode(T obj) => RuntimeHelpers.GetHashCode(obj);
 #pragma warning restore CS0436
 		}
+
+
+		public static unsafe T ByteSpanToStruct<T>(Span<byte> bytes) where T : struct {
+			fixed (byte* ptr = bytes)
+				return Marshal.PtrToStructure<T>((IntPtr)ptr)!;
+		}
+	}
+
+
+	public readonly struct EHandle { // todo ref to entities, maybe add special behavior for --portal-passed
+			
+		public readonly uint Val;
+		
+		public static implicit operator uint(EHandle h) => h.Val;
+		public static explicit operator EHandle(uint u) => new EHandle(u);
+		public static explicit operator EHandle(int i) => new EHandle((uint)i);
+			
+		public EHandle(uint val) {
+			Val = val;
+		}
+
+		public int EntIndex => (int)(Val & ((1 << DemoSettings.MaxEdictBits) - 1));
+		public int Serial => (int)(Val >> DemoSettings.MaxEdictBits);
+
+		public override string ToString() {
+			return Val == DemoSettings.NullEHandle ? "{null}" : $"{{ent index: {EntIndex}, serial: {Serial}}}";
+		}
+	}
+
+
+	public class ParseException : Exception {
+		public ParseException(string? msg = null) : base(msg) {}
 	}
 }

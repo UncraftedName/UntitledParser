@@ -20,7 +20,7 @@ namespace DemoParser.Parser {
 		public const int MaxEdicts = 1 << MaxEdictBits;
 		public const int NetworkedEHandleSerialNumBits = 10;
 		public const int NetworkedEHandleBits = MaxEdictBits + NetworkedEHandleSerialNumBits;
-		public const int NullEHandle = (1 << NetworkedEHandleBits) - 1; // INVALID_NETWORKED_EHANDLE_VALUE
+		public const uint NullEHandle = (1 << NetworkedEHandleBits) - 1; // INVALID_NETWORKED_EHANDLE_VALUE
 		public const int SubStringBits = 5;
 		public const int MaxUserDataBits = 14;
 		public const uint HandleSerialNumberBits = 10;

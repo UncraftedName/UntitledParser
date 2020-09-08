@@ -1,7 +1,9 @@
 using System;
 
 namespace DemoParser.Utils {
+	
 	public static class BitUtils {
+		
 		public static byte ReverseBitOrder(byte b) {
 			b = (byte)((b & 0xF0) >> 4 | (b & 0x0F) << 4);
 			b = (byte)((b & 0xCC) >> 2 | (b & 0x33) << 2);
@@ -34,8 +36,8 @@ namespace DemoParser.Utils {
 		
 
 		/* replacement for dotnetcore equivalent in BitConverter */
-		public static float Int32BitsToSingle(int i) {
-			unsafe { return *(float *)(&i); }
+		public static unsafe float Int32BitsToSingle(int i) {
+			return *(float*)&i;
 		}
 		
 		
