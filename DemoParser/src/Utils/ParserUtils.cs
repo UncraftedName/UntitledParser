@@ -178,7 +178,7 @@ namespace DemoParser.Utils {
 		public static implicit operator uint(EHandle h) => h.Val;
 		public static explicit operator EHandle(uint u) => new EHandle(u);
 		public static explicit operator EHandle(int i) => new EHandle((uint)i);
-			
+		
 		public EHandle(uint val) {
 			Val = val;
 		}

@@ -144,27 +144,38 @@ namespace DemoParser.Utils {
 
 
 		public void Append(string s) {
-			if (_futureIndent == 0) {
-				CheckForIndent();
-				Write(s);
+			if (s.Length == 0)
 				return;
-			}
-			int count;
-			for (int i = 0; i < s.Length; i += count + 1) {
-				CheckForIndent();
-				int nlIndex = s.IndexOf('\n', i);
-				if (i == 0 && nlIndex == -1) {
-					Write(s);
-					return;
+			CheckForIndent();
+			if (_futureIndent == 0) {
+				Write(s);
+				int nlIndex = s.LastIndexOf('\n');
+				if (nlIndex == -1)
+					LastLineLength += s.Length;
+				else
+					LastLineLength = s.Length - nlIndex - 1;
+			} else {
+				int count;
+				for (int i = 0; i < s.Length; i += count + 1) {
+					int nlIndex = s.IndexOf('\n', i);
+					if (i == 0) {
+						if (nlIndex == -1) {
+							Write(s);
+							LastLineLength += s.Length;
+							return;
+						}
+					} else {
+						CheckForIndent();
+					}
+					count = (nlIndex == -1 ? s.Length : nlIndex) - i;
+					if (count > _tmpBuf.Length)
+						_tmpBuf = new char[count];
+					s.CopyTo(i, _tmpBuf, 0, count);
+					Write(_tmpBuf, 0, count);
+					LastLineLength += count;
+					if (nlIndex != -1)
+						AppendLine();
 				}
-				count = (nlIndex == -1 ? s.Length : nlIndex) - i;
-				if (count > _tmpBuf.Length)
-					_tmpBuf = new char[count];
-				s.CopyTo(i, _tmpBuf, 0, count);
-				Write(_tmpBuf, 0, count);
-				LastLineLength += count;
-				if (nlIndex != -1)
-					AppendLine();
 			}
 		}
 

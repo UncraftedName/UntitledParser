@@ -63,7 +63,7 @@ namespace DemoParser.Parser {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			// make sure we set the demo settings first
-			Header = new DemoHeader(DemoRef);
+			Header = new DemoHeader(this);
 			Header.ParseStream(ref bsr);
 			DemoSettings = new DemoSettings(Header);
 			// it might be worth it to implement updating helper classes with listeners, but it's not a huge deal atm

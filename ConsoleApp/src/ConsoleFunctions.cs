@@ -351,7 +351,7 @@ namespace ConsoleApp {
 				} else {
 					var tableParser = new DataTableParser(CurDemo, tables);
 					tableParser.FlattenClasses();
-					foreach ((ServerClass sClass, List<FlattenedProp> fProps) in tableParser.FlattenedProps) {
+					foreach ((ServerClass sClass, List<FlattenedProp> fProps) in tableParser.FlattenedProps!) {
 						_curTextWriter!.WriteLine($"{sClass.ClassName} ({sClass.DataTableName}) ({fProps.Count} props):");
 						for (var i = 0; i < fProps.Count; i++) {
 							FlattenedProp fProp = fProps[i];
@@ -397,7 +397,6 @@ namespace ConsoleApp {
 		}
 
 
-		// todo when I store references to entities, add portal color info here as well
 		private static void ConsFunc_PortalsPassed(PtpFilterType filterType) {
 			SetTextWriter("portals passed");
 			if (_runnableOptionCount > 1)
@@ -406,7 +405,7 @@ namespace ConsoleApp {
 			bool verbose = filterType == PtpFilterType.PlayerOnlyVerbose || filterType == PtpFilterType.AllEntitiesVerbose;
 			var msgList = CurDemo.FilterForUserMessage<EntityPortalled>().ToList();
 			if (playerOnly)
-				msgList = msgList.Where(tuple => tuple.userMessage.PortalledEntIndex == 1).ToList();
+				msgList = msgList.Where(tuple => tuple.userMessage.Portalled.EntIndex == 1).ToList();
 			if (msgList.Any()) {
 				if (_runnableOptionCount > 1)
 					Console.WriteLine();
@@ -414,7 +413,7 @@ namespace ConsoleApp {
 					_curTextWriter!.Write($"[{tick}]");
 					_curTextWriter!.WriteLine(verbose
 						? $"\n{userMessage.ToString()}"
-						: $" entity {userMessage.PortalledEntIndex} went through portal {userMessage.PortalEntIndex}");
+						: $" entity {userMessage.Portalled} went through portal {userMessage.Portal}");
 				}
 			} else {
 				string s = playerOnly ? "player never went through a portal" : "no entities went through portals";

@@ -97,6 +97,11 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
+		public override string ToString() {
+			return $"index: {CurrentBitIndex}, remaining: {BitsRemaining}";
+		}
+
+
 		public void SkipBytes(uint byteCount) => SkipBits(byteCount << 3);
 		public void SkipBytes(int byteCount) => SkipBits(byteCount << 3);
 		public void SkipBits(uint bitCount) => SkipBits((int)bitCount);

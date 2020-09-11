@@ -40,7 +40,7 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 			}
 			
-			DemoRef.CBaseLines ??= new CurBaseLines(ClassCount, DemoRef);
+			DemoRef.CBaseLines ??= new CurBaseLines(DemoRef, ClassCount);
 		}
 		
 

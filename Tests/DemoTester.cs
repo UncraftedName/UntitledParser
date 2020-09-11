@@ -30,8 +30,9 @@ namespace Tests {
 			try {
 				SourceDemo demo = new SourceDemo(path);
 				demo.Parse();
-				demo.WriteVerboseString(new StreamWriter(
-					$"{ProjectDir}/sample demos/verbose output/{demo.FileName![..^4]}.txt"));
+				demo.WriteVerboseString(
+					new FileStream($"{ProjectDir}/sample demos/verbose output/{demo.FileName![..^4]}.txt",
+						FileMode.Create), disposeAfterWriting: true);
 			} catch (Exception e) {
 				Debug.WriteLine(e);
 				Console.WriteLine(e);

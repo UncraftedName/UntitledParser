@@ -18,7 +18,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
         private readonly SourceDemo _demoRef;
 
 
-        public CurBaseLines(int maxServerClasses, SourceDemo demoRef) {
+        public CurBaseLines(SourceDemo demoRef, int maxServerClasses) {
             _demoRef = demoRef;
             ClearBaseLineState(maxServerClasses);
         }

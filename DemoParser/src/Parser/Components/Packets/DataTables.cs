@@ -53,6 +53,9 @@ namespace DemoParser.Parser.Components.Packets {
 						throw new ConstraintException("server class ID does not match its index in the list");
 				}
 				
+				// in case SvcServerInfo parsing fails
+				DemoRef.CBaseLines ??= new CurBaseLines(DemoRef, ServerClasses.Count);
+				
 				// re-init the baselines if the count doesn't match (maybe I should just init them from here?)
 				if (DemoRef.CBaseLines!.ClassBaselines.Length != classCount)
 					DemoRef.CBaseLines.ClearBaseLineState(classCount);

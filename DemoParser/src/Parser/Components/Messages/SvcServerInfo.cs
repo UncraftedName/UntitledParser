@@ -58,7 +58,7 @@ namespace DemoParser.Parser.Components.Messages {
 			DemoRef.CurStringTablesManager.ClearCurrentTables();
 			
 			// init baselines here
-			DemoRef.CBaseLines = new CurBaseLines(MaxServerClasses, DemoRef);
+			DemoRef.CBaseLines = new CurBaseLines(DemoRef, MaxServerClasses);
 		}
 		
 
