@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
-using static DemoParser.Parser.HelperClasses.EntityStuff.PropToStringHelper;
 using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
@@ -16,227 +15,437 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	 * for this property based on the FlattenedProp it references. Those fProps should be unique and initialized only
 	 * once for every type of prop that appears in the demo, so the lookup is a dict that uses reference comparisons
 	 * like java's IdentityHashMap.
-	 *
-	 * The reason I use a struct here is because every entity update has a list of these properties, and a typical
-	 * load is several dozen per tick just from animation timers and such in the demo (this can increase to several
-	 * hundreds of prop deltas when there's a lot of activity). By avoiding a lot of heap allocations we get a
-	 * significant speed increase, at the cost of maintainability of course :p.
 	 */
-	
-	[StructLayout(LayoutKind.Explicit, Size = 40)]
-	public struct EntityProperty : IAppendable {
-		[FieldOffset(0)] public int Offset;
-		[FieldOffset(4)] public int BitLength;
-		[FieldOffset(8)] public readonly FlattenedProp PropInfo;
-		// objects must be separate from values otherwise you'll get a TypeLoadException
-		[FieldOffset(16)] private readonly string _strVal;
-		[FieldOffset(16)] private readonly List<int> _intArrVal;
-		[FieldOffset(16)] private readonly List<float> _floatArrVal;
-		[FieldOffset(16)] private readonly List<Vector2> _vec2ArrVal;
-		[FieldOffset(16)] private readonly List<Vector3> _vec3ArrVal;
-		[FieldOffset(16)] private readonly List<string> _strArrVal;
-		[FieldOffset(24)] private readonly int _intVal;
-		[FieldOffset(24)] private readonly float _floatVal;
-		[FieldOffset(24)] private readonly Vector2 _vec2Val;
-		[FieldOffset(24)] private readonly Vector3 _vec3Val;
-		[FieldOffset(36)] public readonly PType PropType;
+	public abstract class EntityProperty : AppendableClass {
 		
-		public int AsInt               {get {if (PropType == PType.Int)      return _intVal;      throw InvTypeE;}}
-		public float AsFloat           {get {if (PropType == PType.Float)    return _floatVal;    throw InvTypeE;}}
-		public Vector2 AsVec2          {get {if (PropType == PType.Vec2)     return _vec2Val;     throw InvTypeE;}}
-		public Vector3 AsVec3          {get {if (PropType == PType.Vec3)     return _vec3Val;     throw InvTypeE;}}
-		public string AsStr            {get {if (PropType == PType.Str)      return _strVal;      throw InvTypeE;}}
-		public List<int> AsIntArr      {get {if (PropType == PType.IntArr)   return _intArrVal;   throw InvTypeE;}}
-		public List<float> AsFloatArr  {get {if (PropType == PType.FloatArr) return _floatArrVal; throw InvTypeE;}}
-		public List<Vector2> AsVec2Arr {get {if (PropType == PType.Vec2Arr)  return _vec2ArrVal;  throw InvTypeE;}}
-		public List<Vector3> AsVec3Arr {get {if (PropType == PType.Vec3Arr)  return _vec3ArrVal;  throw InvTypeE;}}
-		public List<string> AsStrArr   {get {if (PropType == PType.StrArr)   return _strArrVal;   throw InvTypeE;}}
-
-		public DemoSettings DemoSettings => PropInfo.DemoSettings;
-		public string Name => PropInfo.Name;
-		public bool IsArrayProp => PropType >= PType.IntArr;
-
-		private static readonly Exception InvTypeE = new InvalidOperationException("ent prop is wrong PropType");
-		private static readonly Exception BadTypeE = new ArgumentException("invalid ent prop PropType");
+		private class ReferenceComparer : IEqualityComparer<FlattenedProp> {
+			public bool Equals(FlattenedProp a, FlattenedProp b) => ReferenceEquals(a, b);
+#pragma warning disable CS0436
+			public int GetHashCode(FlattenedProp obj) => RuntimeHelpers.GetHashCode(obj);
+#pragma warning restore CS0436
+		}
 
 		private static readonly IDictionary<FlattenedProp, DisplayType> DisplayLookup =
-			new Dictionary<FlattenedProp, DisplayType>(1000, new ParserUtils.ReferenceComparer<FlattenedProp>());
+			new Dictionary<FlattenedProp, DisplayType>(1000, new ReferenceComparer());
 
 
-		private EntityProperty(FlattenedProp fProp, int offset, int bitLen) : this() {
-			PropInfo = fProp;
-			Offset = offset;
-			BitLength = bitLen;
-		}
-		
-		public EntityProperty(FlattenedProp fProp) : this(fProp, -1, -1) {
-			PropType = PType.Unparsed;
-		}
+		public readonly FlattenedProp PropInfo;
+		public DemoSettings DemoSettings => PropInfo.DemoSettings;
 
-		public EntityProperty(FlattenedProp fProp, int offset, int bitLen, int val) : this(fProp, offset, bitLen) {
-			_intVal = val;
-			PropType = PType.Int;
-		}
-		
-		public EntityProperty(FlattenedProp fProp, int offset, int bitLen, float val) : this(fProp, offset, bitLen) {
-			_floatVal = val;
-			PropType = PType.Float;
-		}
-		
-		public EntityProperty(FlattenedProp fProp, int offset, int bitLen, ref Vector2 val) : this(fProp, offset, bitLen) {
-			_vec2Val = val;
-			PropType = PType.Vec2;
-		}
-		
-		public EntityProperty(FlattenedProp fProp, int offset, int bitLen, ref Vector3 val) : this(fProp, offset, bitLen) {
-			_vec3Val = val;
-			PropType = PType.Vec3;
-		}
-		
-		public EntityProperty(FlattenedProp fProp, int offset, int bitLen, string val) : this(fProp, offset, bitLen) {
-			_strVal = val;
-			PropType = PType.Str;
-		}
-		
-		public EntityProperty(FlattenedProp fProp, int offset, int bitLen, List<int> val) : this(fProp, offset, bitLen) {
-			_intArrVal = val;
-			PropType = PType.IntArr;
-		}
-		
-		public EntityProperty(FlattenedProp fProp, int offset, int bitLen, List<float> val) : this(fProp, offset, bitLen) {
-			_floatArrVal = val;
-			PropType = PType.FloatArr;
-		}
-		
-		public EntityProperty(FlattenedProp fProp, int offset, int bitLen, List<Vector2> val) : this(fProp, offset, bitLen) {
-			_vec2ArrVal = val;
-			PropType = PType.Vec2Arr;
-		}
-		
-		public EntityProperty(FlattenedProp fProp, int offset, int bitLen, List<Vector3> val) : this(fProp, offset, bitLen) {
-			_vec3ArrVal = val;
-			PropType = PType.Vec3Arr;
-		}
-		
-		public EntityProperty(FlattenedProp fProp, int offset, int bitLen, List<string> val) : this(fProp, offset, bitLen) {
-			_strArrVal = val;
-			PropType = PType.StrArr;
-		}
-		
-		
-		public void CopyPropertyTo(ref EntityProperty other) {
-			if (PropType != other.PropType)
-				throw new ArgumentException("attempted to copy an entity property to a different type");
-			if (PropType == PType.Unparsed)
-				throw new InvalidOperationException("unparsed property attempted to be copied to another property");
-			if (IsArrayProp) {
-				other.Offset = Offset;
-				other.BitLength = BitLength;
-				switch (PropType) {
-					case PType.IntArr:
-						for (int i = 0; i < _intArrVal.Count; i++) {
-							if (i >= other._intArrVal.Count)
-								other._intArrVal.Add(_intArrVal[i]);
-							else
-								other._intArrVal[i] = _intArrVal[i];
-						}
-						break;
-					case PType.FloatArr:
-						for (int i = 0; i < _floatArrVal.Count; i++) {
-							if (i >= other._floatArrVal.Count)
-								other._floatArrVal.Add(_floatArrVal[i]);
-							else
-								other._floatArrVal[i] = _floatArrVal[i];
-						}
-						break;
-					case PType.Vec2Arr:
-						for (int i = 0; i < _vec2ArrVal.Count; i++) {
-							if (i >= other._vec2ArrVal.Count)
-								other._vec2ArrVal.Add(_vec2ArrVal[i]);
-							else
-								other._vec2ArrVal[i] = _vec2ArrVal[i];
-						}
-						break;
-					case PType.Vec3Arr:
-						for (int i = 0; i < _vec3ArrVal.Count; i++) {
-							if (i >= other._vec3ArrVal.Count)
-								other._vec3ArrVal.Add(_vec3ArrVal[i]);
-							else
-								other._vec3ArrVal[i] = _vec3ArrVal[i];
-						}
-						break;
-					case PType.StrArr:
-						for (int i = 0; i < _strArrVal.Count; i++) {
-							if (i >= other._strArrVal.Count)
-								other._strArrVal.Add(_strArrVal[i]);
-							else
-								other._strArrVal[i] = _strArrVal[i];
-						}
-						break;
-					default:
-						throw BadTypeE;
-				}
-			} else {
-				other = this;
+		public string Name => PropInfo.Name;
+		// To be able to find the props later, technically might not
+		// work with arrays but I probably won't worry about that for now.
+		public int Offset;
+		public int BitLength;
+
+		private DisplayType _thisDisplayType;
+
+		private protected DisplayType ThisDisplayType {
+			get {
+				if (_thisDisplayType == DisplayType.NOT_SET)
+					if (!DisplayLookup.TryGetValue(PropInfo, out _thisDisplayType))
+						ThisDisplayType = DetermineDisplayType();
+				return _thisDisplayType;
+			}
+			private set {
+				DisplayLookup[PropInfo] = value;
+				_thisDisplayType = value;
 			}
 		}
-		
-		
-		public void AppendToWriter(IIndentedWriter iw) {
+
+
+		// internal cuz I want to keep the DisplayType enum internal
+		private protected EntityProperty(FlattenedProp propInfo, int offset, int bitLength) {
+			PropInfo = propInfo;
+			Offset = offset;
+			BitLength = bitLength;
+			_thisDisplayType = DisplayType.NOT_SET;
+		}
+
+
+		public override void AppendToWriter(IIndentedWriter iw) {
 			int tmp = iw.LastLineLength;
 			iw.Append(PropInfo.TypeString());
 			iw.PadLastLine(tmp + 12, ' ');
-			iw.Append($"{Name}: ");
+			iw.Append($"{PropInfo.Name}: ");
 			iw.Append(PropToString());
 		}
 
 
-		public override string ToString() {
-			return AppendableClass.AppendHelper(this);
+		public abstract EntityProperty CopyProperty();
+
+		public abstract void CopyPropertyTo(EntityProperty other);
+
+		protected abstract string PropToString();
+
+		private protected abstract DisplayType DetermineDisplayType();
+	}
+	
+	/******************************************************************************/
+
+	public class IntEntProp : EntityProperty {
+
+		public int Value;
+		
+		public IntEntProp(FlattenedProp propInfo, int value, int offset, int bitLength) 
+			: base(propInfo, offset, bitLength) 
+		{
+			Value = value;
+		}
+		
+		public override EntityProperty CopyProperty() {
+			return new IntEntProp(PropInfo, Value, Offset, BitLength);
+		}
+
+		public override void CopyPropertyTo(EntityProperty other) {
+			var casted = (IntEntProp)other;
+			casted.Value = Value;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
+		}
+		
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.PropInfo);
 		}
 
 
-		private string PropToString() {
-			DisplayType dispType;
-			if (PropType == PType.Unparsed) {
-				return "UNPARSED_DATA";
-			} else if (!DisplayLookup.TryGetValue(PropInfo, out dispType)) { 
-				dispType = PropType switch {
-					PType.Int      => IdentifyTypeForInt(Name, PropInfo.PropInfo),
-					PType.Float    => IdentifyTypeForFloat(Name),
-					PType.Vec2     => IdentifyTypeForVec2(Name),
-					PType.Vec3     => IdentifyTypeForVec3(Name),
-					PType.Str      => IdentifyTypeForString(Name),
-					PType.IntArr   => IdentifyTypeForInt(Name, PropInfo.ArrayElementPropInfo!),
-					PType.FloatArr => IdentifyTypeForFloat(Name),
-					PType.Vec2Arr  => IdentifyTypeForVec2(Name),
-					PType.Vec3Arr  => IdentifyTypeForVec3(Name),
-					PType.StrArr   => IdentifyTypeForString(Name),
-					_ => throw BadTypeE
-				};
-				DisplayLookup[PropInfo] = dispType;
+		protected override string PropToString() {
+			return EntPropToStringHelper.CreateIntPropStr(Value, ThisDisplayType, DemoSettings);
+		}
+	}
+	
+	/******************************************************************************/
+	
+	public class FloatEntProp : EntityProperty {
+
+		public float Value;
+		
+		public FloatEntProp(FlattenedProp propInfo, float value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+			Value = value;
+		}
+		
+		public override EntityProperty CopyProperty() {
+			return new FloatEntProp(PropInfo, Value, Offset, BitLength);
+		}
+
+		public override void CopyPropertyTo(EntityProperty other) {
+			var casted = (FloatEntProp)other;
+			casted.Value = Value;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
+		}
+
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForFloat(PropInfo.Name);
+		}
+
+
+		protected override string PropToString() {
+			return EntPropToStringHelper.CreateFloatPropStr(Value, ThisDisplayType);
+		}
+	}
+	
+	/******************************************************************************/
+
+	public class Vec3EntProp : EntityProperty {
+
+		public Vector3 Value;
+		
+		public Vec3EntProp(FlattenedProp propInfo, ref Vector3 value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+			Value = value;
+		}
+		
+		public override EntityProperty CopyProperty() {
+			return new Vec3EntProp(PropInfo, ref Value, Offset, BitLength);
+		}
+
+		public override void CopyPropertyTo(EntityProperty other) {
+			var casted = (Vec3EntProp)other;
+			casted.Value = Value;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
+		}
+
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForVec3(PropInfo.Name);
+		}
+
+
+		protected override string PropToString() {
+			return EntPropToStringHelper.CreateVec3PropStr(in Value, ThisDisplayType);
+		}
+	}
+	
+	/******************************************************************************/
+	
+	public class Vec2EntProp : EntityProperty {
+
+		public Vector2 Value;
+		
+		public Vec2EntProp(FlattenedProp propInfo, ref Vector2 value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+			Value = value;
+		}
+		
+		public override EntityProperty CopyProperty() {
+			return new Vec2EntProp(PropInfo, ref Value, Offset, BitLength);
+		}
+
+		public override void CopyPropertyTo(EntityProperty other) {
+			var casted = (Vec2EntProp)other;
+			casted.Value = Value;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
+		}
+		
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForVec2(PropInfo.Name);
+		}
+
+
+		protected override string PropToString() {
+			return EntPropToStringHelper.CreateVec2PropStr(in Value, ThisDisplayType);
+		}
+	}
+	
+	/******************************************************************************/
+	
+	public class StringEntProp : EntityProperty {
+
+		public string Value;
+		
+		public StringEntProp(FlattenedProp propInfo, string value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+			Value = value;
+		}
+		
+		public override EntityProperty CopyProperty() {
+			return new StringEntProp(PropInfo, Value, Offset, BitLength);
+		}
+
+		public override void CopyPropertyTo(EntityProperty other) {
+			var casted = (StringEntProp)other;
+			casted.Value = Value;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
+		}
+		
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForString(PropInfo.Name);
+		}
+
+
+		protected override string PropToString() {
+			return EntPropToStringHelper.CreateStrPropStr(Value, ThisDisplayType);
+		}
+	}
+	
+	/******************************************************************************/
+	
+	public class IntArrEntProp : EntityProperty {
+
+		public List<int> Value;
+		
+		public IntArrEntProp(FlattenedProp propInfo, List<int> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+			Value = value;
+		}
+		
+		public override EntityProperty CopyProperty() {
+			return new IntArrEntProp(PropInfo, new List<int>(Value), Offset, BitLength);
+		}
+		
+		public override void CopyPropertyTo(EntityProperty other) {
+			IntArrEntProp casted = (IntArrEntProp)other;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
+			for (int i = 0; i < Value.Count; i++) {
+				if (i >= casted.Value.Count)
+					casted.Value.Add(Value[i]);
+				else
+					casted.Value[i] = Value[i];
 			}
-			DemoSettings ds = DemoSettings;
-			return PropType switch {
-				PType.Int      => CreateIntPropStr(_intVal, dispType, ds),
-				PType.Float    => CreateFloatPropStr(_floatVal, dispType),
-				PType.Vec2     => CreateVec2PropStr(in _vec2Val, dispType),
-				PType.Vec3     => CreateVec3PropStr(in _vec3Val, dispType),
-				PType.Str      => CreateStrPropStr(_strVal, dispType),
-				PType.IntArr   => _intArrVal.Select(i => CreateIntPropStr(i, dispType, ds)).SequenceToString(),
-				PType.FloatArr => _floatArrVal.Select(f => CreateFloatPropStr(f, dispType)).SequenceToString(),
-				PType.Vec2Arr  => _vec2ArrVal.Select(v2 => CreateVec2PropStr(v2, dispType)).SequenceToString(),
-				PType.Vec3Arr  => _vec3ArrVal.Select(v3 => CreateVec3PropStr(v3, dispType)).SequenceToString(),
-				PType.StrArr   => _strArrVal.Select(str => CreateStrPropStr(str, dispType)).SequenceToString(),
-				_ => throw BadTypeE
-			};
+		}
+
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForInt(PropInfo.Name, PropInfo.ArrayElementPropInfo!);
 		}
 
 
-		public enum PType : byte { // order matters
-			Unparsed,
-			Int, Float, Vec2, Vec3, Str,
-			IntArr, FloatArr, Vec2Arr, Vec3Arr, StrArr
+		protected override string PropToString() {
+			return Value.Select(i =>
+				EntPropToStringHelper.CreateIntPropStr(i, ThisDisplayType, DemoSettings)).SequenceToString();
+		}
+	}
+
+	/******************************************************************************/
+	
+	public class FloatArrEntProp : EntityProperty {
+
+		public List<float> Value;
+		
+		public FloatArrEntProp(FlattenedProp propInfo, List<float> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+			Value = value;
+		}
+		
+		public override EntityProperty CopyProperty() {
+			return new FloatArrEntProp(PropInfo, new List<float>(Value), Offset, BitLength);
+		}
+
+		public override void CopyPropertyTo(EntityProperty other) {
+			FloatArrEntProp casted = (FloatArrEntProp)other;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
+			for (int i = 0; i < Value.Count; i++) {
+				if (i >= casted.Value.Count)
+					casted.Value.Add(Value[i]);
+				else
+					casted.Value[i] = Value[i];
+			}
+		}
+
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForFloat(PropInfo.Name);
+		}
+
+
+		protected override string PropToString() {
+			return Value.Select(i =>
+				EntPropToStringHelper.CreateFloatPropStr(i, ThisDisplayType)).SequenceToString();
+		}
+	}
+	
+	/******************************************************************************/
+	
+	public class Vec3ArrEntProp : EntityProperty {
+
+		public List<Vector3> Value;
+		
+		public Vec3ArrEntProp(FlattenedProp propInfo, List<Vector3> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+			Value = value;
+		}
+		
+		public override EntityProperty CopyProperty() {
+			return new Vec3ArrEntProp(PropInfo, new List<Vector3>(Value), Offset, BitLength);
+		}
+
+		public override void CopyPropertyTo(EntityProperty other) {
+			Vec3ArrEntProp casted = (Vec3ArrEntProp)other;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
+			for (int i = 0; i < Value.Count; i++) {
+				if (i >= casted.Value.Count)
+					casted.Value.Add(Value[i]);
+				else
+					casted.Value[i] = Value[i];
+			}
+		}
+		
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForVec3(PropInfo.Name);
+		}
+
+
+		protected override string PropToString() {
+			return Value.Select(i =>
+				EntPropToStringHelper.CreateVec3PropStr(i, ThisDisplayType)).SequenceToString();
+		}
+	}
+	
+	/******************************************************************************/
+	
+	public class Vec2ArrEntProp : EntityProperty {
+
+		public List<Vector2> Value;
+		
+		public Vec2ArrEntProp(FlattenedProp propInfo, List<Vector2> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+			Value = value;
+		}
+		
+		public override EntityProperty CopyProperty() {
+			return new Vec2ArrEntProp(PropInfo, new List<Vector2>(Value), Offset, BitLength);
+		}
+
+		public override void CopyPropertyTo(EntityProperty other) {
+			Vec2ArrEntProp casted = (Vec2ArrEntProp)other;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
+			for (int i = 0; i < Value.Count; i++) {
+				if (i >= casted.Value.Count)
+					casted.Value.Add(Value[i]);
+				else
+					casted.Value[i] = Value[i];
+			}
+		}
+
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForVec2(PropInfo.Name);
+		}
+
+
+		protected override string PropToString() {
+			return Value.Select(i =>
+				EntPropToStringHelper.CreateVec2PropStr(i, ThisDisplayType)).SequenceToString();
+		}
+	}
+	
+	/******************************************************************************/
+	
+	public class StringArrEntProp : EntityProperty {
+
+		public List<string> Value;
+		
+		public StringArrEntProp(FlattenedProp propInfo, List<string> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+			Value = value;
+		}
+		
+		public override EntityProperty CopyProperty() {
+			return new StringArrEntProp(PropInfo, new List<string>(Value), Offset, BitLength);
+		}
+		
+		public override void CopyPropertyTo(EntityProperty other) {
+			StringArrEntProp casted = (StringArrEntProp)other;
+			casted.Offset = Offset;
+			casted.BitLength = BitLength;
+			for (int i = 0; i < Value.Count; i++) {
+				if (i >= casted.Value.Count)
+					casted.Value.Add(Value[i]);
+				else
+					casted.Value[i] = Value[i];
+			}
+		}
+		
+		private protected override DisplayType DetermineDisplayType() {
+			return EntPropToStringHelper.IdentifyTypeForString(PropInfo.Name);
+		}
+
+
+		protected override string PropToString() {
+			return Value.Select(i =>
+				EntPropToStringHelper.CreateStrPropStr(i, ThisDisplayType)).SequenceToString();
+		}
+	}
+	
+	/******************************************************************************/
+
+	// a 'failed to parse' type of thing that doesn't have a value
+	// used to suppress some exceptions that might happen during prop parsing
+	public class UnparsedProperty : EntityProperty { 
+		
+		internal UnparsedProperty(FlattenedProp propInfo) : base(propInfo, -1, -1) {}
+		
+		public override EntityProperty CopyProperty() {
+			return new UnparsedProperty(PropInfo);
+		}
+		
+		public override void CopyPropertyTo(EntityProperty other) {
+			throw new InvalidOperationException("unparsed property attempted to be copied to another property");
+		}
+
+		private protected override DisplayType DetermineDisplayType() {
+			return DisplayType.UNPARSED;
+		}
+
+
+		protected override string PropToString() {
+			return "UNPARSED_DATA";
 		}
 	}
 	
@@ -251,6 +460,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			SourceDemo? demoRef)
 		{
 			var props = new List<(int propIndex, EntityProperty prop)>();
+			
 			int i = -1;
 			if (demoRef.DemoSettings.NewDemoProtocol) {
 				bool newWay = bsr.ReadBool();
@@ -269,49 +479,38 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		// all of this fun jazz can be found in src_main/engine/dt_encode.cpp, a summary with comments is at the very end
 		private static EntityProperty CreateAndReadProp(this ref BitStreamReader bsr, FlattenedProp fProp) {
 			
-			const string exceptionMsg = "an impossible entity PropType has appeared while creating/reading props ";
+			const string exceptionMsg = "an impossible entity type has appeared while creating/reading props ";
 			try {
 				int offset = bsr.AbsoluteBitIndex;
 				switch (fProp.PropInfo.SendPropType) {
 					case SendPropType.Int:
 						int i = bsr.DecodeInt(fProp.PropInfo);
-						return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, i);
+						return new IntEntProp(fProp, i, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Float:
 						float f = bsr.DecodeFloat(fProp.PropInfo);
-						return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, f);
+						return new FloatEntProp(fProp, f, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Vector3:
 						bsr.DecodeVector3(fProp.PropInfo, out Vector3 v3);
-						return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, ref v3);
+						return new Vec3EntProp(fProp, ref v3, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Vector2:
 						bsr.DecodeVector2(fProp.PropInfo, out Vector2 v2);
-						return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, ref v2);
+						return new Vec2EntProp(fProp, ref v2, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.String:
 						string s = bsr.DecodeString();
-						return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, s);
+						return new StringEntProp(fProp, s, offset, bsr.AbsoluteBitIndex - offset);
 					case SendPropType.Array:
-						switch (fProp.ArrayElementPropInfo!.SendPropType) {
-							case SendPropType.Int: {
-								List<int> tmp = bsr.DecodeIntArr(fProp);
-								return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, tmp);
-							} case SendPropType.Float: {
-								List<float> tmp = bsr.DecodeFloatArr(fProp);
-								return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, tmp);
-							} case SendPropType.Vector2: {
-								List<Vector2> tmp = bsr.DecodeVector2Arr(fProp);
-								return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, tmp);
-							} case SendPropType.Vector3: {
-								List<Vector3> tmp = bsr.DecodeVector3Arr(fProp);
-								return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, tmp);
-							} case SendPropType.String: {
-								List<string> tmp = bsr.DecodeStringArr(fProp);
-								return new EntityProperty(fProp, offset, bsr.AbsoluteBitIndex - offset, tmp);
-							} default:
-								throw new ArgumentException(exceptionMsg, nameof(fProp.PropInfo.SendPropType));
-						}
+						return fProp.ArrayElementPropInfo!.SendPropType switch {
+							SendPropType.Int     => new IntArrEntProp(fProp, bsr.DecodeIntArr(fProp), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.Float   => new FloatArrEntProp(fProp, bsr.DecodeFloatArr(fProp), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.Vector3 => new Vec3ArrEntProp(fProp, bsr.DecodeVector3Arr(fProp), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.Vector2 => new Vec2ArrEntProp(fProp, bsr.DecodeVector2Arr(fProp), offset, bsr.AbsoluteBitIndex - offset),
+							SendPropType.String  => new StringArrEntProp(fProp, bsr.DecodeStringArr(fProp), offset, bsr.AbsoluteBitIndex - offset),
+							_ => throw new ArgumentException(exceptionMsg, nameof(fProp.PropInfo.SendPropType))
+						};
 				}
 				throw new ArgumentException(exceptionMsg, nameof(fProp.PropInfo.SendPropType));
 			} catch (ArgumentOutOfRangeException) { // catch errors during parsing
-				return new EntityProperty(fProp);
+				return new UnparsedProperty(fProp);
 			}
 		}
 	}

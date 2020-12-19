@@ -159,7 +159,7 @@ namespace DemoParser.Utils {
 		public class ReferenceComparer<T> : IEqualityComparer<T> {
 			public bool Equals(T a, T b) => ReferenceEquals(a, b);
 #pragma warning disable CS0436
-			public int GetHashCode(T obj) => RuntimeHelpers.GetHashCode(obj);
+			public int GetHashCode(T obj) => RuntimeHelpers.GetHashCode(obj!);
 #pragma warning restore CS0436
 		}
 
