@@ -143,9 +143,6 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	internal enum DisplayType {
-		// used internally, not actually valid display type
-		UNPARSED,
-		
 		Int,
 		Float,
 		Vector2,
