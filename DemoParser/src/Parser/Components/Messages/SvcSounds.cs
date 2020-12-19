@@ -1,6 +1,5 @@
 #nullable enable
 using System;
-using System.Collections.Generic;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
@@ -13,7 +12,7 @@ namespace DemoParser.Parser.Components.Messages {
 	public class SvcSounds : DemoMessage {
 		
 		public bool Reliable;
-		public List<SoundInfo>? Sounds;
+		public SoundInfo[]? Sounds;
 		
 		
 		public SvcSounds(SourceDemo? demoRef) : base(demoRef) {}
@@ -21,24 +20,28 @@ namespace DemoParser.Parser.Components.Messages {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Reliable = bsr.ReadBool();
-			uint soundCount = Reliable ? (uint)1 : bsr.ReadByte();
+			int soundCount = Reliable ? 1 : bsr.ReadByte();
 			int dataBitLen = (int)bsr.ReadBitsAsUInt(Reliable ? 8 : 16);
 			
 			BitStreamReader soundBsr = bsr.SplitAndSkip(dataBitLen);
+
+			SoundInfo sound = new SoundInfo(DemoRef);
+			SoundInfo delta = new SoundInfo(DemoRef);
+			delta.SetDefault();
 			
 			Exception? e = null;
 			try {
-				Sounds = new List<SoundInfo>();
+				Sounds = new SoundInfo[soundCount];
 				for (int i = 0; i < soundCount; i++) {
-					SoundInfo info = new SoundInfo(DemoRef);
-					info.ParseStream(ref soundBsr);
+					sound.ParseDelta(ref soundBsr, delta);
+					delta = sound;
 					if (Reliable) { // client is incrementing the reliable sequence numbers itself
 						DemoRef.ClientSoundSequence = ++DemoRef.ClientSoundSequence & SndSeqNumMask;
-						if (info.SequenceNumber != 0)
-							throw new ArgumentException($"expected sequence number 0, got: {info.SequenceNumber}");
-						info.SequenceNumber = DemoRef.ClientSoundSequence;
+						if (sound.SequenceNumber != 0)
+							throw new ArgumentException($"expected sequence number 0, got: {sound.SequenceNumber}");
+						sound.SequenceNumber = DemoRef.ClientSoundSequence;
 					}
-					Sounds.Add(info);
+					Sounds[i] = new SoundInfo(sound);
 				}
 			} catch (Exception exp) {
 				e = exp;
@@ -61,7 +64,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public override void AppendToWriter(IIndentedWriter iw) {
 			iw.Append($"reliable: {Reliable}");
 			if (Sounds != null) {
-				for (int i = 0; i < Sounds.Count; i++) {
+				for (int i = 0; i < Sounds.Length; i++) {
 					iw.AppendLine();
 					iw.Append($"sound #{i + 1}:");
 					iw.FutureIndent++;
@@ -80,7 +83,8 @@ namespace DemoParser.Parser.Components.Messages {
 	public class SoundInfo : DemoComponent {
 		
 		public uint EntityIndex;
-		public uint SoundNum; // either index or possibly hash in demo protocol 4
+		public int? SoundNum;
+		public uint? ScriptHash;
 		public string? SoundName;
 		private bool _soundTableReadable;
 		public SoundFlags Flags;
@@ -95,12 +99,34 @@ namespace DemoParser.Parser.Components.Messages {
 		public float Delay;
 		public Vector3 Origin;
 		public int SpeakerEntity;
+
+		private SoundInfo? _deltaTmp;
 		
 		
 		public SoundInfo(SourceDemo? demoRef) : base(demoRef) {}
+
+
+		public SoundInfo(SoundInfo si) : base(si.DemoRef) {
+			EntityIndex = si.EntityIndex;
+			SoundNum = si.SoundNum;
+			SoundName = si.SoundName;
+			_soundTableReadable = si._soundTableReadable;
+			Flags = si.Flags;
+			Chan = si.Chan;
+			IsAmbient = si.IsAmbient;
+			IsSentence = si.IsSentence;
+			SequenceNumber = si.SequenceNumber;
+			Volume = si.Volume;
+			SoundLevel = si.SoundLevel;
+			Pitch = si.Pitch;
+			RandomSeed = si.RandomSeed;
+			Delay = si.Delay;
+			Origin = si.Origin;
+			SpeakerEntity = si.SpeakerEntity;
+		}
 		
 		
-		private void SetDefault() {
+		internal void SetDefault() {
 			Delay = 0.0f;
 			Volume = 1.0f;
 			SoundLevel = 75;
@@ -114,42 +140,55 @@ namespace DemoParser.Parser.Components.Messages {
 			SequenceNumber = 0;
 			IsSentence = false;
 			IsAmbient = false;
-			Origin = default;
+			Origin = Vector3.Zero;
 		}
 		
 		
 		private void ClearStopFields() {
 			Volume = 0;
 			SoundLevel = 0;
-			Pitch = 0;
-			RandomSeed = DemoSettings.NewDemoProtocol ? 0 : (int?)null;
+			Pitch = 100;
+			SoundName = null;
 			Delay = 0.0f;
 			SequenceNumber = 0;
-			Origin = default;
+			Origin = Vector3.Zero;
 			SpeakerEntity = -1;
 		}
 
 
+		public new void ParseStream(ref BitStreamReader bsr) {
+			throw new InvalidOperationException();
+		}
+
+		
+		// ReadDelta(SoundInfo_t *this,SoundInfo_t *delta,bf_read *buf)
+		public void ParseDelta(ref BitStreamReader bsr, SoundInfo delta) {
+			_deltaTmp = delta;
+			base.ParseStream(ref bsr);
+			_deltaTmp = null;
+		}
+		
+		
 		protected override void Parse(ref BitStreamReader bsr) {
-			SetDefault();
-			EntityIndex = bsr.ReadBool() ? bsr.ReadBitsAsUInt(bsr.ReadBool() ? 5 : MaxEdictBits) : EntityIndex;
+			EntityIndex = bsr.ReadBool() ? bsr.ReadBitsAsUInt(bsr.ReadBool() ? 5 : MaxEdictBits) : _deltaTmp.EntityIndex;
 			
 #pragma warning disable 8629
 			if (DemoSettings.NewDemoProtocol) {
-				Flags = (SoundFlags?)bsr.ReadBitsAsUIntIfExists(DemoSettings.SoundFlagBits) ?? Flags;
-				SoundNum = (Flags & SoundFlags.IsScriptHandle) != 0
-					? bsr.ReadUInt() // scriptable sounds are written as a hash, uses full 32 bits
-					: bsr.ReadBitsAsUIntIfExists(MaxSndIndexBits) ?? SoundNum;
+				Flags = (SoundFlags?)bsr.ReadBitsAsUIntIfExists(DemoSettings.SoundFlagBits) ?? _deltaTmp.Flags;
+				if ((Flags & SoundFlags.IsScriptHandle) != 0)
+					ScriptHash = bsr.ReadUInt();
+				else
+					SoundNum = (int?)bsr.ReadBitsAsUIntIfExists(MaxSndIndexBits) ?? _deltaTmp.SoundNum;
 			} else {
-				SoundNum = bsr.ReadBitsAsUIntIfExists(MaxSndIndexBits) ?? SoundNum;
-				Flags = (SoundFlags?)bsr.ReadBitsAsUIntIfExists(DemoSettings.SoundFlagBits) ?? Flags;
+				SoundNum = (int?)bsr.ReadBitsAsUIntIfExists(MaxSndIndexBits) ?? _deltaTmp.SoundNum;
+				Flags = (SoundFlags?)bsr.ReadBitsAsUIntIfExists(DemoSettings.SoundFlagBits) ?? _deltaTmp.Flags;
 			}
-			Chan = (Channel?)bsr.ReadBitsAsUIntIfExists(3) ?? Chan;
+			Chan = (Channel?)bsr.ReadBitsAsUIntIfExists(3) ?? _deltaTmp.Chan;
 #pragma warning restore 8629
 			
 			#region get sound name
 
-			if ((Flags & SoundFlags.IsScriptHandle) == 0) {
+			if (SoundNum.HasValue) {
 				var mgr = DemoRef.CurStringTablesManager;
 
 				if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache)) {
@@ -157,7 +196,7 @@ namespace DemoParser.Parser.Components.Messages {
 					if (SoundNum >= mgr.Tables[TableNames.SoundPreCache].Entries.Count)
 						DemoRef.LogError($"{GetType().Name} - sound index out of range: {SoundNum}");
 					else if (SoundNum != 0)
-						SoundName = mgr.Tables[TableNames.SoundPreCache].Entries[(int)SoundNum].EntryName;
+						SoundName = mgr.Tables[TableNames.SoundPreCache].Entries[SoundNum.Value].EntryName;
 				}
 			}
 
@@ -167,32 +206,39 @@ namespace DemoParser.Parser.Components.Messages {
 			IsSentence = bsr.ReadBool();
 			
 			if (Flags != SoundFlags.Stop) {
-				if (!bsr.ReadBool()) {
-					if (bsr.ReadBool())
-						SequenceNumber++;
-					else
-						SequenceNumber = bsr.ReadBitsAsUInt(SndSeqNumberBits);
+
+				if (bsr.ReadBool())
+					SequenceNumber = _deltaTmp.SequenceNumber;
+				else if (bsr.ReadBool())
+					SequenceNumber = _deltaTmp.SequenceNumber + 1;
+				else
+					SequenceNumber = bsr.ReadBitsAsUInt(SndSeqNumberBits);
+				
+				Volume = bsr.ReadBitsAsUIntIfExists(7) / 127.0f ?? _deltaTmp.Volume;
+				SoundLevel = bsr.ReadBitsAsUIntIfExists(MaxSndLvlBits) ?? _deltaTmp.SoundLevel;
+				Pitch = bsr.ReadBitsAsUIntIfExists(8) ?? _deltaTmp.Pitch;
+
+				if (DemoSettings.NewDemoProtocol) {
+					RandomSeed = bsr.ReadBitsAsSIntIfExists(6) ?? _deltaTmp.RandomSeed; // 6, 18, or 29
+					Delay = bsr.ReadFloatIfExists() ?? _deltaTmp.Delay;
+				} else {
+					if (bsr.ReadBool()) {
+						Delay = bsr.ReadBitsAsSInt(MaxSndDelayMSecEncodeBits) / 1000.0f;
+						if (Delay < 0)
+							Delay *= 10.0f;
+						Delay -= SndDelayOffset;
+					}
+					else {
+						Delay = _deltaTmp.Delay;
+					}
 				}
-				Volume = bsr.ReadBitsAsUIntIfExists(7) / 127.0f ?? Volume;
-				SoundLevel = bsr.ReadBitsAsUIntIfExists(MaxSndLvlBits) ?? SoundLevel;
-				Pitch = bsr.ReadBitsAsUIntIfExists(8) ?? Pitch;
-				
-				if (DemoSettings.NewDemoProtocol)
-					 RandomSeed = bsr.ReadBitsAsSIntIfExists(6) ?? RandomSeed; // 6, 18, or 29
-				
-				if (bsr.ReadBool()) {
-					Delay = bsr.ReadBitsAsSInt(MaxSndDelayMSecEncodeBits) / 1000.0f;
-					if (Delay < 0)
-						Delay *= 10.0f;
-					Delay -= SndDelayOffset;
-				}
-				
+
 				Origin = new Vector3 {
-					X = bsr.ReadBitsAsSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? Origin.X,
-					Y = bsr.ReadBitsAsSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? Origin.Y,
-					Z = bsr.ReadBitsAsSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? Origin.Z
+					X = bsr.ReadBitsAsSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? _deltaTmp.Origin.X,
+					Y = bsr.ReadBitsAsSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? _deltaTmp.Origin.Y,
+					Z = bsr.ReadBitsAsSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? _deltaTmp.Origin.Z
 				};
-				SpeakerEntity = bsr.ReadBitsAsSIntIfExists(MaxEdictBits + 1) ?? SpeakerEntity;
+				SpeakerEntity = bsr.ReadBitsAsSIntIfExists(MaxEdictBits + 1) ?? _deltaTmp.SpeakerEntity;
 			} else {
 				ClearStopFields();
 			}
@@ -208,14 +254,14 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.AppendLine($"entity index: {EntityIndex}");
 
 			if ((Flags & SoundFlags.IsScriptHandle) != 0) {
-				iw.Append("scriptable sound hash:");
+				iw.Append($"scriptable sound hash: {ScriptHash}");
 			} else {
 				if (_soundTableReadable && SoundName != null)
 					iw.Append($"sound: \"{SoundName}\"");
 				else
 					iw.Append("sound num:");
+				iw.AppendLine($" [{SoundNum}]");
 			}
-			iw.AppendLine($" [{SoundNum}]");
 
 			iw.AppendLine($"flags: {Flags}");
 			iw.AppendLine($"channel: {Chan}");
