@@ -18,20 +18,20 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		private static readonly Regex BoolMatcher = new Regex("^(?:m_)?b[A-Z]", RegexOptions.Compiled);
 		
 		
-		internal static DisplayType DeterminePropDisplayType(SendTableProp prop, SendTableProp? arrayElemProp) {
+		internal static DisplayType DeterminePropDisplayType(string name, SendTableProp prop, SendTableProp? arrayElemProp) {
 			SendTableProp elemInfo = prop;
 			while (true) {
 				switch (elemInfo.SendPropType) {
 					case SendPropType.Int:
-						return IdentifyTypeForInt(elemInfo.Name, elemInfo);
+						return IdentifyTypeForInt(name, elemInfo);
 					case SendPropType.Float:
-						return IdentifyTypeForFloat(elemInfo.Name);
+						return IdentifyTypeForFloat(name);
 					case SendPropType.Vector2:
-						return IdentifyTypeForVec2(elemInfo.Name);
+						return IdentifyTypeForVec2(name);
 					case SendPropType.Vector3:
-						return IdentifyTypeForVec3(elemInfo.Name);
+						return IdentifyTypeForVec3(name);
 					case SendPropType.String:
-						return IdentifyTypeForString(elemInfo.Name);
+						return IdentifyTypeForString(name);
 					case SendPropType.Array:
 						elemInfo = arrayElemProp!;
 						continue;

@@ -189,7 +189,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		// used for pretty ToString() representations, cached here
 		private DisplayType? _displayType;
 		internal DisplayType DisplayType => _displayType ??=
-			EntPropToStringHelper.DeterminePropDisplayType(PropInfo, ArrayElementPropInfo);
+			EntPropToStringHelper.DeterminePropDisplayType(Name, PropInfo, ArrayElementPropInfo);
 
 
 		public FlattenedProp(DemoSettings demoSettings, string name, SendTableProp propInfo, SendTableProp? arrayElementPropInfo) {
