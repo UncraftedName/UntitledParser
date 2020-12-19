@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using DemoParser.Utils;
+using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
@@ -15,9 +16,33 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		private static readonly Regex HandleMatcher = new Regex("^m_h[A-Z]", RegexOptions.Compiled);
 		private static readonly Regex BoolMatcher = new Regex("^(?:m_)?b[A-Z]", RegexOptions.Compiled);
+		
+		
+		internal static DisplayType DeterminePropDisplayType(SendTableProp prop, SendTableProp? arrayElemProp) {
+			SendTableProp elemInfo = prop;
+			while (true) {
+				switch (elemInfo.SendPropType) {
+					case SendPropType.Int:
+						return IdentifyTypeForInt(elemInfo.Name, elemInfo);
+					case SendPropType.Float:
+						return IdentifyTypeForFloat(elemInfo.Name);
+					case SendPropType.Vector2:
+						return IdentifyTypeForVec2(elemInfo.Name);
+					case SendPropType.Vector3:
+						return IdentifyTypeForVec3(elemInfo.Name);
+					case SendPropType.String:
+						return IdentifyTypeForString(elemInfo.Name);
+					case SendPropType.Array:
+						elemInfo = arrayElemProp!;
+						continue;
+					default:
+						throw new ArgumentOutOfRangeException(nameof(elemInfo.SendPropType));
+				}
+			}
+		}
 
 
-		internal static DisplayType IdentifyTypeForInt(string name, SendTableProp propInfo) {
+		private static DisplayType IdentifyTypeForInt(string name, SendTableProp propInfo) {
 			if (propInfo.NumBits == 32 && name.ToLower().Contains("color"))
 				return DisplayType.Color;
 			
@@ -45,23 +70,23 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 
-		internal static DisplayType IdentifyTypeForFloat(string name) {
+		private static DisplayType IdentifyTypeForFloat(string name) {
 			return DisplayType.Float;
 		}
 
 
-		internal static DisplayType IdentifyTypeForVec3(string name) {
+		private static DisplayType IdentifyTypeForVec3(string name) {
 			string[] split = name.Split('.');
 			return split.Any(s => s.StartsWith("m_ang")) ? DisplayType.Angles : DisplayType.Vector3;
 		}
 
 
-		internal static DisplayType IdentifyTypeForVec2(string name) {
+		private static DisplayType IdentifyTypeForVec2(string name) {
 			return DisplayType.Vector2;
 		}
 
 
-		internal static DisplayType IdentifyTypeForString(string name) {
+		private static DisplayType IdentifyTypeForString(string name) {
 			return DisplayType.String;
 		}
 
@@ -118,8 +143,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	internal enum DisplayType {
-		// used internally, not actually valid display types
-		NOT_SET,
+		// used internally, not actually valid display type
 		UNPARSED,
 		
 		Int,

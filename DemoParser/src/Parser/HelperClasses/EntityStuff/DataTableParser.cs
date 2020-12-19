@@ -186,7 +186,11 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		public readonly string Name;
 		public readonly SendTableProp PropInfo;
 		public readonly SendTableProp? ArrayElementPropInfo;
-		
+		// used for pretty ToString() representations, cached here
+		private DisplayType? _displayType;
+		internal DisplayType DisplayType => _displayType ??=
+			EntPropToStringHelper.DeterminePropDisplayType(PropInfo, ArrayElementPropInfo);
+
 
 		public FlattenedProp(DemoSettings demoSettings, string name, SendTableProp propInfo, SendTableProp? arrayElementPropInfo) {
 			PropInfo = propInfo;
