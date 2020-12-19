@@ -41,11 +41,14 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		protected abstract string PropToString();
 	}
 	
+	// todo think about making these generic
 	/******************************************************************************/
 
 	public class IntEntProp : EntityProperty {
 
 		public int Value;
+		
+		public static implicit operator int(IntEntProp e) => e.Value;
 		
 		public IntEntProp(FlattenedProp fProp, int value, int offset, int bitLength) 
 			: base(fProp, offset, bitLength) 
@@ -76,6 +79,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public float Value;
 		
+		public static implicit operator float(FloatEntProp e) => e.Value;
+		
 		public FloatEntProp(FlattenedProp fProp, float value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
 		}
@@ -102,6 +107,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	public class Vec3EntProp : EntityProperty {
 
 		public Vector3 Value;
+		
+		public static implicit operator Vector3(Vec3EntProp e) => e.Value;
 		
 		public Vec3EntProp(FlattenedProp fProp, ref Vector3 value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
@@ -130,6 +137,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public Vector2 Value;
 		
+		public static implicit operator Vector2(Vec2EntProp e) => e.Value;
+		
 		public Vec2EntProp(FlattenedProp fProp, ref Vector2 value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
 		}
@@ -156,6 +165,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	public class StringEntProp : EntityProperty {
 
 		public string Value;
+		
+		public static implicit operator string(StringEntProp e) => e.Value;
 		
 		public StringEntProp(FlattenedProp fProp, string value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
