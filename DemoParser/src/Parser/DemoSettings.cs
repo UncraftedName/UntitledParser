@@ -210,6 +210,7 @@ namespace DemoParser.Parser {
 					NewDemoProtocol = true;
 					SendPropFlagBits = 19;
 					SoundFlagBits = 13;
+					//SoundFlagBits = 9;
 					UserMessageLengthBits = Game == L4D2_2042 ? 11 : 12;
 					PropFlagChecker = new SendPropEnums.DemoProtocol4FlagChecker();
 					if (Game == PORTAL_2) {

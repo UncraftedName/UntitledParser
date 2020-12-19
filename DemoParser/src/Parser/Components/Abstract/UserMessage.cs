@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DemoParser.Parser.Components.Messages.UserMessages;
+using DemoParser.Parser.Components.Messages.UserMessages.Haptic;
 
 namespace DemoParser.Parser.Components.Abstract {
 	
@@ -379,7 +380,6 @@ namespace DemoParser.Parser.Components.Abstract {
 		}.ToImmutableHashSet();
 		
 		
-		// make sure to pass in a substream, don't call SetLocalStreamEnd() in any of the user messages
 		public static UserMessage? CreateUserMessage(
 			SourceDemo? demoRef,
 			UserMessageType messageType)
@@ -418,6 +418,10 @@ namespace DemoParser.Parser.Components.Abstract {
 				UserMessageType.HudText            => new HudText(demoRef),
 				UserMessageType.PaintWorld         => new PaintWorld(demoRef),
 				UserMessageType.PaintEntity        => new PaintEntity(demoRef),
+				UserMessageType.HapSetConst        => new HapSetConstForce(demoRef),
+				UserMessageType.HapSetDrag         => new HapSetDrag(demoRef),
+				UserMessageType.HapPunch           => new HapPunch(demoRef),
+				UserMessageType.SPHapWeapEvent     => new SpHapWeaponEvent(demoRef),
 				_ => null // I do a check for this so that I don't have to allocate the unknown type twice
 			};
 		}

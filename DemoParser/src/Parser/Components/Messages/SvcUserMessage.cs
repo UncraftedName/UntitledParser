@@ -11,6 +11,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public UserMessageType MessageType;
 		public UserMessage UserMessage;
+		private bool _unimplemented = false;
 		
 
 		public SvcUserMessage(SourceDemo? demoRef) : base(demoRef) {}
@@ -41,6 +42,7 @@ namespace DemoParser.Parser.Components.Messages {
 					UserMessage = SvcUserMessageFactory.CreateUserMessage(DemoRef, MessageType)!;
 					if (UserMessage == null) {
 						errorStr = $"Unimplemented SvcUserMessage: {MessageType}";
+						_unimplemented = true;
 					} else {
 						try { // empty messages might still have 1-2 bytes, might need to do something 'bout that
 							if (UserMessage.ParseStream(uMessageReader) != 0)
@@ -78,7 +80,7 @@ namespace DemoParser.Parser.Components.Messages {
 				iw.Append("Unknown type");
 			} else {
 				if (UserMessage is UnknownUserMessage)
-					iw.Append("(unimplemented) ");
+					iw.Append(_unimplemented ?  "(unimplemented) " : "(not parsed properly) ");
 				iw.Append(MessageType.ToString());
 				iw.Append($" ({UserMessage.UserMessageTypeToByte(DemoSettings, MessageType)})");
 			}
