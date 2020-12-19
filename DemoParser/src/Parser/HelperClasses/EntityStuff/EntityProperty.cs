@@ -10,16 +10,16 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
 	public abstract class EntityProperty : AppendableClass {
 
-		public readonly FlattenedProp PropInfo;
-		public DemoSettings DemoSettings => PropInfo.DemoSettings;
+		public readonly FlattenedProp FProp;
+		public DemoSettings DemoSettings => FProp.DemoSettings;
 
-		public string Name => PropInfo.Name;
+		public string Name => FProp.Name;
 		public int Offset;
 		public int BitLength;
 
 
-		protected EntityProperty(FlattenedProp propInfo, int offset, int bitLength) {
-			PropInfo = propInfo;
+		protected EntityProperty(FlattenedProp fProp, int offset, int bitLength) {
+			FProp = fProp;
 			Offset = offset;
 			BitLength = bitLength;
 		}
@@ -27,9 +27,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public override void AppendToWriter(IIndentedWriter iw) {
 			int tmp = iw.LastLineLength;
-			iw.Append(PropInfo.TypeString());
+			iw.Append(FProp.TypeString());
 			iw.PadLastLine(tmp + 12, ' ');
-			iw.Append($"{PropInfo.Name}: ");
+			iw.Append($"{FProp.Name}: ");
 			iw.Append(PropToString());
 		}
 
@@ -47,14 +47,14 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public int Value;
 		
-		public IntEntProp(FlattenedProp propInfo, int value, int offset, int bitLength) 
-			: base(propInfo, offset, bitLength) 
+		public IntEntProp(FlattenedProp fProp, int value, int offset, int bitLength) 
+			: base(fProp, offset, bitLength) 
 		{
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new IntEntProp(PropInfo, Value, Offset, BitLength);
+			return new IntEntProp(FProp, Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -66,7 +66,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		protected override string PropToString() {
-			return EntPropToStringHelper.CreateIntPropStr(Value, PropInfo.DisplayType, DemoSettings);
+			return EntPropToStringHelper.CreateIntPropStr(Value, FProp.DisplayType, DemoSettings);
 		}
 	}
 	
@@ -76,12 +76,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public float Value;
 		
-		public FloatEntProp(FlattenedProp propInfo, float value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+		public FloatEntProp(FlattenedProp fProp, float value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new FloatEntProp(PropInfo, Value, Offset, BitLength);
+			return new FloatEntProp(FProp, Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -93,7 +93,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		protected override string PropToString() {
-			return EntPropToStringHelper.CreateFloatPropStr(Value, PropInfo.DisplayType);
+			return EntPropToStringHelper.CreateFloatPropStr(Value, FProp.DisplayType);
 		}
 	}
 	
@@ -103,12 +103,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public Vector3 Value;
 		
-		public Vec3EntProp(FlattenedProp propInfo, ref Vector3 value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+		public Vec3EntProp(FlattenedProp fProp, ref Vector3 value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new Vec3EntProp(PropInfo, ref Value, Offset, BitLength);
+			return new Vec3EntProp(FProp, ref Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -120,7 +120,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		protected override string PropToString() {
-			return EntPropToStringHelper.CreateVec3PropStr(in Value, PropInfo.DisplayType);
+			return EntPropToStringHelper.CreateVec3PropStr(in Value, FProp.DisplayType);
 		}
 	}
 	
@@ -130,12 +130,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public Vector2 Value;
 		
-		public Vec2EntProp(FlattenedProp propInfo, ref Vector2 value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+		public Vec2EntProp(FlattenedProp fProp, ref Vector2 value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new Vec2EntProp(PropInfo, ref Value, Offset, BitLength);
+			return new Vec2EntProp(FProp, ref Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -147,7 +147,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		protected override string PropToString() {
-			return EntPropToStringHelper.CreateVec2PropStr(in Value, PropInfo.DisplayType);
+			return EntPropToStringHelper.CreateVec2PropStr(in Value, FProp.DisplayType);
 		}
 	}
 	
@@ -157,12 +157,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public string Value;
 		
-		public StringEntProp(FlattenedProp propInfo, string value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+		public StringEntProp(FlattenedProp fProp, string value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new StringEntProp(PropInfo, Value, Offset, BitLength);
+			return new StringEntProp(FProp, Value, Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -174,7 +174,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		protected override string PropToString() {
-			return EntPropToStringHelper.CreateStrPropStr(Value, PropInfo.DisplayType);
+			return EntPropToStringHelper.CreateStrPropStr(Value, FProp.DisplayType);
 		}
 	}
 	
@@ -184,12 +184,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public List<int> Value;
 		
-		public IntArrEntProp(FlattenedProp propInfo, List<int> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+		public IntArrEntProp(FlattenedProp fProp, List<int> value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new IntArrEntProp(PropInfo, new List<int>(Value), Offset, BitLength);
+			return new IntArrEntProp(FProp, new List<int>(Value), Offset, BitLength);
 		}
 		
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -207,7 +207,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		protected override string PropToString() {
 			return Value.Select(i =>
-				EntPropToStringHelper.CreateIntPropStr(i, PropInfo.DisplayType, DemoSettings)).SequenceToString();
+				EntPropToStringHelper.CreateIntPropStr(i, FProp.DisplayType, DemoSettings)).SequenceToString();
 		}
 	}
 
@@ -217,12 +217,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public List<float> Value;
 		
-		public FloatArrEntProp(FlattenedProp propInfo, List<float> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+		public FloatArrEntProp(FlattenedProp fProp, List<float> value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new FloatArrEntProp(PropInfo, new List<float>(Value), Offset, BitLength);
+			return new FloatArrEntProp(FProp, new List<float>(Value), Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -240,7 +240,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		protected override string PropToString() {
 			return Value.Select(i =>
-				EntPropToStringHelper.CreateFloatPropStr(i, PropInfo.DisplayType)).SequenceToString();
+				EntPropToStringHelper.CreateFloatPropStr(i, FProp.DisplayType)).SequenceToString();
 		}
 	}
 	
@@ -250,12 +250,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public List<Vector3> Value;
 		
-		public Vec3ArrEntProp(FlattenedProp propInfo, List<Vector3> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+		public Vec3ArrEntProp(FlattenedProp fProp, List<Vector3> value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new Vec3ArrEntProp(PropInfo, new List<Vector3>(Value), Offset, BitLength);
+			return new Vec3ArrEntProp(FProp, new List<Vector3>(Value), Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -273,7 +273,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		protected override string PropToString() {
 			return Value.Select(i =>
-				EntPropToStringHelper.CreateVec3PropStr(i, PropInfo.DisplayType)).SequenceToString();
+				EntPropToStringHelper.CreateVec3PropStr(i, FProp.DisplayType)).SequenceToString();
 		}
 	}
 	
@@ -283,12 +283,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public List<Vector2> Value;
 		
-		public Vec2ArrEntProp(FlattenedProp propInfo, List<Vector2> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+		public Vec2ArrEntProp(FlattenedProp fProp, List<Vector2> value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new Vec2ArrEntProp(PropInfo, new List<Vector2>(Value), Offset, BitLength);
+			return new Vec2ArrEntProp(FProp, new List<Vector2>(Value), Offset, BitLength);
 		}
 
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -306,7 +306,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		protected override string PropToString() {
 			return Value.Select(i =>
-				EntPropToStringHelper.CreateVec2PropStr(i, PropInfo.DisplayType)).SequenceToString();
+				EntPropToStringHelper.CreateVec2PropStr(i, FProp.DisplayType)).SequenceToString();
 		}
 	}
 	
@@ -316,12 +316,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		public List<string> Value;
 		
-		public StringArrEntProp(FlattenedProp propInfo, List<string> value, int offset, int bitLength) : base(propInfo, offset, bitLength) {
+		public StringArrEntProp(FlattenedProp fProp, List<string> value, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Value = value;
 		}
 		
 		public override EntityProperty CopyProperty() {
-			return new StringArrEntProp(PropInfo, new List<string>(Value), Offset, BitLength);
+			return new StringArrEntProp(FProp, new List<string>(Value), Offset, BitLength);
 		}
 		
 		public override void CopyPropertyTo(EntityProperty other) {
@@ -339,7 +339,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		protected override string PropToString() {
 			return Value.Select(i =>
-				EntPropToStringHelper.CreateStrPropStr(i, PropInfo.DisplayType)).SequenceToString();
+				EntPropToStringHelper.CreateStrPropStr(i, FProp.DisplayType)).SequenceToString();
 		}
 	}
 	
@@ -349,10 +349,10 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	// used to suppress some exceptions that might happen during prop parsing
 	public class UnparsedProperty : EntityProperty { 
 		
-		internal UnparsedProperty(FlattenedProp propInfo) : base(propInfo, -1, -1) {}
+		internal UnparsedProperty(FlattenedProp fProp) : base(fProp, -1, -1) {}
 		
 		public override EntityProperty CopyProperty() {
-			return new UnparsedProperty(PropInfo);
+			return new UnparsedProperty(FProp);
 		}
 		
 		public override void CopyPropertyTo(EntityProperty other) {
