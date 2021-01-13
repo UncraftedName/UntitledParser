@@ -228,6 +228,7 @@ namespace DemoParser.Utils {
 		
 		public abstract void PrettyWrite(IPrettyWriter iw);
 		
+		// a struct that inherits from IPretty may also override ToString() in the same way
 		public new virtual string ToString() {
 			return AppendHelper(this);
 		}
