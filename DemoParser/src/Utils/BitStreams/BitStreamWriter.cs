@@ -8,6 +8,8 @@ namespace DemoParser.Utils.BitStreams {
 	
 	// because I don't use this nearly as much as the reader atm, some of the methods may be poorly or incorrectly implemented
 	public partial class BitStreamWriter {
+
+		public static implicit operator byte[](BitStreamWriter bsw) => bsw.AsArray;
 		
 		public int BitLength {get; private set;}
 		private List<byte> _data;
