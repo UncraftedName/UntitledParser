@@ -82,7 +82,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			if (ServerClassRef != null) {
 				iw.AppendLine($"class: {ServerClassRef.ClassName} ({ServerClassRef.DataTableName})");
 				iw.Append("props:");
@@ -91,7 +91,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 					foreach ((int i, EntityProperty prop) in Properties) {
 						iw.AppendLine();
 						iw.Append($"({i}) ");
-						prop.AppendToWriter(iw);
+						prop.PrettyWrite(iw);
 					}
 				} else {
 					iw.Append("\nerror during parsing");

@@ -83,7 +83,7 @@ namespace DemoParser.Parser.Components {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			int i = 0;
 			while (i < Messages?.Count && Messages[i].message != null) {
 				iw.Append($"message: {Messages[i].messageType} " +
@@ -91,7 +91,7 @@ namespace DemoParser.Parser.Components {
 				if (Messages[i].message.MayContainData) {
 					iw.FutureIndent++;
 					iw.AppendLine();
-					Messages[i].message.AppendToWriter(iw);
+					Messages[i].message.PrettyWrite(iw);
 					iw.FutureIndent--;
 				}
 				if (i != Messages.Count - 1)

@@ -65,13 +65,13 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"{SendPropType.ToString().ToLower(),-10}");
 			AppendToWriterWithoutType(iw);
 		}
 
 
-		private void AppendToWriterWithoutType(IIndentedWriter iw) {
+		private void AppendToWriterWithoutType(IPrettyWriter iw) {
 			if (ExcludeDtName != null) {
 				iw.Append($"{Name}{(ExcludeDtName == null ? "" : $" : {ExcludeDtName}")}".PadRight(50));
 			} else {
@@ -104,7 +104,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		public string ToStringNoType() { // just for pretty toString() from the console app
-			var iw = new IndentedToStringWriter();
+			var iw = new PrettyToStringWriter();
 			AppendToWriterWithoutType(iw);
 			return iw.ToString();
 		}

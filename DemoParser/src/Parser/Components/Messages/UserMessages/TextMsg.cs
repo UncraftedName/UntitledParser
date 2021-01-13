@@ -28,7 +28,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"destination: {Destination}");
 			for (int i = 0; i < MessageCount; i++) 
 				iw.Append($"\nmessage {i + 1}: {Messages[i].Replace("\n", @"\n")}");

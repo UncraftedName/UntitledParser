@@ -36,14 +36,14 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append(TableName != null ? $"table: {TableName}" : "table id:");
 			iw.AppendLine($" ({TableId})");
 			iw.AppendLine($"number of changed entries: {ChangedEntriesCount}");
 			iw.Append("table update:");
 			iw.FutureIndent++;
 			iw.AppendLine();
-			TableUpdates.AppendToWriter(iw);
+			TableUpdates.PrettyWrite(iw);
 			iw.FutureIndent--;
 		}
 	}
@@ -160,7 +160,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			if (_exceptionWhileParsing) {
 				iw.Append("error while parsing");
 				return;
@@ -179,14 +179,14 @@ namespace DemoParser.Parser.Components.Messages {
 					if (i != 0)
 						iw.AppendLine();
 					TableUpdates[i].PadCount = padCount;
-					TableUpdates[i].AppendToWriter(iw);
+					TableUpdates[i].PrettyWrite(iw);
 				}
 			}
 		}
 	}
 
 
-	public class TableUpdate : AppendableClass {
+	public class TableUpdate : PrettyClass {
 
 		internal int PadCount; // just for toString()
 		public readonly CurStringTableEntry? TableEntry;
@@ -201,19 +201,19 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 		
 		
-		public override void AppendToWriter(IIndentedWriter iw) { // similar logic to that in string tables
+		public override void PrettyWrite(IPrettyWriter iw) { // similar logic to that in string tables
 			iw.Append($"[{Index}] {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
 			if (TableEntry?.EntryData != null) {
 				if (TableEntry.EntryData.InlineToString) {
 					iw.Append("; ");
-					TableEntry.EntryData.AppendToWriter(iw);
+					TableEntry.EntryData.PrettyWrite(iw);
 				} else {
 					iw.FutureIndent++;
 					if (TableEntry.EntryData.ContentsKnown)
 						iw.AppendLine();
 					else
 						iw.PadLastLine(PadCount + 15, '.');
-					TableEntry.EntryData.AppendToWriter(iw);
+					TableEntry.EntryData.PrettyWrite(iw);
 					iw.FutureIndent--;
 				}
 			}

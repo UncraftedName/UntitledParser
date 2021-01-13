@@ -144,7 +144,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"max entries: {MaxEntries}");
 			iw.AppendLine($"is delta: {IsDelta}");
 			if (IsDelta)
@@ -161,7 +161,7 @@ namespace DemoParser.Parser.Components.Messages {
 				} else {
 					foreach (EntityUpdate update in Updates) {
 						iw.AppendLine();
-						update.AppendToWriter(iw);
+						update.PrettyWrite(iw);
 					}
 				}
 				iw.FutureIndent--;

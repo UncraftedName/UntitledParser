@@ -23,7 +23,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			string trimmed = Str.Trim();
 			iw.Append("string: ");
 			if (trimmed.Contains("\n")) {

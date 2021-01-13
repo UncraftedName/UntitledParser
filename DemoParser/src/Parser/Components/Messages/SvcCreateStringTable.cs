@@ -42,7 +42,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"name: {TableName}");
 			iw.AppendLine($"max entries: {MaxEntries}");
 			iw.AppendLine($"number of entries: {NumEntries}");
@@ -57,7 +57,7 @@ namespace DemoParser.Parser.Components.Messages {
 			if (TableUpdates == null)
 				iw.Append("table update could not be parsed");
 			else
-				TableUpdates.AppendToWriter(iw);
+				TableUpdates.PrettyWrite(iw);
 			iw.FutureIndent--;
 		}
 	}

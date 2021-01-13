@@ -61,7 +61,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 		
 		
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"reliable: {Reliable}");
 			if (Sounds != null) {
 				for (int i = 0; i < Sounds.Length; i++) {
@@ -69,7 +69,7 @@ namespace DemoParser.Parser.Components.Messages {
 					iw.Append($"sound #{i + 1}:");
 					iw.FutureIndent++;
 					iw.AppendLine();
-					Sounds[i].AppendToWriter(iw);
+					Sounds[i].PrettyWrite(iw);
 					iw.FutureIndent--;
 				}
 			} else {
@@ -250,7 +250,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 		
 		
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"entity index: {EntityIndex}");
 
 			if ((Flags & SoundFlags.IsScriptHandle) != 0) {

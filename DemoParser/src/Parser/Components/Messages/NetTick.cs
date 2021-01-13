@@ -31,7 +31,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"engine tick: {EngineTick}");
 			if (DemoRef.Header.NetworkProtocol >= 14) {
 				iw.AppendLine($"\nhost frame time: {HostFrameTime}");

@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"spectator mode: {SpecMode}");
 			iw.AppendLine($"target 1: {Target1}");
 			iw.AppendLine($"target 2: {Target2}");

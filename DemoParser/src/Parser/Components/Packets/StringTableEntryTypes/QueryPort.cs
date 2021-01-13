@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append(Port.ToString());
 		}
 	}

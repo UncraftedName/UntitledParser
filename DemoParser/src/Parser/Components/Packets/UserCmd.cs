@@ -52,7 +52,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"cmd: {Cmd}\n");
 			iw.Append($"command number: {CommandNumber}\n");
 			iw.Append($"tick count: {TickCount}\n");

@@ -28,7 +28,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"entity index: {EntityIndex}");
 			iw.AppendLine($"class ID: {ClassId}");
 			iw.Append($"data length in bits: {_data.BitLength}");

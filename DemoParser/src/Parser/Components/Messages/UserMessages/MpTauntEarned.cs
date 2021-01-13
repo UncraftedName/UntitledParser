@@ -25,7 +25,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 		
 		
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"taunt name: {TauntName}");
 			iw.Append($"award silently: {AwardSilently}");
 		}

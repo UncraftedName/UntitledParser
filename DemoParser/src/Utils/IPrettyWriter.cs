@@ -7,7 +7,7 @@ using System.Text;
 
 namespace DemoParser.Utils {
 
-	public interface IIndentedWriter : IDisposable {
+	public interface IPrettyWriter : IDisposable {
 		int FutureIndent {get;set;}
 		int LastLineLength {get;}
 		void Append(string s);
@@ -19,7 +19,7 @@ namespace DemoParser.Utils {
 	
 
 
-	public class IndentedToStringWriter : IIndentedWriter {
+	public class PrettyToStringWriter : IPrettyWriter {
 		
 		private readonly List<string> _lines;
 		private readonly List<int> _indentCount;
@@ -36,7 +36,7 @@ namespace DemoParser.Utils {
 		public int LastLineLength => _lines[^1].Length;
 		
 		
-		public IndentedToStringWriter() {
+		public PrettyToStringWriter() {
 			_lines = new List<string> {""};
 			_indentCount = new List<int>{0};
 		}
@@ -112,7 +112,7 @@ namespace DemoParser.Utils {
 	
 	
 	
-	public class IndentedTextWriter : StreamWriter, IIndentedWriter {
+	public class PrettyStreamWriter : StreamWriter, IPrettyWriter {
 		
 		private int _futureIndent;
 
@@ -126,11 +126,11 @@ namespace DemoParser.Utils {
 		private readonly string _indentStr;
 
 
-		public IndentedTextWriter(Stream stream, int bufferSize = 1024, bool leaveOpen = false, string indentStr = "\t")
+		public PrettyStreamWriter(Stream stream, int bufferSize = 1024, bool leaveOpen = false, string indentStr = "\t")
 			: this(stream, Encoding.UTF8, bufferSize, leaveOpen, indentStr) {}
 
 
-		public IndentedTextWriter(
+		public PrettyStreamWriter(
 			Stream stream,
 			Encoding encoding,
 			int bufferSize = 1024,
@@ -217,24 +217,24 @@ namespace DemoParser.Utils {
 	
 	
 	
-	public interface IAppendable {
-		void AppendToWriter(IIndentedWriter iw);
+	public interface IPretty {
+		void PrettyWrite(IPrettyWriter iw);
 	}
 
 
 	// This lets me see the toString() representation by just using the append function that I implemented for every
-	// demo component anyway.
-	public abstract class AppendableClass : IAppendable {
+	// demo component anyway. Use this over the interface version for convenience.
+	public abstract class PrettyClass : IPretty {
 		
-		public abstract void AppendToWriter(IIndentedWriter iw);
+		public abstract void PrettyWrite(IPrettyWriter iw);
 		
 		public new virtual string ToString() {
 			return AppendHelper(this);
 		}
 
-		public static string AppendHelper(IAppendable ia) {
-			IIndentedWriter iw = new IndentedToStringWriter();
-			ia.AppendToWriter(iw);
+		public static string AppendHelper(IPretty ia) {
+			IPrettyWriter iw = new PrettyToStringWriter();
+			ia.PrettyWrite(iw);
 			return iw.ToString();
 		}
 	}

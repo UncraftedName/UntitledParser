@@ -5,7 +5,7 @@ using DemoParser.Utils;
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 	// base class
-	public abstract class EntityUpdate : AppendableClass {
+	public abstract class EntityUpdate : PrettyClass {
 		
 		public readonly ServerClass ServerClass;
 		
@@ -32,14 +32,14 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 		
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"({EntIndex}) DELTA - ");
-			ServerClass.AppendToWriter(iw);
+			ServerClass.PrettyWrite(iw);
 			iw.FutureIndent++;
 			foreach ((int propIndex, EntityProperty prop) in Props) {
 				iw.AppendLine();
 				iw.Append($"({propIndex}) ");
-				prop.AppendToWriter(iw);
+				prop.PrettyWrite(iw);
 			}
 			iw.FutureIndent--;
 		}
@@ -68,16 +68,16 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"({EntIndex}) {(New ? "CREATE" : "ENTER_PVS")} - ");
-			ServerClass.AppendToWriter(iw);
+			ServerClass.PrettyWrite(iw);
 			if (New)
 				iw.Append($", serial: {Serial}");
 			iw.FutureIndent++;
 			foreach ((int propIndex, EntityProperty prop) in Props) {
 				iw.AppendLine();
 				iw.Append($"({propIndex}) ");
-				prop.AppendToWriter(iw);
+				prop.PrettyWrite(iw);
 			}
 			iw.FutureIndent--;
 		}
@@ -99,9 +99,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - ");
-			ServerClass.AppendToWriter(iw);
+			ServerClass.PrettyWrite(iw);
 		}
 	}
 }

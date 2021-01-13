@@ -7,7 +7,7 @@ namespace DemoParser.Parser.Components.Abstract {
 	/// <summary>
 	/// Represents a well-defined 'chunk' of data in the demo.
 	/// </summary>
-	public abstract class DemoComponent : AppendableClass {
+	public abstract class DemoComponent : PrettyClass {
 		
 		private int _absoluteBitStart;
 		private int _absoluteBitEnd;
@@ -48,7 +48,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		internal abstract void WriteToStreamWriter(BitStreamWriter bsw);
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"Not Implemented - {GetType().FullName}");
 		}
 	}

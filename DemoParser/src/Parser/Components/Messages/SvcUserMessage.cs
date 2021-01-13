@@ -75,7 +75,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			if (MessageType == UserMessageType.Unknown || MessageType == UserMessageType.Invalid) {
 				iw.Append("Unknown type");
 			} else {
@@ -87,7 +87,7 @@ namespace DemoParser.Parser.Components.Messages {
 			if (UserMessage.MayContainData) {
 				iw.FutureIndent++;
 				iw.AppendLine();
-				UserMessage.AppendToWriter(iw);
+				UserMessage.PrettyWrite(iw);
 				iw.FutureIndent--;
 			}
 		}

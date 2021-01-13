@@ -49,14 +49,14 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"create on client: {CreateOnClient}");
 			iw.Append($"{ServerClasses?.Length ?? ClassCount} server classes{(CreateOnClient ? "" : ":")}");
 			if (!CreateOnClient && ServerClasses != null) {
 				iw.FutureIndent++;
 				foreach (ServerClass serverClass in ServerClasses) {
 					iw.AppendLine();
-					serverClass.AppendToWriter(iw);
+					serverClass.PrettyWrite(iw);
 				}
 				iw.FutureIndent--;
 			}
@@ -91,7 +91,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"[{DataTableId}] {ClassName} ({DataTableName})");
 		}
 

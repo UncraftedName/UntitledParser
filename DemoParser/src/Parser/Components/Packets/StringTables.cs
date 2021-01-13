@@ -50,9 +50,9 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			foreach (StringTable table in Tables) {
-				table.AppendToWriter(iw);
+				table.PrettyWrite(iw);
 				iw.AppendLine();
 			}
 		}
@@ -97,7 +97,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"table name: {Name}");
 			iw.FutureIndent++;
 			iw.AppendLine();
@@ -109,7 +109,7 @@ namespace DemoParser.Parser.Components.Packets {
 				foreach (StringTableEntry tableEntry in TableEntries) {
 					tableEntry.PadLength = longestName;
 					iw.AppendLine();
-					tableEntry.AppendToWriter(iw);
+					tableEntry.PrettyWrite(iw);
 				}
 				iw.FutureIndent--;
 			} else {
@@ -121,7 +121,7 @@ namespace DemoParser.Parser.Components.Packets {
 				iw.FutureIndent++;
 				foreach (StringTableClass tableClass in Classes) {
 					iw.AppendLine();
-					tableClass.AppendToWriter(iw);
+					tableClass.PrettyWrite(iw);
 				}
 				iw.FutureIndent--;
 			}
@@ -171,22 +171,22 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			if (EntryData != null) {
 				if (EntryData.ContentsKnown) {
 					iw.Append(Name);
 					if (EntryData.InlineToString) {
 						iw.Append(": ");
-						EntryData.AppendToWriter(iw);
+						EntryData.PrettyWrite(iw);
 					} else {
 						iw.FutureIndent++;
 						iw.AppendLine();
-						EntryData.AppendToWriter(iw);
+						EntryData.PrettyWrite(iw);
 						iw.FutureIndent--;
 					}
 				} else {
 					iw.Append(Name.PadRight(PadLength + 2, '.'));
-					EntryData.AppendToWriter(iw);
+					EntryData.PrettyWrite(iw);
 				}
 			} else {
 				iw.Append(Name);
@@ -219,7 +219,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"name: {Name}");
 			if (Data != null)
 				iw.Append($", data: {Data}");

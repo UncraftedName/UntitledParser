@@ -48,7 +48,7 @@ namespace DemoParser.Parser.Components {
 		}
 		
 		
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			if (Packet != null) {
 				iw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(DemoSettings, Type)})");
 				if (DemoSettings.NewDemoProtocol && PlayerSlot.HasValue)
@@ -56,7 +56,7 @@ namespace DemoParser.Parser.Components {
 				if (Packet.MayContainData) {
 					iw.FutureIndent++;
 					iw.AppendLine();
-					Packet.AppendToWriter(iw);
+					Packet.PrettyWrite(iw);
 					iw.FutureIndent--;
 				}
 			} else {

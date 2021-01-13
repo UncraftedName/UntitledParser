@@ -28,7 +28,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 		
 		
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append("player masks:");
 			iw.FutureIndent++;
 			for (int i = 0; i < PlayerMasks.Length; i++) {

@@ -67,7 +67,7 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"network protocol: {NetworkProtocol}");
 			iw.AppendLine($"server count: {ServerCount}");
 			iw.AppendLine($"is hltv: {IsHltv}");

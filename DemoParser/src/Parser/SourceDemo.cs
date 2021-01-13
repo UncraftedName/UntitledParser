@@ -109,17 +109,17 @@ namespace DemoParser.Parser {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine("Untitled parser by UncraftedName, build date: " +
 						  $"{BuildDateAttribute.GetBuildDate(Assembly.GetExecutingAssembly()):R}");
 			if (FileName != null)
 				iw.AppendLine($"file name: {FileName}");
 			iw.Append($"predicted game: {DemoSettings.Game}\n\n");
 			
-			Header.AppendToWriter(iw);
+			Header.PrettyWrite(iw);
 			foreach (PacketFrame frame in Frames) {
 				iw.Append("\n\n");
-				frame.AppendToWriter(iw);
+				frame.PrettyWrite(iw);
 			}
 			if (_exceptionDuringParsing)
 				iw.AppendLine("\n\nAn unhandled exception occured while parsing this demo, the rest could not be parsed...");
@@ -139,8 +139,8 @@ namespace DemoParser.Parser {
 
 		
 		public void WriteVerboseString(Stream stream, string indentStr = "\t", bool disposeAfterWriting = false) {
-			IndentedTextWriter iw = new IndentedTextWriter(stream, indentStr: indentStr, bufferSize: 100000);
-			AppendToWriter(iw);
+			PrettyStreamWriter iw = new PrettyStreamWriter(stream, indentStr: indentStr, bufferSize: 100000);
+			PrettyWrite(iw);
 			if (disposeAfterWriting) {
 				iw.Flush();
 				iw.Dispose();

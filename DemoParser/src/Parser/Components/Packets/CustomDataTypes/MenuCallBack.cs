@@ -25,7 +25,7 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"unknown: {Unknown}");
 			iw.Append($"callback string: {CallbackStr}");
 		}

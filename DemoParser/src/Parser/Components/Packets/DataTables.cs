@@ -77,13 +77,13 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			Debug.Assert(Tables.Count > 0, "there's no tables hmmmmmmmmmmmm");
 			iw.Append($"{Tables.Count} send table{(Tables.Count > 1 ? "s" : "")}:");
 			iw.FutureIndent++;
 			foreach (SendTable sendTable in Tables) {
 				iw.AppendLine();
-				sendTable.AppendToWriter(iw);
+				sendTable.PrettyWrite(iw);
 			}
 			iw.FutureIndent--;
 			iw.AppendLine();
@@ -92,7 +92,7 @@ namespace DemoParser.Parser.Components.Packets {
 				iw.FutureIndent++;
 				foreach (ServerClass classInfo in ServerClasses) {
 					iw.AppendLine();
-					classInfo.AppendToWriter(iw);
+					classInfo.PrettyWrite(iw);
 				}
 				iw.FutureIndent--;
 			} else {
@@ -129,14 +129,14 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"{Name}{(NeedsDecoder ? "*" : "")} (");
 			if (SendProps.Count > 0) {
 				iw.Append($"{SendProps.Count} prop{(SendProps.Count > 1 ? "s" : "")}):");
 				iw.FutureIndent++;
 				foreach (SendTableProp sendProp in SendProps) {
 					iw.AppendLine();
-					sendProp.AppendToWriter(iw);
+					sendProp.PrettyWrite(iw);
 				}
 				iw.FutureIndent--;
 			} else {

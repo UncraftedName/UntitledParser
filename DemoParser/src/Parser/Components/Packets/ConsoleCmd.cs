@@ -33,7 +33,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append(Command);
 		}
 	}

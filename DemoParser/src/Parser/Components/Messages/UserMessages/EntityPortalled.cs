@@ -30,7 +30,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"portal: {Portal}");
 			iw.AppendLine($"portalled: {Portalled}");
 			iw.AppendLine($"new position: {NewPosition:F3}");

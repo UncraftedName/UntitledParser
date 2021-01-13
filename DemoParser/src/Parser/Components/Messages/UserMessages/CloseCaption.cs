@@ -27,7 +27,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"token name: {TokenName}");
 			iw.AppendLine($"duration: {Duration}");
 			iw.Append($"flags: {Flags}");

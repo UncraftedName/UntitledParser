@@ -22,7 +22,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages.Haptic {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append($"unknown int: {Unk}");
 		}
 	}

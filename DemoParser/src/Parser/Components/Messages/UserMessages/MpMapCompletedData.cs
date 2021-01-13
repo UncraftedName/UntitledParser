@@ -43,7 +43,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 		
 		
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			if (Info.Count == 0) {
 				iw.Append("none");
 			} else {

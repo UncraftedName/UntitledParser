@@ -28,7 +28,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.Append(Reader.BitLength > 64
 				? $"{Reader.BitLength, 5} bit{(Reader.BitLength > 1 ? "s" : "")}"
 				: $"({Reader.ToBinaryString()})");

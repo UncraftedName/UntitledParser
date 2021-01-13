@@ -64,7 +64,7 @@ namespace DemoParser.Utils {
 
 
 		public override string ToString() {
-			IIndentedWriter iw = new IndentedToStringWriter();
+			IPrettyWriter iw = new PrettyToStringWriter();
 			_roots.ForEach(node => node.WritePretty(iw, "", true));
 			return iw.ToString();
 		}
@@ -102,7 +102,7 @@ namespace DemoParser.Utils {
 			}
 
 
-			internal void WritePretty(IIndentedWriter iw, string indent, bool last) {
+			internal void WritePretty(IPrettyWriter iw, string indent, bool last) {
 				iw.Append(indent);
 				if (!last) {
 					iw.Append("|-");

@@ -55,12 +55,12 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			foreach (CmdInfo cmdInfo in PacketInfo) 
-				cmdInfo.AppendToWriter(iw);
+				cmdInfo.PrettyWrite(iw);
 			iw.AppendLine($"in sequence: {InSequence}");
 			iw.AppendLine($"out sequence: {OutSequence}");
-			MessageStream.AppendToWriter(iw);
+			MessageStream.PrettyWrite(iw);
 		}
 	}
 	
@@ -96,7 +96,7 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"flags: {Flags}");
 			for (int i = 0; i < _floats.Length; i++) {
 				string dSym = UseDegreeSymbol[i] ? "°" : " ";

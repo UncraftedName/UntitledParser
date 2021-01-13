@@ -10,7 +10,7 @@ using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
-	public abstract class EntityProperty : AppendableClass {
+	public abstract class EntityProperty : PrettyClass {
 		
 		public readonly FlattenedProp FProp;
 		public string Name => FProp.Name;
@@ -25,7 +25,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 		
-		public override void AppendToWriter(IIndentedWriter iw) {
+		public override void PrettyWrite(IPrettyWriter iw) {
 			int tmp = iw.LastLineLength;
 			iw.Append(FProp.TypeString());
 			iw.PadLastLine(tmp + 12, ' ');
