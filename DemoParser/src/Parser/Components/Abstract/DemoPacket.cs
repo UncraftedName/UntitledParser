@@ -5,8 +5,9 @@ using DemoParser.Parser.Components.Packets;
 namespace DemoParser.Parser.Components.Abstract {
 	
 	public abstract class DemoPacket : DemoComponent {
-		
-		public int Tick;
+
+		public PacketFrame FrameRef;
+		public int Tick => FrameRef.Tick;
 
 		#region lookup tables
 		
@@ -48,8 +49,8 @@ namespace DemoParser.Parser.Components.Abstract {
 		
 		#endregion
 		
-		protected DemoPacket(SourceDemo? demoRef, int tick) : base(demoRef) {
-			Tick = tick;
+		protected DemoPacket(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef) {
+			FrameRef = frameRef;
 		}
 		
 		
@@ -76,17 +77,17 @@ namespace DemoParser.Parser.Components.Abstract {
 	
 	public static class PacketFactory {
 		
-		public static DemoPacket CreatePacket(SourceDemo demoRef, int tick, PacketType packetType) {
+		public static DemoPacket CreatePacket(SourceDemo demoRef, PacketFrame frameRef, PacketType packetType) {
 			return packetType switch {
-				PacketType.SignOn       => new SignOn(demoRef, tick),
-				PacketType.Packet       => new Packet(demoRef, tick),
-				PacketType.SyncTick     => new SyncTick(demoRef, tick),
-				PacketType.ConsoleCmd   => new ConsoleCmd(demoRef, tick),
-				PacketType.UserCmd      => new UserCmd(demoRef, tick),
-				PacketType.DataTables   => new DataTables(demoRef, tick),
-				PacketType.Stop         => new Stop(demoRef, tick),
-				PacketType.StringTables => new StringTables(demoRef, tick),
-				PacketType.CustomData   => new CustomData(demoRef, tick),
+				PacketType.SignOn       => new SignOn(demoRef, frameRef),
+				PacketType.Packet       => new Packet(demoRef, frameRef),
+				PacketType.SyncTick     => new SyncTick(demoRef, frameRef),
+				PacketType.ConsoleCmd   => new ConsoleCmd(demoRef, frameRef),
+				PacketType.UserCmd      => new UserCmd(demoRef, frameRef),
+				PacketType.DataTables   => new DataTables(demoRef, frameRef),
+				PacketType.Stop         => new Stop(demoRef, frameRef),
+				PacketType.StringTables => new StringTables(demoRef, frameRef),
+				PacketType.CustomData   => new CustomData(demoRef, frameRef),
 				_ => throw new NotSupportedException($"unknown or unsupported packet type: {packetType}")
 			};
 		}

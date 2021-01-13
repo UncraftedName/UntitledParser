@@ -11,7 +11,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public override bool MayContainData => false;
 		
 
-		public SyncTick(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
+		public SyncTick(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {

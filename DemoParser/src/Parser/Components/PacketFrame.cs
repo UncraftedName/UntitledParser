@@ -12,12 +12,7 @@ namespace DemoParser.Parser.Components {
 		
 		public byte? PlayerSlot; // demo protocol 4 only
 		public DemoPacket? Packet;
-		// in the demo the tick is stored as part of the packet frame, 
-		// but for convenience I store it as part of the packet
-		public int Tick {
-			get => Packet.Tick;
-			set => Packet.Tick = value;
-		}
+		public int Tick;
 		public PacketType Type;
 		
 		
@@ -35,14 +30,14 @@ namespace DemoParser.Parser.Components {
 				throw new ArgumentException($"Illegal packet type: {typeVal}");
 			
 			// stop tick is cut off in portal demos, not that it really matters
-			int tick = Type == PacketType.Stop && !DemoSettings.NewDemoProtocol
+			Tick = Type == PacketType.Stop && !DemoSettings.NewDemoProtocol
 				? (int)bsr.ReadBitsAsUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24))
 				: bsr.ReadSInt();
 			
 			if (DemoSettings.NewDemoProtocol && bsr.BitsRemaining > 0) // last player slot byte is cut off in l4d2 demos
 				PlayerSlot = bsr.ReadByte();
 			
-			Packet = PacketFactory.CreatePacket(DemoRef!, tick, Type);
+			Packet = PacketFactory.CreatePacket(DemoRef!, this, Type);
 			Packet.ParseStream(ref bsr);
 			bsr.EnsureByteAlignment(); // make sure the next frame starts on a byte boundary
 		}

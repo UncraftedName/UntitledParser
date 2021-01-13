@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public List<ServerClass>? ServerClasses;
 		
 		
-		public DataTables(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
+		public DataTables(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {

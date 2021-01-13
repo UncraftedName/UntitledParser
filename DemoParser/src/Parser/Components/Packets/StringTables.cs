@@ -25,7 +25,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public List<StringTable> Tables;
 		
 		
-		public StringTables(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
+		public StringTables(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {

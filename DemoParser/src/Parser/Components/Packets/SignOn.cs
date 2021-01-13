@@ -28,7 +28,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public MessageStream MessageStream {get;set;}
 
 
-		public SignOn(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
+		public SignOn(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {

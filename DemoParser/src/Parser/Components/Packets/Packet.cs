@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public MessageStream MessageStream {get;set;}
 
 
-		public Packet(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
+		public Packet(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {

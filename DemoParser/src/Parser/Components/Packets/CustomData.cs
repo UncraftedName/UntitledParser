@@ -16,7 +16,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public CustomDataMessage DataMessage;
 
 
-		public CustomData(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
+		public CustomData(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {

@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public uint? WeaponSelect, WeaponSubtype;
 		public short? MouseDx, MouseDy;
 		
-		public UserCmd(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
+		public UserCmd(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {

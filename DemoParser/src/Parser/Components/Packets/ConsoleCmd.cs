@@ -16,7 +16,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public static implicit operator string(ConsoleCmd cmd) => cmd.Command;
 
 
-		public ConsoleCmd(SourceDemo? demoRef, int tick) : base(demoRef, tick) {}
+		public ConsoleCmd(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
