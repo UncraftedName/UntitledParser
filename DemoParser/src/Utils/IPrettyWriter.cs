@@ -95,7 +95,7 @@ namespace DemoParser.Utils {
 			int index = 0; // index in entire string
 			for (int i = 0; i < _lines.Count; i++) {
 				// copy indent
-				indent.Slice(0, _indentCount[i]).CopyTo(buf.Slice(index));
+				indent.Slice(0, _indentCount[i] * indentLen).CopyTo(buf.Slice(index));
 				index += _indentCount[i] * indentStr.Length;
 				// copy line
 				_lines[i].AsSpan().CopyTo(buf.Slice(index));
