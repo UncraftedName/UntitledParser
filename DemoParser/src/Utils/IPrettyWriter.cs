@@ -232,6 +232,12 @@ namespace DemoParser.Utils {
 		public new virtual string ToString() {
 			return PrettyToStringHelper(this);
 		}
+		
+		public string ToString(string indentStr) {
+			PrettyToStringWriter iw = new PrettyToStringWriter();
+			PrettyWrite(iw);
+			return iw.ToString(indentStr);
+		}
 
 		public static string PrettyToStringHelper(IPretty ia) {
 			IPrettyWriter iw = new PrettyToStringWriter();
