@@ -230,10 +230,10 @@ namespace DemoParser.Utils {
 		
 		// a struct that inherits from IPretty may also override ToString() in the same way
 		public new virtual string ToString() {
-			return AppendHelper(this);
+			return PrettyToStringHelper(this);
 		}
 
-		public static string AppendHelper(IPretty ia) {
+		public static string PrettyToStringHelper(IPretty ia) {
 			IPrettyWriter iw = new PrettyToStringWriter();
 			ia.PrettyWrite(iw);
 			return iw.ToString();
