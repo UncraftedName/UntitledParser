@@ -5,7 +5,7 @@ using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
-using static DemoParser.Parser.DemoSettings;
+using static DemoParser.Parser.DemoInfo;
 
 namespace DemoParser.Parser.Components.Messages {
 	
@@ -131,7 +131,7 @@ namespace DemoParser.Parser.Components.Messages {
 			Volume = 1.0f;
 			SoundLevel = 75;
 			Pitch = 100;
-			RandomSeed = DemoSettings.NewDemoProtocol ? 0 : (int?)null;
+			RandomSeed = DemoInfo.NewDemoProtocol ? 0 : (int?)null;
 			EntityIndex = 0;
 			SpeakerEntity = -1;
 			Chan = Channel.Static;
@@ -173,15 +173,15 @@ namespace DemoParser.Parser.Components.Messages {
 			EntityIndex = bsr.ReadBool() ? bsr.ReadBitsAsUInt(bsr.ReadBool() ? 5 : MaxEdictBits) : _deltaTmp.EntityIndex;
 			
 #pragma warning disable 8629
-			if (DemoSettings.NewDemoProtocol) {
-				Flags = (SoundFlags?)bsr.ReadBitsAsUIntIfExists(DemoSettings.SoundFlagBits) ?? _deltaTmp.Flags;
+			if (DemoInfo.NewDemoProtocol) {
+				Flags = (SoundFlags?)bsr.ReadBitsAsUIntIfExists(DemoInfo.SoundFlagBits) ?? _deltaTmp.Flags;
 				if ((Flags & SoundFlags.IsScriptHandle) != 0)
 					ScriptHash = bsr.ReadUInt();
 				else
 					SoundNum = (int?)bsr.ReadBitsAsUIntIfExists(MaxSndIndexBits) ?? _deltaTmp.SoundNum;
 			} else {
 				SoundNum = (int?)bsr.ReadBitsAsUIntIfExists(MaxSndIndexBits) ?? _deltaTmp.SoundNum;
-				Flags = (SoundFlags?)bsr.ReadBitsAsUIntIfExists(DemoSettings.SoundFlagBits) ?? _deltaTmp.Flags;
+				Flags = (SoundFlags?)bsr.ReadBitsAsUIntIfExists(DemoInfo.SoundFlagBits) ?? _deltaTmp.Flags;
 			}
 			Chan = (Channel?)bsr.ReadBitsAsUIntIfExists(3) ?? _deltaTmp.Chan;
 #pragma warning restore 8629
@@ -218,7 +218,7 @@ namespace DemoParser.Parser.Components.Messages {
 				SoundLevel = bsr.ReadBitsAsUIntIfExists(MaxSndLvlBits) ?? _deltaTmp.SoundLevel;
 				Pitch = bsr.ReadBitsAsUIntIfExists(8) ?? _deltaTmp.Pitch;
 
-				if (DemoSettings.NewDemoProtocol) {
+				if (DemoInfo.NewDemoProtocol) {
 					RandomSeed = bsr.ReadBitsAsSIntIfExists(6) ?? _deltaTmp.RandomSeed; // 6, 18, or 29
 					Delay = bsr.ReadFloatIfExists() ?? _deltaTmp.Delay;
 				} else {
@@ -271,7 +271,7 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.AppendLine($"volume: {Volume}");
 			iw.AppendLine($"sound level: {SoundLevel}");
 			iw.AppendLine($"pitch: {Pitch}");
-			if (DemoSettings.NewDemoProtocol)
+			if (DemoInfo.NewDemoProtocol)
 				iw.AppendLine($"random seed: {RandomSeed}");
 			iw.AppendLine($"origin: {Origin}");
 			iw.Append($"speaker entity: {SpeakerEntity}");

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
-using static DemoParser.Parser.DemoSettings;
+using static DemoParser.Parser.DemoInfo;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 	

@@ -370,7 +370,7 @@ namespace ConsoleApp {
 					try {
 						if (implicitOptions.listDemo) {
 							bool excludedMap =
-								TimingAdjustment.ExcludedMaps.Contains((CurDemo.DemoSettings.Game,
+								TimingAdjustment.ExcludedMaps.Contains((CurDemo.DemoInfo.Game,
 									CurDemo.Header.MapName));
 							_displayMapExcludedMsg = quickHashesMatch && excludedMap;
 							ConsFunc_ListDemo(listdemo, true, exceptionDuringParsing, false);

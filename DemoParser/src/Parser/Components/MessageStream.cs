@@ -32,12 +32,12 @@ namespace DemoParser.Parser.Components {
 			Exception? e = null;
 			try {
 				do {
-					messageValue = (byte)messageBsr.ReadBitsAsUInt(DemoSettings.NetMsgTypeBits);
-					messageType = DemoMessage.ByteToSvcMessageType(messageValue, DemoSettings);
+					messageValue = (byte)messageBsr.ReadBitsAsUInt(DemoInfo.NetMsgTypeBits);
+					messageType = DemoMessage.ByteToSvcMessageType(messageValue, DemoInfo);
 					DemoMessage? demoMessage = MessageFactory.CreateMessage(DemoRef,messageType);
 					demoMessage?.ParseStream(ref messageBsr);
 					Messages.Add((messageType, demoMessage));
-				} while (Messages[^1].message != null && messageBsr.BitsRemaining >= DemoSettings.NetMsgTypeBits);
+				} while (Messages[^1].message != null && messageBsr.BitsRemaining >= DemoInfo.NetMsgTypeBits);
 			} catch (Exception ex) {
 				e = ex;
 				Debug.WriteLine(e);
@@ -87,7 +87,7 @@ namespace DemoParser.Parser.Components {
 			int i = 0;
 			while (i < Messages?.Count && Messages[i].message != null) {
 				iw.Append($"message: {Messages[i].messageType} " +
-						  $"({DemoMessage.MessageTypeToByte(Messages[i].messageType, DemoSettings)})");
+						  $"({DemoMessage.MessageTypeToByte(Messages[i].messageType, DemoInfo)})");
 				if (Messages[i].message.MayContainData) {
 					iw.FutureIndent++;
 					iw.AppendLine();

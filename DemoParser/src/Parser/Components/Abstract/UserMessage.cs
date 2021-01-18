@@ -342,8 +342,8 @@ namespace DemoParser.Parser.Components.Abstract {
 		protected UserMessage(SourceDemo? demoRef) : base(demoRef) {}
 		
 		
-		public static UserMessageType ByteToUserMessageType(DemoSettings demoSettings, byte b) {
-			var tab = demoSettings.UserMessageTypes;
+		public static UserMessageType ByteToUserMessageType(DemoInfo demoInfo, byte b) {
+			var tab = demoInfo.UserMessageTypes;
 			if (tab == null)
 				return UserMessageType.Unknown;
 			else if (b >= tab.Count)
@@ -353,8 +353,8 @@ namespace DemoParser.Parser.Components.Abstract {
 		}
 		
 		
-		public static byte UserMessageTypeToByte(DemoSettings demoSettings, UserMessageType m) {
-			if (demoSettings.UserMessageTypesReverseLookup.TryGetValue(m, out int i))
+		public static byte UserMessageTypeToByte(DemoInfo demoInfo, UserMessageType m) {
+			if (demoInfo.UserMessageTypesReverseLookup.TryGetValue(m, out int i))
 				return (byte)i;
 			throw new ArgumentException($"no user message found for {m}");
 		}

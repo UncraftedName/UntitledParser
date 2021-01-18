@@ -90,7 +90,7 @@ namespace DemoParser.Utils.BitStreams {
 
 		private static void SetFloatParseType(SendTableProp propInfo) {
 			int flags = propInfo.Flags;
-			AbstractFlagChecker<PropFlag> checker = propInfo.DemoRef.DemoSettings.PropFlagChecker;
+			AbstractFlagChecker<PropFlag> checker = propInfo.DemoRef.DemoInfo.PropFlagChecker;
 			ref FloatParseType? pType = ref propInfo.FloatParseType; 
 			if (checker.HasFlag(flags, PropFlag.Coord)) {
 				pType = FloatParseType.Coord;
@@ -104,7 +104,7 @@ namespace DemoParser.Utils.BitStreams {
 				pType = FloatParseType.NoScale;
 			} else if (checker.HasFlag(flags, PropFlag.Normal)) {
 				pType = FloatParseType.Normal;
-			} else if (propInfo.DemoRef.DemoSettings.NewDemoProtocol) {
+			} else if (propInfo.DemoRef.DemoInfo.NewDemoProtocol) {
 				if (checker.HasFlag(flags, PropFlag.CellCoord)) {
 					pType = FloatParseType.BitCellChord;
 				} else if (checker.HasFlag(flags, PropFlag.CellCoordLp)) {
@@ -178,7 +178,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public int DecodeInt(SendTableProp propInfo) {
-			return propInfo.DemoRef.DemoSettings.PropFlagChecker.HasFlag(propInfo.Flags, PropFlag.Unsigned)
+			return propInfo.DemoRef.DemoInfo.PropFlagChecker.HasFlag(propInfo.Flags, PropFlag.Unsigned)
 				? (int)ReadBitsAsUInt(propInfo.NumBits!.Value)
 				: ReadBitsAsSInt(propInfo.NumBits!.Value);
 		}

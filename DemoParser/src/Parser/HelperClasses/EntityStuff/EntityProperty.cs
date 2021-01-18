@@ -72,7 +72,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		protected override string PropToString() {
 			return this switch {
-				SingleEntProp<int>     ip  => CreateIntPropStr(ip.Value, FProp.DisplayType, FProp.DemoSettings),
+				SingleEntProp<int>     ip  => CreateIntPropStr(ip.Value, FProp.DisplayType, FProp.DemoInfo),
 				SingleEntProp<float>   fp  => CreateFloatPropStr(fp.Value, FProp.DisplayType),
 				SingleEntProp<Vector2> v2P => CreateVec2PropStr(v2P.Value, FProp.DisplayType),
 				SingleEntProp<Vector3> v3P => CreateVec3PropStr(v3P.Value, FProp.DisplayType),
@@ -114,7 +114,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		
 		protected override string PropToString() {
 			return this switch {
-				ArrEntProp<int> aip => aip.Values.Select(i => CreateIntPropStr(i, FProp.DisplayType, FProp.DemoSettings)).SequenceToString(),
+				ArrEntProp<int> aip => aip.Values.Select(i => CreateIntPropStr(i, FProp.DisplayType, FProp.DemoInfo)).SequenceToString(),
 				ArrEntProp<float> afp => afp.Values.Select(f => CreateFloatPropStr(f, FProp.DisplayType)).SequenceToString(),
 				ArrEntProp<Vector2> av2P => av2P.Values.Select(v => CreateVec2PropStr(v, FProp.DisplayType)).SequenceToString(),
 				ArrEntProp<Vector3> av3P => av3P.Values.Select(v => CreateVec3PropStr(v, FProp.DisplayType)).SequenceToString(),
@@ -175,7 +175,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			var props = new List<(int propIndex, EntityProperty prop)>();
 			
 			int i = -1;
-			if (demoRef.DemoSettings.NewDemoProtocol) {
+			if (demoRef.DemoInfo.NewDemoProtocol) {
 				bool newWay = bsr.ReadBool();
 				while ((i = bsr.ReadFieldIndex(i, newWay)) != -1)
 					props.Add((i, bsr.CreateAndReadProp(fProps[i])));

@@ -22,7 +22,7 @@ namespace DemoParser.Parser.Components {
 		protected override void Parse(ref BitStreamReader bsr) {
 			
 			byte typeVal = bsr.ReadByte();
-			Type = DemoPacket.ByteToPacketType(DemoSettings, typeVal);
+			Type = DemoPacket.ByteToPacketType(DemoInfo, typeVal);
 			
 			if (Type == PacketType.Unknown)
 				throw new ArgumentException("no byte->packet mapper found for this game!");
@@ -30,11 +30,11 @@ namespace DemoParser.Parser.Components {
 				throw new ArgumentException($"Illegal packet type: {typeVal}");
 			
 			// stop tick is cut off in portal demos, not that it really matters
-			Tick = Type == PacketType.Stop && !DemoSettings.NewDemoProtocol
+			Tick = Type == PacketType.Stop && !DemoInfo.NewDemoProtocol
 				? (int)bsr.ReadBitsAsUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24))
 				: bsr.ReadSInt();
 			
-			if (DemoSettings.NewDemoProtocol && bsr.BitsRemaining > 0) // last player slot byte is cut off in l4d2 demos
+			if (DemoInfo.NewDemoProtocol && bsr.BitsRemaining > 0) // last player slot byte is cut off in l4d2 demos
 				PlayerSlot = bsr.ReadByte();
 			
 			Packet = PacketFactory.CreatePacket(DemoRef!, this, Type);
@@ -50,8 +50,8 @@ namespace DemoParser.Parser.Components {
 		
 		public override void PrettyWrite(IPrettyWriter iw) {
 			if (Packet != null) {
-				iw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(DemoSettings, Type)})");
-				if (DemoSettings.NewDemoProtocol && PlayerSlot.HasValue)
+				iw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(DemoInfo, Type)})");
+				if (DemoInfo.NewDemoProtocol && PlayerSlot.HasValue)
 					iw.Append($"\nplayer slot: {PlayerSlot.Value}");
 				if (Packet.MayContainData) {
 					iw.FutureIndent++;

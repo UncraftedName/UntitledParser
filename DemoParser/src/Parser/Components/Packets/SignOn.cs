@@ -32,7 +32,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			byte[] garbage = bsr.ReadBytes(DemoSettings.SignOnGarbageBytes);
+			byte[] garbage = bsr.ReadBytes(DemoInfo.SignOnGarbageBytes);
 			Unknown1 = bsr.ReadSInt();
 			Unknown2 = bsr.ReadSInt();
 			if (garbage.Any(b => b != 0))
@@ -48,7 +48,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine(DemoSettings.SignOnGarbageBytes + " bytes with no data");
+			iw.AppendLine(DemoInfo.SignOnGarbageBytes + " bytes with no data");
 			iw.AppendLine($"2 unknown ints: {Unknown1}, {Unknown2}");
 			MessageStream.PrettyWrite(iw);
 		}

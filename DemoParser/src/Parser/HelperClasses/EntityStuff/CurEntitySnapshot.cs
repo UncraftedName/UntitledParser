@@ -17,7 +17,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
         public CurEntitySnapshot(SourceDemo demoRef) {
             _demoRef = demoRef;
-            Entities = new Entity?[DemoSettings.MaxEdicts];
+            Entities = new Entity?[DemoInfo.MaxEdicts];
         }
 
 

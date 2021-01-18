@@ -24,7 +24,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			PacketInfo = new CmdInfo[DemoSettings.MaxSplitscreenPlayers];
+			PacketInfo = new CmdInfo[DemoInfo.MaxSplitscreenPlayers];
 			for (int i = 0; i < PacketInfo.Length; i++) {
 				PacketInfo[i] = new CmdInfo(DemoRef);
 				PacketInfo[i].ParseStream(ref bsr);

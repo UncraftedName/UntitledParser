@@ -150,7 +150,7 @@ namespace ConsoleApp {
 				.OrderBy(grouping => grouping.Min())
 				.ToList();
 
-			double tickInterval = CurDemo.DemoSettings.TickInterval;
+			double tickInterval = CurDemo.DemoInfo.TickInterval;
 
 			List<int> ticks = customGroups.SelectMany(g => g)
 				.Concat(flagGroups.SelectMany(g => g)).ToList();
@@ -225,7 +225,7 @@ namespace ConsoleApp {
 				.Where(tuple => tuple.adjustedTicks != int.MinValue)
 				.Select(tuple => tuple.adjustedTicks - 1)
 				.Sum();
-			float tickInterval = CurDemo.DemoSettings.TickInterval;
+			float tickInterval = CurDemo.DemoInfo.TickInterval;
 			Console.WriteLine($"\n{"Total measured time ",  -25}: {FormatTime(totalTicks * tickInterval)}");
 			Console.WriteLine($"{"Total measured ticks ",   -25}: {totalTicks}");
 			if (totalTicks != totalAdjustedTicks) {
@@ -319,7 +319,7 @@ namespace ConsoleApp {
 					int len = last.Reader.AbsoluteStart - frame.Reader.AbsoluteStart + last.Reader.BitLength;
 					bsw.WriteBits(frame.Reader.ReadBits(len), len);
 					int msgSizeOffset = p.MessageStream.Reader.AbsoluteStart - frame.Reader.AbsoluteStart;
-					int typeInfoLen = CurDemo.DemoSettings.NetMsgTypeBits + CurDemo.DemoSettings.UserMessageLengthBits + 8;
+					int typeInfoLen = CurDemo.DemoInfo.NetMsgTypeBits + CurDemo.DemoInfo.UserMessageLengthBits + 8;
 					bsw.RemoveBitsAtIndices(p.FilterForUserMessage<CloseCaption>()
 						.Select(caption => (caption.Reader.AbsoluteStart - frame.Reader.AbsoluteStart - typeInfoLen, 
 							caption.Reader.BitLength + typeInfoLen)));
@@ -467,14 +467,14 @@ namespace ConsoleApp {
 					BitStreamReader signOnReader = signOn.Reader;
 					bsw.WriteBits(signOnReader.ReadRemainingBits());
 					signOnReader = signOnReader.FromBeginning();
-					int bytesToMessageStreamSize = CurDemo.DemoSettings.SignOnGarbageBytes + 8;
+					int bytesToMessageStreamSize = CurDemo.DemoInfo.SignOnGarbageBytes + 8;
 					signOnReader.SkipBytes(bytesToMessageStreamSize);
 					// edit the message stream length - read uint, and edit at index before the reading of said uint
 					bsw.EditIntAtIndex((int)(signOnReader.ReadUInt() + lenDiff), signOnReader.CurrentBitIndex - 32, 32);
 					
 					// actually change the game dir
 					SvcServerInfo serverInfo = signOn.FilterForMessage<SvcServerInfo>().Single();
-					int editIndex = serverInfo.Reader.AbsoluteBitIndex - signOn.Reader.AbsoluteBitIndex + 186 + CurDemo.DemoSettings.SvcServerInfoUnknownBits;
+					int editIndex = serverInfo.Reader.AbsoluteBitIndex - signOn.Reader.AbsoluteBitIndex + 186 + CurDemo.DemoInfo.SvcServerInfoUnknownBits;
 					bsw.RemoveBitsAtIndex(editIndex, old.Length * 8);
 					bsw.InsertBitsAtIndex(dirBytes, editIndex, dir.Length * 8);
 					_curBinWriter!.Write(bsw.AsArray);

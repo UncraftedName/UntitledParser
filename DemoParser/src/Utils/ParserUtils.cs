@@ -183,11 +183,11 @@ namespace DemoParser.Utils {
 			Val = val;
 		}
 
-		public int EntIndex => (int)(Val & ((1 << DemoSettings.MaxEdictBits) - 1));
-		public int Serial => (int)(Val >> DemoSettings.MaxEdictBits);
+		public int EntIndex => (int)(Val & ((1 << DemoInfo.MaxEdictBits) - 1));
+		public int Serial => (int)(Val >> DemoInfo.MaxEdictBits);
 
 		public override string ToString() {
-			return Val == DemoSettings.NullEHandle ? "{null}" : $"{{ent index: {EntIndex}, serial: {Serial}}}";
+			return Val == DemoInfo.NullEHandle ? "{null}" : $"{{ent index: {EntIndex}, serial: {Serial}}}";
 		}
 	}
 

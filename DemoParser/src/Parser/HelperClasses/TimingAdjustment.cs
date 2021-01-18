@@ -8,7 +8,7 @@ using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
-using static DemoParser.Parser.DemoSettings;
+using static DemoParser.Parser.DemoInfo;
 using static DemoParser.Parser.HelperClasses.EntityStuff.PropEnums.PlayerMfFlags_t;
 using static DemoParser.Parser.HelperClasses.TimingAdjustment.AdjustmentType;
 using static DemoParser.Parser.SourceGame;
@@ -142,7 +142,7 @@ namespace DemoParser.Parser.HelperClasses {
 			ref int end = ref consoleCmd.DemoRef.EndAdjustmentTick;
 			
 			// assume only one valid adjustment per cmd
-			foreach (AdjustmentType type in consoleCmd.DemoRef.DemoSettings.TimeAdjustmentTypes) {
+			foreach (AdjustmentType type in consoleCmd.DemoRef.DemoInfo.TimeAdjustmentTypes) {
 				switch (type) {
 					case Portal2CoopMapStart when start == -1 && consoleCmd.Command == "ss_force_primary_fullscreen 0":
 						start = consoleCmd.Tick;
@@ -168,7 +168,7 @@ namespace DemoParser.Parser.HelperClasses {
 			ref int end = ref packet.DemoRef.EndAdjustmentTick;
 			
 			// assume only one valid adjustment per packet
-			foreach (AdjustmentType type in packet.DemoRef.DemoSettings.TimeAdjustmentTypes) {
+			foreach (AdjustmentType type in packet.DemoRef.DemoInfo.TimeAdjustmentTypes) {
 				switch (type) {
 					case Portal2CoopBegin when start == -1 && Portal2CoopStartCheck(packet):
 						start = packet.Tick;
@@ -289,7 +289,7 @@ namespace DemoParser.Parser.HelperClasses {
 						   .First(delta => delta.EntIndex == 1).Props
 						   .Select(tuple => tuple.prop)
 						   .OfType<SingleEntProp<int>>()
-						   .Any(prop => prop.Name == "m_fFlags" && packet.DemoRef.DemoSettings.PlayerMfFlagChecker.HasFlags(
+						   .Any(prop => prop.Name == "m_fFlags" && packet.DemoRef.DemoInfo.PlayerMfFlagChecker.HasFlags(
 							   prop, FL_ONGROUND, FL_CLIENT)));
 		}
 
@@ -303,7 +303,7 @@ namespace DemoParser.Parser.HelperClasses {
 					   .First(delta => delta.EntIndex == 1).Props
 					   .Select(tuple => tuple.prop)
 					   .OfType<SingleEntProp<int>>()
-					   .Any(prop => prop.Name == "m_fFlags" && packet.DemoRef.DemoSettings.PlayerMfFlagChecker.HasFlags(
+					   .Any(prop => prop.Name == "m_fFlags" && packet.DemoRef.DemoInfo.PlayerMfFlagChecker.HasFlags(
 						   prop, FL_ONGROUND, FL_FROZEN, FL_CLIENT));
 		}
 

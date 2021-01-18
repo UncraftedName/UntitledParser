@@ -52,7 +52,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			
 			string[] split = name.Split('.');
 
-			if (propInfo.NumBits == DemoSettings.NetworkedEHandleBits && split.Any(s => HandleMatcher.IsMatch(s)))
+			if (propInfo.NumBits == DemoInfo.NetworkedEHandleBits && split.Any(s => HandleMatcher.IsMatch(s)))
 				return DisplayType.Handle;
 
 			// bool check is kinda dumb, maybe I shouldn't bother tbh
@@ -91,22 +91,22 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 
-		internal static string CreateIntPropStr(int val, DisplayType displayType, DemoSettings demoSettings) {
+		internal static string CreateIntPropStr(int val, DisplayType displayType, DemoInfo demoInfo) {
 			switch (displayType) {
 				case DisplayType.Int:
 					return val.ToString();
 				case DisplayType.Bool:
 					return (val != 0).ToString();
 				case DisplayType.AreaBits:
-					return Convert.ToString(val, 2).PadLeft(DemoSettings.AreaBitsNumBits, '0');
+					return Convert.ToString(val, 2).PadLeft(DemoInfo.AreaBitsNumBits, '0');
 				case DisplayType.Color: // pretty sure this is rgba
 					return $"0x{val:X8}";
 				case DisplayType.Handle:
 					return ((EHandle)val).ToString();
 				case DisplayType.DT_BaseEntity__m_CollisionGroup:
-					return demoSettings.CollisionsGroupList[val].ToString();
+					return demoInfo.CollisionsGroupList[val].ToString();
 				case DisplayType.DT_BasePlayer__m_fFlags:
-					return $"({demoSettings.PlayerMfFlagChecker.ToFlagString(val)})";
+					return $"({demoInfo.PlayerMfFlagChecker.ToFlagString(val)})";
 				default:
 					return EntityPropertyEnumManager.CreateEnumPropStr(val, displayType); // must be last
 			}

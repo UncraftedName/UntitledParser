@@ -13,7 +13,7 @@ namespace DemoParser.Parser {
 	/// <summary>
 	/// A class containing many useful constants used while parsing the demo.
 	/// </summary>
-	public class DemoSettings {
+	public class DemoInfo {
 		
 		// these seem to be constant in all games
 		public const int MaxEdictBits = 11;
@@ -72,7 +72,7 @@ namespace DemoParser.Parser {
 		public readonly IReadOnlyDictionary<UserMessageType, int>? UserMessageTypesReverseLookup;
 		
 		
-		public DemoSettings(DemoHeader h) {
+		public DemoInfo(DemoHeader h) {
 			switch (h.DemoProtocol) {
 				case 3:
 					switch (h.NetworkProtocol) {

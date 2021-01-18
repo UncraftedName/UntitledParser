@@ -128,8 +128,8 @@ namespace DemoParser.Parser.Components.Abstract {
 		#endregion
 
 
-		public static MessageType ByteToSvcMessageType(byte b, DemoSettings demoSettings) {
-			var tab = demoSettings.MessageTypes;
+		public static MessageType ByteToSvcMessageType(byte b, DemoInfo demoInfo) {
+			var tab = demoInfo.MessageTypes;
 			if (tab == null)
 				return MessageType.Unknown;
 			else if (b > tab.Count)
@@ -139,8 +139,8 @@ namespace DemoParser.Parser.Components.Abstract {
 		}
 
 
-		public static byte MessageTypeToByte(MessageType m, DemoSettings demoSettings) {
-			if (demoSettings.MessageTypesReverseLookup.TryGetValue(m, out int i))
+		public static byte MessageTypeToByte(MessageType m, DemoInfo demoInfo) {
+			if (demoInfo.MessageTypesReverseLookup.TryGetValue(m, out int i))
 				return (byte)i;
 			throw new ArgumentException($"no message found for {m}");
 		}

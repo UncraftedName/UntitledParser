@@ -6,7 +6,7 @@ namespace DemoParser.Parser.Components.Abstract {
 	
 	public abstract class DemoPacket : DemoComponent {
 
-		public PacketFrame FrameRef;
+		public readonly PacketFrame FrameRef;
 		public int Tick => FrameRef.Tick;
 
 		#region lookup tables
@@ -55,8 +55,8 @@ namespace DemoParser.Parser.Components.Abstract {
 		
 		
 		// gets the packet type associated with this byte value
-		public static PacketType ByteToPacketType(DemoSettings demoSettings, byte b) {
-			var tab = demoSettings.PacketTypes;
+		public static PacketType ByteToPacketType(DemoInfo demoInfo, byte b) {
+			var tab = demoInfo.PacketTypes;
 			if (tab == null)
 				return PacketType.Unknown;
 			else if (b >= tab.Count)
@@ -67,8 +67,8 @@ namespace DemoParser.Parser.Components.Abstract {
 		
 		
 		// gets the byte value associated with this packet type
-		public static byte PacketTypeToByte(DemoSettings demoSettings, PacketType p) {
-			if (demoSettings.PacketTypesReverseLookup.TryGetValue(p, out int i))
+		public static byte PacketTypeToByte(DemoInfo demoInfo, PacketType p) {
+			if (demoInfo.PacketTypesReverseLookup.TryGetValue(p, out int i))
 				return (byte)i;
 			throw new ArgumentException($"no packet id found for {p}");
 		}

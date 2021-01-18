@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			ClientId = bsr.ReadByte();
 			Str = bsr.ReadNullTerminatedString();
 			WantsToChat = bsr.ReadByte() != 0;
-			/*if (DemoSettings.NewDemoProtocol)
+			/*if (DemoInfo.NewDemoProtocol)
 				Unknown = bsr.ReadByte() != 0;*/
 		}
 
@@ -34,7 +34,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			iw.AppendLine($"client ID: {ClientId}");
 			iw.AppendLine($"string: {Str.Replace("\n", @"\n")}");
 			iw.Append($"wants to chat: {WantsToChat}");
-			/*if (DemoSettings.NewDemoProtocol)
+			/*if (DemoInfo.NewDemoProtocol)
 				iw.Append($"unknown: {Unknown}");*/
 		}
 	}

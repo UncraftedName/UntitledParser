@@ -24,7 +24,7 @@ namespace DemoParser.Parser {
 		public override BitStreamReader Reader => _privateReader.FromBeginning();
 		
 		public readonly string? FileName;
-		public new DemoSettings DemoSettings;
+		public new DemoInfo DemoInfo;
 		public DemoHeader Header;
 		public List<PacketFrame> Frames;
 		private bool _exceptionDuringParsing;
@@ -65,7 +65,7 @@ namespace DemoParser.Parser {
 			// make sure we set the demo settings first
 			Header = new DemoHeader(this);
 			Header.ParseStream(ref bsr);
-			DemoSettings = new DemoSettings(Header);
+			DemoInfo = new DemoInfo(Header);
 			// it might be worth it to implement updating helper classes with listeners, but it's not a huge deal atm
 			CurStringTablesManager = new CurStringTablesManager(this); 
 			ErrorList = new List<string>();
@@ -114,7 +114,7 @@ namespace DemoParser.Parser {
 						  $"{BuildDateAttribute.GetBuildDate(Assembly.GetExecutingAssembly()):R}");
 			if (FileName != null)
 				iw.AppendLine($"file name: {FileName}");
-			iw.Append($"predicted game: {DemoSettings.Game}\n\n");
+			iw.Append($"predicted game: {DemoInfo.Game}\n\n");
 			
 			Header.PrettyWrite(iw);
 			foreach (PacketFrame frame in Frames) {

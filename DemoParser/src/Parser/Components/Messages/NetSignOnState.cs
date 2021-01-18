@@ -21,7 +21,7 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			SignOnState = (SignOnState)bsr.ReadByte();
 			SpawnCount = bsr.ReadSInt();
-			if (DemoSettings.NewDemoProtocol) {
+			if (DemoInfo.NewDemoProtocol) {
 				NumServerPlayers = bsr.ReadUInt();
 				int length = (int)bsr.ReadUInt();
 				if (length > 0)
@@ -43,7 +43,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public override void PrettyWrite(IPrettyWriter iw) {
 			iw.AppendLine($"sign on state: {SignOnState}");
 			iw.Append($"spawn count: {SpawnCount}");
-			if (DemoSettings.NewDemoProtocol) {
+			if (DemoInfo.NewDemoProtocol) {
 				iw.Append($"\nnumber of server players: {NumServerPlayers}");
 				if (PlayerNetworkIds != null)
 					iw.Append($"\nbyte array of length {PlayerNetworkIds.Length}");

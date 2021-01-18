@@ -39,7 +39,7 @@ namespace DemoParser.Parser.Components.Messages {
 			_entBsr = bsr.SplitAndSkip(dataLen);
 
 #if !FORCE_PROCESS_ENTS
-			if (!DemoSettings.ProcessEnts)
+			if (!DemoInfo.ProcessEnts)
 				return;
 #endif
 			// now, we do some setup for ent parsing
@@ -74,7 +74,7 @@ namespace DemoParser.Parser.Components.Messages {
 				
 				for (int _ = 0; _ < UpdatedEntries; _++) {
 					
-					newI += 1 + (DemoSettings.NewDemoProtocol
+					newI += 1 + (DemoInfo.NewDemoProtocol
 						? (int)_entBsr.ReadUBitInt()
 						: (int)_entBsr.ReadUBitVar());
 					
@@ -102,7 +102,7 @@ namespace DemoParser.Parser.Components.Messages {
 							break;
 						case 2: // enter PVS
 							iClass = (int)_entBsr.ReadBitsAsUInt(tableParser.ServerClassBits);
-							uint iSerial = _entBsr.ReadBitsAsUInt(DemoSettings.HandleSerialNumberBits);
+							uint iSerial = _entBsr.ReadBitsAsUInt(DemoInfo.HandleSerialNumberBits);
 							(entClass, fProps) = tableParser.FlattenedProps[iClass];
 							bool bNew = ents[newI] == null || ents[newI].Serial != iSerial;
 							update = new EnterPvs(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);
@@ -153,7 +153,7 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.AppendLine($"updated baseline: {UpdateBaseline}");
 			iw.AppendLine($"length in bits: {_entBsr.BitLength}");
 			iw.Append($"{UpdatedEntries} updated entries");
-			if (DemoSettings.ProcessEnts) {
+			if (DemoInfo.ProcessEnts) {
 				iw.Append(":");
 				iw.FutureIndent++;
 				if (Updates == null) {

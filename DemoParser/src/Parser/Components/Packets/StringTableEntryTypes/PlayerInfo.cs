@@ -45,14 +45,14 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 		// since we're reading a struct, alignment needs to be taken into account
 		protected override void Parse(ref BitStreamReader bsr) {
-			if (DemoSettings.NewDemoProtocol)
+			if (DemoInfo.NewDemoProtocol)
 				SteamId = (CSteamId)bsr.ReadULong();
-			Name = bsr.ReadCharArray(DemoSettings.MaxPlayerNameLength);
+			Name = bsr.ReadCharArray(DemoInfo.MaxPlayerNameLength);
 			UserId = bsr.ReadSInt();
-			Guid = bsr.ReadCharArray(DemoSettings.SignedGuidLen + 1);
+			Guid = bsr.ReadCharArray(DemoInfo.SignedGuidLen + 1);
 			bsr.SkipBytes(3);
 			FriendsId = bsr.ReadUInt();
-			FriendsName = bsr.ReadCharArray(DemoSettings.MaxPlayerNameLength);
+			FriendsName = bsr.ReadCharArray(DemoInfo.MaxPlayerNameLength);
 			FakePlayer = bsr.ReadByte() != 0;
 			IsHlTv = bsr.ReadByte() != 0;
 			bsr.SkipBytes(2);
@@ -69,7 +69,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 
 		public override void PrettyWrite(IPrettyWriter iw) {
-			if (DemoSettings.NewDemoProtocol)
+			if (DemoInfo.NewDemoProtocol)
 				iw.AppendLine($"steam ID: {SteamId.ToString()}");
 			iw.AppendLine($"name: {Name}");
 			iw.AppendLine($"user ID: {UserId}");

@@ -16,7 +16,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	public class DataTableParser {
 
 		private readonly SourceDemo _demoRef;
-		private DemoSettings DemSet => _demoRef.DemoSettings;
+		private DemoInfo DemSet => _demoRef.DemoInfo;
 		private readonly DataTables _dtRef;
 		private readonly ImmutableDictionary<string, SendTable> _tableLookup;
 		public int ServerClassBits => BitUtils.HighestBitIndex((uint)_dtRef.ServerClasses.Count) + 1; // this might be off for powers of 2
@@ -48,7 +48,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 				// Now we have the props, rearrange them so that props that are marked with 'changes often' get a
 				// smaller index. In the new protocol the priority of the props is also taken into account.
-				if (_demoRef.DemoSettings.NewDemoProtocol) {
+				if (_demoRef.DemoInfo.NewDemoProtocol) {
 					List<int> priorities = new List<int> {64};
 					priorities.AddRange(fProps.Select(entry => entry.PropInfo.Priority!.Value).Distinct());
 					priorities.Sort();
@@ -182,7 +182,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	
 	public class FlattenedProp {
 		
-		internal readonly DemoSettings DemoSettings;
+		internal readonly DemoInfo DemoInfo;
 		public readonly string Name;
 		public readonly SendTableProp PropInfo;
 		public readonly SendTableProp? ArrayElementPropInfo;
@@ -192,16 +192,16 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			EntPropToStringHelper.DeterminePropDisplayType(Name, PropInfo, ArrayElementPropInfo);
 
 
-		public FlattenedProp(DemoSettings demoSettings, string name, SendTableProp propInfo, SendTableProp? arrayElementPropInfo) {
+		public FlattenedProp(DemoInfo demoInfo, string name, SendTableProp propInfo, SendTableProp? arrayElementPropInfo) {
 			PropInfo = propInfo;
 			ArrayElementPropInfo = arrayElementPropInfo;
-			DemoSettings = demoSettings;
+			DemoInfo = demoInfo;
 			Name = name;
 		}
 		
 
 		public override string ToString() {
-			SendTableProp displayProp = DemoSettings.PropFlagChecker.HasFlag(PropInfo.Flags, InsideArray) ? ArrayElementPropInfo! : PropInfo;
+			SendTableProp displayProp = DemoInfo.PropFlagChecker.HasFlag(PropInfo.Flags, InsideArray) ? ArrayElementPropInfo! : PropInfo;
 			return $"{TypeString()} {Name}, " +
 				   $"{displayProp.NumBits} bit{(displayProp.NumBits == 1 ? "" : "s")}, " +
 				   $"flags: {displayProp.Flags}";

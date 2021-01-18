@@ -31,12 +31,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			SendPropType = DemoSettings.SendPropTypes[(int)bsr.ReadBitsAsUInt(5)];
+			SendPropType = DemoInfo.SendPropTypes[(int)bsr.ReadBitsAsUInt(5)];
 			Name = bsr.ReadNullTerminatedString();
-			Flags = (int)bsr.ReadBitsAsUInt(DemoSettings.SendPropFlagBits);
-			if (DemoSettings.NewDemoProtocol)
+			Flags = (int)bsr.ReadBitsAsUInt(DemoInfo.SendPropFlagBits);
+			if (DemoInfo.NewDemoProtocol)
 				Priority = bsr.ReadByte();
-			if (SendPropType == SendPropType.DataTable || DemoSettings.PropFlagChecker.HasFlag(Flags, PropFlag.Exclude)) {
+			if (SendPropType == SendPropType.DataTable || DemoInfo.PropFlagChecker.HasFlag(Flags, PropFlag.Exclude)) {
 				ExcludeDtName = bsr.ReadNullTerminatedString();
 			} else {
 				switch (SendPropType) {
@@ -47,7 +47,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					case SendPropType.Vector2:
 						LowValue = bsr.ReadFloat();
 						HighValue = bsr.ReadFloat();
-						NumBits = bsr.ReadBitsAsUInt(DemoSettings.SendPropNumBitsToGetNumBits);
+						NumBits = bsr.ReadBitsAsUInt(DemoInfo.SendPropNumBitsToGetNumBits);
 						break;
 					case SendPropType.Array:
 						NumElements = bsr.ReadBitsAsUInt(10);
@@ -93,9 +93,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				}
 				iw.PadLastLine(120, ' ');
 			}
-			iw.Append($" flags: {DemoSettings.PropFlagChecker.ToFlagString(Flags)}");
+			iw.Append($" flags: {DemoInfo.PropFlagChecker.ToFlagString(Flags)}");
 			iw.FutureIndent++;
-			if (DemoSettings.NewDemoProtocol) {
+			if (DemoInfo.NewDemoProtocol) {
 				iw.PadLastLine(155, ' ');
 				iw.Append($" priority: {Priority}");
 			}

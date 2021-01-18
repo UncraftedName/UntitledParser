@@ -18,7 +18,7 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			TransferId = bsr.ReadUInt();
 			FileName = bsr.ReadNullTerminatedString();
-			FileFlags = (NetFileFlags)bsr.ReadBitsAsUInt(DemoSettings.NumNetFileFlagBits);
+			FileFlags = (NetFileFlags)bsr.ReadBitsAsUInt(DemoInfo.NumNetFileFlagBits);
 		}
 		
 

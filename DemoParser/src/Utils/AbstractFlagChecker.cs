@@ -7,7 +7,7 @@ namespace DemoParser.Utils {
 	 * It's one thing when different games have different lists of enums, it's another when those enums are used as
 	 * flags. This provides a way to create an object which only needs to implement the 'HasFlag()' function
 	 * and then it can be used to determine if a specific flag exists from an int or for converting the int to a string.
-	 * Since the objects are demo specific, they should be stored in the DemoSettings class and preferably created in
+	 * Since the objects are demo specific, they should be stored in the DemoInfo class and preferably created in
 	 * the constructor.
 	 */
 	public abstract class AbstractFlagChecker<T> where T : Enum {

@@ -16,7 +16,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			Channel = (HudChannel)(bsr.ReadByte() % DemoSettings.MaxNetMessage);
+			Channel = (HudChannel)(bsr.ReadByte() % DemoInfo.MaxNetMessage);
 			// if ( !pNetMessage || !pNetMessage->pMessage )
 			// return;
 			// ^ Since this is what the game does, I will simply keep reading if there are more bytes left

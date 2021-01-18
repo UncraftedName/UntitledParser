@@ -25,8 +25,8 @@ namespace DemoParser.Parser.Components.Messages {
 		 */
 		protected override void Parse(ref BitStreamReader bsr) {
 			byte typeVal = bsr.ReadByte();
-			MessageType = UserMessage.ByteToUserMessageType(DemoSettings, typeVal);
-			uint messageLength = bsr.ReadBitsAsUInt(DemoSettings.UserMessageLengthBits);
+			MessageType = UserMessage.ByteToUserMessageType(DemoInfo, typeVal);
+			uint messageLength = bsr.ReadBitsAsUInt(DemoInfo.UserMessageLengthBits);
 			string? errorStr = null;
 
 			var uMessageReader = bsr.SplitAndSkip(messageLength);
@@ -82,7 +82,7 @@ namespace DemoParser.Parser.Components.Messages {
 				if (UserMessage is UnknownUserMessage)
 					iw.Append(_unimplemented ?  "(unimplemented) " : "(not parsed properly) ");
 				iw.Append(MessageType.ToString());
-				iw.Append($" ({UserMessage.UserMessageTypeToByte(DemoSettings, MessageType)})");
+				iw.Append($" ({UserMessage.UserMessageTypeToByte(DemoInfo, MessageType)})");
 			}
 			if (UserMessage.MayContainData) {
 				iw.FutureIndent++;
