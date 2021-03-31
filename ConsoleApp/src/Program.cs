@@ -201,6 +201,12 @@ namespace ConsoleApp {
 				}
 			};
 			OptionsRequiringFolder.Add(changeDirOpt);
+			
+			
+			var pausesOpt = new Option(new [] {"-u", "--pauses"},
+				"detects pausing and unpausing") {
+				Required = false
+			};
 
 
 			var rootCommand = new RootCommand {
@@ -217,7 +223,8 @@ namespace ConsoleApp {
 				actionsPressedOpt,
 				passThroughPortalsOpt,
 				errorsOpt,
-				changeDirOpt
+				changeDirOpt,
+				pausesOpt
 			};
 			
 			if (Debugger.IsAttached) // link option not implemented yet
@@ -251,10 +258,10 @@ namespace ConsoleApp {
 				bool verbose,
 				bool cheats,
 				bool recursive,
-				bool link,
 				bool jumps,
 				bool removeCaptions,
 				bool errors,
+				bool pauses,
 				string changeDemoDir,
 				DataTablesDispType dumpDatatables,
 				string regex,
@@ -284,8 +291,8 @@ namespace ConsoleApp {
 				if (!demoPaths.Any())
 					PrintErrorAndExit("No demos to parse...");
 				
-				if (link && demoPaths.Count < 2)
-					PrintErrorAndExit("The link option should have at least 2 demos");
+				/*if (link && demoPaths.Count < 2)
+					PrintErrorAndExit("The link option should have at least 2 demos");*/
 				
 				if (folder != null) {
 					folder.Create();
@@ -317,7 +324,7 @@ namespace ConsoleApp {
 					dumpDatatables = parseResult.Tokens.Any(token => dTableDumpOpt.HasAlias(token.Value))
 				};
 				
-				bool quickHashesMatch = (implicitOptions.listDemo || link) && orderedPaths.Count > 1;
+				bool quickHashesMatch = (implicitOptions.listDemo /*|| link*/) && orderedPaths.Count > 1;
 
 				int prevDemoQuickHash = 0; // if demo dir or version is not the same as prev demo, don't count total time
 				
@@ -329,8 +336,8 @@ namespace ConsoleApp {
 
 						using (var progressBar = new ProgressBar()) {
 							// if i'm not linking demos there's no point in keeping all of them
-							if (!link)
-								Demos.Clear();
+							/*if (!link)
+								Demos.Clear();*/
 							Demos.Add(new SourceDemo(orderedPaths[i].info.FullName, progressBar));
 							CurDemo.Parse();
 						}
@@ -357,6 +364,8 @@ namespace ConsoleApp {
 							ConsFunc_Errors();
 						if (changeDemoDir != null)
 							ConsFunc_ChangeDemoDir(changeDemoDir);
+						if (pauses)
+							ConsFunc_Pauses();
 					}
 					catch (Exception e) {
 						Debug.WriteLine(e.ToString());
@@ -391,12 +400,12 @@ namespace ConsoleApp {
 						quickHashesMatch = false;
 				}
 
-				if (link) {
+				/*if (link) {
 					if (quickHashesMatch)
 						ConsFunc_LinkDemos();
 					else
 						ConsoleWriteWithColor("Cannot link demos - The game directory and/or demo version doesn't match!\n", ConsoleColor.Red);
-				}
+				}*/
 
 				if (quickHashesMatch && implicitOptions.listDemo)
 					ConsFunc_DisplayTotalTime();

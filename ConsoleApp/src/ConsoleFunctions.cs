@@ -183,6 +183,7 @@ namespace ConsoleApp {
 					_curTextWriter!.WriteLine($"{descriptions[i].PadLeft(maxDescPad)} on tick " +
 											 $"{tickStrs[i].PadLeft(tickMaxPad)}, time: {times[i].PadLeft(timeMadPad)}");
 				}
+				_curTextWriter!.WriteLine();
 			}
 			
 			Console.ForegroundColor = ConsoleColor.Cyan;
@@ -196,6 +197,19 @@ namespace ConsoleApp {
 				_curTextWriter!.Write($"{"Adjusted ticks ",-25}: {CurDemo.AdjustedTickCount() - 1}");
 				_curTextWriter!.WriteLine($" ({CurDemo.StartAdjustmentTick}-{CurDemo.EndAdjustmentTick})");
 			}
+
+			
+			_curTextWriter.WriteLine();
+			// TODO REMOVE THIS, THIS IS JUST FOR THE CHALLENGE
+			var ticksWithPortals = CurDemo.AdjustedTickCount() - 1;
+			var portals = CurDemo.CmdRegexMatches("#ORANGE#|#BLUE#").Count();
+			if (portals <= 2)
+				ticksWithPortals += (int)(2 / 0.015);
+			else
+				ticksWithPortals += portals * 190;
+			_curTextWriter.WriteLine($"{"Adjusted time with portals ",-28}: {FormatTime(ticksWithPortals *  tickInterval)}");
+			_curTextWriter.WriteLine($"{"Adjusted ticks with portals ",-28}: {ticksWithPortals}");
+			
 
 			if (_displayMapExcludedMsg)
 				ConsoleWriteWithColor("(This map will be excluded from the total time)\n", ConsoleColor.DarkCyan);
@@ -269,16 +283,17 @@ namespace ConsoleApp {
 		}
 
 
+		// add exceptions for some commands (like sv_funnel, sv_unloackedchapters, etc.)
 		private static void ConsFunc_DumpCheats() {
 			SetTextWriter("cheat dump");
 			if (_runnableOptionCount > 1)
 				Console.WriteLine("Finding cheats...");
 			List<ConsoleCmd> matches = CurDemo.CmdRegexMatches(new Regex(new[] {
-				"host_timescale", "god", "sv_cheats", "buddha", "host_framerate", "sv_accelerate", "gravity", 
+				"host_timescale", "god", "sv_cheats +1", "buddha", "host_framerate", "sv_accelerate", "gravity", 
 				"sv_airaccelerate", "noclip", "impulse", "ent_", "sv_gravity", "upgrade_portalgun", 
 				"phys_timescale", "notarget", "give", "fire_energy_ball", "_spt_", "plugin_load", 
-				"ent_parent", "!picker", "ch_"
-			}.SequenceToString(")|(", "(", ")"))).Select(t => t.cmd).ToList();
+				"!picker", "(?<!swit)ch_", "tas_", "r_", "sv_", "mat_"
+			}.SequenceToString(")|(", "(", ")"), IgnoreCase)).Select(t => t.cmd).ToList();
 			if (matches.Count == 0) {
 				const string s = "no cheats found";
 				Console.WriteLine($" {s}");
@@ -483,6 +498,37 @@ namespace ConsoleApp {
 				
 				Console.WriteLine("done.");
 			}
+		}
+
+
+		private static void ConsFunc_Pauses() {
+			if (_runnableOptionCount > 1)
+				Console.Write("Finding pauses...");
+			
+			var pauses =
+				CurDemo.FilterForPacket<Packet>()
+					.SelectMany(p => p.MessageStream,
+						(p, msgs) => (msgs.message, p.Tick))
+					.Where(tuple => tuple.message.GetType() == typeof(SvcSetPause))
+					.Select(tuple => (message: (SvcSetPause)tuple.message, tuple.Tick))
+					.Where(tuple => tuple.message.IsPaused)
+					.ToList();
+			
+			if (pauses.Any()) {
+				if (_runnableOptionCount > 1)
+					Console.WriteLine();
+				SetTextWriter("pauses");
+				foreach ((_, int tick) in pauses) {
+					if (tick > CurDemo.EndAdjustmentTick)
+						_curTextWriter!.Write("(after last adjusted tick) ");
+					else if (tick < CurDemo.StartAdjustmentTick)
+						_curTextWriter!.Write("(before first adjusted tick) ");
+					_curTextWriter!.WriteLine($"paused on tick {tick}");
+				}
+			} else {
+				Console.WriteLine(" no pauses found");
+			}
+			
 		}
 		
 		
