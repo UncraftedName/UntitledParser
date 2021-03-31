@@ -162,6 +162,8 @@ namespace DemoParser.Utils.BitStreams {
 		
 
 		public byte[] ReadBytes(int byteCount) {
+			if (byteCount < 0)
+				throw new IndexOutOfRangeException($"{nameof(byteCount)} should not be negative");
 			byte[] result = new byte[byteCount];
 			ReadBytesToSpan(result.AsSpan());
 			return result;
