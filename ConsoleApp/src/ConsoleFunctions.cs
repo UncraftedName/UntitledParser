@@ -199,8 +199,8 @@ namespace ConsoleApp {
 			}
 
 			
-			_curTextWriter.WriteLine();
-			// TODO REMOVE THIS, THIS IS JUST FOR THE CHALLENGE
+			/*_curTextWriter.WriteLine();
+			// THIS IS JUST FOR THE CHALLENGE
 			var ticksWithPortals = CurDemo.AdjustedTickCount() - 1;
 			var portals = CurDemo.CmdRegexMatches("#ORANGE#|#BLUE#").Count();
 			if (portals <= 2)
@@ -208,7 +208,7 @@ namespace ConsoleApp {
 			else
 				ticksWithPortals += portals * 190;
 			_curTextWriter.WriteLine($"{"Adjusted time with portals ",-28}: {FormatTime(ticksWithPortals *  tickInterval)}");
-			_curTextWriter.WriteLine($"{"Adjusted ticks with portals ",-28}: {ticksWithPortals}");
+			_curTextWriter.WriteLine($"{"Adjusted ticks with portals ",-28}: {ticksWithPortals}");*/
 			
 
 			if (_displayMapExcludedMsg)
