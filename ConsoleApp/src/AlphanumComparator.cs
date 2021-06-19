@@ -36,6 +36,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 /*
@@ -78,7 +79,7 @@ namespace ConsoleApp {
 
 				char thisCh = s1[thisMarker];
 				char thatCh = s2[thatMarker];
-
+				
 				StringBuilder thisChunk = new StringBuilder();
 				StringBuilder thatChunk = new StringBuilder();
 
@@ -101,8 +102,8 @@ namespace ConsoleApp {
 				int result = 0;
 				// If both chunks contain numeric characters, sort them numerically
 				if (char.IsDigit(thisChunk[0]) && char.IsDigit(thatChunk[0])) {
-					int thisNumericChunk = Convert.ToInt32(thisChunk.ToString());
-					int thatNumericChunk = Convert.ToInt32(thatChunk.ToString());
+					BigInteger thisNumericChunk = BigInteger.Parse(thisChunk.ToString());
+					BigInteger thatNumericChunk = BigInteger.Parse(thatChunk.ToString());
 
 					if (thisNumericChunk < thatNumericChunk)
 						result = -1;
