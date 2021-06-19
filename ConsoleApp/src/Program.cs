@@ -17,7 +17,7 @@ namespace ConsoleApp {
 	
 	public static partial class ConsoleFunctions {
 		
-		private static string UsageStr => $"Usage: \"{AppDomain.CurrentDomain.FriendlyName}\" <demos/dirs> [options]";
+		private static string UsageStr => $"Usage: \"./{AppDomain.CurrentDomain.FriendlyName}\" <demos/dirs> [options]";
 		private static readonly List<Option> OptionsRequiringFolder = new List<Option>();
 		private static bool _recursive;
 		
@@ -443,7 +443,7 @@ namespace ConsoleApp {
 		private static void PrintShortUsageString() {
 			Console.WriteLine($"{UsageStr}");
 			Console.ForegroundColor = ConsoleColor.Yellow;
-			Console.WriteLine("Use -h, --help, or /? to get full help\n");
+			Console.WriteLine("Open a new powershell window and use -h, --help, or /? to get full help");
 			Console.ResetColor();
 		}
 		
