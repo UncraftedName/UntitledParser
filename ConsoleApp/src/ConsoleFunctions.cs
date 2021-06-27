@@ -509,7 +509,7 @@ namespace ConsoleApp {
 				CurDemo.FilterForPacket<Packet>()
 					.SelectMany(p => p.MessageStream,
 						(p, msgs) => (msgs.message, p.Tick))
-					.Where(tuple => tuple.message.GetType() == typeof(SvcSetPause))
+					.Where(tuple => tuple.message?.GetType() == typeof(SvcSetPause))
 					.Select(tuple => (message: (SvcSetPause)tuple.message, tuple.Tick))
 					.Where(tuple => tuple.message.IsPaused)
 					.ToList();
