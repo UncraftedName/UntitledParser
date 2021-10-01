@@ -14,17 +14,19 @@ namespace ConsoleApp.ConsoleParsing {
 		public string Description {get;}
 
 		/// <summary>
-		/// When set, specifies that the "--help" option should not show this option.
+		/// When set, specifies that "--help" should not show this option.
 		/// </summary>
 		public bool Hidden {get;}
 
 		/// <summary>
 		/// Specifies whether or not to execute the 'Process' and 'PostProcess' methods. 
 		/// </summary>
-		public bool Enabled {get;protected set;}
+		public bool Enabled {get;private set;}
 
 
 		public BaseOption(IImmutableList<string> aliases, Arity arity, string description, bool hidden) {
+			if (aliases.Count == 0)
+				throw new Exception($"Option of type '{GetType().Name}' must have at least one alias.");
 			Aliases = aliases;
 			Arity = arity;
 			Description = description;
@@ -39,12 +41,14 @@ namespace ConsoleApp.ConsoleParsing {
 
 		
 		public abstract bool CanUseAsArg(string arg);
-		
-		
+
+
 		/// <summary>
 		/// Provides a way to reset the state of this object if anything was saved during processing.
 		/// </summary>
-		public virtual void Reset() {}
+		public virtual void Reset() {
+			Enabled = false;
+		}
 		
 
 		public abstract void AfterParse(TSetup setupObj, string? arg);
@@ -109,17 +113,21 @@ namespace ConsoleApp.ConsoleParsing {
 
 		public ArgumentParser ArgParser {get;}
 
+		private readonly TArg _defaultArg;
+
 
 		protected BaseOption(
 			IImmutableList<string> aliases,
 			Arity arity, string description,
 			ArgumentParser argParser,
+			TArg defaultArg,
 			bool hidden = false)
 			: base(aliases, arity, description, hidden)
 		{
 			if (arity == Arity.Zero)
 				throw new Exception("Arity cannot be 0 for typed BaseOption.");
 			ArgParser = argParser;
+			_defaultArg = defaultArg;
 		}
 
 
@@ -134,14 +142,27 @@ namespace ConsoleApp.ConsoleParsing {
 		}
 
 
-		public abstract void AfterParse(TSetup setupObj, TArg arg);
-		public override void AfterParse(TSetup setupObj, string? arg) => AfterParse(setupObj, ArgParser(arg!));
+		// if arg is optional and doesn't exist this will pass the default arg to func, otherwise converts from string
+		private void CheckArityAndCall<T>(Action<T, TArg, bool> func, T obj, string? arg) {
+			if (arg == null) {
+				if (Arity == Arity.One)
+					throw new ArgProcessException($"Argument is null but arity is set to {Arity.One} for option {Aliases[0]}");
+				func(obj, _defaultArg, true);
+			} else {
+				func(obj, ArgParser(arg!), false);
+			}
+		}
 
-		public abstract void Process(TInfo infoObj, TArg arg);
-		public override void Process(TInfo infoObj, string? arg) => Process(infoObj, ArgParser(arg!));
 
-		public abstract void PostProcess(TInfo infoObj, TArg arg);
-		public override void PostProcess(TInfo infoObj, string? arg) => PostProcess(infoObj, ArgParser(arg!));
+		public abstract void AfterParse(TSetup setupObj, TArg arg, bool isDefault);
+		public override void AfterParse(TSetup setupObj, string? arg) => CheckArityAndCall(AfterParse, setupObj, arg);
+
+
+		public abstract void Process(TInfo infoObj, TArg arg, bool isDefault);
+		public override void Process(TInfo infoObj, string? arg) => CheckArityAndCall(Process, infoObj, arg);
+
+		public abstract void PostProcess(TInfo infoObj, TArg arg, bool isDefault);
+		public override void PostProcess(TInfo infoObj, string? arg) => CheckArityAndCall(PostProcess, infoObj, arg);
 	}
 
 

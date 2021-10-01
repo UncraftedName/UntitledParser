@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ConsoleApp.ConsoleParsing {
@@ -31,5 +32,41 @@ namespace ConsoleApp.ConsoleParsing {
 		/// Process an argument that was determined to not be passed to an option, throws if this argument is invalid.
 		/// </summary>
 		protected abstract void ParseDefaultArgument(string str);
+		
+
+		protected void ParseArgs(string[] args, TSetup setupObj, int argIdx = 1) {
+			Debug.Assert(argIdx >= 0 && argIdx <= args.Length - 1);
+			while (argIdx < args.Length) {
+				string arg = args[argIdx];
+				if (_optionLookup.TryGetValue(arg, out BaseOption<TSetup, TInfo> option)) {
+					switch (option.Arity) {
+						case Arity.Zero:
+							option.Enable(setupObj, null);
+							break;
+						case Arity.ZeroOrOne:
+						case Arity.One:
+							if (argIdx + 1 < args.Length && option.CanUseAsArg(args[argIdx + 1])) {
+								option.Enable(setupObj, args[++argIdx]); // advance so we skip arg later
+							} else {
+								if (option.Arity == Arity.One)
+									throw new ArgProcessException($"Could not create argument for option '{option.Aliases[0]}'");
+								option.Enable(setupObj, null);
+							}
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+				} else {
+					ParseDefaultArgument(arg);
+				}
+				argIdx++;
+			}
+		}
+
+
+		public virtual void Reset() {
+			foreach (var option in _options)
+				option.Reset();
+		}
 	}
 }
