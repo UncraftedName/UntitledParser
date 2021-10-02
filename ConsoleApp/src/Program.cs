@@ -334,7 +334,7 @@ namespace ConsoleApp {
 					try {
 						Console.Write($"Parsing \"{orderedPaths[i].displayPath}\"... ");
 
-						using (var progressBar = new ProgressBar()) {
+						using (var progressBar = new ProgressBar(true)) {
 							// if i'm not linking demos there's no point in keeping all of them
 							/*if (!link)
 								Demos.Clear();*/

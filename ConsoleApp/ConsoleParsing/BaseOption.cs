@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace ConsoleApp.ConsoleParsing {
 	
 	// do not inherit from this, use one of the classes below
-	public abstract class BaseOption<TSetup, TInfo> {
+	public abstract class BaseOption<TSetup, TInfo> where TInfo : IProcessObject {
 		
 		public IImmutableList<string> Aliases {get;}
 
@@ -19,12 +19,14 @@ namespace ConsoleApp.ConsoleParsing {
 		public bool Hidden {get;}
 
 		/// <summary>
-		/// Specifies whether or not to execute the 'Process' and 'PostProcess' methods. 
+		/// Specifies whether or not to execute the 'AfterParse', 'Process', and 'PostProcess' methods. 
 		/// </summary>
 		public bool Enabled {get;private set;}
 
+		private string? _arg;
 
-		public BaseOption(IImmutableList<string> aliases, Arity arity, string description, bool hidden) {
+
+		protected BaseOption(IImmutableList<string> aliases, Arity arity, string description, bool hidden) {
 			if (aliases.Count == 0)
 				throw new Exception($"Option of type '{GetType().Name}' must have at least one alias.");
 			Aliases = aliases;
@@ -35,7 +37,7 @@ namespace ConsoleApp.ConsoleParsing {
 
 
 		public void Enable(TSetup setupObj, string? arg) {
-			AfterParse(setupObj, arg);
+			_arg = arg;
 			Enabled = true;
 		}
 
@@ -48,16 +50,20 @@ namespace ConsoleApp.ConsoleParsing {
 		/// </summary>
 		public virtual void Reset() {
 			Enabled = false;
+			_arg = null;
 		}
 		
 
-		public abstract void AfterParse(TSetup setupObj, string? arg);
+		public virtual void AfterParse(TSetup setupObj) => AfterParse(setupObj, _arg);
+		protected abstract void AfterParse(TSetup setupObj, string? arg);
 		
 
-		public abstract void Process(TInfo infoObj, string? arg);
+		public virtual void Process(TInfo infoObj) => Process(infoObj, _arg);
+		protected abstract void Process(TInfo infoObj, string? arg);
 		
 
-		public abstract void PostProcess(TInfo infoObj, string? arg);
+		public virtual void PostProcess(TInfo infoObj) => PostProcess(infoObj, _arg);
+		protected abstract void PostProcess(TInfo infoObj, string? arg);
 	}
 
 
@@ -66,7 +72,7 @@ namespace ConsoleApp.ConsoleParsing {
 	/// </summary>
 	/// <typeparam name="TSetup">The type of the setup object passed to 'AfterParse'</typeparam>
 	/// <typeparam name="TInfo">The type of object passed to 'Process' and 'PostProcess'</typeparam>
-	public abstract class BaseOptionNoArg<TSetup, TInfo> : BaseOption<TSetup, TInfo> {
+	public abstract class BaseOptionNoArg<TSetup, TInfo> : BaseOption<TSetup, TInfo> where TInfo : IProcessObject {
 		
 		protected BaseOptionNoArg(IImmutableList<string> aliases,string description, bool hidden = false)
 			: base(aliases, Arity.Zero, description, hidden) {}
@@ -75,23 +81,16 @@ namespace ConsoleApp.ConsoleParsing {
 		public override bool CanUseAsArg(string arg) => false;
 
 
-		public abstract void AfterParse(TSetup setupObj);
-		public override void AfterParse(TSetup setupObj, string? arg) {
-			Debug.Assert(arg == null);
-			AfterParse(setupObj);
-		}
-		
-		public abstract void Process(TInfo infoObj);
-		public override void Process(TInfo infoObj, string? arg) {
-			Debug.Assert(arg == null);
-			Process(infoObj);
-		}
+		public abstract override void AfterParse(TSetup setupObj);
+		protected override void AfterParse(TSetup setupObj, string? arg) => throw new InvalidOperationException();
 
-		public abstract void PostProcess(TInfo infoObj);
-		public override void PostProcess(TInfo infoObj, string? arg) {
-			Debug.Assert(arg == null);
-			PostProcess(infoObj);
-		}
+
+		public abstract override void Process(TInfo infoObj);
+		protected override void Process(TInfo infoObj, string? arg) => throw new InvalidOperationException();
+
+
+		public abstract override void PostProcess(TInfo infoObj);
+		protected override void PostProcess(TInfo infoObj, string? arg) => throw new InvalidOperationException();
 	}
 
 
@@ -101,7 +100,7 @@ namespace ConsoleApp.ConsoleParsing {
 	/// <typeparam name="TSetup">The type of the setup object passed to 'AfterParse'</typeparam>
 	/// <typeparam name="TInfo">The type of object passed to 'Process' and 'PostProcess'</typeparam>
 	/// <typeparam name="TArg">The type that this option takes as a parameter when converted from a string.</typeparam>
-	public abstract class BaseOption<TSetup, TInfo, TArg> : BaseOption<TSetup, TInfo> {
+	public abstract class BaseOption<TSetup, TInfo, TArg> : BaseOption<TSetup, TInfo> where TInfo : IProcessObject {
 
 		/// <summary>
 		/// Converts a string to an argument of type 'TArg'; throws an exception if the conversion failed.
@@ -154,15 +153,16 @@ namespace ConsoleApp.ConsoleParsing {
 		}
 
 
-		public abstract void AfterParse(TSetup setupObj, TArg arg, bool isDefault);
-		public override void AfterParse(TSetup setupObj, string? arg) => CheckArityAndCall(AfterParse, setupObj, arg);
+		protected abstract void AfterParse(TSetup setupObj, TArg arg, bool isDefault);
+		protected override void AfterParse(TSetup setupObj, string? arg) => CheckArityAndCall(AfterParse, setupObj, arg);
+		
+		
+		protected abstract void Process(TInfo infoObj, TArg arg, bool isDefault);
+		protected override void Process(TInfo infoObj, string? arg) => CheckArityAndCall(Process, infoObj, arg);
 
-
-		public abstract void Process(TInfo infoObj, TArg arg, bool isDefault);
-		public override void Process(TInfo infoObj, string? arg) => CheckArityAndCall(Process, infoObj, arg);
-
-		public abstract void PostProcess(TInfo infoObj, TArg arg, bool isDefault);
-		public override void PostProcess(TInfo infoObj, string? arg) => CheckArityAndCall(PostProcess, infoObj, arg);
+		
+		protected abstract void PostProcess(TInfo infoObj, TArg arg, bool isDefault);
+		protected override void PostProcess(TInfo infoObj, string? arg) => CheckArityAndCall(PostProcess, infoObj, arg);
 	}
 
 

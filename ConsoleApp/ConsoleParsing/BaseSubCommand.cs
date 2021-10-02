@@ -6,12 +6,13 @@ using System.Linq;
 
 namespace ConsoleApp.ConsoleParsing {
 	
-	public abstract class BaseSubCommand<TSetup, TInfo> {
+	public abstract class BaseSubCommand<TSetup, TInfo> where TInfo : IProcessObject {
 		
 		private readonly IImmutableList<BaseOption<TSetup, TInfo>> _options;
 		private readonly IImmutableDictionary<string, BaseOption<TSetup, TInfo>> _optionLookup;
 
 
+		// order matters here, this is the same order in which the options will get processed
 		protected BaseSubCommand(IImmutableList<BaseOption<TSetup, TInfo>> options) {
 			_options = options;
 			HashSet<string> aliasSet = new HashSet<string>();
@@ -61,6 +62,21 @@ namespace ConsoleApp.ConsoleParsing {
 				}
 				argIdx++;
 			}
+			foreach (var option in _options.Where(o => o.Enabled))
+				option.AfterParse(setupObj);
+		}
+
+
+		protected void Process(TInfo infoObj) {
+			var enabledOptions = _options.Where(o => o.Enabled).ToImmutableList();
+			while (infoObj.CanAdvance()) {
+				infoObj.Advance();
+				foreach (var option in enabledOptions)
+					option.Process(infoObj);
+			}
+			infoObj.DoneProcessing();
+			foreach (var option in enabledOptions)
+				option.PostProcess(infoObj);
 		}
 
 
@@ -68,5 +84,15 @@ namespace ConsoleApp.ConsoleParsing {
 			foreach (var option in _options)
 				option.Reset();
 		}
+	}
+
+	/// <summary>
+	/// A class that will be passed to options during processing. Note: A call will be made to advance before this is
+	/// passed to options.
+	/// </summary>
+	public interface IProcessObject {
+		public bool CanAdvance();
+		public void Advance();
+		public void DoneProcessing();
 	}
 }
