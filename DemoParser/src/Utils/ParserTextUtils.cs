@@ -60,17 +60,6 @@ namespace DemoParser.Utils {
 		}
 
 
-		public static string SharedPathSubstring(string s1, string s2) {
-			int furthestSlash = 0;
-			for (int i = 0; i < s1.Length && i < s2.Length && s1[i] == s2[i]; i++) {
-				if (s1[i] == '/' || s1[i] == '\\')
-					furthestSlash = i;
-			}
-			return s1.Substring(0, furthestSlash);
-		}
-		
-
-
 		public static void ConsoleWriteWithColor(string s, ConsoleColor color) {
 			var original = Console.ForegroundColor;
 			Console.ForegroundColor = color;

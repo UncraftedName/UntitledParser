@@ -305,7 +305,7 @@ namespace ConsoleApp {
 				} else {
 					var ordered = demoPaths.OrderBy(f => f.Name, new AlphanumComparator()).ToList();
 					// any similarities between the first and last path must be shared between all paths
-					commonParent = SharedPathSubstring(ordered.First().FullName, ordered.Last().FullName);
+					commonParent = Utils.SharedPathSubstring(ordered.First().FullName, ordered.Last().FullName);
 				}
 
 				// if the common path is empty, that prolly means the demos span multiple drives, so use the full name

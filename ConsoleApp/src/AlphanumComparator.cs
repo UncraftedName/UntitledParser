@@ -36,6 +36,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Numerics;
 using System.Text;
 
@@ -44,6 +45,10 @@ using System.Text;
  * to see the most recent modifications
  */
 namespace ConsoleApp {
+
+	public class AlphanumComparatorFileInfo : AlphanumComparator, IComparer<FileInfo> {
+		public int Compare(FileInfo x, FileInfo y) => base.Compare(x.FullName, y.FullName);
+	}
 	
 	public class AlphanumComparator : IComparer<string> {
 

@@ -24,6 +24,17 @@ namespace ConsoleApp {
 			Console.Write(s);
 			PopForegroundColor();
 		}
+		
+		
+		// gets the common shared path between s1 & s2, e.g. basement/creepy/cats, basement/friendly/cats -> basement
+		public static string SharedPathSubstring(string s1, string s2) {
+			int furthestSlash = 0;
+			for (int i = 0; i < s1.Length && i < s2.Length && s1[i] == s2[i]; i++) {
+				if (s1[i] == '/' || s1[i] == '\\')
+					furthestSlash = i;
+			}
+			return s1.Substring(0, furthestSlash);
+		}
 	}
 
 

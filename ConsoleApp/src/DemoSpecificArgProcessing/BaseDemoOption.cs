@@ -31,8 +31,9 @@ namespace ConsoleApp.DemoSpecificArgProcessing {
 	/// A class used to set up various values during arg parsing.
 	/// </summary>
 	public class DemoParsingSetupInfo {
-		public int RunnableOptions {get;set;} // TODO rename this
-		public bool ShouldSaveDemos {get;set;}
+		public int ExecutableOptions {get;set;} // some options don't do anything on their own, like -f
+		public bool ShouldSaveAllDemos {get;set;}
+		public bool ShouldSearchForDemosRecursively {get;set;}
 	}
 
 
@@ -51,7 +52,7 @@ namespace ConsoleApp.DemoSpecificArgProcessing {
 
 		public DemoParsingInfo(DemoParsingSetupInfo setupInfo, IReadOnlyList<(FileInfo demoPath, string displayPath)> paths) {
 			_setupInfo = setupInfo;
-			_demos = new List<SourceDemo>(setupInfo.ShouldSaveDemos ? 1 : paths.Count);
+			_demos = new List<SourceDemo>(setupInfo.ShouldSaveAllDemos ? 1 : paths.Count);
 			_parallelDemoParser = new ThreadPoolDemoParser(paths);
 			// we're in an invalid state until Advance is called
 		}
@@ -63,14 +64,14 @@ namespace ConsoleApp.DemoSpecificArgProcessing {
 
 
 		public void Advance() {
-			if (!_setupInfo.ShouldSaveDemos)
+			if (!_setupInfo.ShouldSaveAllDemos)
 				_demos.Clear();
 			WaitForNextDemo();
 		}
 
 
 		public void DoneProcessing() {
-			if (!_setupInfo.ShouldSaveDemos)
+			if (!_setupInfo.ShouldSaveAllDemos)
 				_demos.Clear();
 		}
 

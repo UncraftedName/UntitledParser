@@ -32,10 +32,10 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// <summary>
 		/// Process an argument that was determined to not be passed to an option, throws if this argument is invalid.
 		/// </summary>
-		protected abstract void ParseDefaultArgument(string str);
+		protected abstract void ParseDefaultArgument(string arg);
 		
 
-		protected void ParseArgs(string[] args, TSetup setupObj, int argIdx = 1) {
+		protected void ParseArgs(string[] args, TSetup setupObj, int argIdx) {
 			Debug.Assert(argIdx >= 0 && argIdx <= args.Length - 1);
 			while (argIdx < args.Length) {
 				string arg = args[argIdx];
