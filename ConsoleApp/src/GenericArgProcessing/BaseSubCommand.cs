@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
-namespace ConsoleApp.ConsoleParsing {
+namespace ConsoleApp.GenericArgProcessing {
 	
 	public abstract class BaseSubCommand<TSetup, TInfo> where TInfo : IProcessObject {
 		

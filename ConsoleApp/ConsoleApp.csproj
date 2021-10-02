@@ -38,10 +38,6 @@
       <None Remove="build-release-and-pack.bat" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Options" />
-    </ItemGroup>
-
     <Target Condition=" '$(Configuration)' == 'Release' " Name="Merge" AfterTargets="Build">
       <PropertyGroup>
         <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>

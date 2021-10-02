@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
 
-namespace ConsoleApp.ConsoleParsing {
+namespace ConsoleApp.DemoSpecificArgProcessing {
 	
 	/// <summary>
 	/// Represents a base option for demo parsing that takes no arguments.
@@ -30,7 +31,7 @@ namespace ConsoleApp.ConsoleParsing {
 	/// A class used to set up various values during arg parsing.
 	/// </summary>
 	public class DemoParsingSetupInfo {
-		public int RunnableOptions {get;set;} // rename this
+		public int RunnableOptions {get;set;} // TODO rename this
 		public bool ShouldSaveDemos {get;set;}
 	}
 

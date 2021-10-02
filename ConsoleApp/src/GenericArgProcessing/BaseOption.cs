@@ -2,7 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
-namespace ConsoleApp.ConsoleParsing {
+namespace ConsoleApp.GenericArgProcessing {
 	
 	// do not inherit from this, use one of the classes below
 	public abstract class BaseOption<TSetup, TInfo> where TInfo : IProcessObject {

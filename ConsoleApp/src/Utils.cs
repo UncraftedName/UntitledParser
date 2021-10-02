@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ConsoleApp.ConsoleParsing {
+namespace ConsoleApp {
 
 	public static class Utils {
 

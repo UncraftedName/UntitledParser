@@ -5,12 +5,13 @@ using System.IO;
 using System.Threading;
 using DemoParser.Parser;
 
-namespace ConsoleApp.ConsoleParsing {
+namespace ConsoleApp.DemoSpecificArgProcessing {
 
 	public interface ICurrentParseInfo {
 		public string DisplayPath {get;}
 		public IProgressBar ProgressBar {get;}
 	}
+	
 
 	public interface IParallelDemoParser {
 		public ICurrentParseInfo GetCurrentParseInfo();
