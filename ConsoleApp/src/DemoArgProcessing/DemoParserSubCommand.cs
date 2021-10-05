@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using ConsoleApp.DemoSpecificArgProcessing.Options;
+using ConsoleApp.DemoArgProcessing.Options;
 using ConsoleApp.GenericArgProcessing;
 
-namespace ConsoleApp.DemoSpecificArgProcessing {
+namespace ConsoleApp.DemoArgProcessing {
 	
 	public class DemoParserSubCommand : BaseSubCommand<DemoParsingSetupInfo, DemoParsingInfo> {
 		

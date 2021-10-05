@@ -10,7 +10,7 @@ using DemoParser.Parser.Components;
 using DemoParser.Utils;
 using static System.Text.RegularExpressions.RegexOptions;
 
-namespace ConsoleApp.DemoSpecificArgProcessing.Options {
+namespace ConsoleApp.DemoArgProcessing.Options {
 	
 	// there's some dragons here, for now they keep me good company
 	public class OptListdemo : DemoOption<OptListdemo.ListDemoFlags> {

@@ -7,7 +7,7 @@ using System.Text;
 using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
 
-namespace ConsoleApp.DemoSpecificArgProcessing {
+namespace ConsoleApp.DemoArgProcessing {
 	
 	/// <summary>
 	/// Represents a base option for demo parsing that takes no arguments.

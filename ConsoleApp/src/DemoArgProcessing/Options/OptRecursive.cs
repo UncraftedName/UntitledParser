@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace ConsoleApp.DemoSpecificArgProcessing.Options {
+namespace ConsoleApp.DemoArgProcessing.Options {
 	
 	public class OptRecursive : DemoOption {
 

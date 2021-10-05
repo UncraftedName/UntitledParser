@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.IO;
 using ConsoleApp.GenericArgProcessing;
 
-namespace ConsoleApp.DemoSpecificArgProcessing.Options {
+namespace ConsoleApp.DemoArgProcessing.Options {
 	
 	public class OptFolderOut : DemoOption<string> {
 

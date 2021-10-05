@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 using DemoParser.Parser;
 
-namespace ConsoleApp.DemoSpecificArgProcessing {
+namespace ConsoleApp.DemoArgProcessing {
 
 	public interface ICurrentParseInfo {
 		public string DisplayPath {get;}
