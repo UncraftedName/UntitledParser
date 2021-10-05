@@ -77,8 +77,9 @@ namespace ConsoleApp.DemoSpecificArgProcessing {
 			Debug.Assert(HasNext());
 			ParseInfo info = _parseInfos[_parseIdx];
 			info.ResetEvent.Wait();
+			info.ResetEvent.Dispose();
 			var ret = (info.Demo, info.Exception);
-			_parseInfos[_parseIdx++] = null!;
+			_parseInfos[_parseIdx++] = null!; // allow garbage collection
 			return ret;
 		}
 
