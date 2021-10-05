@@ -42,8 +42,12 @@ namespace ConsoleApp.GenericArgProcessing {
 		protected abstract void ParseDefaultArgument(string arg);
 		
 
+		/// <summary>
+		/// Parses the arguments, passing in the setup object to each option as it's parsed.
+		/// </summary>
 		protected void ParseArgs(string[] args, TSetup setupObj, int argIdx) {
 			Debug.Assert(argIdx >= 0 && argIdx <= args.Length - 1);
+			Reset();
 			while (argIdx < args.Length) {
 				string arg = args[argIdx];
 				if (_optionLookup.TryGetValue(arg, out BaseOption<TSetup, TInfo> option)) {
@@ -91,7 +95,10 @@ namespace ConsoleApp.GenericArgProcessing {
 		}
 
 
-		public virtual void Reset() {
+		/// <summary>
+		/// Resets the state of this subcommand and all options before parsing new arguments.
+		/// </summary>
+		protected virtual void Reset() {
 			foreach (var option in _options)
 				option.Reset();
 		}

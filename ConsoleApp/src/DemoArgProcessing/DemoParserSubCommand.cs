@@ -39,7 +39,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		}
 
 
-		public override void Reset() {
+		protected override void Reset() {
 			base.Reset();
 			_argPaths.Clear();
 			_demoPaths.Clear();
@@ -50,12 +50,11 @@ namespace ConsoleApp.DemoArgProcessing {
 
 
 		public void Execute(int startIndex, params string[] args) {
-			Reset();
 			DemoParsingSetupInfo setupInfo = new DemoParsingSetupInfo();
 			ParseArgs(args, setupInfo, startIndex);
 			// check if we have/need a folder output
 			if (setupInfo.FolderOutputRequired && setupInfo.FolderOutput == null)
-				throw new ArgProcessUserException("");
+				throw new ArgProcessUserException($"Folder output is required, use {OptFolderOut.DefaultAliases[0]} to set a path.");
 			// enable listdemo if there are no other options
 			if (TotalEnabledOptions == 0) {
 				if (TryGetOption(OptListdemo.DefaultAliases[0], out var option)) {
