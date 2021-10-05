@@ -20,7 +20,7 @@ namespace ConsoleApp {
 		private readonly TimeSpan _animationInterval = TimeSpan.FromSeconds(1.0 / 8);
 		private const string Animation = @"|/-\";
 
-		private readonly Timer _timer;
+		private Timer? _timer;
 
 		private double _currentProgress;
 		private string _currentText = string.Empty;
@@ -31,7 +31,6 @@ namespace ConsoleApp {
 
 		public ProgressBar(bool startDisplayingProgress) {
 			_displayProgress = startDisplayingProgress;
-			_timer = new Timer(TimerHandler);
 			if (startDisplayingProgress)
 				StartShowing();
 		}
@@ -46,6 +45,7 @@ namespace ConsoleApp {
 			if (_disposed)
 				throw new Exception("Can't start showing progress now, object has already been disposed!");
 			_displayProgress = true;
+			_timer = new Timer(TimerHandler);
 			ResetTimer();
 		}
 		
@@ -58,7 +58,7 @@ namespace ConsoleApp {
 		
 
 		private void TimerHandler(object state) {
-			lock (_timer) {
+			lock (_timer!) {
 				if (_disposed || !_displayProgress)
 					return;
 				var progressBlockCount = (int)(_currentProgress * BlockCount);
@@ -102,12 +102,14 @@ namespace ConsoleApp {
 		
 
 		private void ResetTimer() {
-			_timer.Change(_animationInterval, TimeSpan.FromMilliseconds(-1));
+			_timer!.Change(_animationInterval, TimeSpan.FromMilliseconds(-1));
 		}
 		
 
 		public void Dispose() {
-			lock (_timer) {
+			if (!_displayProgress)
+				return;
+			lock (_timer!) {
 				_disposed = true;
 				UpdateText(string.Empty);
 			}

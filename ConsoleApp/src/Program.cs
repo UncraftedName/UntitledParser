@@ -384,7 +384,7 @@ namespace ConsoleApp {
 							_displayMapExcludedMsg = quickHashesMatch && excludedMap;
 							ConsFunc_ListDemo(listdemo, true, exceptionDuringParsing, false);
 							if (quickHashesMatch && !excludedMap)
-								DemoTickCounts.Add((CurDemo.TickCount(), CurDemo.AdjustedTickCount()));
+								DemoTickCounts.Add((CurDemo.TickCount(false), CurDemo.AdjustedTickCount(false)));
 						}
 
 						if (verbose && Demos.Count > 0)

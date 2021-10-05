@@ -16,6 +16,7 @@ namespace ConsoleApp.DemoSpecificArgProcessing {
 	public interface IParallelDemoParser {
 		public ICurrentParseInfo GetCurrentParseInfo();
 		public (SourceDemo demo, Exception? exception) GetNext();
+		public bool NextReady();
 		public bool HasNext();
 	}
 	
@@ -79,6 +80,11 @@ namespace ConsoleApp.DemoSpecificArgProcessing {
 			var ret = (info.Demo, info.Exception);
 			_parseInfos[_parseIdx++] = null!;
 			return ret;
+		}
+
+
+		public bool NextReady() {
+			return _parseInfos[_parseIdx].ResetEvent.IsSet;
 		}
 
 

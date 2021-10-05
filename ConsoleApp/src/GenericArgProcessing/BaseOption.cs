@@ -28,7 +28,7 @@ namespace ConsoleApp.GenericArgProcessing {
 
 		protected BaseOption(IImmutableList<string> aliases, Arity arity, string description, bool hidden) {
 			if (aliases.Count == 0)
-				throw new Exception($"Option of type '{GetType().Name}' must have at least one alias.");
+				throw new ArgProcessProgrammerException($"Option of type '{GetType().Name}' must have at least one alias.");
 			Aliases = aliases;
 			Arity = arity;
 			Description = description;
@@ -78,19 +78,19 @@ namespace ConsoleApp.GenericArgProcessing {
 			: base(aliases, Arity.Zero, description, hidden) {}
 
 
-		public override bool CanUseAsArg(string arg) => false;
+		public sealed override bool CanUseAsArg(string arg) => false;
 
 
 		public abstract override void AfterParse(TSetup setupObj);
-		protected override void AfterParse(TSetup setupObj, string? arg) => throw new InvalidOperationException();
+		protected sealed override void AfterParse(TSetup setupObj, string? arg) => throw new InvalidOperationException();
 
 
 		public abstract override void Process(TInfo infoObj);
-		protected override void Process(TInfo infoObj, string? arg) => throw new InvalidOperationException();
+		protected sealed override void Process(TInfo infoObj, string? arg) => throw new InvalidOperationException();
 
 
 		public abstract override void PostProcess(TInfo infoObj);
-		protected override void PostProcess(TInfo infoObj, string? arg) => throw new InvalidOperationException();
+		protected sealed override void PostProcess(TInfo infoObj, string? arg) => throw new InvalidOperationException();
 	}
 
 
@@ -124,13 +124,13 @@ namespace ConsoleApp.GenericArgProcessing {
 			: base(aliases, arity, description, hidden)
 		{
 			if (arity == Arity.Zero)
-				throw new Exception("Arity cannot be 0 for typed BaseOption.");
+				throw new ArgProcessProgrammerException("Arity cannot be 0 for typed BaseOption.");
 			ArgParser = argParser;
 			_defaultArg = defaultArg;
 		}
 
 
-		public override bool CanUseAsArg(string arg) {
+		public sealed override bool CanUseAsArg(string arg) {
 			try {
 				ArgParser(arg);
 				return true;
@@ -145,7 +145,7 @@ namespace ConsoleApp.GenericArgProcessing {
 		private void CheckArityAndCall<T>(Action<T, TArg, bool> func, T obj, string? arg) {
 			if (arg == null) {
 				if (Arity == Arity.One)
-					throw new ArgProcessException($"Argument is null but arity is set to {Arity.One} for option {Aliases[0]}");
+					throw new ArgProcessProgrammerException($"Argument is null but arity is set to {Arity.One} for option {Aliases[0]}");
 				func(obj, _defaultArg, true);
 			} else {
 				func(obj, ArgParser(arg!), false);
@@ -153,16 +153,19 @@ namespace ConsoleApp.GenericArgProcessing {
 		}
 
 
+		public sealed override void AfterParse(TSetup setupObj) => throw new InvalidOperationException();
 		protected abstract void AfterParse(TSetup setupObj, TArg arg, bool isDefault);
-		protected override void AfterParse(TSetup setupObj, string? arg) => CheckArityAndCall(AfterParse, setupObj, arg);
-		
-		
-		protected abstract void Process(TInfo infoObj, TArg arg, bool isDefault);
-		protected override void Process(TInfo infoObj, string? arg) => CheckArityAndCall(Process, infoObj, arg);
+		protected sealed override void AfterParse(TSetup setupObj, string? arg) => CheckArityAndCall(AfterParse, setupObj, arg);
 
-		
+
+		public sealed override void Process(TInfo infoObj) => throw new InvalidOperationException();
+		protected abstract void Process(TInfo infoObj, TArg arg, bool isDefault);
+		protected sealed override void Process(TInfo infoObj, string? arg) => CheckArityAndCall(Process, infoObj, arg);
+
+
+		public sealed override void PostProcess(TInfo infoObj) => throw new InvalidOperationException();
 		protected abstract void PostProcess(TInfo infoObj, TArg arg, bool isDefault);
-		protected override void PostProcess(TInfo infoObj, string? arg) => CheckArityAndCall(PostProcess, infoObj, arg);
+		protected sealed override void PostProcess(TInfo infoObj, string? arg) => CheckArityAndCall(PostProcess, infoObj, arg);
 	}
 
 

@@ -15,6 +15,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 using static System.Text.RegularExpressions.RegexOptions;
 using static DemoParser.Utils.ParserTextUtils;
+using static ConsoleApp.Utils;
 
 namespace ConsoleApp {
 	
@@ -63,24 +64,6 @@ namespace ConsoleApp {
 			return HashCode.Combine(h.NetworkProtocol, h.DemoProtocol);
 		}
 
-		
-		private static string FormatTime(double seconds) {
-			if (Math.Abs(seconds) > 8640000) // 10 days, probably happens from initializing the tick interval to garbage 
-				return "invalid";
-			string sign = seconds < 0 ? "-" : "";
-			// timespan truncates values, (makes sense since 0.5 minutes is still 0 total minutes) so I round manually
-			TimeSpan t = TimeSpan.FromSeconds(Math.Abs(seconds));
-			int roundedMilli = t.Milliseconds + (int)Math.Round(t.TotalMilliseconds - (long)t.TotalMilliseconds);
-			if (t.Days > 0)
-				return $"{sign}{t.Days:D1}.{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}.{roundedMilli:D3}";
-			else if (t.Hours > 0)
-				return $"{sign}{t.Hours:D1}:{t.Minutes:D2}:{t.Seconds:D2}.{roundedMilli:D3}";
-			else if (t.Minutes > 0)
-				return $"{sign}{t.Minutes:D1}:{t.Seconds:D2}.{roundedMilli:D3}";
-			else
-				return $"{sign}{t.Seconds:D1}.{roundedMilli:D3}";
-		}
-		
 		
 		#region ConsFunc
 		
@@ -188,13 +171,13 @@ namespace ConsoleApp {
 			
 			Console.ForegroundColor = ConsoleColor.Cyan;
 			_curTextWriter!.WriteLine(
-				$"{"Measured time ",  -25}: {FormatTime((CurDemo.TickCount() - 1) * tickInterval)}" +
-				$"\n{"Measured ticks ", -25}: {CurDemo.TickCount() - 1}");
+				$"{"Measured time ",  -25}: {FormatTime((CurDemo.TickCount(false) - 1) * tickInterval)}" +
+				$"\n{"Measured ticks ", -25}: {CurDemo.TickCount(false) - 1}");
 
-			if (CurDemo.TickCount() != CurDemo.AdjustedTickCount()) {
+			if (CurDemo.TickCount(false) != CurDemo.AdjustedTickCount(false)) {
 				_curTextWriter!.WriteLine(
-					$"{"Adjusted time ",-25}: {FormatTime((CurDemo.AdjustedTickCount() - 1) *  tickInterval)}");
-				_curTextWriter!.Write($"{"Adjusted ticks ",-25}: {CurDemo.AdjustedTickCount() - 1}");
+					$"{"Adjusted time ",-25}: {FormatTime((CurDemo.AdjustedTickCount(false) - 1) *  tickInterval)}");
+				_curTextWriter!.Write($"{"Adjusted ticks ",-25}: {CurDemo.AdjustedTickCount(false) - 1}");
 				_curTextWriter!.WriteLine($" ({CurDemo.StartAdjustmentTick}-{CurDemo.EndAdjustmentTick})");
 			}
 

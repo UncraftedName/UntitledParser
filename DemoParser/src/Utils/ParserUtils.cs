@@ -118,24 +118,29 @@ namespace DemoParser.Utils {
 				if (seenKeys.Add(keySelector(element)))
 					yield return element;
 		}
-		
-		
-		/// <summary>
-		/// If you want this to behave the same way as other times, subtract 1
-		/// </summary>
-		public static int TickCount(this SourceDemo demo) {
-			if (demo.StartTick == -1 || demo.EndTick == -1)
-				throw new ArgumentException("the demo was probably not parsed correctly");
-			return demo.EndTick - demo.StartTick + 1;
+
+
+		public static bool TotalTimeValid(this SourceDemo demo) {
+			return demo.StartTick != -1 && demo.EndTick != -1;
 		}
 
-		/// <summary>
-		/// If you want this to behave the same way as other times, subtract 1
-		/// </summary>
-		public static int AdjustedTickCount(this SourceDemo demo) {
-			if (demo.StartAdjustmentTick == -1 || demo.EndAdjustmentTick == -1)
+
+		public static bool AdjustedTimeValid(this SourceDemo demo) {
+			return demo.StartAdjustmentTick != -1 && demo.EndAdjustmentTick != -1;
+		}
+		
+		
+		public static int TickCount(this SourceDemo demo, bool countFirstTick) {
+			if (!demo.TotalTimeValid())
 				throw new ArgumentException("the demo was probably not parsed correctly");
-			return demo.EndAdjustmentTick - demo.StartAdjustmentTick + 1;
+			return demo.EndTick - demo.StartTick + (countFirstTick ? 1 : 0);
+		}
+
+		
+		public static int AdjustedTickCount(this SourceDemo demo, bool countFirstTick) {
+			if (!demo.AdjustedTimeValid())
+				throw new ArgumentException("the demo was probably not parsed correctly");
+			return demo.EndAdjustmentTick - demo.StartAdjustmentTick + (countFirstTick ? 1 : 0);
 		}
 		
 

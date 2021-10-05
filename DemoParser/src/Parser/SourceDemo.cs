@@ -87,7 +87,7 @@ namespace DemoParser.Parser {
 				LogError($"Exception after parsing {Frames.Count - 1} packets: {e.Message}");
 				throw;
 			}
-			EndAdjustmentTick = EndAdjustmentTick == -1 ? this.TickCount() - 1 : EndAdjustmentTick;
+			EndAdjustmentTick = EndAdjustmentTick == -1 ? this.TickCount(true) : EndAdjustmentTick;
 		}
 		
 

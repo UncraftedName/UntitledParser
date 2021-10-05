@@ -18,15 +18,22 @@ namespace ConsoleApp.GenericArgProcessing {
 			HashSet<string> aliasSet = new HashSet<string>();
 			foreach (var option in options) {
 				if (option.Aliases.Count == 0)
-					throw new Exception($"Option '{option.GetType().Name}' has no aliases.");
+					throw new ArgProcessProgrammerException($"Option '{option.GetType().Name}' has no aliases.");
 				foreach (string al in option.Aliases)
 					if (!aliasSet.Add(al))
-						throw new Exception($"Alias '{al}' is present twice in subcommand '{GetType().Name}'.");
+						throw new ArgProcessProgrammerException($"Alias '{al}' is present twice in subcommand '{GetType().Name}'.");
 			}
 			_optionLookup = options
 				.SelectMany(o => o.Aliases, (option, alias) => (option, alias))
 				.ToImmutableDictionary(tuple => tuple.alias, tuple => tuple.option);
 		}
+
+
+		public bool TryGetOption(string alias, out BaseOption<TSetup, TInfo> option)
+			=> _optionLookup.TryGetValue(alias, out option);
+
+
+		public int TotalEnabledOptions => _options.Count(o => o.Enabled);
 
 
 		/// <summary>
@@ -50,7 +57,7 @@ namespace ConsoleApp.GenericArgProcessing {
 								option.Enable(setupObj, args[++argIdx]); // advance so we skip arg later
 							} else {
 								if (option.Arity == Arity.One)
-									throw new ArgProcessException($"Could not create argument for option '{option.Aliases[0]}'");
+									throw new ArgProcessProgrammerException($"Could not create argument for option '{option.Aliases[0]}'");
 								option.Enable(setupObj, null);
 							}
 							break;
@@ -67,6 +74,10 @@ namespace ConsoleApp.GenericArgProcessing {
 		}
 
 
+		/// <summary>
+		/// Executes all options, Dispose will be called on infoObj after completion.
+		/// </summary>
+		/// <param name="infoObj"></param>
 		protected void Process(TInfo infoObj) {
 			var enabledOptions = _options.Where(o => o.Enabled).ToImmutableList();
 			while (infoObj.CanAdvance()) {

@@ -1,0 +1,258 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using ConsoleApp.GenericArgProcessing;
+using DemoParser.Parser;
+using DemoParser.Parser.Components;
+using DemoParser.Utils;
+using static System.Text.RegularExpressions.RegexOptions;
+
+namespace ConsoleApp.DemoSpecificArgProcessing.Options {
+	
+	// there's some dragons here, for now they keep me good company
+	public class OptListdemo : DemoOption<OptListdemo.ListDemoFlags> {
+
+		public static ImmutableArray<string> DefaultAliases => new[] {"--listdemo", "-l"}.ToImmutableArray();
+
+		private const int FmtIdt = -25;
+		
+		
+		[Flags]
+		public enum ListDemoFlags {
+			NoHeader = 1,
+			TimeFirstTick = 2,
+			AlwaysShowTotalTime = 4,
+		}
+		
+
+		private SimpleDemoTimer _sdt;
+
+
+		public OptListdemo() : base(
+			DefaultAliases,
+			Arity.ZeroOrOne,
+			"print demo info in a format similar to listdemo+",
+			Utils.ParseEnum<ListDemoFlags>,
+			default)
+		{
+			_sdt = null!; // 'AfterParse' will initialize this
+		}
+
+
+		public override void Reset() {
+			base.Reset();
+			_sdt = null!;
+		}
+
+
+		protected override void AfterParse(DemoParsingSetupInfo setupObj, ListDemoFlags arg, bool isDefault) {
+			setupObj.ExecutableOptions++;
+			_sdt = new SimpleDemoTimer((arg & ListDemoFlags.TimeFirstTick) != 0);
+		}
+
+
+		protected override void Process(DemoParsingInfo infoObj, ListDemoFlags arg, bool isDefault) {
+			_sdt.Consume(infoObj.CurrentDemo);
+			bool showHeader = (arg & ListDemoFlags.NoHeader) != 0;
+			TextWriter tw = null!;
+			if (!showHeader && !infoObj.FailedLastParse)
+				tw = infoObj.InitTextWriter("writing listdemo output...", "listdemo", bufferSize: 512);
+			else
+				Console.WriteLine("Parsing failed, nothing to show for listdemo info!");
+			if (showHeader)
+				WriteHeader(infoObj.CurrentDemo, tw);
+			if (!infoObj.FailedLastParse)
+				WriteAdjustedTime(infoObj.CurrentDemo, tw, (arg & ListDemoFlags.TimeFirstTick) != 0);
+		}
+
+
+		protected override void PostProcess(DemoParsingInfo infoObj, ListDemoFlags arg, bool isDefault) {
+			bool showTotal = _sdt.ValidFlags.HasFlag(SimpleDemoTimer.Flags.TotalTimeValid);
+			bool showAdjusted = _sdt.ValidFlags.HasFlag(SimpleDemoTimer.Flags.AdjustedTimeValid);
+			bool overwrite = (arg & ListDemoFlags.AlwaysShowTotalTime) != 0;
+
+			if (overwrite && (!showTotal || !showAdjusted)) {
+				string which;
+				if (!showTotal && !showAdjusted)
+					which = "Total and adjusted";
+				else if (!showTotal)
+					which = "Total";
+				else
+					which = "Adjusted";
+				Utils.WriteColor($"{which} time may not be valid.", ConsoleColor.Red);
+			}
+			if (showTotal || overwrite) {
+				Utils.WriteColor($"{"Measured time", FmtIdt}: {_sdt.TotalTime}", ConsoleColor.Cyan);
+				Utils.WriteColor($"{"Measured ticks", FmtIdt}: {_sdt.TotalTicks}", ConsoleColor.Cyan);
+			}
+			if (showAdjusted || overwrite) {
+				Utils.WriteColor($"{"Adjusted time", FmtIdt}: {_sdt.AdjustedTime}", ConsoleColor.Cyan);
+				Utils.WriteColor($"{"Adjusted ticks", FmtIdt}: {_sdt.AdjustedTicks}", ConsoleColor.Cyan);
+			}
+		}
+
+
+		public static void WriteHeader(SourceDemo demo, TextWriter tw, bool writeDemoName = true) {
+			DemoHeader h = demo.Header;
+			if (writeDemoName)
+				tw.WriteLine($"{"File name ",FmtIdt}: {demo.FileName}");
+			tw.Write(
+				$"{"Demo protocol ",      FmtIdt}: {h.DemoProtocol}"                   +
+				$"\n{"Network protocol ", FmtIdt}: {h.NetworkProtocol}"                +
+				$"\n{"Server name ",      FmtIdt}: {h.ServerName}"                     +
+				$"\n{"Client name ",      FmtIdt}: {h.ClientName}"                     +
+				$"\n{"Map name ",         FmtIdt}: {h.MapName}"                        +
+				$"\n{"Game directory ",   FmtIdt}: {h.GameDirectory}"                  +
+				$"\n{"Playback time ",    FmtIdt}: {Utils.FormatTime(h.PlaybackTime)}" +
+				$"\n{"Ticks ",            FmtIdt}: {h.TickCount}"                      +
+				$"\n{"Frames ",           FmtIdt}: {h.FrameCount}"                     +
+				$"\n{"SignOn Length ",    FmtIdt}: {h.SignOnLength}\n\n");
+		}
+
+
+		public static void WriteAdjustedTime(SourceDemo demo, TextWriter tw, bool timeFirstTick) {
+			bool tfs = timeFirstTick;
+			(string str, Regex re)[] customRe = {
+				("Autosave",                new Regex(@"^\s*autosave\s*$",                IgnoreCase)),
+				("Autosavedangerous",       new Regex(@"^\s*autosavedangerous\s*$",       IgnoreCase)),
+				("Autosavedangerousissafe", new Regex(@"^\s*autosavedangerousissafe\s*$", IgnoreCase))
+			};
+			
+			var customGroups = customRe.SelectMany(
+					t => demo.CmdRegexMatches(t.re),
+					(t, matchTup) => (t.str, matchTup.cmd.Tick))
+				.OrderBy(reInfo => reInfo.Tick)
+				.GroupBy(reInfo => reInfo.str, reInfo => reInfo.Tick)
+				.OrderBy(grouping => grouping.Min())
+				.ToList();
+
+			Regex flagRe = new Regex(@"^\s*echo\s+#(?<flag_name>.*)#\s*$", IgnoreCase);
+
+			var flagGroups = demo.CmdRegexMatches(flagRe)
+				.OrderBy(t => t.cmd.Tick)
+				.GroupBy(t => t.matches[0].Groups["flag_name"].Value.ToUpper(), t => t.cmd.Tick)
+				.OrderBy(grouping => grouping.Min())
+				.ToList();
+
+			double tickInterval = demo.DemoInfo.TickInterval;
+
+			List<int> ticks = customGroups.SelectMany(g => g)
+				.Concat(flagGroups.SelectMany(g => g)).ToList();
+
+			List<string>
+				descriptions = customGroups.Select(g => Enumerable.Repeat(g.Key, g.Count()))
+					.Concat(flagGroups.Select(g => Enumerable.Repeat($"'{g.Key}' flag", g.Count())))
+					.SelectMany(e => e).ToList(),
+				tickStrs = ticks.Select(i => i.ToString()).ToList(),
+				times = ticks.Select(i => Utils.FormatTime(i * tickInterval)).ToList();
+
+			if (descriptions.Any()) {
+				int maxDescPad = descriptions.Max(s => s.Length),
+					tickMaxPad = tickStrs.Max(s => s.Length),
+					timeMadPad = times.Max(s => s.Length);
+
+				int customCount = customGroups.SelectMany(g => g).Count();
+				string previousDesc = null!;
+				for (int i = 0; i < descriptions.Count; i++) {
+					if (i < customCount) {
+						Console.ForegroundColor = ConsoleColor.DarkYellow;
+					} else {
+						if (previousDesc == null || descriptions[i] != previousDesc) {
+							Console.ForegroundColor = Console.ForegroundColor == ConsoleColor.Yellow
+								? ConsoleColor.Magenta
+								: ConsoleColor.Yellow;
+						}
+					}
+					previousDesc = descriptions[i];
+					tw.WriteLine($"{descriptions[i].PadLeft(maxDescPad)} on tick " +
+											 $"{tickStrs[i].PadLeft(tickMaxPad)}, time: {times[i].PadLeft(timeMadPad)}");
+				}
+				tw.WriteLine();
+			}
+			
+			Console.ForegroundColor = ConsoleColor.Cyan;
+			tw.WriteLine($"{"Measured time ",FmtIdt}: {Utils.FormatTime(demo.TickCount(tfs) * tickInterval)}");
+			tw.WriteLine($"{"Measured ticks ",FmtIdt}: {demo.TickCount(tfs)}");
+
+			if (demo.TickCount(tfs) != demo.AdjustedTickCount(tfs)) {
+				tw.WriteLine($"{"Adjusted time ",FmtIdt}: {Utils.FormatTime(demo.AdjustedTickCount(tfs) * tickInterval)}");
+				tw.Write($"{"Adjusted ticks ",FmtIdt}: {demo.AdjustedTickCount(tfs)}");
+				tw.WriteLine($" ({demo.StartAdjustmentTick}-{demo.EndAdjustmentTick})");
+			}
+		}
+	}
+
+
+	/// <summary>
+	/// Accepts one demo at a time and calculates the total time.
+	/// </summary>
+	public class SimpleDemoTimer {
+
+		public int TotalTicks {get;private set;}
+		public double TotalTime {get;private set;}
+		public int AdjustedTicks {get;private set;}
+		public double AdjustedTime {get;private set;}
+		public bool TimeFirstTick {get;}
+		public Flags ValidFlags {get;private set;}
+		private int? _firstHash;
+
+
+		public SimpleDemoTimer(bool timeFirstTick) {
+			TimeFirstTick = timeFirstTick;
+			ValidFlags = Flags.TotalTimeValid | Flags.AdjustedTimeValid;
+		}
+
+
+		public SimpleDemoTimer(IEnumerable<SourceDemo> demos, bool timeFirstTick) : this(timeFirstTick) {
+			foreach (SourceDemo demo in demos)
+				Consume(demo);
+		}
+
+
+		/// <summary>
+		/// Calculates the total time of the given demo and adds it to the total time. Sets ValidFlags if necessary.
+		/// </summary>
+		public void Consume(SourceDemo demo) {
+			_firstHash ??= QuickHash(demo);
+			// consider this demo to be part of a different run if the hash doesn't match
+			if (_firstHash.Value != QuickHash(demo))
+				ValidFlags &= ~(Flags.TotalTimeValid | Flags.AdjustedTimeValid);
+
+			int newTicks, newAdjustedTicks;
+			if (demo.TotalTimeValid()) {
+				newTicks = demo.TickCount(TimeFirstTick);
+			} else {
+				ValidFlags &= ~Flags.TotalTimeValid;
+				// pull tick count straight from the header if parsing failed
+				newTicks = demo.Header.TickCount + (TimeFirstTick ? 1 : 0);
+			}
+			TotalTicks += newTicks;
+			TotalTime += newTicks * demo.DemoInfo.TickInterval;
+
+			if (demo.AdjustedTimeValid()) {
+				newAdjustedTicks = demo.AdjustedTickCount(TimeFirstTick);
+			} else {
+				ValidFlags &= ~Flags.AdjustedTimeValid;
+				newAdjustedTicks = newTicks;
+			}
+			AdjustedTicks += newAdjustedTicks;
+			AdjustedTime += newAdjustedTicks * demo.DemoInfo.TickInterval;
+		}
+
+
+		private static int QuickHash(SourceDemo demo) {
+			return HashCode.Combine(demo.Header.NetworkProtocol, demo.DemoInfo.TickInterval, demo.Header.DemoProtocol,
+				demo.Header.GameDirectory.Str);
+		}
+
+
+		[Flags]
+		public enum Flags {
+			TotalTimeValid = 1,
+			AdjustedTimeValid = 2
+		}
+	}
+}
