@@ -45,22 +45,24 @@ namespace ConsoleApp.DemoArgProcessing {
 	/// </summary>
 	public class DemoParsingInfo : IProcessObject, IDisposable {
 
+		public DemoParsingSetupInfo SetupInfo {get;}
 		public SourceDemo CurrentDemo => _demos[^1];
 		public bool FailedLastParse {get;private set;}
-		public bool OptionOutputRedirected => _setupInfo.FolderOutput != null;
+		public bool OptionOutputRedirected => SetupInfo.FolderOutput != null;
+		public int NumDemos {get;}
 
-		private readonly DemoParsingSetupInfo _setupInfo;
 		private readonly List<SourceDemo> _demos;
 		private readonly IParallelDemoParser _pdp;
 		private TextWriter? _textWriter;
 		private BinaryWriter? _binaryWriter;
 
 
-		public DemoParsingInfo(DemoParsingSetupInfo setupInfo, IReadOnlyList<(FileInfo demoPath, string displayPath)> paths) {
-			_setupInfo = setupInfo;
-			_demos = new List<SourceDemo>(setupInfo.ShouldSaveAllDemos ? 1 : paths.Count);
+		public DemoParsingInfo(DemoParsingSetupInfo setupInfo, IImmutableList<(FileInfo demoPath, string displayPath)> paths) {
+			SetupInfo = setupInfo;
+			_demos = new List<SourceDemo>(setupInfo.ShouldSaveAllDemos ? paths.Count : 1);
 			_pdp = new ThreadPoolDemoParser(paths);
-			// we're in an invalid state until Advance is called
+			NumDemos = paths.Count;
+			// we're sort of in an invalid state until Advance is called
 		}
 
 
@@ -69,19 +71,19 @@ namespace ConsoleApp.DemoArgProcessing {
 
 		public void Advance() {
 			DisposeWriters();
-			if (!_setupInfo.ShouldSaveAllDemos)
+			if (!SetupInfo.ShouldSaveAllDemos)
 				_demos.Clear();
 			Debug.Assert(_pdp.HasNext());
 			// wait for the next demo
-			Console.WriteLine($"Parsing {_pdp.GetCurrentParseInfo().DisplayPath}... ");
+			Console.Write($"Parsing {_pdp.GetCurrentParseInfo().DisplayPath}... ");
 			IProgressBar progressBar = _pdp.GetCurrentParseInfo().ProgressBar;
-			if (_pdp.NextReady())
+			if (!_pdp.NextReady())
 				progressBar.StartShowing();
 			(var demo, Exception? exception) = _pdp.GetNext();
 			_demos.Add(demo);
 			progressBar.Dispose();
 			if (exception == null) {
-				Utils.WriteColor("done.", ConsoleColor.Green);
+				Utils.WriteColor("done.\n", ConsoleColor.Green);
 			} else {
 				Utils.PushForegroundColor(ConsoleColor.Red);
 				Console.WriteLine("failed.");
@@ -94,7 +96,7 @@ namespace ConsoleApp.DemoArgProcessing {
 
 		public void DoneProcessing() {
 			DisposeWriters();
-			if (!_setupInfo.ShouldSaveAllDemos)
+			if (!SetupInfo.ShouldSaveAllDemos)
 				_demos.Clear();
 		}
 
@@ -107,9 +109,9 @@ namespace ConsoleApp.DemoArgProcessing {
 		/// Console.Out. If you want an option to never print to console, set FolderOutputRequired in the setup object.
 		/// </summary>
 		public TextWriter InitTextWriter(string message, string suffix, string extension = ".txt", int bufferSize = 4096) {
-			if (_setupInfo.ExecutableOptions > 1)
+			if (SetupInfo.ExecutableOptions > 1)
 				Console.WriteLine(message);
-			if (_setupInfo.FolderOutput == null)
+			if (SetupInfo.FolderOutput == null)
 				return Console.Out;
 			DisposeWriters();
 			return _textWriter = new StreamWriter(CreateFileStream(suffix, extension), Encoding.UTF8, bufferSize);
@@ -120,7 +122,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		/// Creates and returns a new Binary writer.
 		/// </summary>
 		public BinaryWriter InitBinaryWriter(string message, string suffix, string extension) {
-			if (_setupInfo.FolderOutput == null)
+			if (SetupInfo.FolderOutput == null)
 				throw new ArgProcessProgrammerException("Folder output not set but option is requesting a binary writer.");
 			DisposeWriters();
 			Console.WriteLine(message);
@@ -128,8 +130,12 @@ namespace ConsoleApp.DemoArgProcessing {
 		}
 
 
-		private FileStream CreateFileStream(string suffix, string extension)
-			=> new FileStream(Path.Combine(_setupInfo.FolderOutput!, $"{CurrentDemo.FileName![..^4]}--{suffix}{extension}"), FileMode.Create);
+		private FileStream CreateFileStream(string suffix, string extension) {
+			Directory.CreateDirectory(SetupInfo.FolderOutput!);
+			return new FileStream(
+				Path.Combine(SetupInfo.FolderOutput!, $"{CurrentDemo.FileName![..^4]}--{suffix}{extension}"),
+				FileMode.Create);
+		}
 
 
 		private void DisposeWriters() {

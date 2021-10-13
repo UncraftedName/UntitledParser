@@ -12,10 +12,9 @@ using static System.Text.RegularExpressions.RegexOptions;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
 	
-	// there's some dragons here, for now they keep me good company
 	public class OptListdemo : DemoOption<OptListdemo.ListDemoFlags> {
 
-		public static ImmutableArray<string> DefaultAliases => new[] {"--listdemo", "-l"}.ToImmutableArray();
+		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--listdemo", "-l"}.ToImmutableArray();
 
 		private const int FmtIdt = -25;
 		
@@ -56,16 +55,18 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 		protected override void Process(DemoParsingInfo infoObj, ListDemoFlags arg, bool isDefault) {
 			_sdt.Consume(infoObj.CurrentDemo);
-			bool showHeader = (arg & ListDemoFlags.NoHeader) != 0;
 			TextWriter tw = null!;
-			if (!showHeader && !infoObj.FailedLastParse)
+			if (!infoObj.FailedLastParse)
 				tw = infoObj.InitTextWriter("writing listdemo output...", "listdemo", bufferSize: 512);
 			else
 				Console.WriteLine("Parsing failed, nothing to show for listdemo info!");
-			if (showHeader)
-				WriteHeader(infoObj.CurrentDemo, tw);
-			if (!infoObj.FailedLastParse)
+			if ((arg & ListDemoFlags.NoHeader) == 0)
+				WriteHeader(infoObj.CurrentDemo, tw, infoObj.SetupInfo.ExecutableOptions != 1);
+			if (!infoObj.FailedLastParse) {
 				WriteAdjustedTime(infoObj.CurrentDemo, tw, (arg & ListDemoFlags.TimeFirstTick) != 0);
+				if (!infoObj.OptionOutputRedirected)
+					Console.WriteLine();
+			}
 		}
 
 
@@ -73,8 +74,11 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			bool showTotal = _sdt.ValidFlags.HasFlag(SimpleDemoTimer.Flags.TotalTimeValid);
 			bool showAdjusted = _sdt.ValidFlags.HasFlag(SimpleDemoTimer.Flags.AdjustedTimeValid);
 			bool overwrite = (arg & ListDemoFlags.AlwaysShowTotalTime) != 0;
+			if (!overwrite && infoObj.NumDemos == 1)
+				return;
 
-			if (overwrite && (!showTotal || !showAdjusted)) {
+			// show message if only one is invalid, or if we're overwriting and either is invalid
+			if ((showTotal ^ showAdjusted) || (overwrite && (!showTotal || !showAdjusted))) {
 				string which;
 				if (!showTotal && !showAdjusted)
 					which = "Total and adjusted";
@@ -82,16 +86,21 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					which = "Total";
 				else
 					which = "Adjusted";
-				Utils.WriteColor($"{which} time may not be valid.", ConsoleColor.Red);
+				Utils.WriteColor($"{which} time may not be valid.\n\n", ConsoleColor.Red);
 			}
+			Utils.PushForegroundColor(ConsoleColor.Green);
 			if (showTotal || overwrite) {
-				Utils.WriteColor($"{"Measured time", FmtIdt}: {_sdt.TotalTime}", ConsoleColor.Cyan);
-				Utils.WriteColor($"{"Measured ticks", FmtIdt}: {_sdt.TotalTicks}", ConsoleColor.Cyan);
+				Console.WriteLine($"{"Total measured time", FmtIdt}: {Utils.FormatTime(_sdt.TotalTime)}");
+				Console.WriteLine($"{"Total measured ticks", FmtIdt}: {_sdt.TotalTicks}");
+				showAdjusted &= _sdt.TotalTicks != _sdt.AdjustedTicks;
 			}
 			if (showAdjusted || overwrite) {
-				Utils.WriteColor($"{"Adjusted time", FmtIdt}: {_sdt.AdjustedTime}", ConsoleColor.Cyan);
-				Utils.WriteColor($"{"Adjusted ticks", FmtIdt}: {_sdt.AdjustedTicks}", ConsoleColor.Cyan);
+				Console.WriteLine($"{"Total adjusted time", FmtIdt}: {Utils.FormatTime(_sdt.AdjustedTime)}");
+				Console.WriteLine($"{"Total adjusted ticks", FmtIdt}: {_sdt.AdjustedTicks}");
 			}
+			Utils.PopForegroundColor();
+			if (!showTotal && !showAdjusted && !overwrite)
+				Console.WriteLine($"Not showing total time from {DefaultAliases[0]} since it may not be valid.");
 		}
 
 
@@ -113,6 +122,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		}
 
 
+		// there's some dragons here, for now they keep me good company
 		public static void WriteAdjustedTime(SourceDemo demo, TextWriter tw, bool timeFirstTick) {
 			bool tfs = timeFirstTick;
 			(string str, Regex re)[] customRe = {
@@ -156,6 +166,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 				int customCount = customGroups.SelectMany(g => g).Count();
 				string previousDesc = null!;
+				Utils.PushForegroundColor();
 				for (int i = 0; i < descriptions.Count; i++) {
 					if (i < customCount) {
 						Console.ForegroundColor = ConsoleColor.DarkYellow;
@@ -170,10 +181,11 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					tw.WriteLine($"{descriptions[i].PadLeft(maxDescPad)} on tick " +
 											 $"{tickStrs[i].PadLeft(tickMaxPad)}, time: {times[i].PadLeft(timeMadPad)}");
 				}
+				Utils.PopForegroundColor();
 				tw.WriteLine();
 			}
 			
-			Console.ForegroundColor = ConsoleColor.Cyan;
+			Utils.PushForegroundColor(ConsoleColor.Cyan);
 			tw.WriteLine($"{"Measured time ",FmtIdt}: {Utils.FormatTime(demo.TickCount(tfs) * tickInterval)}");
 			tw.WriteLine($"{"Measured ticks ",FmtIdt}: {demo.TickCount(tfs)}");
 
@@ -182,12 +194,13 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				tw.Write($"{"Adjusted ticks ",FmtIdt}: {demo.AdjustedTickCount(tfs)}");
 				tw.WriteLine($" ({demo.StartAdjustmentTick}-{demo.EndAdjustmentTick})");
 			}
+			Utils.PopForegroundColor();
 		}
 	}
 
 
 	/// <summary>
-	/// Accepts one demo at a time and calculates the total time.
+	/// Accepts one demo at a time to calculate the total time.
 	/// </summary>
 	public class SimpleDemoTimer {
 
@@ -243,10 +256,12 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		}
 
 
-		private static int QuickHash(SourceDemo demo) {
-			return HashCode.Combine(demo.Header.NetworkProtocol, demo.DemoInfo.TickInterval, demo.Header.DemoProtocol,
+		private static int QuickHash(SourceDemo demo)
+			=> HashCode.Combine(
+				demo.Header.NetworkProtocol,
+				demo.DemoInfo.TickInterval,
+				demo.Header.DemoProtocol,
 				demo.Header.GameDirectory.Str);
-		}
 
 
 		[Flags]

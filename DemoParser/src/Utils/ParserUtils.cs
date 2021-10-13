@@ -121,26 +121,26 @@ namespace DemoParser.Utils {
 
 
 		public static bool TotalTimeValid(this SourceDemo demo) {
-			return demo.StartTick != -1 && demo.EndTick != -1;
+			return demo.StartTick.HasValue && demo.EndTick.HasValue;
 		}
 
 
 		public static bool AdjustedTimeValid(this SourceDemo demo) {
-			return demo.StartAdjustmentTick != -1 && demo.EndAdjustmentTick != -1;
+			return demo.StartAdjustmentTick.HasValue && demo.EndAdjustmentTick.HasValue;
 		}
 		
 		
 		public static int TickCount(this SourceDemo demo, bool countFirstTick) {
 			if (!demo.TotalTimeValid())
 				throw new ArgumentException("the demo was probably not parsed correctly");
-			return demo.EndTick - demo.StartTick + (countFirstTick ? 1 : 0);
+			return demo.EndTick!.Value - demo.StartTick!.Value + (countFirstTick ? 1 : 0);
 		}
 
 		
 		public static int AdjustedTickCount(this SourceDemo demo, bool countFirstTick) {
 			if (!demo.AdjustedTimeValid())
 				throw new ArgumentException("the demo was probably not parsed correctly");
-			return demo.EndAdjustmentTick - demo.StartAdjustmentTick + (countFirstTick ? 1 : 0);
+			return demo.EndAdjustmentTick!.Value - demo.StartAdjustmentTick!.Value + (countFirstTick ? 1 : 0);
 		}
 		
 

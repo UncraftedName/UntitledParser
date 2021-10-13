@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -49,7 +49,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		private int _parseIdx;
 		
 		
-		public ThreadPoolDemoParser(IReadOnlyList<(FileInfo demoPath, string displayPath)> paths) {
+		public ThreadPoolDemoParser(IImmutableList<(FileInfo demoPath, string displayPath)> paths) {
 			_parseInfos = new ParseInfo[paths.Count];
 			for (int i = 0; i < paths.Count; i++) {
 				_parseInfos[i] = new ParseInfo(new ManualResetEventSlim(), new ProgressBar(false), paths[i].demoPath, paths[i].displayPath);
@@ -79,7 +79,7 @@ namespace ConsoleApp.DemoArgProcessing {
 			info.ResetEvent.Wait();
 			info.ResetEvent.Dispose();
 			var ret = (info.Demo, info.Exception);
-			_parseInfos[_parseIdx++] = null!; // allow garbage collection
+			_parseInfos[_parseIdx++] = null!; // allow garbage collection TODO fix that something doesn't get collected for large amounts of demos
 			return ret;
 		}
 

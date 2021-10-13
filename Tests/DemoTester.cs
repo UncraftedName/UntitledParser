@@ -61,7 +61,7 @@ namespace Tests {
 		[Test]
 		public void RemoveCaptions() {
 			string demoDir = $"{ProjectDir}/sample demos";
-			ConsoleFunctions.Main(new [] {
+			Program.Main(new [] {
 				$"{demoDir}/captions.dem", "--remove-captions", "-f", $"{demoDir}/demo output"
 			});
 			SourceDemo before = new SourceDemo($"{demoDir}/captions.dem");

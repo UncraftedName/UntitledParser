@@ -9,14 +9,18 @@ namespace ConsoleApp {
 		private static readonly Stack<ConsoleColor> ForegroundColors = new Stack<ConsoleColor>();
 		
 		
+		public static void PushForegroundColor() => PushForegroundColor(Console.ForegroundColor);
+		
 		public static void PushForegroundColor(ConsoleColor color) {
-			ForegroundColors.Push(color);
+			ForegroundColors.Push(Console.ForegroundColor);
 			Console.ForegroundColor = color;
 		}
 
 
 		public static ConsoleColor PopForegroundColor() {
-			return ForegroundColors.Pop();
+			ConsoleColor c = ForegroundColors.Pop();
+			Console.ForegroundColor = c;
+			return c;
 		}
 
 
@@ -65,6 +69,27 @@ namespace ConsoleApp {
 			else
 				return $"{sign}{t.Seconds:D1}.{roundedMilli:D3}";
 		}
+
+
+		public static string GetExeName() {
+			string name = AppDomain.CurrentDomain.FriendlyName;
+			if (name.Contains(" "))
+				name = $"\"{name}\"";
+			return name;
+		}
+
+
+		public static string GetVersionInfo() {
+			return "version TODO";
+		}
+		
+		
+		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+		private static extern int GetConsoleProcessList(int[] buffer, int size);
+
+
+		// returns true if the cmd window will close once we stop (also true if we call this from some other program but whatever)
+		public static bool WillBeDestroyedOnExit => GetConsoleProcessList(new int[2], 2) <= 1;
 	}
 
 

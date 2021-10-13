@@ -28,8 +28,8 @@ namespace DemoParser.Parser {
 		public DemoHeader Header;
 		public List<PacketFrame> Frames;
 		private bool _exceptionDuringParsing;
-		// these are set in the packet packet and from console commands
-		public int StartTick = -1, EndTick = -1, StartAdjustmentTick = -1, EndAdjustmentTick = -1;
+		// initialized to null, these are set in the packet packet and from console commands
+		public int? StartTick, EndTick, StartAdjustmentTick, EndAdjustmentTick;
 		internal uint ClientSoundSequence; // increases with each reliable sound
 		
 		// Helper classes, these are used by the demo components, are temporary and might be created/destroyed whenever.
@@ -77,8 +77,7 @@ namespace DemoParser.Parser {
 					Frames[^1].ParseStream(ref bsr);
 					_parseProgress?.Report((double)bsr.CurrentBitIndex / bsr.BitLength);
 				} while (Frames[^1].Type != PacketType.Stop && bsr.BitsRemaining >= 24); // would be 32 but the last byte is often cut off
-				
-				StartAdjustmentTick = StartAdjustmentTick == -1 ? 0 : StartAdjustmentTick;
+				StartAdjustmentTick ??= 0;
 				EndTick = this.FilterForPacket<Packet>().Select(packet => packet.Tick).Where(i => i >= 0).Max();
 			}
 			catch (Exception e) {
@@ -87,7 +86,7 @@ namespace DemoParser.Parser {
 				LogError($"Exception after parsing {Frames.Count - 1} packets: {e.Message}");
 				throw;
 			}
-			EndAdjustmentTick = EndAdjustmentTick == -1 ? this.TickCount(true) : EndAdjustmentTick;
+			EndAdjustmentTick ??= EndTick;
 		}
 		
 

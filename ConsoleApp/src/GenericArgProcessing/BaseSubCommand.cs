@@ -6,6 +6,11 @@ using System.Linq;
 
 namespace ConsoleApp.GenericArgProcessing {
 	
+	/// <summary>
+	/// A subcommand that can have some number of options and default arguments.
+	/// </summary>
+	/// <typeparam name="TSetup">The type of setup object that will be passed to the options when parsing arguments.</typeparam>
+	/// <typeparam name="TInfo">The type of object that will be passed to the options when executing options.</typeparam>
 	public abstract class BaseSubCommand<TSetup, TInfo> where TInfo : IProcessObject {
 		
 		private readonly IImmutableList<BaseOption<TSetup, TInfo>> _options;
@@ -37,8 +42,9 @@ namespace ConsoleApp.GenericArgProcessing {
 
 
 		/// <summary>
-		/// Process an argument that was determined to not be passed to an option, throws if this argument is invalid.
+		/// Process an argument that was determined to not be passed to an option, should throw if this argument is invalid.
 		/// </summary>
+		/// <exception cref="ArgProcessUserException">Thrown when the given argument isn't valid.</exception>
 		protected abstract void ParseDefaultArgument(string arg);
 		
 
@@ -56,9 +62,16 @@ namespace ConsoleApp.GenericArgProcessing {
 							option.Enable(setupObj, null);
 							break;
 						case Arity.ZeroOrOne:
+							// check if the next arg looks like an option first
+							if (argIdx + 1 < args.Length && _optionLookup.ContainsKey(args[argIdx + 1]))
+								option.Enable(setupObj, null);
+							else 
+								goto case Arity.One;
+							break;
 						case Arity.One:
 							if (argIdx + 1 < args.Length && option.CanUseAsArg(args[argIdx + 1])) {
-								option.Enable(setupObj, args[++argIdx]); // advance so we skip arg later
+								// we can use this as an arg to the option, advance so we skip it on the next iteration
+								option.Enable(setupObj, args[++argIdx]);
 							} else {
 								if (option.Arity == Arity.One)
 									throw new ArgProcessProgrammerException($"Could not create argument for option '{option.Aliases[0]}'");
@@ -66,7 +79,7 @@ namespace ConsoleApp.GenericArgProcessing {
 							}
 							break;
 						default:
-							throw new ArgumentOutOfRangeException();
+							throw new ArgumentOutOfRangeException(nameof(option.Arity), $"invalid arity \"{option.Arity}\"");
 					}
 				} else {
 					ParseDefaultArgument(arg);
@@ -81,7 +94,7 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// <summary>
 		/// Executes all options, Dispose will be called on infoObj after completion.
 		/// </summary>
-		/// <param name="infoObj"></param>
+		/// <param name="infoObj">The object passed to all options during processing and post-processing</param>
 		protected void Process(TInfo infoObj) {
 			var enabledOptions = _options.Where(o => o.Enabled).ToImmutableList();
 			while (infoObj.CanAdvance()) {
@@ -109,8 +122,11 @@ namespace ConsoleApp.GenericArgProcessing {
 	/// passed to options.
 	/// </summary>
 	public interface IProcessObject {
+		// returns true if we can go to the "next thing" to be processed (e.g. a demo)
 		public bool CanAdvance();
+		// do all the setup required to get the "next thing" ready
 		public void Advance();
+		// resource cleanup if necessary (called after process but before post process)
 		public void DoneProcessing();
 	}
 }

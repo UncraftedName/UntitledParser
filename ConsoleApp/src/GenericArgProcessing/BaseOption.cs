@@ -7,6 +7,8 @@ namespace ConsoleApp.GenericArgProcessing {
 	// do not inherit from this, use one of the classes below
 	public abstract class BaseOption<TSetup, TInfo> where TInfo : IProcessObject {
 		
+		private protected static Exception InvalidFuncEx => new InvalidOperationException("User called some function that they shouldn't use");
+		
 		public IImmutableList<string> Aliases {get;}
 
 		public Arity Arity {get;}
@@ -22,8 +24,9 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// Specifies whether or not to execute the 'AfterParse', 'Process', and 'PostProcess' methods. 
 		/// </summary>
 		public bool Enabled {get;private set;}
-
-		private string? _arg;
+		
+		// saves the arg passed to enable, user implemented classes shouldn't have to use this
+		private protected virtual string? Arg {get;private set;}
 
 
 		protected BaseOption(IImmutableList<string> aliases, Arity arity, string description, bool hidden) {
@@ -37,7 +40,7 @@ namespace ConsoleApp.GenericArgProcessing {
 
 
 		public void Enable(TSetup setupObj, string? arg) {
-			_arg = arg;
+			Arg = arg;
 			Enabled = true;
 		}
 
@@ -50,19 +53,19 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// </summary>
 		public virtual void Reset() {
 			Enabled = false;
-			_arg = null;
+			Arg = null;
 		}
 		
 
-		public virtual void AfterParse(TSetup setupObj) => AfterParse(setupObj, _arg);
+		public virtual void AfterParse(TSetup setupObj) => AfterParse(setupObj, Arg);
 		protected abstract void AfterParse(TSetup setupObj, string? arg);
 		
 
-		public virtual void Process(TInfo infoObj) => Process(infoObj, _arg);
+		public virtual void Process(TInfo infoObj) => Process(infoObj, Arg);
 		protected abstract void Process(TInfo infoObj, string? arg);
 		
 
-		public virtual void PostProcess(TInfo infoObj) => PostProcess(infoObj, _arg);
+		public virtual void PostProcess(TInfo infoObj) => PostProcess(infoObj, Arg);
 		protected abstract void PostProcess(TInfo infoObj, string? arg);
 	}
 
@@ -73,24 +76,26 @@ namespace ConsoleApp.GenericArgProcessing {
 	/// <typeparam name="TSetup">The type of the setup object passed to 'AfterParse'</typeparam>
 	/// <typeparam name="TInfo">The type of object passed to 'Process' and 'PostProcess'</typeparam>
 	public abstract class BaseOptionNoArg<TSetup, TInfo> : BaseOption<TSetup, TInfo> where TInfo : IProcessObject {
-		
+
+
 		protected BaseOptionNoArg(IImmutableList<string> aliases,string description, bool hidden = false)
 			: base(aliases, Arity.Zero, description, hidden) {}
 
 
 		public sealed override bool CanUseAsArg(string arg) => false;
+		private protected override string Arg => throw InvalidFuncEx;
 
 
 		public abstract override void AfterParse(TSetup setupObj);
-		protected sealed override void AfterParse(TSetup setupObj, string? arg) => throw new InvalidOperationException();
+		protected sealed override void AfterParse(TSetup setupObj, string? arg) => throw InvalidFuncEx;
 
 
 		public abstract override void Process(TInfo infoObj);
-		protected sealed override void Process(TInfo infoObj, string? arg) => throw new InvalidOperationException();
+		protected sealed override void Process(TInfo infoObj, string? arg) => throw InvalidFuncEx;
 
 
 		public abstract override void PostProcess(TInfo infoObj);
-		protected sealed override void PostProcess(TInfo infoObj, string? arg) => throw new InvalidOperationException();
+		protected sealed override void PostProcess(TInfo infoObj, string? arg) => throw InvalidFuncEx;
 	}
 
 
@@ -109,12 +114,14 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// <returns>The input argument as a 'TArg' if the input argument was successfully converted.</returns>
 		public delegate TArg ArgumentParser(string strArg);
 
+		private protected override string Arg => throw InvalidFuncEx;
 
 		public ArgumentParser ArgParser {get;}
 
 		private readonly TArg _defaultArg;
 
 
+		// if arity is set to 1, default arg can be set to whatever
 		protected BaseOption(
 			IImmutableList<string> aliases,
 			Arity arity, string description,
@@ -142,30 +149,30 @@ namespace ConsoleApp.GenericArgProcessing {
 
 
 		// if arg is optional and doesn't exist this will pass the default arg to func, otherwise converts from string
-		private void CheckArityAndCall<T>(Action<T, TArg, bool> func, T obj, string? arg) {
-			if (arg == null) {
+		private void CheckArityAndCall<T>(Action<T, TArg, bool> func, T obj) {
+			if (base.Arg == null) {
 				if (Arity == Arity.One)
 					throw new ArgProcessProgrammerException($"Argument is null but arity is set to {Arity.One} for option {Aliases[0]}");
 				func(obj, _defaultArg, true);
 			} else {
-				func(obj, ArgParser(arg!), false);
+				func(obj, ArgParser(base.Arg!), false);
 			}
 		}
 
 
-		public sealed override void AfterParse(TSetup setupObj) => throw new InvalidOperationException();
 		protected abstract void AfterParse(TSetup setupObj, TArg arg, bool isDefault);
-		protected sealed override void AfterParse(TSetup setupObj, string? arg) => CheckArityAndCall(AfterParse, setupObj, arg);
+		public sealed override void AfterParse(TSetup setupObj) => CheckArityAndCall(AfterParse, setupObj);
+		protected sealed override void AfterParse(TSetup setupObj, string? arg) => throw InvalidFuncEx;
 
 
-		public sealed override void Process(TInfo infoObj) => throw new InvalidOperationException();
 		protected abstract void Process(TInfo infoObj, TArg arg, bool isDefault);
-		protected sealed override void Process(TInfo infoObj, string? arg) => CheckArityAndCall(Process, infoObj, arg);
+		public sealed override void Process(TInfo infoObj) => CheckArityAndCall(Process, infoObj);
+		protected sealed override void Process(TInfo infoObj, string? arg) => throw InvalidFuncEx;
 
 
-		public sealed override void PostProcess(TInfo infoObj) => throw new InvalidOperationException();
 		protected abstract void PostProcess(TInfo infoObj, TArg arg, bool isDefault);
-		protected sealed override void PostProcess(TInfo infoObj, string? arg) => CheckArityAndCall(PostProcess, infoObj, arg);
+		public sealed override void PostProcess(TInfo infoObj) => CheckArityAndCall(PostProcess, infoObj);
+		protected sealed override void PostProcess(TInfo infoObj, string? arg) => throw InvalidFuncEx;
 	}
 
 

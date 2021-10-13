@@ -138,13 +138,13 @@ namespace DemoParser.Parser.HelperClasses {
 			if (consoleCmd.Tick <= 0)
 				return;
 			
-			ref int start = ref consoleCmd.DemoRef.StartAdjustmentTick;
-			ref int end = ref consoleCmd.DemoRef.EndAdjustmentTick;
+			ref int? start = ref consoleCmd.DemoRef.StartAdjustmentTick;
+			ref int? end = ref consoleCmd.DemoRef.EndAdjustmentTick;
 			
 			// assume only one valid adjustment per cmd
 			foreach (AdjustmentType type in consoleCmd.DemoRef.DemoInfo.TimeAdjustmentTypes) {
 				switch (type) {
-					case Portal2CoopMapStart when start == -1 && consoleCmd.Command == "ss_force_primary_fullscreen 0":
+					case Portal2CoopMapStart when !start.HasValue && consoleCmd.Command == "ss_force_primary_fullscreen 0":
 						start = consoleCmd.Tick;
 						return;
 					case Portal2CoopMapEnd when consoleCmd.Command.StartsWith("playvideo_end_level_transition"):
@@ -164,13 +164,13 @@ namespace DemoParser.Parser.HelperClasses {
 			if (packet.Tick <= 0)
 				return;
 			
-			ref int start = ref packet.DemoRef.StartAdjustmentTick;
-			ref int end = ref packet.DemoRef.EndAdjustmentTick;
+			ref int? start = ref packet.DemoRef.StartAdjustmentTick;
+			ref int? end = ref packet.DemoRef.EndAdjustmentTick;
 			
 			// assume only one valid adjustment per packet
 			foreach (AdjustmentType type in packet.DemoRef.DemoInfo.TimeAdjustmentTypes) {
 				switch (type) {
-					case Portal2CoopBegin when start == -1 && Portal2CoopStartCheck(packet):
+					case Portal2CoopBegin when !start.HasValue && Portal2CoopStartCheck(packet):
 						start = packet.Tick;
 						return;
 					case Portal1GenericWakeup when Portal1WakeupCheck(packet):

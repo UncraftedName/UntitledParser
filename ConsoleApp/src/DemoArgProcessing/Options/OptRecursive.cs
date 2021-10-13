@@ -4,7 +4,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 	
 	public class OptRecursive : DemoOption {
 
-		public static ImmutableArray<string> DefaultAliases = new[] {"--recursive", "-r"}.ToImmutableArray();
+		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--recursive", "-r"}.ToImmutableArray();
 		
 		
 		public OptRecursive() : base(DefaultAliases, "specifies if the search for demos should be recursive") {}

@@ -9,7 +9,9 @@ using ConsoleApp.GenericArgProcessing;
 namespace ConsoleApp.DemoArgProcessing {
 	
 	public class DemoParserSubCommand : BaseSubCommand<DemoParsingSetupInfo, DemoParsingInfo> {
-		
+
+		public const string ArgUsageString = "<demos/dirs> [options]";
+
 		private readonly List<FileSystemInfo> _argPaths;
 		public ICollection<FileSystemInfo> ArgPaths => _argPaths;
 		private readonly SortedSet<FileInfo> _demoPaths;
@@ -54,14 +56,14 @@ namespace ConsoleApp.DemoArgProcessing {
 			ParseArgs(args, setupInfo, startIndex);
 			// check if we have/need a folder output
 			if (setupInfo.FolderOutputRequired && setupInfo.FolderOutput == null)
-				throw new ArgProcessUserException($"Folder output is required, use {OptFolderOut.DefaultAliases[0]} to set a path.");
-			// enable listdemo if there are no other options
-			if (TotalEnabledOptions == 0) {
+				throw new ArgProcessUserException($"Folder output is required, use \"{OptFolderOut.DefaultAliases[0]}\" to set one.");
+			// enable listdemo implicitly if there are no other options (but only if we launched from explorer or something)
+			if (TotalEnabledOptions == 0 && Utils.WillBeDestroyedOnExit) {
 				if (TryGetOption(OptListdemo.DefaultAliases[0], out var option)) {
 					option.Enable(setupInfo, null);
 					option.AfterParse(setupInfo);
 				} else {
-					throw new ArgProcessProgrammerException("Listdemo option not passed to constructor, no default option.");
+					throw new ArgProcessProgrammerException("Listdemo option not passed to demo sub-command.");
 				}
 			}
 			if (setupInfo.ExecutableOptions == 0)
@@ -73,7 +75,7 @@ namespace ConsoleApp.DemoArgProcessing {
 						_demoPaths.Add(fi);
 						break;
 					case DirectoryInfo di:
-						_demoPaths.UnionWith(Directory.GetFiles(di.Name, "*.dem,",
+						_demoPaths.UnionWith(Directory.GetFiles(di.FullName, "*.dem",
 							setupInfo.ShouldSearchForDemosRecursively ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
 							.Select(s => new FileInfo(s)));
 						break;
@@ -86,12 +88,13 @@ namespace ConsoleApp.DemoArgProcessing {
 			// Shorten the paths of the demos if possible, the shared path between the first and last paths will give
 			// the overall shared path of everything. If it's empty then we know the demos span multiple drives.
 			string commonParent = Utils.SharedPathSubstring(_demoPaths.Min.FullName, _demoPaths.Max.FullName);
-			var paths =
-				from demoPath in _demoPaths
-				let displayName = commonParent == ""
-					? demoPath.FullName
-					: PathExt.GetRelativePath(commonParent, demoPath.FullName)
-				select (demoPath, displayName);
+			IEnumerable<(FileInfo demoPath, string displayName)> paths =
+				_demoPaths.Select(demoPath => (
+					demoPath,
+					commonParent == ""
+						? demoPath.FullName
+						: PathExt.GetRelativePath(commonParent, demoPath.FullName)
+				));
 			using DemoParsingInfo parsingInfo = new DemoParsingInfo(setupInfo, paths.ToImmutableList());
 			Process(parsingInfo);
 		}
