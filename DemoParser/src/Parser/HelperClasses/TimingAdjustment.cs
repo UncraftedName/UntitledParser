@@ -24,8 +24,8 @@ namespace DemoParser.Parser.HelperClasses {
 	public static class TimingAdjustment {
 
 		public static readonly (SourceGame game, string mapName)[] ExcludedMaps = {
-			(PORTAL_1_UNPACK, "gex03"),      // gamma energy last map
-			(PORTAL_1_UNPACK, "rex_menu"),   // rexaura menu (why tf does this even have a demo???)
+			(PORTAL_1_5135, "gex03"),      // gamma energy last map
+			(PORTAL_1_5135, "rex_menu"),   // rexaura menu (why tf does this even have a demo???)
 			(PORTAL_1_STEAMPIPE, "rex_menu") 
 		};
 		
@@ -34,7 +34,7 @@ namespace DemoParser.Parser.HelperClasses {
 		// with steampipe.
 		public static IReadOnlyList<AdjustmentType> AdjustmentTypeFromMap(string mapName, SourceGame game) {
 			switch (game) {
-				case PORTAL_1_UNPACK:
+				case PORTAL_1_5135:
 					switch (mapName) {
 						case "portaltfv5":
 						case "stillalive_14_withending2":

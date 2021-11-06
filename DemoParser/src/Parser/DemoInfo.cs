@@ -44,7 +44,6 @@ namespace DemoParser.Parser {
 		public readonly SourceGame Game;
 		public readonly int MaxSplitscreenPlayers;
 		public readonly int SignOnGarbageBytes;
-		public readonly int SvcServerInfoUnknownBits;
 		public readonly bool ProcessEnts; // only do ent stuff if you're testing or the game is supported
 		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		public readonly int SendPropFlagBits;
@@ -55,6 +54,7 @@ namespace DemoParser.Parser {
 		public readonly int SendPropNumBitsToGetNumBits;
 		public readonly int NumNetFileFlagBits;
 		public float TickInterval; // I set the tick interval here just in case but it should get set from SvcServerInfo
+		public bool HasParsedTickInterval = false;
 		
 		
 		// game specific enum lists
@@ -95,7 +95,7 @@ namespace DemoParser.Parser {
 							TickInterval = 1f / 66;
 							break;
 						case 15:
-							Game = PORTAL_1_UNPACK;
+							Game = PORTAL_1_5135;
 							PacketTypes = DemoPacket.Portal1UnpackTable;
 							UserMessageTypes = UserMessage.Portal1UnpackTable;
 							ProcessEnts = true;
@@ -123,6 +123,14 @@ namespace DemoParser.Parser {
 					break;
 				case 4:
 					switch (h.NetworkProtocol) {
+						case 37:
+							Game = L4D1_1005;
+							PacketTypes = DemoPacket.DemoProtocol4Table;
+							UserMessageTypes = UserMessage.L4D1OldTable;
+							MaxSplitscreenPlayers = 4;
+							SignOnGarbageBytes = 304;
+							TickInterval = 1f / 30;
+							break;
 						case 2000:
 							Game = L4D2_2000;
 							PacketTypes = DemoPacket.DemoProtocol4Table;
@@ -179,7 +187,7 @@ namespace DemoParser.Parser {
 				SendPropNumBitsToGetNumBits = 6;
 				SendPropTypes = SendPropEnums.OldNetPropTypes;
 			} else {
-				SendPropNumBitsToGetNumBits = Game == L4D2_2000 || Game == L4D2_2042 ? 6 : 7;
+				SendPropNumBitsToGetNumBits = Game == L4D1_1005 || Game == L4D2_2000 || Game == L4D2_2042 ? 6 : 7;
 				NetMsgTypeBits = 6;
 				SendPropTypes = SendPropEnums.NewNetPropTypes;
 			}
@@ -191,6 +199,7 @@ namespace DemoParser.Parser {
 					SendPropFlagBits = 11;
 					goto default; // I don't know any other constants for demo protocol 2 so just cry
 				case 3:
+				case 4 when Game == L4D1_1005:
 					NewDemoProtocol = false;
 					SendPropFlagBits = 16;
 					SoundFlagBits = 9;
@@ -228,15 +237,6 @@ namespace DemoParser.Parser {
 			}
 			MessageTypesReverseLookup = MessageTypes.CreateReverseLookupDict(MessageType.Invalid);
 			
-			if (Game == L4D2_2042)
-				SvcServerInfoUnknownBits = 33;
-			else if (NewDemoProtocol)
-				SvcServerInfoUnknownBits = 32;
-			else if (h.NetworkProtocol == 24)
-				SvcServerInfoUnknownBits = 96;
-			else
-				SvcServerInfoUnknownBits = 0;
-			
 			TimeAdjustmentTypes = TimingAdjustment.AdjustmentTypeFromMap(h.MapName, Game);
 		}
 	}
@@ -244,10 +244,13 @@ namespace DemoParser.Parser {
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum SourceGame {
 		HL2_OE,
-		PORTAL_1_UNPACK, // todo add hl2
 		PORTAL_1_3420,
+		PORTAL_1_5135, // todo add hl2
 		PORTAL_1_STEAMPIPE,
+
 		PORTAL_2,
+
+		L4D1_1005,
 		L4D2_2000,
 		L4D2_2042,
 		UNKNOWN

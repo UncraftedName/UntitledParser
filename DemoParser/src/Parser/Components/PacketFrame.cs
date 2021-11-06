@@ -33,8 +33,9 @@ namespace DemoParser.Parser.Components {
 			Tick = Type == PacketType.Stop && !DemoInfo.NewDemoProtocol
 				? (int)bsr.ReadBitsAsUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24))
 				: bsr.ReadSInt();
-			
-			if (DemoInfo.NewDemoProtocol && bsr.BitsRemaining > 0) // last player slot byte is cut off in l4d2 demos
+
+			// last player slot byte is cut off in l4d demos
+			if ((DemoInfo.NewDemoProtocol || DemoInfo.Game == SourceGame.L4D1_1005) && bsr.BitsRemaining > 0)
 				PlayerSlot = bsr.ReadByte();
 			
 			Packet = PacketFactory.CreatePacket(DemoRef!, this, Type);
