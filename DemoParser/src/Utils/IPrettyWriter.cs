@@ -7,6 +7,7 @@ using System.Text;
 
 namespace DemoParser.Utils {
 
+	// allows writing in indented sections, so you can increase the indent and all future lines will start with spaces or whatever
 	public interface IPrettyWriter : IDisposable {
 		int FutureIndent {get;set;}
 		int LastLineLength {get;}
@@ -112,6 +113,7 @@ namespace DemoParser.Utils {
 	
 	
 	
+	// note: you have to flush this manually; for some reason a flush to a textwriter wrapper of this might not work
 	public class PrettyStreamWriter : StreamWriter, IPrettyWriter {
 		
 		private int _futureIndent;

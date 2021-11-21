@@ -44,7 +44,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		public static void WriteDataTableDump(StreamWriter sw, SourceDemo demo, DataTableDumpMode mode) {
-			IPrettyWriter pw = new PrettyStreamWriter(sw.BaseStream);
+			PrettyStreamWriter pw = new PrettyStreamWriter(sw.BaseStream);
 			int datatablesCount = 0; // spliced demos have more than one datatables packet
 			foreach (DataTables dataTables in demo.FilterForPacket<DataTables>()) {
 				if (datatablesCount++ > 0)
@@ -78,6 +78,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				pw.Append("Datatable hierarchy:\n\n\n");
 				new DataTableTree(dataTables, true).PrettyWrite(pw);
 			}
+			// see note at PrettyStreamWriter
+			pw.Flush();
 		}
 
 

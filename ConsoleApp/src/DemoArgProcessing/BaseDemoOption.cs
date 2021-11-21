@@ -143,10 +143,8 @@ namespace ConsoleApp.DemoArgProcessing {
 
 
 		private void DisposeWriters() {
-			_textWriter?.Flush();
 			_textWriter?.Dispose();
 			_textWriter = null;
-			_binaryWriter?.Flush();
 			_binaryWriter?.Dispose();
 			_binaryWriter = null;
 		}
