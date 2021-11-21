@@ -59,23 +59,24 @@ namespace ConsoleApp.GenericArgProcessing {
 				if (_optionLookup.TryGetValue(arg, out BaseOption<TSetup, TInfo> option)) {
 					switch (option.Arity) {
 						case Arity.Zero:
-							option.Enable(setupObj, null);
+							option.Enable(null);
 							break;
 						case Arity.ZeroOrOne:
 							// check if the next arg looks like an option first
 							if (argIdx + 1 < args.Length && _optionLookup.ContainsKey(args[argIdx + 1]))
-								option.Enable(setupObj, null);
-							else 
+								option.Enable(null);
+							else
 								goto case Arity.One;
 							break;
 						case Arity.One:
+							// TODO print a helpful message if the current option can't accept this as an arg AND it doesn't work as a default argument
 							if (argIdx + 1 < args.Length && option.CanUseAsArg(args[argIdx + 1])) {
 								// we can use this as an arg to the option, advance so we skip it on the next iteration
-								option.Enable(setupObj, args[++argIdx]);
+								option.Enable(args[++argIdx]);
 							} else {
 								if (option.Arity == Arity.One)
 									throw new ArgProcessProgrammerException($"Could not create argument for option '{option.Aliases[0]}'");
-								option.Enable(setupObj, null);
+								option.Enable(null);
 							}
 							break;
 						default:

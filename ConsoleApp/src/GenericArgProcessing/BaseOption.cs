@@ -39,7 +39,9 @@ namespace ConsoleApp.GenericArgProcessing {
 		}
 
 
-		public void Enable(TSetup setupObj, string? arg) {
+		public void Enable(string? arg) {
+			if (Arity == Arity.Zero)
+				throw new ArgProcessProgrammerException($"argument passed to option \"{Aliases[0]}\" with Arity {{Arity.Zero}}");
 			Arg = arg;
 			Enabled = true;
 		}
@@ -131,7 +133,7 @@ namespace ConsoleApp.GenericArgProcessing {
 			: base(aliases, arity, description, hidden)
 		{
 			if (arity == Arity.Zero)
-				throw new ArgProcessProgrammerException("Arity cannot be 0 for typed BaseOption.");
+				throw new ArgProcessProgrammerException($"Arity cannot be {Arity.Zero} for typed BaseOption.");
 			ArgParser = argParser;
 			_defaultArg = defaultArg;
 		}

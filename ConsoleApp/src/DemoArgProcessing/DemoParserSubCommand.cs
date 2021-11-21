@@ -60,7 +60,7 @@ namespace ConsoleApp.DemoArgProcessing {
 			// enable listdemo implicitly if there are no other options
 			if (TotalEnabledOptions == 0) {
 				if (TryGetOption(OptListdemo.DefaultAliases[0], out var option)) {
-					option.Enable(setupInfo, null);
+					option.Enable(null);
 					option.AfterParse(setupInfo);
 				} else {
 					throw new ArgProcessProgrammerException("Listdemo option not passed to demo sub-command.");

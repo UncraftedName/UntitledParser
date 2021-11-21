@@ -20,6 +20,7 @@ namespace ConsoleApp.DemoArgProcessing {
 	
 	/// <summary>
 	/// Represents a base option for demo parsing that takes an optional or mandatory argument of a specific type.
+	/// If Arity is set to 1, any value can be passed to defaultArg.
 	/// </summary>
 	/// <typeparam name="TArg">The type of the argument.</typeparam>
 	public abstract class DemoOption<TArg> : BaseOption<DemoParsingSetupInfo, DemoParsingInfo, TArg> {
