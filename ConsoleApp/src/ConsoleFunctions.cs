@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using ConsoleApp.DemoArgProcessing.Options;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
@@ -348,7 +349,7 @@ namespace ConsoleApp {
 					_curTextWriter!.WriteLine(tables.ToString());
 				} else {
 					var tableParser = new DataTableParser(CurDemo, tables);
-					tableParser.FlattenClasses();
+					tableParser.FlattenClasses(false);
 					foreach ((ServerClass sClass, List<FlattenedProp> fProps) in tableParser.FlattenedProps!) {
 						_curTextWriter!.WriteLine($"{sClass.ClassName} ({sClass.DataTableName}) ({fProps.Count} props):");
 						for (var i = 0; i < fProps.Count; i++) {

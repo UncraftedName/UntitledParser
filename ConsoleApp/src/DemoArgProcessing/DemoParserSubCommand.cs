@@ -56,18 +56,18 @@ namespace ConsoleApp.DemoArgProcessing {
 			ParseArgs(args, setupInfo, startIndex);
 			// check if we have/need a folder output
 			if (setupInfo.FolderOutputRequired && setupInfo.FolderOutput == null)
-				throw new ArgProcessUserException($"Folder output is required, use \"{OptFolderOut.DefaultAliases[0]}\" to set one.");
+				throw new ArgProcessUserException($"folder output is required, use \"{OptFolderOut.DefaultAliases[0]}\" to set one.");
 			// enable listdemo implicitly if there are no other options
 			if (TotalEnabledOptions == 0) {
 				if (TryGetOption(OptListdemo.DefaultAliases[0], out var option)) {
 					option.Enable(null);
 					option.AfterParse(setupInfo);
 				} else {
-					throw new ArgProcessProgrammerException("Listdemo option not passed to demo sub-command.");
+					throw new ArgProcessProgrammerException("listdemo option not passed to demo sub-command.");
 				}
 			}
 			if (setupInfo.ExecutableOptions == 0)
-				throw new ArgProcessUserException("No executable options given!");
+				throw new ArgProcessUserException("no executable options given!");
 			// flatten directories/files into just files
 			foreach (FileSystemInfo fileSystemInfo in _argPaths) {
 				switch (fileSystemInfo) {
@@ -84,7 +84,7 @@ namespace ConsoleApp.DemoArgProcessing {
 				}
 			}
 			if (_demoPaths.Count == 0)
-				throw new ArgProcessUserException("No demos found!");
+				throw new ArgProcessUserException("no demos found!");
 			// Shorten the paths of the demos if possible, the shared path between the first and last paths will give
 			// the overall shared path of everything. If it's empty then we know the demos span multiple drives.
 			string commonParent = Utils.SharedPathSubstring(_demoPaths.Min.FullName, _demoPaths.Max.FullName);

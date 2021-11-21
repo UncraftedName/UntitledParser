@@ -33,7 +33,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 		
-		public void FlattenClasses() {
+		// if allow modify is not set then we don't touch the actual demo state
+		public void FlattenClasses(bool allowModifyDemo) {
 			for (int classIndex = 0; classIndex < _dtRef.ServerClasses.Count; classIndex++) {
 				ServerClass currentClass = _dtRef.ServerClasses[classIndex];
 				
@@ -98,7 +99,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			// array and reparsed every time they're updated during demo playback. I just parse them once and store
 			// them in a more accessible format.
 			
-			if (_demoRef.CurStringTablesManager.TableReadable.GetValueOrDefault(TableNames.InstanceBaseLine)) {
+			if (allowModifyDemo && _demoRef.CurStringTablesManager.TableReadable.GetValueOrDefault(TableNames.InstanceBaseLine)) {
 				_demoRef.CurStringTablesManager.Tables[TableNames.InstanceBaseLine]
 					.Entries.ToList()
 					.Select(entry => entry.EntryData)

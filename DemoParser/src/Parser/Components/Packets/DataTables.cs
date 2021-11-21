@@ -62,7 +62,7 @@ namespace DemoParser.Parser.Components.Packets {
 				
 				// create the prop list for each class
 				DemoRef.DataTableParser = new DataTableParser(DemoRef, this);
-				DemoRef.DataTableParser.FlattenClasses();
+				DemoRef.DataTableParser.FlattenClasses(true);
 			} catch (Exception e) {
 				DemoRef.LogError($"exception while parsing datatables\n\texception: {e.Message}");
 				Debug.WriteLine(e);
