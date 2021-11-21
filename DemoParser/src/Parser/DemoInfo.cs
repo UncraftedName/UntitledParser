@@ -45,7 +45,6 @@ namespace DemoParser.Parser {
 		public readonly int MaxSplitscreenPlayers;
 		public readonly int SignOnGarbageBytes;
 		public readonly int SvcServerInfoUnknownBits;
-		public readonly bool ProcessEnts; // only do ent stuff if you're testing or the game is supported
 		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		public readonly int SendPropFlagBits;
 		public readonly int SoundFlagBits;
@@ -55,6 +54,10 @@ namespace DemoParser.Parser {
 		public readonly int SendPropNumBitsToGetNumBits;
 		public readonly int NumNetFileFlagBits;
 		public float TickInterval; // I set the tick interval here just in case but it should get set from SvcServerInfo
+		
+		
+		// a way to tell what info did/didn't get parsed
+		public DemoParseResult DemoParseResult;
 		
 		
 		// game specific enum lists
@@ -72,7 +75,9 @@ namespace DemoParser.Parser {
 		public readonly IReadOnlyDictionary<UserMessageType, int>? UserMessageTypesReverseLookup;
 		
 		
-		public DemoInfo(DemoHeader h) {
+		public DemoInfo(SourceDemo demo) {
+			DemoParseResult = default;
+			DemoHeader h = demo.Header;
 			switch (h.DemoProtocol) {
 				case 3:
 					switch (h.NetworkProtocol) {
@@ -80,7 +85,7 @@ namespace DemoParser.Parser {
 							Game = HL2_OE;
 							PacketTypes = DemoPacket.Portal3420Table;
 							UserMessageTypes = UserMessage.Hl2OeTable;
-							ProcessEnts = true;
+							DemoParseResult |= DemoParseResult.EntParsingEnabled;
 							MaxSplitscreenPlayers = 1;
 							SignOnGarbageBytes = 76;
 							TickInterval = 1f / 66;
@@ -89,16 +94,16 @@ namespace DemoParser.Parser {
 							Game = PORTAL_1_3420;
 							PacketTypes = DemoPacket.Portal3420Table;
 							UserMessageTypes = UserMessage.Portal3420Table;
-							ProcessEnts = true;
+							DemoParseResult |= DemoParseResult.EntParsingEnabled;
 							MaxSplitscreenPlayers = 1;
 							SignOnGarbageBytes = 76;
 							TickInterval = 1f / 66;
 							break;
 						case 15:
-							Game = PORTAL_1_UNPACK;
+							Game = PORTAL_1_5135;
 							PacketTypes = DemoPacket.Portal1UnpackTable;
 							UserMessageTypes = UserMessage.Portal1UnpackTable;
-							ProcessEnts = true;
+							DemoParseResult |= DemoParseResult.EntParsingEnabled;
 							MaxSplitscreenPlayers = 1;
 							SignOnGarbageBytes = 76;
 							TickInterval = 1f / 66;
@@ -135,7 +140,7 @@ namespace DemoParser.Parser {
 							Game = PORTAL_2;
 							PacketTypes = DemoPacket.DemoProtocol4Table;
 							UserMessageTypes = UserMessage.Portal2Table;
-							ProcessEnts = true;
+							DemoParseResult |= DemoParseResult.EntParsingEnabled;
 							MaxSplitscreenPlayers = 2;
 							SignOnGarbageBytes = 152;
 							TickInterval = 1f / 60;
@@ -153,7 +158,7 @@ namespace DemoParser.Parser {
 							// just guess, (copy of p2)
 							PacketTypes = DemoPacket.DemoProtocol4Table;
 							UserMessageTypes = UserMessage.Portal2Table;
-							ProcessEnts = true;
+							DemoParseResult |= DemoParseResult.EntParsingEnabled;
 							MaxSplitscreenPlayers = 2;
 							SignOnGarbageBytes = 152;
 							TickInterval = 1f / 60;
@@ -167,9 +172,8 @@ namespace DemoParser.Parser {
 			UserMessageTypesReverseLookup = UserMessageTypes?.CreateReverseLookupDict();
 			PacketTypesReverseLookup = PacketTypes?.CreateReverseLookupDict(PacketType.Invalid);
 			if (Game == UNKNOWN) {
-				ParserTextUtils.ConsoleWriteWithColor(
-					$"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n",
-					ConsoleColor.Magenta);
+				demo.LogError($"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n");
+				DemoParseResult |= DemoParseResult.UnknownGame;
 			}
 
 			// these should all come last after the game and other constants have already been determined
@@ -241,15 +245,29 @@ namespace DemoParser.Parser {
 		}
 	}
 	
+	
+	// keep individual games grouped together and order them by release date
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum SourceGame {
-		HL2_OE,
-		PORTAL_1_UNPACK, // todo add hl2
+		HL2_OE, // todo add regular hl2
+		
 		PORTAL_1_3420,
+		PORTAL_1_5135,
 		PORTAL_1_STEAMPIPE,
+		
 		PORTAL_2,
+		
 		L4D2_2000,
 		L4D2_2042,
 		UNKNOWN
+	}
+	
+	
+	// flags that get set during parsing, very WIP
+	[Flags]
+	public enum DemoParseResult {
+		Success = 1,
+		EntParsingEnabled = 2,
+		UnknownGame = 4,
 	}
 }

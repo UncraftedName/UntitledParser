@@ -6,7 +6,7 @@
         <ApplicationIcon>../github-resources/investigation.ico</ApplicationIcon>
         <Platforms>AnyCPU;x64</Platforms>
         <Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
-        <LangVersion>8.0</LangVersion>
+        <LangVersion>8</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AssemblyName>UntitledParser</AssemblyName>
         <Nullable>enable</Nullable>

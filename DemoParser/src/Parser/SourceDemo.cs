@@ -65,7 +65,7 @@ namespace DemoParser.Parser {
 			// make sure we set the demo settings first
 			Header = new DemoHeader(this);
 			Header.ParseStream(ref bsr);
-			DemoInfo = new DemoInfo(Header);
+			DemoInfo = new DemoInfo(this);
 			// it might be worth it to implement updating helper classes with listeners, but it's not a huge deal atm
 			CurStringTablesManager = new CurStringTablesManager(this); 
 			ErrorList = new List<string>();
@@ -87,6 +87,7 @@ namespace DemoParser.Parser {
 				throw;
 			}
 			EndAdjustmentTick ??= EndTick;
+			DemoInfo.DemoParseResult |= DemoParseResult.Success;
 		}
 		
 

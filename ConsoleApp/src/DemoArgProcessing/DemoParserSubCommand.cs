@@ -58,7 +58,7 @@ namespace ConsoleApp.DemoArgProcessing {
 			if (setupInfo.FolderOutputRequired && setupInfo.FolderOutput == null)
 				throw new ArgProcessUserException($"Folder output is required, use \"{OptFolderOut.DefaultAliases[0]}\" to set one.");
 			// enable listdemo implicitly if there are no other options (but only if we launched from explorer or something)
-			if (TotalEnabledOptions == 0 && Utils.WillBeDestroyedOnExit) {
+			if (TotalEnabledOptions == 0 && Utils.WillBeDestroyedOnExit()) {
 				if (TryGetOption(OptListdemo.DefaultAliases[0], out var option)) {
 					option.Enable(setupInfo, null);
 					option.AfterParse(setupInfo);

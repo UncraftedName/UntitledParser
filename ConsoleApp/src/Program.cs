@@ -9,12 +9,15 @@ namespace ConsoleApp {
 	public static class Program {
 
 		public static void Main(string[] args) {
+			// TODO it would be nice if the console color was reset if ctrl+c is used, but I haven't gotten that to work yet
+			// Console.TreatControlCAsInput = false;
+			// Console.CancelKeyPress += (sender, eventArgs) => Console.ResetColor();
 			Console.WriteLine("UntitledParser by UncraftedName");
 			if (args.Length == 0) {
 				Console.WriteLine(Utils.GetVersionInfo());
 				Console.WriteLine($@"usage: {Utils.GetExeName()} {DemoParserSubCommand.ArgUsageString}");
 				Utils.WriteColor(
-					Utils.WillBeDestroyedOnExit
+					Utils.WillBeDestroyedOnExit()
 						? $@"Open a new powershell window and use '.\{Utils.GetExeName()} --help' for help."
 						: @$"Use '.\{Utils.GetExeName()} --help' for help.",
 					ConsoleColor.Yellow);
@@ -47,7 +50,7 @@ namespace ConsoleApp {
 				}
 			}
 			Console.ResetColor();
-			if (Utils.WillBeDestroyedOnExit)
+			if (Utils.WillBeDestroyedOnExit())
 				Console.ReadKey();
 		}
 	}

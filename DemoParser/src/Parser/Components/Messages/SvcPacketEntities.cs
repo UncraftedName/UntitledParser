@@ -39,7 +39,7 @@ namespace DemoParser.Parser.Components.Messages {
 			_entBsr = bsr.SplitAndSkip(dataLen);
 
 #if !FORCE_PROCESS_ENTS
-			if (!DemoInfo.ProcessEnts)
+			if ((DemoInfo.DemoParseResult & DemoParseResult.EntParsingEnabled) == 0)
 				return;
 #endif
 			// now, we do some setup for ent parsing
@@ -52,6 +52,7 @@ namespace DemoParser.Parser.Components.Messages {
 				DemoRef.LogError(
 					$"{GetType().Name} failed to process entity delta, " +
 					$"attempted to retrieve non existent snapshot on engine tick: {DeltaFrom}");
+				DemoInfo.DemoParseResult &= ~DemoParseResult.EntParsingEnabled;
 				return;
 			}
 			
@@ -153,7 +154,7 @@ namespace DemoParser.Parser.Components.Messages {
 			iw.AppendLine($"updated baseline: {UpdateBaseline}");
 			iw.AppendLine($"length in bits: {_entBsr.BitLength}");
 			iw.Append($"{UpdatedEntries} updated entries");
-			if (DemoInfo.ProcessEnts) {
+			if ((DemoInfo.DemoParseResult & DemoParseResult.EntParsingEnabled) != 0) {
 				iw.Append(":");
 				iw.FutureIndent++;
 				if (Updates == null) {

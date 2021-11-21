@@ -88,8 +88,13 @@ namespace ConsoleApp {
 		private static extern int GetConsoleProcessList(int[] buffer, int size);
 
 
-		// returns true if the cmd window will close once we stop (also true if we call this from some other program but whatever)
-		public static bool WillBeDestroyedOnExit => GetConsoleProcessList(new int[2], 2) <= 1;
+		// used to check if we should use ReadKey() once we finish
+		public static bool WillBeDestroyedOnExit() {
+			return !Debugger.IsAttached && GetConsoleProcessList(new int[2], 2) <= 1;
+		}
+
+
+		public static string QuoteIfHasSpaces(string s) => s.Contains(" ") ? "\"s\"" : s;
 	}
 
 

@@ -13,7 +13,7 @@ namespace ConsoleApp.DemoArgProcessing {
 	}
 	
 
-	public interface IParallelDemoParser {
+	public interface IParallelDemoParser : IDisposable {
 		public ICurrentParseInfo GetCurrentParseInfo();
 		public (SourceDemo demo, Exception? exception) GetNext();
 		public bool NextReady();
@@ -47,22 +47,24 @@ namespace ConsoleApp.DemoArgProcessing {
 
 		private readonly ParseInfo[] _parseInfos;
 		private int _parseIdx;
+		private volatile bool _disposed;
 		
 		
 		public ThreadPoolDemoParser(IImmutableList<(FileInfo demoPath, string displayPath)> paths) {
 			_parseInfos = new ParseInfo[paths.Count];
 			for (int i = 0; i < paths.Count; i++) {
-				_parseInfos[i] = new ParseInfo(new ManualResetEventSlim(), new ProgressBar(false), paths[i].demoPath, paths[i].displayPath);
 				ThreadPool.QueueUserWorkItem(state => {
 					ParseInfo info = (ParseInfo)state;
-					info.Demo = new SourceDemo(info.FileInfo, info.ProgressBar);
-					try {
-						info.Demo.Parse();
-					} catch (Exception e) {
-						info.Exception = e;
+					if (!_disposed) {
+						info.Demo = new SourceDemo(info.FileInfo, info.ProgressBar);
+						try {
+							info.Demo.Parse();
+						} catch (Exception e) {
+							info.Exception = e;
+						}
 					}
 					info.ResetEvent.Set();
-				}, _parseInfos[i]);
+				}, _parseInfos[i] = new ParseInfo(new ManualResetEventSlim(), new ProgressBar(false), paths[i].demoPath, paths[i].displayPath));
 			}
 			_parseIdx = 0;
 		}
@@ -91,6 +93,12 @@ namespace ConsoleApp.DemoArgProcessing {
 
 		public bool HasNext() {
 			return _parseIdx < _parseInfos.Length;
+		}
+
+
+		public void Dispose() {
+			// the least we can do is not parse more demos, should probably cancel ongoing parses though
+			_disposed = true;
 		}
 	}
 }

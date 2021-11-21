@@ -75,7 +75,7 @@ namespace ConsoleApp.DemoArgProcessing {
 				_demos.Clear();
 			Debug.Assert(_pdp.HasNext());
 			// wait for the next demo
-			Console.Write($"Parsing {_pdp.GetCurrentParseInfo().DisplayPath}... ");
+			Console.Write($"Parsing {Utils.QuoteIfHasSpaces(_pdp.GetCurrentParseInfo().DisplayPath)}... ");
 			IProgressBar progressBar = _pdp.GetCurrentParseInfo().ProgressBar;
 			if (!_pdp.NextReady())
 				progressBar.StartShowing();
@@ -101,7 +101,10 @@ namespace ConsoleApp.DemoArgProcessing {
 		}
 
 
-		public void Dispose() => DisposeWriters();
+		public void Dispose() {
+			DisposeWriters();
+			_pdp.Dispose();
+		}
 
 
 		/// <summary>
