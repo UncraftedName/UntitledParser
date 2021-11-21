@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -19,7 +18,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		
 		public enum DataTableDumpMode {
 			Default,
-			Flattened
+			Flattened,
+			TreeOnly
 		}
 		
 
@@ -49,29 +49,33 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			foreach (DataTables dataTables in demo.FilterForPacket<DataTables>()) {
 				if (datatablesCount++ > 0)
 					pw.Append("\n\n\n");
-				switch (mode) {
-					case DataTableDumpMode.Default:
-						dataTables.PrettyWrite(pw);
-						break;
-					case DataTableDumpMode.Flattened:
-						var tableParser = new DataTableParser(demo, dataTables);
-						tableParser.FlattenClasses(false);
-						foreach ((ServerClass sClass, List<FlattenedProp> fProps) in tableParser.FlattenedProps!) {
-							pw.AppendLine($"{sClass.ClassName} ({sClass.DataTableName}) ({fProps.Count} props):");
-							for (var i = 0; i < fProps.Count; i++) {
-								FlattenedProp fProp = fProps[i];
-								pw.Append($"\t({i}): ");
-								pw.Append(fProp.TypeString().PadRight(12));
-								pw.AppendLine(fProp.ArrayElementPropInfo == null
-									? fProp.PropInfo.ToStringNoType()
-									: fProp.ArrayElementPropInfo.ToStringNoType());
+				if (mode != DataTableDumpMode.TreeOnly) {
+					switch (mode) {
+						case DataTableDumpMode.Default:
+							dataTables.PrettyWrite(pw);
+							break;
+						case DataTableDumpMode.Flattened:
+							var tableParser = new DataTableParser(demo, dataTables);
+							tableParser.FlattenClasses(false);
+							foreach ((ServerClass sClass, List<FlattenedProp> fProps) in tableParser.FlattenedProps!) {
+								pw.AppendLine($"{sClass.ClassName} ({sClass.DataTableName}) ({fProps.Count} props):");
+								for (var i = 0; i < fProps.Count; i++) {
+									FlattenedProp fProp = fProps[i];
+									pw.Append($"\t({i}): ");
+									pw.Append(fProp.TypeString().PadRight(12));
+									pw.AppendLine(fProp.ArrayElementPropInfo == null
+										? fProp.PropInfo.ToStringNoType()
+										: fProp.ArrayElementPropInfo.ToStringNoType());
+								}
 							}
-						}
-						break;
-					default:
-						throw new ArgProcessProgrammerException($"invalid data table dump mode: \"{mode}\"");
+							break;
+						default:
+							throw new ArgProcessProgrammerException($"invalid data table dump mode: \"{mode}\"");
+					}
 				}
-				pw.Append("\n\n\nDatatable hierarchy:\n\n\n");
+				if (mode != DataTableDumpMode.TreeOnly)
+					pw.Append("\n\n\n");
+				pw.Append("Datatable hierarchy:\n\n\n");
 				new DataTableTree(dataTables, true).PrettyWrite(pw);
 			}
 		}
