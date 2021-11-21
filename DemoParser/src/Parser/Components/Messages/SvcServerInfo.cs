@@ -61,8 +61,7 @@ namespace DemoParser.Parser.Components.Messages {
 			// l4d read multiple SvcServerInfo messages and broke the TickInterval parsed
 			// in the first message (that is parsed correctly)
 			// prevent the interval from being overwritten
-			if (DemoInfo.HasParsedTickInterval)
-			{
+			if (DemoInfo.HasParsedTickInterval) {
 				DemoInfo.TickInterval = TickInterval;
 				DemoInfo.HasParsedTickInterval = true;
 			}
@@ -89,10 +88,9 @@ namespace DemoParser.Parser.Components.Messages {
 			if (Unknown != null)
 				iw.AppendLine($"unknown byte: {Unknown}");
 			iw.AppendLine($"max server classes: {MaxServerClasses}");
-			if (MapCrc == null)
-				iw.AppendLine($"server map MD5: 0x{BitConverter.ToString(MapMD5).Replace("-","")}");
-			else
-				iw.AppendLine($"server map CRC: {MapCrc}"); // change to hex?
+			iw.AppendLine(MapMD5 != null
+				? $"server map MD5: 0x{BitConverter.ToString(MapMD5).Replace("-", "")}"
+				: $"server map CRC: {MapCrc}");
 			iw.AppendLine($"current player count: {PlayerCount}");
 			iw.AppendLine($"max player count: {MaxClients}");
 			iw.AppendLine($"interval per tick: {TickInterval}");

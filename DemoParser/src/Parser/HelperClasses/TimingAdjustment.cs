@@ -26,7 +26,7 @@ namespace DemoParser.Parser.HelperClasses {
 		public static readonly (SourceGame game, string mapName)[] ExcludedMaps = {
 			(PORTAL_1_5135, "gex03"),      // gamma energy last map
 			(PORTAL_1_5135, "rex_menu"),   // rexaura menu (why tf does this even have a demo???)
-			(PORTAL_1_STEAMPIPE, "rex_menu") 
+			(PORTAL_1_1910503, "rex_menu") 
 		};
 		
 
@@ -56,7 +56,7 @@ namespace DemoParser.Parser.HelperClasses {
 					}
 					goto case PORTAL_1_3420;
 					
-				case PORTAL_1_STEAMPIPE: // todo once ents work for steampipe, add above mods (and check if map names are the same)
+				case PORTAL_1_1910503: // todo once ents work for steampipe, add above mods (and check if map names are the same)
 				case PORTAL_1_3420:
 					switch (mapName) {
 						case "testchmb_a_00":

@@ -110,7 +110,7 @@ namespace DemoParser.Parser {
 							TickInterval = 1f / 66;
 							break;
 						case 24:
-							Game = PORTAL_1_STEAMPIPE;
+							Game = PORTAL_1_1910503;
 							PacketTypes = DemoPacket.Portal1UnpackTable;
 							UserMessageTypes = UserMessage.Portal1SteamTable;
 							MaxSplitscreenPlayers = 1;
@@ -254,7 +254,7 @@ namespace DemoParser.Parser {
 		
 		PORTAL_1_3420,
 		PORTAL_1_5135,
-		PORTAL_1_STEAMPIPE,
+		PORTAL_1_1910503, // latest steam version
 		
 		PORTAL_2,
 		
