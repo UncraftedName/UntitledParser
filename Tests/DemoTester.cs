@@ -61,8 +61,8 @@ namespace Tests {
 
 		[Test]
 		public void RemoveCaptions() {
-			return;
-			string demoDir = $"{ProjectDir}/sample demos";
+			// TODO
+			/*string demoDir = $"{ProjectDir}/sample demos";
 			Program.Main(new [] {
 				$"{demoDir}/captions.dem", "--remove-captions", "-f", $"{demoDir}/demo output"
 			});
@@ -81,7 +81,7 @@ namespace Tests {
 					.Select(tuple => tuple.messageType),
 				after.FilterForMessages().Where(tuple => tuple.messageType != MessageType.NetNop)
 					.Select(tuple => tuple.messageType)
-			);
+			);*/
 		}
 	}
 }
