@@ -28,6 +28,7 @@ namespace ConsoleApp {
 						// order is the same order that the options will get processed in, shouldn't really matter
 						new OptFolderOut(),
 						new OptRecursive(),
+						new OptRegexSearch(),
 						new OptListdemo() // this option should always be here and probably be last, it's sort of a default
 					}.ToImmutableArray()
 				);
