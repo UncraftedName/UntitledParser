@@ -30,6 +30,7 @@ namespace ConsoleApp {
 						new OptRecursive(),
 						new OptRegexSearch(),
 						new OptDataTablesDump(),
+						new OptInputs(),
 						new OptListdemo() // this option should always be here and probably be last, it's sort of a default
 					}.ToImmutableArray()
 				);
