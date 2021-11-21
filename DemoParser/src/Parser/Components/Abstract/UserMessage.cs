@@ -336,6 +336,59 @@ namespace DemoParser.Parser.Components.Abstract {
 
 		// all but the last 3 (the vote uMessages)
 		public static readonly IReadOnlyList<UserMessageType> L4D2OldSoloTable = L4D2SteamTable.Take(61).ToArray();
+
+		public static readonly IReadOnlyList<UserMessageType> L4D1OldTable = new[]
+		{
+			UserMessageType.Geiger,
+			UserMessageType.Train,
+			UserMessageType.HudText,
+			UserMessageType.SayText,
+			UserMessageType.SayText2,
+			UserMessageType.TextMsg,
+			UserMessageType.HUDMsg,
+			UserMessageType.ResetHUD,
+			UserMessageType.GameTitle,
+			UserMessageType.ItemPickup,
+			UserMessageType.ShowMenu,
+			UserMessageType.Shake,
+			UserMessageType.Fade,
+			UserMessageType.VGUIMenu,
+			UserMessageType.Rumble,
+			UserMessageType.CloseCaption,
+			UserMessageType.SendAudio,
+			UserMessageType.RawAudio,
+			UserMessageType.VoiceMask,
+			UserMessageType.RequestState,
+			UserMessageType.BarTime,
+			UserMessageType.Damage,
+			UserMessageType.RadioText,
+			UserMessageType.HintText,
+			UserMessageType.KeyHintText,
+			UserMessageType.ReloadEffect,
+			UserMessageType.PlayerAnimEvent,
+			UserMessageType.AmmoDenied,
+			UserMessageType.UpdateRadar,
+			UserMessageType.KillCam,
+			UserMessageType.MarkAchievement,
+			UserMessageType.Splatter,
+			UserMessageType.SplatterClear,
+			UserMessageType.MessageText,
+			UserMessageType.TransitionRestore,
+			UserMessageType.Spawn,
+			UserMessageType.CreditsLine,
+			UserMessageType.CreditsMsg,
+			UserMessageType.StatsCrawlMsg,
+			UserMessageType.StatsSkipState,
+			UserMessageType.ShowStats,
+			UserMessageType.MusicCmd,
+			UserMessageType.WitchBloodSplatter,
+			UserMessageType.AchievementEvent,
+			UserMessageType.PZDmgMsg,
+			UserMessageType.HideLoadingPlaque,
+			UserMessageType.VoteRegistered,
+			UserMessageType.DisconnectToLobby,
+			UserMessageType.CallVoteFailed
+		};
 		
 		#endregion
 
@@ -376,7 +429,8 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.BlurFade,
 			UserMessageType.AllPlayersConnectedGameStarting,
 			UserMessageType.DisconnectToLobby,
-			UserMessageType.HapMeleeContact
+			UserMessageType.HapMeleeContact,
+			UserMessageType.HideLoadingPlaque
 		}.ToImmutableHashSet();
 		
 		
@@ -551,5 +605,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		PZEndGamePanelMsg,
 		PZEndGamePanelVoteRegisteredMsg,
 		PZEndGameVoteStatsMsg,
+		// additional types from l4d1
+		HideLoadingPlaque,
 	} 
 }

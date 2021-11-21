@@ -472,7 +472,7 @@ namespace ConsoleApp {
 					
 					// actually change the game dir
 					SvcServerInfo serverInfo = signOn.FilterForMessage<SvcServerInfo>().Single();
-					int editIndex = serverInfo.Reader.AbsoluteBitIndex - signOn.Reader.AbsoluteBitIndex + 186 + CurDemo.DemoInfo.SvcServerInfoUnknownBits;
+					int editIndex = serverInfo.Reader.AbsoluteBitIndex - signOn.Reader.AbsoluteBitIndex + serverInfo.GameDirBitIndex;
 					bsw.RemoveBitsAtIndex(editIndex, old.Length * 8);
 					bsw.InsertBitsAtIndex(dirBytes, editIndex, dir.Length * 8);
 					_curBinWriter!.Write(bsw.AsArray);
