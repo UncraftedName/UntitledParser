@@ -71,12 +71,7 @@ namespace ConsoleApp {
 		}
 
 
-		public static string GetExeName() {
-			string name = AppDomain.CurrentDomain.FriendlyName;
-			if (name.Contains(" "))
-				name = $"\"{name}\"";
-			return name;
-		}
+		public static string GetExeName() => QuoteIfHasSpaces(AppDomain.CurrentDomain.FriendlyName);
 
 
 		public static string GetVersionInfo() {
