@@ -31,6 +31,7 @@ namespace ConsoleApp {
 							new OptFolderOut(),
 							new OptRecursive(),
 							new OptRegexSearch(),
+							new OptPauses(),
 							new OptDataTablesDump(),
 							new OptInputs(),
 							new OptDemoDump(),
