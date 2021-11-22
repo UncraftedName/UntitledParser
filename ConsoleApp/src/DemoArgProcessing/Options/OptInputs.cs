@@ -56,10 +56,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 						yield return (u.Tick, b?.ToString() ?? "none");
 						break;
 					case InputDisplayMode.Int:
-						if (b.HasValue)
-							yield return (u.Tick, ((uint)b.Value).ToString());
-						else
-							yield return (u.Tick, "0");
+						yield return (u.Tick, b.HasValue ? ((uint)b.Value).ToString() : "0");
 						break;
 					case InputDisplayMode.Flags:
 						yield return (u.Tick, Convert.ToString(b.HasValue ? (uint)b.Value : 0, 2).PadLeft(32, '0'));
