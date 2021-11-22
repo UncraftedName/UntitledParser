@@ -22,21 +22,21 @@ namespace ConsoleApp {
 						: @$"Use '.\{Utils.GetExeName()} --help' for help.",
 					ConsoleColor.Yellow);
 			} else {
-				// only use the one sub command - no other commands for the demo parser
-				DemoParserSubCommand demoParserCommand = new DemoParserSubCommand(
-					new BaseOption<DemoParsingSetupInfo, DemoParsingInfo>[] {
-						// order is the same order that the options will get processed in, shouldn't really matter
-						new OptFolderOut(),
-						new OptRecursive(),
-						new OptRegexSearch(),
-						new OptDataTablesDump(),
-						new OptInputs(),
-						new OptListdemo() // this option should always be here and probably be last, it's sort of a default
-					}.ToImmutableArray()
-				);
-
-				// write with color since we have no idea what/when could have triggered the exception
+				// write everything with color since we have no idea what/when could have triggered the exception
 				try {
+					// only use the one sub command - no other commands for the demo parser
+					DemoParserSubCommand demoParserCommand = new DemoParserSubCommand(
+						new BaseOption<DemoParsingSetupInfo, DemoParsingInfo>[] {
+							// order is the same order that the options will get processed in, shouldn't really matter
+							new OptFolderOut(),
+							new OptRecursive(),
+							new OptRegexSearch(),
+							new OptDataTablesDump(),
+							new OptInputs(),
+							new OptDemoDump(),
+							new OptListdemo() // this option should always be here and probably be last, it's sort of a default
+						}.ToImmutableArray()
+					);
 					demoParserCommand.Execute(args);
 				} catch (ArgProcessUserException e) {
 					Utils.WriteColor($"User error: {e.Message}\n", ConsoleColor.Red);

@@ -40,7 +40,7 @@ namespace ConsoleApp.GenericArgProcessing {
 
 
 		public void Enable(string? arg) {
-			if (Arity == Arity.Zero)
+			if (Arity == Arity.Zero && arg != null)
 				throw new ArgProcessProgrammerException($"argument passed to option \"{Aliases[0]}\" with Arity {{Arity.Zero}}");
 			Arg = arg;
 			Enabled = true;
