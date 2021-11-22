@@ -16,6 +16,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		public ICollection<FileSystemInfo> ArgPaths => _argPaths;
 		private readonly SortedSet<FileInfo> _demoPaths;
 		public ICollection<FileInfo> DemoPaths => _demoPaths;
+		public override string VersionString => "version TODO";
 
 
 		public DemoParserSubCommand(IImmutableList<BaseOption<DemoParsingSetupInfo, DemoParsingInfo>> options)
@@ -48,12 +49,11 @@ namespace ConsoleApp.DemoArgProcessing {
 		}
 
 
-		public void Execute(params string[] args) => Execute(0, args);
-
-
-		public void Execute(int startIndex, params string[] args) {
+		public override void Execute(params string[] args) {
+			if (CheckHelpAndVersion(args))
+				return;
 			DemoParsingSetupInfo setupInfo = new DemoParsingSetupInfo();
-			ParseArgs(args, setupInfo, startIndex);
+			ParseArgs(args, setupInfo);
 			// check if we have/need a folder output
 			if (setupInfo.FolderOutputRequired && setupInfo.FolderOutput == null)
 				throw new ArgProcessUserException($"folder output is required, use \"{OptFolderOut.DefaultAliases[0]}\" to set one.");

@@ -72,11 +72,6 @@ namespace ConsoleApp {
 
 
 		public static string GetExeName() => QuoteIfHasSpaces(AppDomain.CurrentDomain.FriendlyName);
-
-
-		public static string GetVersionInfo() {
-			return "version TODO";
-		}
 		
 		
 		[System.Runtime.InteropServices.DllImport("kernel32.dll")]

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 
 namespace ConsoleApp.GenericArgProcessing {
@@ -15,18 +14,19 @@ namespace ConsoleApp.GenericArgProcessing {
 		
 		private readonly IImmutableList<BaseOption<TSetup, TInfo>> _options;
 		private readonly IImmutableDictionary<string, BaseOption<TSetup, TInfo>> _optionLookup;
+		public abstract string VersionString {get;}
 
 
 		// order matters here, this is the same order in which the options will get processed
 		protected BaseSubCommand(IImmutableList<BaseOption<TSetup, TInfo>> options) {
 			_options = options;
-			HashSet<string> aliasSet = new HashSet<string>();
+			HashSet<string> aliasSet = new HashSet<string> {"--help", "--version"};
 			foreach (var option in options) {
 				if (option.Aliases.Count == 0)
 					throw new ArgProcessProgrammerException($"Option '{option.GetType().Name}' has no aliases.");
 				foreach (string al in option.Aliases)
 					if (!aliasSet.Add(al))
-						throw new ArgProcessProgrammerException($"Alias '{al}' is present twice in subcommand '{GetType().Name}'.");
+						throw new ArgProcessProgrammerException($"Alias '{al}' overlaps with a different option.");
 			}
 			_optionLookup = options
 				.SelectMany(o => o.Aliases, (option, alias) => (option, alias))
@@ -51,9 +51,9 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// <summary>
 		/// Parses the arguments, passing in the setup object to each option as it's parsed.
 		/// </summary>
-		protected void ParseArgs(string[] args, TSetup setupObj, int argIdx) {
-			Debug.Assert(argIdx >= 0 && argIdx <= args.Length - 1);
+		protected void ParseArgs(string[] args, TSetup setupObj) {
 			Reset();
+			int argIdx = 0;
 			while (argIdx < args.Length) {
 				string arg = args[argIdx];
 				if (_optionLookup.TryGetValue(arg, out BaseOption<TSetup, TInfo> option)) {
@@ -89,6 +89,34 @@ namespace ConsoleApp.GenericArgProcessing {
 			}
 			foreach (var option in _options.Where(o => o.Enabled))
 				option.AfterParse(setupObj);
+		}
+
+
+		// entry point from the scary outside world
+		public abstract void Execute(params string[] args);
+		public void Execute(int skip, params string[] args) => Execute(args.Skip(skip).ToArray());
+
+
+		/// <summary>
+		/// Parses the given arguments for --help or --version and handles that accordingly. Should be run before
+		/// ParseArgs(), and the program should stop after calling this if this function returned true.
+		/// </summary>
+		/// <returns>Returns true if --help or --version are set and have been handled, false otherwise.</returns>
+		protected bool CheckHelpAndVersion(string[] args) {
+			if (args.Contains("--help")) {
+				PrintHelp();
+				return true;
+			}
+			if (args.Contains("--version")) {
+				Console.WriteLine(VersionString);
+				return true;
+			}
+			return false;
+		}
+
+
+		private void PrintHelp() {
+			Console.WriteLine("help yourself");
 		}
 
 
