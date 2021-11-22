@@ -48,8 +48,8 @@ namespace DemoParser.Parser.Components.Abstract {
 		internal abstract void WriteToStreamWriter(BitStreamWriter bsw);
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"Not Implemented - {GetType().FullName}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"Not Implemented - {GetType().FullName}");
 		}
 	}
 }

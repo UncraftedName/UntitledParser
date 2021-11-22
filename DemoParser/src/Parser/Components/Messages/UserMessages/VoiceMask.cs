@@ -28,17 +28,17 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append("player masks:");
-			iw.FutureIndent++;
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append("player masks:");
+			pw.FutureIndent++;
 			for (int i = 0; i < PlayerMasks.Length; i++) {
-				iw.AppendLine();
-				iw.AppendLine($"game rules mask #{i + 1}: {PlayerMasks[i].GameRulesMask}");
-				iw.Append($"ban mask #{i + 1}: {PlayerMasks[i].BanMask}");
+				pw.AppendLine();
+				pw.AppendLine($"game rules mask #{i + 1}: {PlayerMasks[i].GameRulesMask}");
+				pw.Append($"ban mask #{i + 1}: {PlayerMasks[i].BanMask}");
 			}
-			iw.FutureIndent--;
-			iw.AppendLine();
-			iw.Append($"player mod enable: {PlayerModEnable}");
+			pw.FutureIndent--;
+			pw.AppendLine();
+			pw.Append($"player mod enable: {PlayerModEnable}");
 		}
 		
 		

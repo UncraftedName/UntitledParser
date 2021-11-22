@@ -32,16 +32,16 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"({EntIndex}) DELTA - ");
-			ServerClass.PrettyWrite(iw);
-			iw.FutureIndent++;
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"({EntIndex}) DELTA - ");
+			ServerClass.PrettyWrite(pw);
+			pw.FutureIndent++;
 			foreach ((int propIndex, EntityProperty prop) in Props) {
-				iw.AppendLine();
-				iw.Append($"({propIndex}) ");
-				prop.PrettyWrite(iw);
+				pw.AppendLine();
+				pw.Append($"({propIndex}) ");
+				prop.PrettyWrite(pw);
 			}
-			iw.FutureIndent--;
+			pw.FutureIndent--;
 		}
 	}
 	
@@ -68,18 +68,18 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"({EntIndex}) {(New ? "CREATE" : "ENTER_PVS")} - ");
-			ServerClass.PrettyWrite(iw);
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"({EntIndex}) {(New ? "CREATE" : "ENTER_PVS")} - ");
+			ServerClass.PrettyWrite(pw);
 			if (New)
-				iw.Append($", serial: {Serial}");
-			iw.FutureIndent++;
+				pw.Append($", serial: {Serial}");
+			pw.FutureIndent++;
 			foreach ((int propIndex, EntityProperty prop) in Props) {
-				iw.AppendLine();
-				iw.Append($"({propIndex}) ");
-				prop.PrettyWrite(iw);
+				pw.AppendLine();
+				pw.Append($"({propIndex}) ");
+				prop.PrettyWrite(pw);
 			}
-			iw.FutureIndent--;
+			pw.FutureIndent--;
 		}
 	}
 	
@@ -99,9 +99,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - ");
-			ServerClass.PrettyWrite(iw);
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - ");
+			ServerClass.PrettyWrite(pw);
 		}
 	}
 }

@@ -39,18 +39,18 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"paint type: {PaintType.ToString()}");
-			iw.AppendLine($"handle: {EHandle}");
-			iw.AppendLine($"unknown floats: {UnkHf1}, {UnkHf2}");
-			iw.AppendLine($"center: {Center}");
-			iw.Append($"all {Positions.Length} positions: ");
-			iw.FutureIndent++;
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"paint type: {PaintType.ToString()}");
+			pw.AppendLine($"handle: {EHandle}");
+			pw.AppendLine($"unknown floats: {UnkHf1}, {UnkHf2}");
+			pw.AppendLine($"center: {Center}");
+			pw.Append($"all {Positions.Length} positions: ");
+			pw.FutureIndent++;
 			foreach (Vector3 pos in Positions) {
-				iw.AppendLine();
-				iw.Append(pos.ToString());
+				pw.AppendLine();
+				pw.Append(pos.ToString());
 			}
-			iw.FutureIndent--;
+			pw.FutureIndent--;
 		}
 	}
 

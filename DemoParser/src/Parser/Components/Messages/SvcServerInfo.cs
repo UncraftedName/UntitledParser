@@ -79,28 +79,28 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"network protocol: {NetworkProtocol}");
-			iw.AppendLine($"server count: {ServerCount}");
-			iw.AppendLine($"is hltv: {IsHltv}");
-			iw.AppendLine($"is dedicated: {IsDedicated}");
-			iw.AppendLine($"server client CRC: {ClientCrc}"); // change to hex?
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"network protocol: {NetworkProtocol}");
+			pw.AppendLine($"server count: {ServerCount}");
+			pw.AppendLine($"is hltv: {IsHltv}");
+			pw.AppendLine($"is dedicated: {IsDedicated}");
+			pw.AppendLine($"server client CRC: {ClientCrc}"); // change to hex?
 			if (Unknown != null)
-				iw.AppendLine($"unknown byte: {Unknown}");
-			iw.AppendLine($"max server classes: {MaxServerClasses}");
-			iw.AppendLine(MapMD5 != null
+				pw.AppendLine($"unknown byte: {Unknown}");
+			pw.AppendLine($"max server classes: {MaxServerClasses}");
+			pw.AppendLine(MapMD5 != null
 				? $"server map MD5: 0x{BitConverter.ToString(MapMD5).Replace("-", "")}"
 				: $"server map CRC: {MapCrc}");
-			iw.AppendLine($"current player count: {PlayerCount}");
-			iw.AppendLine($"max player count: {MaxClients}");
-			iw.AppendLine($"interval per tick: {TickInterval}");
-			iw.AppendLine($"platform: {Platform}");
-			iw.AppendLine($"game directory: {GameDir}");
-			iw.AppendLine($"map name: {MapName}");
-			iw.AppendLine($"skybox name: {SkyName}");
-			iw.Append($"host name: {HostName}");
+			pw.AppendLine($"current player count: {PlayerCount}");
+			pw.AppendLine($"max player count: {MaxClients}");
+			pw.AppendLine($"interval per tick: {TickInterval}");
+			pw.AppendLine($"platform: {Platform}");
+			pw.AppendLine($"game directory: {GameDir}");
+			pw.AppendLine($"map name: {MapName}");
+			pw.AppendLine($"skybox name: {SkyName}");
+			pw.Append($"host name: {HostName}");
 			if (HasReplay != null)
-				iw.Append($"\nhas replay: {HasReplay}");
+				pw.Append($"\nhas replay: {HasReplay}");
 		}
 	}
 }

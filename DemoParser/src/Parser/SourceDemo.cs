@@ -109,26 +109,26 @@ namespace DemoParser.Parser {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine("Untitled parser by UncraftedName, build date: " +
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine("Untitled parser by UncraftedName, build date: " +
 						  $"{BuildDateAttribute.GetBuildDate(Assembly.GetExecutingAssembly()):R}");
 			if (FileName != null)
-				iw.AppendLine($"file name: {FileName}");
-			iw.Append($"predicted game: {DemoInfo.Game}\n\n");
+				pw.AppendLine($"file name: {FileName}");
+			pw.Append($"predicted game: {DemoInfo.Game}\n\n");
 			
-			Header.PrettyWrite(iw);
+			Header.PrettyWrite(pw);
 			foreach (PacketFrame frame in Frames) {
-				iw.Append("\n\n");
-				frame.PrettyWrite(iw);
+				pw.Append("\n\n");
+				frame.PrettyWrite(pw);
 			}
 			if (_exceptionDuringParsing)
-				iw.AppendLine("\n\nAn unhandled exception occured while parsing this demo, the rest could not be parsed...");
+				pw.AppendLine("\n\nAn unhandled exception occured while parsing this demo, the rest could not be parsed...");
 			if (ErrorList.Count > 0) {
-				iw.AppendLine("\n\nList of errors while parsing: ");
+				pw.AppendLine("\n\nList of errors while parsing: ");
 				foreach (string s in ErrorList)
-					iw.AppendLine(s);
+					pw.AppendLine(s);
 			} else {
-				iw.AppendLine();
+				pw.AppendLine();
 			}
 		}
 

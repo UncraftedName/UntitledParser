@@ -25,9 +25,9 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"cookie: {Cookie}");
-			iw.Append($"cvar name: {CvarName}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"cookie: {Cookie}");
+			pw.Append($"cvar name: {CvarName}");
 		}
 	}
 }

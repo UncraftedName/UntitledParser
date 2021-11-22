@@ -29,11 +29,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"command: {Command}");
-			iw.AppendLine($"amplitude: {Amplitude}");
-			iw.AppendLine($"frequency: {Frequency}");
-			iw.Append($"duration: {Duration}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"command: {Command}");
+			pw.AppendLine($"amplitude: {Amplitude}");
+			pw.AppendLine($"frequency: {Frequency}");
+			pw.Append($"duration: {Duration}");
 		}
 	}
 

@@ -32,8 +32,8 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 
 		// see src_main/engine/gl_rlight.cpp
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append(Values == null
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append(Values == null
 				? "0 frames (256)"
 				: $"{Values.Length} frame{(Values.Length > 1 ? "s" : "")}: {Values.SequenceToString().Replace(",", "")}");
 		}

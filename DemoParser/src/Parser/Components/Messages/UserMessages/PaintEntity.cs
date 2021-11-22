@@ -27,10 +27,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"entity: {Ent}");
-			iw.AppendLine($"paint type: {PaintType.ToString()}");
-			iw.Append($"pos: {Pos}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"entity: {Ent}");
+			pw.AppendLine($"paint type: {PaintType.ToString()}");
+			pw.Append($"pos: {Pos}");
 		}
 	}
 }

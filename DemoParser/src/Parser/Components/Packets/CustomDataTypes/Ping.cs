@@ -23,8 +23,8 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"ping screen location (x, y): ({X}, {Y})");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"ping screen location (x, y): ({X}, {Y})");
 		}
 	}
 }

@@ -24,8 +24,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"reason: {Reason}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"reason: {Reason}");
 		}
 	}
 }

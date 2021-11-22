@@ -55,12 +55,12 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			foreach (CmdInfo cmdInfo in PacketInfo) 
-				cmdInfo.PrettyWrite(iw);
-			iw.AppendLine($"in sequence: {InSequence}");
-			iw.AppendLine($"out sequence: {OutSequence}");
-			MessageStream.PrettyWrite(iw);
+				cmdInfo.PrettyWrite(pw);
+			pw.AppendLine($"in sequence: {InSequence}");
+			pw.AppendLine($"out sequence: {OutSequence}");
+			MessageStream.PrettyWrite(pw);
 		}
 	}
 	
@@ -96,11 +96,11 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"flags: {Flags}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"flags: {Flags}");
 			for (int i = 0; i < _floats.Length; i++) {
 				string dSym = UseDegreeSymbol[i] ? "°" : " ";
-				iw.AppendFormat("{0,-20} {1,11}, {2,11}, {3,11}\n",
+				pw.AppendFormat("{0,-20} {1,11}, {2,11}, {3,11}\n",
 					$"{Names[i]}:", $"{_floats[i].X:F2}{dSym}", $"{_floats[i].Y:F2}{dSym}", $"{_floats[i].Z:F2}{dSym}");
 			}
 		}

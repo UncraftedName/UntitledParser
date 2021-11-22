@@ -36,15 +36,15 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append(TableName != null ? $"table: {TableName}" : "table id:");
-			iw.AppendLine($" ({TableId})");
-			iw.AppendLine($"number of changed entries: {ChangedEntriesCount}");
-			iw.Append("table update:");
-			iw.FutureIndent++;
-			iw.AppendLine();
-			TableUpdates.PrettyWrite(iw);
-			iw.FutureIndent--;
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append(TableName != null ? $"table: {TableName}" : "table id:");
+			pw.AppendLine($" ({TableId})");
+			pw.AppendLine($"number of changed entries: {ChangedEntriesCount}");
+			pw.Append("table update:");
+			pw.FutureIndent++;
+			pw.AppendLine();
+			TableUpdates.PrettyWrite(pw);
+			pw.FutureIndent--;
 		}
 	}
 	
@@ -160,13 +160,13 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			if (_exceptionWhileParsing) {
-				iw.Append("error while parsing");
+				pw.Append("error while parsing");
 				return;
 			}
 			if (TableUpdates.Count == 0) {
-				iw.Append("no entries");
+				pw.Append("no entries");
 			} else {
 				int padCount = TableUpdates
 					.Select(update => (Name: update.TableEntry.EntryName, Data: update.TableEntry.EntryData))
@@ -177,9 +177,9 @@ namespace DemoParser.Parser.Components.Messages {
 				
 				for (int i = 0; i < TableUpdates.Count; i++) {
 					if (i != 0)
-						iw.AppendLine();
+						pw.AppendLine();
 					TableUpdates[i].PadCount = padCount;
-					TableUpdates[i].PrettyWrite(iw);
+					TableUpdates[i].PrettyWrite(pw);
 				}
 			}
 		}
@@ -201,20 +201,20 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) { // similar logic to that in string tables
-			iw.Append($"[{Index}] {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
+		public override void PrettyWrite(IPrettyWriter pw) { // similar logic to that in string tables
+			pw.Append($"[{Index}] {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
 			if (TableEntry?.EntryData != null) {
 				if (TableEntry.EntryData.InlineToString) {
-					iw.Append("; ");
-					TableEntry.EntryData.PrettyWrite(iw);
+					pw.Append("; ");
+					TableEntry.EntryData.PrettyWrite(pw);
 				} else {
-					iw.FutureIndent++;
+					pw.FutureIndent++;
 					if (TableEntry.EntryData.ContentsKnown)
-						iw.AppendLine();
+						pw.AppendLine();
 					else
-						iw.PadLastLine(PadCount + 15, '.');
-					TableEntry.EntryData.PrettyWrite(iw);
-					iw.FutureIndent--;
+						pw.PadLastLine(PadCount + 15, '.');
+					TableEntry.EntryData.PrettyWrite(pw);
+					pw.FutureIndent--;
 				}
 			}
 		}

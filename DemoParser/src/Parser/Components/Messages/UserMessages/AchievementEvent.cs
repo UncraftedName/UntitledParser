@@ -23,8 +23,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"achievement ID: {AchievementId}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"achievement ID: {AchievementId}");
 		}
 	}
 }

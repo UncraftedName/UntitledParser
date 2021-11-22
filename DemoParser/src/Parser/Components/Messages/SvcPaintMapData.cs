@@ -25,8 +25,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"data length in bits: {_data.BitLength}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"data length in bits: {_data.BitLength}");
 		}
 	}
 }

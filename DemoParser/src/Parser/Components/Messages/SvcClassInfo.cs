@@ -49,16 +49,16 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"create on client: {CreateOnClient}");
-			iw.Append($"{ServerClasses?.Length ?? ClassCount} server classes{(CreateOnClient ? "" : ":")}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"create on client: {CreateOnClient}");
+			pw.Append($"{ServerClasses?.Length ?? ClassCount} server classes{(CreateOnClient ? "" : ":")}");
 			if (!CreateOnClient && ServerClasses != null) {
-				iw.FutureIndent++;
+				pw.FutureIndent++;
 				foreach (ServerClass serverClass in ServerClasses) {
-					iw.AppendLine();
-					serverClass.PrettyWrite(iw);
+					pw.AppendLine();
+					serverClass.PrettyWrite(pw);
 				}
-				iw.FutureIndent--;
+				pw.FutureIndent--;
 			}
 		}
 	}
@@ -91,8 +91,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"[{DataTableId}] {ClassName} ({DataTableName})");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"[{DataTableId}] {ClassName} ({DataTableName})");
 		}
 
 		// I don't think I'll need these hashcode methods if the the ID always matches the index

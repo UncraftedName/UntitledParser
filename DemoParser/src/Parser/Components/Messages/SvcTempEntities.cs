@@ -32,11 +32,11 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"entry count: {EntryCount}");
-			iw.Append($"length in bits: {_data.BitLength}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"entry count: {EntryCount}");
+			pw.Append($"length in bits: {_data.BitLength}");
 			if (Unknown.HasValue)
-				iw.Append($"\nunknown: {Unknown}");
+				pw.Append($"\nunknown: {Unknown}");
 		}
 	}
 }

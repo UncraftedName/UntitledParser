@@ -29,11 +29,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"spectator mode: {SpecMode}");
-			iw.AppendLine($"target 1: {Target1}");
-			iw.AppendLine($"target 2: {Target2}");
-			iw.Append($"unknown: {Unknown}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"spectator mode: {SpecMode}");
+			pw.AppendLine($"target 1: {Target1}");
+			pw.AppendLine($"target 2: {Target2}");
+			pw.Append($"unknown: {Unknown}");
 		}
 	}
 

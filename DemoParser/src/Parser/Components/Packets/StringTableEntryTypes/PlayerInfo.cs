@@ -68,19 +68,19 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			if (DemoInfo.NewDemoProtocol)
-				iw.AppendLine($"steam ID: {SteamId.ToString()}");
-			iw.AppendLine($"name: {Name}");
-			iw.AppendLine($"user ID: {UserId}");
-			iw.AppendLine($"GUID: {Guid}");
-			iw.AppendLine($"friends ID: {FriendsId}");
-			iw.AppendLine($"friends name: {FriendsName}");
-			iw.AppendLine($"fake player: {FakePlayer}");
-			iw.AppendLine($"is hltv: {IsHlTv}");
-			iw.AppendLine($"custom file crc's: [logo: 0x{CustomFiles[0]:X}, sounds: 0x{CustomFiles[1]:X}, " +
+				pw.AppendLine($"steam ID: {SteamId.ToString()}");
+			pw.AppendLine($"name: {Name}");
+			pw.AppendLine($"user ID: {UserId}");
+			pw.AppendLine($"GUID: {Guid}");
+			pw.AppendLine($"friends ID: {FriendsId}");
+			pw.AppendLine($"friends name: {FriendsName}");
+			pw.AppendLine($"fake player: {FakePlayer}");
+			pw.AppendLine($"is hltv: {IsHlTv}");
+			pw.AppendLine($"custom file crc's: [logo: 0x{CustomFiles[0]:X}, sounds: 0x{CustomFiles[1]:X}, " +
 						  $"models: 0x{CustomFiles[2]:X}, txt: 0x{CustomFiles[3]:X}]");
-			iw.Append($"files downloaded: {FilesDownloaded}");
+			pw.Append($"files downloaded: {FilesDownloaded}");
 		}
 
 

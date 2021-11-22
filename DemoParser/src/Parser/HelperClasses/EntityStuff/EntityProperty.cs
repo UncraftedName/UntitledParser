@@ -25,12 +25,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) {
-			int tmp = iw.LastLineLength;
-			iw.Append(FProp.TypeString());
-			iw.PadLastLine(tmp + 12, ' ');
-			iw.Append($"{FProp.Name}: ");
-			iw.Append(PropToString());
+		public override void PrettyWrite(IPrettyWriter pw) {
+			int tmp = pw.LastLineLength;
+			pw.Append(FProp.TypeString());
+			pw.PadLastLine(tmp + 12, ' ');
+			pw.Append($"{FProp.Name}: ");
+			pw.Append(PropToString());
 		}
 		
 		

@@ -23,8 +23,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"entity index: {EntityIndex}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"entity index: {EntityIndex}");
 		}
 	}
 }

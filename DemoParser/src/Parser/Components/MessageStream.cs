@@ -83,24 +83,24 @@ namespace DemoParser.Parser.Components {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			int i = 0;
 			while (i < Messages?.Count && Messages[i].message != null) {
-				iw.Append($"message: {Messages[i].messageType} " +
+				pw.Append($"message: {Messages[i].messageType} " +
 						  $"({DemoMessage.MessageTypeToByte(Messages[i].messageType, DemoInfo)})");
 				if (Messages[i].message.MayContainData) {
-					iw.FutureIndent++;
-					iw.AppendLine();
-					Messages[i].message.PrettyWrite(iw);
-					iw.FutureIndent--;
+					pw.FutureIndent++;
+					pw.AppendLine();
+					Messages[i].message.PrettyWrite(pw);
+					pw.FutureIndent--;
 				}
 				if (i != Messages.Count - 1)
-					iw.AppendLine();
+					pw.AppendLine();
 				i++;
 			}
 			if (i < Messages?.Count) {
-				iw.Append("more messages remaining... ");
-				iw.Append(Enum.IsDefined(typeof(MessageType), Messages[i].messageType)
+				pw.Append("more messages remaining... ");
+				pw.Append(Enum.IsDefined(typeof(MessageType), Messages[i].messageType)
 					? $"type: {Messages[i].messageType}"
 					: $"unknown type: {Messages[i].messageType}");
 			}

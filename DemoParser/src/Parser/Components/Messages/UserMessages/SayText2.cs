@@ -25,9 +25,9 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"client: {Client}");
-			iw.Append($"wants to chat: {WantsToChat}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"client: {Client}");
+			pw.Append($"wants to chat: {WantsToChat}");
 		}
 	}
 }

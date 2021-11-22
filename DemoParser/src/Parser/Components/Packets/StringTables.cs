@@ -50,10 +50,10 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			foreach (StringTable table in Tables) {
-				table.PrettyWrite(iw);
-				iw.AppendLine();
+				table.PrettyWrite(pw);
+				pw.AppendLine();
 			}
 		}
 	}
@@ -97,38 +97,38 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"table name: {Name}");
-			iw.FutureIndent++;
-			iw.AppendLine();
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"table name: {Name}");
+			pw.FutureIndent++;
+			pw.AppendLine();
 			if (TableEntries != null) {
-				iw.Append($"{TableEntries.Count}/{MaxEntries ?? -1}");
-				iw.Append($" table {(TableEntries.Count > 1 ? "entries" : "entry")}:");
-				iw.FutureIndent++;
+				pw.Append($"{TableEntries.Count}/{MaxEntries ?? -1}");
+				pw.Append($" table {(TableEntries.Count > 1 ? "entries" : "entry")}:");
+				pw.FutureIndent++;
 				int longestName = TableEntries.Max(entry => entry.Name.Length); // for padding and stuff
 				foreach (StringTableEntry tableEntry in TableEntries) {
 					tableEntry.PadLength = longestName;
-					iw.AppendLine();
-					tableEntry.PrettyWrite(iw);
+					pw.AppendLine();
+					tableEntry.PrettyWrite(pw);
 				}
-				iw.FutureIndent--;
+				pw.FutureIndent--;
 			} else {
-				iw.Append("no table entries");
+				pw.Append("no table entries");
 			}
-			iw.AppendLine();
+			pw.AppendLine();
 			if (Classes != null) {
-				iw.Append($"{Classes.Count} {(Classes.Count > 1 ? "classes" : "class")}:");
-				iw.FutureIndent++;
+				pw.Append($"{Classes.Count} {(Classes.Count > 1 ? "classes" : "class")}:");
+				pw.FutureIndent++;
 				foreach (StringTableClass tableClass in Classes) {
-					iw.AppendLine();
-					tableClass.PrettyWrite(iw);
+					pw.AppendLine();
+					tableClass.PrettyWrite(pw);
 				}
-				iw.FutureIndent--;
+				pw.FutureIndent--;
 			}
 			else {
-				iw.Append("no table classes");
+				pw.Append("no table classes");
 			}
-			iw.FutureIndent--;
+			pw.FutureIndent--;
 		}
 	}
 	
@@ -171,25 +171,25 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			if (EntryData != null) {
 				if (EntryData.ContentsKnown) {
-					iw.Append(Name);
+					pw.Append(Name);
 					if (EntryData.InlineToString) {
-						iw.Append(": ");
-						EntryData.PrettyWrite(iw);
+						pw.Append(": ");
+						EntryData.PrettyWrite(pw);
 					} else {
-						iw.FutureIndent++;
-						iw.AppendLine();
-						EntryData.PrettyWrite(iw);
-						iw.FutureIndent--;
+						pw.FutureIndent++;
+						pw.AppendLine();
+						EntryData.PrettyWrite(pw);
+						pw.FutureIndent--;
 					}
 				} else {
-					iw.Append(Name.PadRight(PadLength + 2, '.'));
-					EntryData.PrettyWrite(iw);
+					pw.Append(Name.PadRight(PadLength + 2, '.'));
+					EntryData.PrettyWrite(pw);
 				}
 			} else {
-				iw.Append(Name);
+				pw.Append(Name);
 			}
 		}
 	}
@@ -219,10 +219,10 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"name: {Name}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"name: {Name}");
 			if (Data != null)
-				iw.Append($", data: {Data}");
+				pw.Append($", data: {Data}");
 		}
 	}
 }

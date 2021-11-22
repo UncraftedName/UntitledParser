@@ -22,8 +22,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"is paused: {IsPaused}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"is paused: {IsPaused}");
 		}
 	}
 }

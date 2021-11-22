@@ -25,9 +25,9 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"unknown: {Unknown}");
-			iw.Append($"callback string: {CallbackStr}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"unknown: {Unknown}");
+			pw.Append($"callback string: {CallbackStr}");
 		}
 	}
 }

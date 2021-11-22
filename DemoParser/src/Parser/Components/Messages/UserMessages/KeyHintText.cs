@@ -27,9 +27,9 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"count: {Count}");
-			iw.Append($"str: {KeyString}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"count: {Count}");
+			pw.Append($"str: {KeyString}");
 		}
 	}
 }

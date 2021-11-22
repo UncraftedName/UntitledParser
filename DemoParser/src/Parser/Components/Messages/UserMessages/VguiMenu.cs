@@ -34,16 +34,16 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine("message: " + Message);
-			iw.AppendLine("show: " + Show);
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine("message: " + Message);
+			pw.AppendLine("show: " + Show);
 			if (KeyValues.Count > 0) {
-				iw.Append($"{KeyValues.Count} key value pair{(KeyValues.Count > 1 ? "s" : "")}: ");
-				iw.FutureIndent++;
+				pw.Append($"{KeyValues.Count} key value pair{(KeyValues.Count > 1 ? "s" : "")}: ");
+				pw.FutureIndent++;
 				foreach (var kv in KeyValues)
-					iw.Append($"\n{{{kv.Key}, {kv.Value}}}");
+					pw.Append($"\n{{{kv.Key}, {kv.Value}}}");
 			} else {
-				iw.Append("no key value pairs");
+				pw.Append("no key value pairs");
 			}
 		}
 	}

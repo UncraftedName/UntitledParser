@@ -30,10 +30,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"client ID: {ClientId}");
-			iw.AppendLine($"string: {Str.Replace("\n", @"\n")}");
-			iw.Append($"wants to chat: {WantsToChat}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"client ID: {ClientId}");
+			pw.AppendLine($"string: {Str.Replace("\n", @"\n")}");
+			pw.Append($"wants to chat: {WantsToChat}");
 			/*if (DemoInfo.NewDemoProtocol)
 				iw.Append($"unknown: {Unknown}");*/
 		}

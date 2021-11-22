@@ -27,10 +27,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"type: {RumbleType}");
-			iw.AppendLine($"scale: {Scale}");
-			iw.Append($"flags: {RumbleFlags}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"type: {RumbleType}");
+			pw.AppendLine($"scale: {Scale}");
+			pw.Append($"flags: {RumbleFlags}");
 		}
 	}
 

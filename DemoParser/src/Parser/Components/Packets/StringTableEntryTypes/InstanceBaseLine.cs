@@ -82,21 +82,21 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			if (ServerClassRef != null) {
-				iw.AppendLine($"class: {ServerClassRef.ClassName} ({ServerClassRef.DataTableName})");
-				iw.Append("props:");
-				iw.FutureIndent++;
+				pw.AppendLine($"class: {ServerClassRef.ClassName} ({ServerClassRef.DataTableName})");
+				pw.Append("props:");
+				pw.FutureIndent++;
 				if (Properties != null) {
 					foreach ((int i, EntityProperty prop) in Properties) {
-						iw.AppendLine();
-						iw.Append($"({i}) ");
-						prop.PrettyWrite(iw);
+						pw.AppendLine();
+						pw.Append($"({i}) ");
+						prop.PrettyWrite(pw);
 					}
 				} else {
-					iw.Append("\nerror during parsing");
+					pw.Append("\nerror during parsing");
 				}
-				iw.FutureIndent--;
+				pw.FutureIndent--;
 			}
 		}
 	}

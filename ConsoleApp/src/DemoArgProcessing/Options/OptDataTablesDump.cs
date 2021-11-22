@@ -138,9 +138,9 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			=> _roots.Select(node => node.GetNode(name)).FirstOrDefault(node1 => node1 != null);
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			foreach (TableNode node in _roots)
-				node.WritePretty(iw, "", true);
+				node.WritePretty(pw, "", true);
 		}
 
 

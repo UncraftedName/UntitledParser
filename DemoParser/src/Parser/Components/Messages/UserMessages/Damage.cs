@@ -35,11 +35,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"armor: {Armor}");
-			iw.AppendLine($"damage taken: {DamageTaken}");
-			iw.AppendLine($"bits damage: {BitsDamage}");
-			iw.Append($"vec from: {VecFrom:F3}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"armor: {Armor}");
+			pw.AppendLine($"damage taken: {DamageTaken}");
+			pw.AppendLine($"bits damage: {BitsDamage}");
+			pw.Append($"vec from: {VecFrom:F3}");
 		}
 	}
 }

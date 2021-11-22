@@ -24,8 +24,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"array of length: {Arr.Length}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"array of length: {Arr.Length}");
 		}
 	}
 }

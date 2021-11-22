@@ -46,15 +46,15 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"{EventDescription.Name} ({EventId})");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"{EventDescription.Name} ({EventId})");
 			if (EventDescriptors != null && EventDescriptors.Count > 0) {
-				iw.FutureIndent++;
+				pw.FutureIndent++;
 				foreach ((string name, object descriptor) in EventDescriptors) {
-					iw.AppendLine();
-					iw.Append($"{name}: {descriptor}");
+					pw.AppendLine();
+					pw.Append($"{name}: {descriptor}");
 				}
-				iw.FutureIndent--;
+				pw.FutureIndent--;
 			}
 		}
 	}

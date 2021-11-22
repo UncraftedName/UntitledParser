@@ -28,10 +28,10 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"entity index: {EntityIndex}");
-			iw.AppendLine($"class ID: {ClassId}");
-			iw.Append($"data length in bits: {_data.BitLength}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"entity index: {EntityIndex}");
+			pw.AppendLine($"class ID: {ClassId}");
+			pw.Append($"data length in bits: {_data.BitLength}");
 		}
 	}
 }

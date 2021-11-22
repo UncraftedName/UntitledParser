@@ -32,11 +32,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"duration: {Duration}");
-			iw.AppendLine($"hold time: {HoldTime}");
-			iw.AppendLine($"flags: {Flags}");
-			iw.Append($"RGBA: {R:D3}, {G:D3}, {B:D3}, {A:D3}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"duration: {Duration}");
+			pw.AppendLine($"hold time: {HoldTime}");
+			pw.AppendLine($"flags: {Flags}");
+			pw.Append($"RGBA: {R:D3}, {G:D3}, {B:D3}, {A:D3}");
 		}
 	}
 

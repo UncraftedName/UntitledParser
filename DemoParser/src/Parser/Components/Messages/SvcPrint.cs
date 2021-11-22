@@ -23,16 +23,16 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			string trimmed = Str.Trim();
-			iw.Append("string: ");
+			pw.Append("string: ");
 			if (trimmed.Contains("\n")) {
-				iw.FutureIndent++;
-				iw.AppendLine();
-				iw.Append(trimmed);
-				iw.FutureIndent--;
+				pw.FutureIndent++;
+				pw.AppendLine();
+				pw.Append(trimmed);
+				pw.FutureIndent--;
 			} else {
-				iw.Append(trimmed);
+				pw.Append(trimmed);
 			}
 		}
 	}

@@ -27,10 +27,10 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"transfer ID: {TransferId}");
-			iw.AppendLine($"file name: {FileName}");
-			iw.Append($"flags: {FileFlags}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"transfer ID: {TransferId}");
+			pw.AppendLine($"file name: {FileName}");
+			pw.Append($"flags: {FileFlags}");
 		}
 	}
 

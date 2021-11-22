@@ -25,9 +25,9 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"branch: {Branch}");
-			iw.Append($"level: {Level}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"branch: {Branch}");
+			pw.Append($"level: {Level}");
 		}
 	}
 	

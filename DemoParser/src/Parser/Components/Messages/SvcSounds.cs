@@ -61,20 +61,20 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"reliable: {Reliable}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"reliable: {Reliable}");
 			if (Sounds != null) {
 				for (int i = 0; i < Sounds.Length; i++) {
-					iw.AppendLine();
-					iw.Append($"sound #{i + 1}:");
-					iw.FutureIndent++;
-					iw.AppendLine();
-					Sounds[i].PrettyWrite(iw);
-					iw.FutureIndent--;
+					pw.AppendLine();
+					pw.Append($"sound #{i + 1}:");
+					pw.FutureIndent++;
+					pw.AppendLine();
+					Sounds[i].PrettyWrite(pw);
+					pw.FutureIndent--;
 				}
 			} else {
-				iw.AppendLine();
-				iw.Append("sound parsing failed");
+				pw.AppendLine();
+				pw.Append("sound parsing failed");
 			}
 		}
 	}
@@ -250,31 +250,31 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"entity index: {EntityIndex}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"entity index: {EntityIndex}");
 
 			if ((Flags & SoundFlags.IsScriptHandle) != 0) {
-				iw.Append($"scriptable sound hash: {ScriptHash}");
+				pw.Append($"scriptable sound hash: {ScriptHash}");
 			} else {
 				if (_soundTableReadable && SoundName != null)
-					iw.Append($"sound: \"{SoundName}\"");
+					pw.Append($"sound: \"{SoundName}\"");
 				else
-					iw.Append("sound num:");
-				iw.AppendLine($" [{SoundNum}]");
+					pw.Append("sound num:");
+				pw.AppendLine($" [{SoundNum}]");
 			}
 
-			iw.AppendLine($"flags: {Flags}");
-			iw.AppendLine($"channel: {Chan}");
-			iw.AppendLine($"is ambient: {IsAmbient}");
-			iw.AppendLine($"is sentence: {IsSentence}");
-			iw.AppendLine($"sequence number: {SequenceNumber}");
-			iw.AppendLine($"volume: {Volume}");
-			iw.AppendLine($"sound level: {SoundLevel}");
-			iw.AppendLine($"pitch: {Pitch}");
+			pw.AppendLine($"flags: {Flags}");
+			pw.AppendLine($"channel: {Chan}");
+			pw.AppendLine($"is ambient: {IsAmbient}");
+			pw.AppendLine($"is sentence: {IsSentence}");
+			pw.AppendLine($"sequence number: {SequenceNumber}");
+			pw.AppendLine($"volume: {Volume}");
+			pw.AppendLine($"sound level: {SoundLevel}");
+			pw.AppendLine($"pitch: {Pitch}");
 			if (DemoInfo.NewDemoProtocol)
-				iw.AppendLine($"random seed: {RandomSeed}");
-			iw.AppendLine($"origin: {Origin}");
-			iw.Append($"speaker entity: {SpeakerEntity}");
+				pw.AppendLine($"random seed: {RandomSeed}");
+			pw.AppendLine($"origin: {Origin}");
+			pw.Append($"speaker entity: {SpeakerEntity}");
 		}
 		
 		

@@ -34,12 +34,12 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append(SoundName != null 
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append(SoundName != null 
 				? $"sound: {SoundName}" 
 				: "sound index:");
 			
-			iw.Append($" [{SoundIndex}]");
+			pw.Append($" [{SoundIndex}]");
 		}
 	}
 }

@@ -30,8 +30,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append(Str ?? $"sst: {BitConverter.ToString(SstEncryptedMessage!).Replace('-', ' ')}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append(Str ?? $"sst: {BitConverter.ToString(SstEncryptedMessage!).Replace('-', ' ')}");
 		}
 	}
 }

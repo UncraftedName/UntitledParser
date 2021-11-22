@@ -41,18 +41,18 @@ namespace DemoParser.Parser.Components {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"file stamp: {FileStamp}");
-			iw.AppendLine($"demo protocol: {DemoProtocol}");
-			iw.AppendLine($"network protocol: {NetworkProtocol}");
-			iw.AppendLine($"server name: {ServerName}");
-			iw.AppendLine($"client name: {ClientName}");
-			iw.AppendLine($"map name: {MapName}");
-			iw.AppendLine($"game directory: {GameDirectory}");
-			iw.AppendLine($"playback time: {PlaybackTime}");
-			iw.AppendLine($"tick count: {TickCount}");
-			iw.AppendLine($"frame count: {FrameCount}");
-			iw.Append($"sign on length: {SignOnLength}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"file stamp: {FileStamp}");
+			pw.AppendLine($"demo protocol: {DemoProtocol}");
+			pw.AppendLine($"network protocol: {NetworkProtocol}");
+			pw.AppendLine($"server name: {ServerName}");
+			pw.AppendLine($"client name: {ClientName}");
+			pw.AppendLine($"map name: {MapName}");
+			pw.AppendLine($"game directory: {GameDirectory}");
+			pw.AppendLine($"playback time: {PlaybackTime}");
+			pw.AppendLine($"tick count: {TickCount}");
+			pw.AppendLine($"frame count: {FrameCount}");
+			pw.Append($"sign on length: {SignOnLength}");
 		}
 	}
 }

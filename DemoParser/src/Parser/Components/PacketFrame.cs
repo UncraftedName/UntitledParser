@@ -49,19 +49,19 @@ namespace DemoParser.Parser.Components {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			if (Packet != null) {
-				iw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(DemoInfo, Type)})");
+				pw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(DemoInfo, Type)})");
 				if (DemoInfo.NewDemoProtocol && PlayerSlot.HasValue)
-					iw.Append($"\nplayer slot: {PlayerSlot.Value}");
+					pw.Append($"\nplayer slot: {PlayerSlot.Value}");
 				if (Packet.MayContainData) {
-					iw.FutureIndent++;
-					iw.AppendLine();
-					Packet.PrettyWrite(iw);
-					iw.FutureIndent--;
+					pw.FutureIndent++;
+					pw.AppendLine();
+					Packet.PrettyWrite(pw);
+					pw.FutureIndent--;
 				}
 			} else {
-				iw.Append("demo parsing failed here, packet type doesn't correspond with any known packet");
+				pw.Append("demo parsing failed here, packet type doesn't correspond with any known packet");
 			}
 		}
 	}

@@ -43,17 +43,17 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			if (Info.Count == 0) {
-				iw.Append("none");
+				pw.Append("none");
 			} else {
-				iw.Append("maps set as completed: (1-indexed)");
-				iw.FutureIndent++;
+				pw.Append("maps set as completed: (1-indexed)");
+				pw.FutureIndent++;
 				for (var i = 0; i < Info.Count; i++) {
-					iw.AppendLine();
-					iw.Append($"player: {Info[i].Player+1}, branch: {Info[i].Branch+1}, level: {Info[i].Level+1}");
+					pw.AppendLine();
+					pw.Append($"player: {Info[i].Player+1}, branch: {Info[i].Branch+1}, level: {Info[i].Level+1}");
 				}
-				iw.FutureIndent--;
+				pw.FutureIndent--;
 			}
 		}
 		

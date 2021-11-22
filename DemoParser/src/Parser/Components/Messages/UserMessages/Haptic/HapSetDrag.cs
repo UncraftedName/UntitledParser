@@ -22,8 +22,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages.Haptic {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"unknown float: {Unk}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"unknown float: {Unk}");
 		}
 	}
 }

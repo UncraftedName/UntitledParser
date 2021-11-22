@@ -145,29 +145,29 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"max entries: {MaxEntries}");
-			iw.AppendLine($"is delta: {IsDelta}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"max entries: {MaxEntries}");
+			pw.AppendLine($"is delta: {IsDelta}");
 			if (IsDelta)
-				iw.AppendLine($"delta from: {DeltaFrom}");
-			iw.AppendLine($"baseline: {BaseLine}");
-			iw.AppendLine($"updated baseline: {UpdateBaseline}");
-			iw.AppendLine($"length in bits: {_entBsr.BitLength}");
-			iw.Append($"{UpdatedEntries} updated entries");
+				pw.AppendLine($"delta from: {DeltaFrom}");
+			pw.AppendLine($"baseline: {BaseLine}");
+			pw.AppendLine($"updated baseline: {UpdateBaseline}");
+			pw.AppendLine($"length in bits: {_entBsr.BitLength}");
+			pw.Append($"{UpdatedEntries} updated entries");
 			if ((DemoInfo.DemoParseResult & DemoParseResult.EntParsingEnabled) != 0) {
-				iw.Append(":");
-				iw.FutureIndent++;
+				pw.Append(":");
+				pw.FutureIndent++;
 				if (Updates == null) {
-					iw.Append("\nupdates could not be parsed");
+					pw.Append("\nupdates could not be parsed");
 				} else {
 					foreach (EntityUpdate update in Updates) {
-						iw.AppendLine();
-						update.PrettyWrite(iw);
+						pw.AppendLine();
+						update.PrettyWrite(pw);
 					}
 				}
-				iw.FutureIndent--;
+				pw.FutureIndent--;
 			} else {
-				iw.Append("\n(entity parsing not supported for this game)");
+				pw.Append("\n(entity parsing not supported for this game)");
 			}
 		}
 	}

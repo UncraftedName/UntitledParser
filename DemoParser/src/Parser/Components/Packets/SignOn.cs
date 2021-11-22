@@ -47,10 +47,10 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine(DemoInfo.SignOnGarbageBytes + " bytes with no data");
-			iw.AppendLine($"2 unknown ints: {Unknown1}, {Unknown2}");
-			MessageStream.PrettyWrite(iw);
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine(DemoInfo.SignOnGarbageBytes + " bytes with no data");
+			pw.AppendLine($"2 unknown ints: {Unknown1}, {Unknown2}");
+			MessageStream.PrettyWrite(pw);
 		}
 	}
 }

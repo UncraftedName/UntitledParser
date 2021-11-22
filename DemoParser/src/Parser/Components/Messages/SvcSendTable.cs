@@ -29,9 +29,9 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"needs decoder: {NeedsDecoder}");
-			iw.Append($"data length in bits: {_props.BitLength}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"needs decoder: {NeedsDecoder}");
+			pw.Append($"data length in bits: {_props.BitLength}");
 		}
 	}
 }

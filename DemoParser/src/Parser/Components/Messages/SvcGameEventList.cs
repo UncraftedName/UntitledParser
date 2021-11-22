@@ -40,14 +40,14 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"{EventCount} events:");
-			iw.FutureIndent++;
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"{EventCount} events:");
+			pw.FutureIndent++;
 			foreach (GameEventDescription descriptor in Descriptors) {
-				iw.AppendLine();
-				descriptor.PrettyWrite(iw);
+				pw.AppendLine();
+				descriptor.PrettyWrite(pw);
 			}
-			iw.FutureIndent--;
+			pw.FutureIndent--;
 		}
 	}
 
@@ -77,12 +77,12 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"{EventId}: {Name}");
-			iw.FutureIndent++;
-			iw.AppendLine();
-			iw.Append($"keys: {Keys.Select(tup => $"{tup.type.ToString().ToLower()} {tup.Name}").SequenceToString()}");
-			iw.FutureIndent--;
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"{EventId}: {Name}");
+			pw.FutureIndent++;
+			pw.AppendLine();
+			pw.Append($"keys: {Keys.Select(tup => $"{tup.type.ToString().ToLower()} {tup.Name}").SequenceToString()}");
+			pw.FutureIndent--;
 		}
 	}
 

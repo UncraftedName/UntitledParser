@@ -26,9 +26,9 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine(RemoveUser ? "remove user" : "add user");
-			iw.Append($"data of length {Data.BitLength}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine(RemoveUser ? "remove user" : "add user");
+			pw.Append($"data of length {Data.BitLength}");
 		}
 	}
 }

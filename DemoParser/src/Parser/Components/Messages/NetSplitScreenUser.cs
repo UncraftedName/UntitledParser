@@ -23,8 +23,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"unknown bool: {Bool}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"unknown bool: {Bool}");
 		}
 	}
 }

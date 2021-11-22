@@ -42,23 +42,23 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"name: {TableName}");
-			iw.AppendLine($"max entries: {MaxEntries}");
-			iw.AppendLine($"number of entries: {NumEntries}");
-			iw.AppendLine($"user data fixed size: {UserDataFixedSize}");
-			iw.AppendLine($"user data size: {UserDataSize}");
-			iw.AppendLine($"user data size in bits: {UserDataSizeBits}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"name: {TableName}");
+			pw.AppendLine($"max entries: {MaxEntries}");
+			pw.AppendLine($"number of entries: {NumEntries}");
+			pw.AppendLine($"user data fixed size: {UserDataFixedSize}");
+			pw.AppendLine($"user data size: {UserDataSize}");
+			pw.AppendLine($"user data size in bits: {UserDataSizeBits}");
 			if (DemoRef.Header.NetworkProtocol >= 15)
-				iw.AppendLine($"flags: {Flags}");
-			iw.Append("table update:");
-			iw.FutureIndent++;
-			iw.AppendLine();
+				pw.AppendLine($"flags: {Flags}");
+			pw.Append("table update:");
+			pw.FutureIndent++;
+			pw.AppendLine();
 			if (TableUpdates == null)
-				iw.Append("table update could not be parsed");
+				pw.Append("table update could not be parsed");
 			else
-				TableUpdates.PrettyWrite(iw);
-			iw.FutureIndent--;
+				TableUpdates.PrettyWrite(pw);
+			pw.FutureIndent--;
 		}
 	}
 	

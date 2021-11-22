@@ -75,20 +75,20 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			if (MessageType == UserMessageType.Unknown || MessageType == UserMessageType.Invalid) {
-				iw.Append("Unknown type");
+				pw.Append("Unknown type");
 			} else {
 				if (UserMessage is UnknownUserMessage)
-					iw.Append(_unimplemented ?  "(unimplemented) " : "(not parsed properly) ");
-				iw.Append(MessageType.ToString());
-				iw.Append($" ({UserMessage.UserMessageTypeToByte(DemoInfo, MessageType)})");
+					pw.Append(_unimplemented ?  "(unimplemented) " : "(not parsed properly) ");
+				pw.Append(MessageType.ToString());
+				pw.Append($" ({UserMessage.UserMessageTypeToByte(DemoInfo, MessageType)})");
 			}
 			if (UserMessage.MayContainData) {
-				iw.FutureIndent++;
-				iw.AppendLine();
-				UserMessage.PrettyWrite(iw);
-				iw.FutureIndent--;
+				pw.FutureIndent++;
+				pw.AppendLine();
+				UserMessage.PrettyWrite(pw);
+				pw.FutureIndent--;
 			}
 		}
 	}

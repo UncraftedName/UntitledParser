@@ -77,26 +77,26 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			Debug.Assert(Tables.Count > 0, "there's no tables hmmmmmmmmmmmm");
-			iw.Append($"{Tables.Count} send table{(Tables.Count > 1 ? "s" : "")}:");
-			iw.FutureIndent++;
+			pw.Append($"{Tables.Count} send table{(Tables.Count > 1 ? "s" : "")}:");
+			pw.FutureIndent++;
 			foreach (SendTable sendTable in Tables) {
-				iw.AppendLine();
-				sendTable.PrettyWrite(iw);
+				pw.AppendLine();
+				sendTable.PrettyWrite(pw);
 			}
-			iw.FutureIndent--;
-			iw.AppendLine();
+			pw.FutureIndent--;
+			pw.AppendLine();
 			if ((ServerClasses?.Count ?? 0) > 0) {
-				iw.Append($"{ServerClasses!.Count} class{(ServerClasses.Count > 1 ? "es" : "")}:");
-				iw.FutureIndent++;
+				pw.Append($"{ServerClasses!.Count} class{(ServerClasses.Count > 1 ? "es" : "")}:");
+				pw.FutureIndent++;
 				foreach (ServerClass classInfo in ServerClasses) {
-					iw.AppendLine();
-					classInfo.PrettyWrite(iw);
+					pw.AppendLine();
+					classInfo.PrettyWrite(pw);
 				}
-				iw.FutureIndent--;
+				pw.FutureIndent--;
 			} else {
-				iw.Append("no classes");
+				pw.Append("no classes");
 			}
 		}
 	}
@@ -129,18 +129,18 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"{Name}{(NeedsDecoder ? "*" : "")} (");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"{Name}{(NeedsDecoder ? "*" : "")} (");
 			if (SendProps.Count > 0) {
-				iw.Append($"{SendProps.Count} prop{(SendProps.Count > 1 ? "s" : "")}):");
-				iw.FutureIndent++;
+				pw.Append($"{SendProps.Count} prop{(SendProps.Count > 1 ? "s" : "")}):");
+				pw.FutureIndent++;
 				foreach (SendTableProp sendProp in SendProps) {
-					iw.AppendLine();
-					sendProp.PrettyWrite(iw);
+					pw.AppendLine();
+					sendProp.PrettyWrite(pw);
 				}
-				iw.FutureIndent--;
+				pw.FutureIndent--;
 			} else {
-				iw.Append("no props)");
+				pw.Append("no props)");
 			}
 		}
 	}

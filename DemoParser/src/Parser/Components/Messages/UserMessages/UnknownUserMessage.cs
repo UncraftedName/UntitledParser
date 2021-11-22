@@ -21,8 +21,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"{Reader.BitLength / 8} bytes: {Reader.ToHexString()}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"{Reader.BitLength / 8} bytes: {Reader.ToHexString()}");
 		}
 	}
 }

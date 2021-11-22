@@ -23,8 +23,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"taunt name: {TauntName}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"taunt name: {TauntName}");
 		}
 	}
 }

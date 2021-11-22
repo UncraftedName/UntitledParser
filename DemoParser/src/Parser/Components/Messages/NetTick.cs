@@ -31,11 +31,11 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"engine tick: {EngineTick}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"engine tick: {EngineTick}");
 			if (DemoRef.Header.NetworkProtocol >= 14) {
-				iw.AppendLine($"\nhost frame time: {HostFrameTime}");
-				iw.Append($"host frame time std dev: {HostFrameTimeStdDev}");
+				pw.AppendLine($"\nhost frame time: {HostFrameTime}");
+				pw.Append($"host frame time std dev: {HostFrameTimeStdDev}");
 			}
 		}
 	}

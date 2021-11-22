@@ -29,9 +29,9 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"relative: {Relative}");
-			iw.Append($"Angle: <{Angle.X:F4}°, {Angle.Y:F4}°, {Angle.Z:F4}°>");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"relative: {Relative}");
+			pw.Append($"Angle: <{Angle.X:F4}°, {Angle.Y:F4}°, {Angle.Z:F4}°>");
 		}
 	}
 }

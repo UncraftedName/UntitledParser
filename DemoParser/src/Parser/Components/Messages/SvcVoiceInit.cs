@@ -27,11 +27,11 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"codec: {Codec}");
-			iw.Append($"quality: {Quality}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"codec: {Codec}");
+			pw.Append($"quality: {Quality}");
 			if (Quality == 255)
-				iw.Append($"\nunknown: {Unknown}");
+				pw.Append($"\nunknown: {Unknown}");
 		}
 	}
 }

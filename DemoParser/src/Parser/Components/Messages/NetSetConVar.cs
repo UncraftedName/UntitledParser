@@ -28,11 +28,11 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
+		public override void PrettyWrite(IPrettyWriter pw) {
 			for (int i = 0; i < ConVars.Count; i++) {
-				iw.Append($"{{name: {ConVars[i].Item1}, value: {ConVars[i].Item2}}}");
+				pw.Append($"{{name: {ConVars[i].Item1}, value: {ConVars[i].Item2}}}");
 				if (i != ConVars.Count - 1)
-					iw.AppendLine();
+					pw.AppendLine();
 			}
 		}
 	}

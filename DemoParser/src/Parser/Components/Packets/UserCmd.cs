@@ -52,23 +52,23 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"cmd: {Cmd}\n");
-			iw.Append($"command number: {CommandNumber}\n");
-			iw.Append($"tick count: {TickCount}\n");
-			iw.AppendFormat("view angles: {0,11} {1,11} {2,11}\n",
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"cmd: {Cmd}\n");
+			pw.Append($"command number: {CommandNumber}\n");
+			pw.Append($"tick count: {TickCount}\n");
+			pw.AppendFormat("view angles: {0,11} {1,11} {2,11}\n",
 				$"{(ViewAngleX.HasValue ? $"{ViewAngleX.Value:F2}°" : "null ")},",
 				$"{(ViewAngleY.HasValue ? $"{ViewAngleY.Value:F2}°" : "null ")},",
 				$"{(ViewAngleZ.HasValue ? $"{ViewAngleZ.Value:F2}°" : "null ")}");
-			iw.AppendFormat("movement:    {0,11} {1,11} {2,11}\n",
+			pw.AppendFormat("movement:    {0,11} {1,11} {2,11}\n",
 				$"{(SidewaysMovement.HasValue ? $"{SidewaysMovement.Value:F2}" : "null")} ,",
 				$"{(ForwardMovement.HasValue  ? $"{ForwardMovement.Value:F2}" : "null")} ,",
 				$"{(VerticalMovement.HasValue ? $"{VerticalMovement.Value:F2}" : "null")} ");
-			iw.Append($"buttons: {Buttons?.ToString() ?? "null"}\n");
-			iw.Append($"impulse: {Impulse?.ToString() ?? "null"}\n");
-			iw.AppendFormat("weapon, subtype:  {0,4}, {1,4}\n", 
+			pw.Append($"buttons: {Buttons?.ToString() ?? "null"}\n");
+			pw.Append($"impulse: {Impulse?.ToString() ?? "null"}\n");
+			pw.AppendFormat("weapon, subtype:  {0,4}, {1,4}\n", 
 				WeaponSelect?.ToString() ?? "null", WeaponSubtype?.ToString() ?? "null");
-			iw.AppendFormat("mouseDx, mouseDy: {0,4}, {1,4}",
+			pw.AppendFormat("mouseDx, mouseDy: {0,4}, {1,4}",
 				MouseDx?.ToString() ?? "null", MouseDy?.ToString() ?? "null");
 		}
 	}

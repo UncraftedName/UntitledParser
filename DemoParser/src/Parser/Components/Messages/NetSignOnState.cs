@@ -40,15 +40,15 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"sign on state: {SignOnState}");
-			iw.Append($"spawn count: {SpawnCount}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"sign on state: {SignOnState}");
+			pw.Append($"spawn count: {SpawnCount}");
 			if (DemoInfo.NewDemoProtocol) {
-				iw.Append($"\nnumber of server players: {NumServerPlayers}");
+				pw.Append($"\nnumber of server players: {NumServerPlayers}");
 				if (PlayerNetworkIds != null)
-					iw.Append($"\nbyte array of length {PlayerNetworkIds.Length}");
+					pw.Append($"\nbyte array of length {PlayerNetworkIds.Length}");
 				if (MapName != null)
-					iw.Append($"\nmap name: {MapName}");
+					pw.Append($"\nmap name: {MapName}");
 			}
 		}
 	}

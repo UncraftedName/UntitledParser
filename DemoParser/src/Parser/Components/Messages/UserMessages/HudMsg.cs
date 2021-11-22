@@ -33,11 +33,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"channel: {Channel}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"channel: {Channel}");
 			if (MsgInfo != null) {
-				iw.AppendLine();
-				MsgInfo.PrettyWrite(iw);
+				pw.AppendLine();
+				MsgInfo.PrettyWrite(pw);
 			}
 		}
 
@@ -80,16 +80,16 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			}
 
 
-			public override void PrettyWrite(IPrettyWriter iw) {
-				iw.AppendLine($"x: {X}, y: {Y}");
-				iw.AppendLine($"RGBA1: {R1} {G1} {B1} {A1}");
-				iw.AppendLine($"RGBA2: {R2} {G2} {B2} {A2}");
-				iw.AppendLine($"effect: {Effect}");
-				iw.AppendLine($"fade in: {FadeIn}");
-				iw.AppendLine($"fade out: {FadeOut}");
-				iw.AppendLine($"hold time: {HoldTime}");
-				iw.AppendLine($"fx time: {FxTime}");
-				iw.Append($"message: {Message}");
+			public override void PrettyWrite(IPrettyWriter pw) {
+				pw.AppendLine($"x: {X}, y: {Y}");
+				pw.AppendLine($"RGBA1: {R1} {G1} {B1} {A1}");
+				pw.AppendLine($"RGBA2: {R2} {G2} {B2} {A2}");
+				pw.AppendLine($"effect: {Effect}");
+				pw.AppendLine($"fade in: {FadeIn}");
+				pw.AppendLine($"fade out: {FadeOut}");
+				pw.AppendLine($"hold time: {HoldTime}");
+				pw.AppendLine($"fx time: {FxTime}");
+				pw.Append($"message: {Message}");
 			}
 		}
 	}

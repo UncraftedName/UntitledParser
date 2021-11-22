@@ -37,12 +37,12 @@ namespace DemoParser.Parser.Components.Packets {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"type: {DataType}");
-			iw.FutureIndent++;
-			iw.AppendLine();
-			DataMessage.PrettyWrite(iw);
-			iw.FutureIndent--;
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"type: {DataType}");
+			pw.FutureIndent++;
+			pw.AppendLine();
+			DataMessage.PrettyWrite(pw);
+			pw.FutureIndent--;
 		}
 	}
 }

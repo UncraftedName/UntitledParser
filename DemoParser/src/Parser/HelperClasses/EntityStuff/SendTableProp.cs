@@ -65,9 +65,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"{SendPropType.ToString().ToLower(),-10}");
-			AppendToWriterWithoutType(iw);
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"{SendPropType.ToString().ToLower(),-10}");
+			AppendToWriterWithoutType(pw);
 		}
 
 

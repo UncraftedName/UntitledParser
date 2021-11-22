@@ -220,7 +220,7 @@ namespace DemoParser.Utils {
 	
 	
 	public interface IPretty {
-		void PrettyWrite(IPrettyWriter iw);
+		void PrettyWrite(IPrettyWriter pw);
 	}
 
 
@@ -228,7 +228,7 @@ namespace DemoParser.Utils {
 	// demo component anyway. Use this over the interface version for convenience.
 	public abstract class PrettyClass : IPretty {
 		
-		public abstract void PrettyWrite(IPrettyWriter iw);
+		public abstract void PrettyWrite(IPrettyWriter pw);
 		
 		// a struct that inherits from IPretty may also override ToString() in the same way
 		public new virtual string ToString() {

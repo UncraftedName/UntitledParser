@@ -23,8 +23,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"unknown byte: {Unknown}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"unknown byte: {Unknown}");
 		}
 	}
 }

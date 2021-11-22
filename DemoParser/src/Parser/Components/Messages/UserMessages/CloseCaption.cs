@@ -27,10 +27,10 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"token name: {TokenName}");
-			iw.AppendLine($"duration: {Duration}");
-			iw.Append($"flags: {Flags}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"token name: {TokenName}");
+			pw.AppendLine($"duration: {Duration}");
+			pw.Append($"flags: {Flags}");
 		}
 	}
 

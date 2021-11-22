@@ -36,14 +36,14 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"portal entity: {PortalEnt}");
-			iw.AppendLine($"owner entity: {OwnerEnt}");
-			iw.AppendLine($"team: {Team}");
-			iw.AppendLine($"portal num: {PortalNum}");
-			iw.AppendLine($"effect: {Effect}");
-			iw.AppendLine($"origin: {Origin}");
-			iw.Append($"angles: {Angles}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"portal entity: {PortalEnt}");
+			pw.AppendLine($"owner entity: {OwnerEnt}");
+			pw.AppendLine($"team: {Team}");
+			pw.AppendLine($"portal num: {PortalNum}");
+			pw.AppendLine($"effect: {Effect}");
+			pw.AppendLine($"origin: {Origin}");
+			pw.Append($"angles: {Angles}");
 		}
 	}
 

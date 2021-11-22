@@ -18,8 +18,8 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"unknown data: {Reader.ToHexString()}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"unknown data: {Reader.ToHexString()}");
 		}
 	}
 }

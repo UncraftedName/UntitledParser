@@ -30,11 +30,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"portal: {Portal}");
-			iw.AppendLine($"portalled: {Portalled}");
-			iw.AppendLine($"new position: {NewPosition:F3}");
-			iw.Append($"new angles: <{NewAngles.X:F3}°, {NewAngles.Y:F3}°, {NewAngles.Z:F3}°>");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"portal: {Portal}");
+			pw.AppendLine($"portalled: {Portalled}");
+			pw.AppendLine($"new position: {NewPosition:F3}");
+			pw.Append($"new angles: <{NewAngles.X:F3}°, {NewAngles.Y:F3}°, {NewAngles.Z:F3}°>");
 		}
 	}
 }

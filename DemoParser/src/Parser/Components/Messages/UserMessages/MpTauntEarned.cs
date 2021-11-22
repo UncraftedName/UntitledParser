@@ -25,9 +25,9 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 		
 		
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"taunt name: {TauntName}");
-			iw.Append($"award silently: {AwardSilently}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"taunt name: {TauntName}");
+			pw.Append($"award silently: {AwardSilently}");
 		}
 	}
 }

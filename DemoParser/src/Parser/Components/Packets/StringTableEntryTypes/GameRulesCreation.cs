@@ -29,8 +29,8 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
         }
 
 
-        public override void PrettyWrite(IPrettyWriter iw) {
-            iw.Append(ClassName);
+        public override void PrettyWrite(IPrettyWriter pw) {
+            pw.Append(ClassName);
         }
     }
 }

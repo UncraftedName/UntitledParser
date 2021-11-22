@@ -22,8 +22,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.Append($"geiger range: {GeigerRange}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append($"geiger range: {GeigerRange}");
 		}
 	}
 }

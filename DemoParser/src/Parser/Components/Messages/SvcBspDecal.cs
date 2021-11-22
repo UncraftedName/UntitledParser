@@ -35,19 +35,19 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		public override void PrettyWrite(IPrettyWriter iw) {
-			iw.AppendLine($"position: {Pos:F4}");
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.AppendLine($"position: {Pos:F4}");
 
 			var mgr = DemoRef.CurStringTablesManager;
-			iw.Append(mgr.TableReadable.GetValueOrDefault(TableNames.DecalPreCache)
+			pw.Append(mgr.TableReadable.GetValueOrDefault(TableNames.DecalPreCache)
 				? $"decal texture: {mgr.Tables[TableNames.DecalPreCache].Entries[DecalTextureIndex]}"
 				: "decal texture index:");
-			iw.AppendLine($" [{DecalTextureIndex}]");
+			pw.AppendLine($" [{DecalTextureIndex}]");
 			if (EntityIndex.HasValue) {
-				iw.AppendLine($"entity index: {EntityIndex}");
-				iw.AppendLine($"model index: {ModelIndex}");
+				pw.AppendLine($"entity index: {EntityIndex}");
+				pw.AppendLine($"model index: {ModelIndex}");
 			}
-			iw.Append($"low priority: {LowPriority}");
+			pw.Append($"low priority: {LowPriority}");
 		}
 	}
 }
