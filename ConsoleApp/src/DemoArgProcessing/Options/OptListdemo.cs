@@ -34,6 +34,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			DefaultAliases,
 			Arity.ZeroOrOne,
 			"Print demo info in a format similar to listdemo+",
+			"flags",
 			Utils.ParseEnum<ListDemoFlags>,
 			default)
 		{

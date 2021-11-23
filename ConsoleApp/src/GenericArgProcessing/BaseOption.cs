@@ -7,13 +7,16 @@ namespace ConsoleApp.GenericArgProcessing {
 	// do not inherit from this, use one of the classes below
 	public abstract class BaseOption<TSetup, TInfo> where TInfo : IProcessObject {
 		
-		private protected static Exception InvalidFuncEx => new InvalidOperationException("User called some function that they shouldn't use");
+		private protected static Exception InvalidFuncEx => new ArgProcessProgrammerException("this function shouldn't be called");
 		
 		public IImmutableList<string> Aliases {get;}
 
 		public Arity Arity {get;}
 
 		public string Description {get;}
+
+		// if this has an argument, what is it called and optionally what values can be used?
+		internal abstract string ArgDescription {get;}
 
 		/// <summary>
 		/// When set, specifies that "--help" should not show this option.
@@ -87,6 +90,8 @@ namespace ConsoleApp.GenericArgProcessing {
 		public sealed override bool CanUseAsArg(string arg) => false;
 		private protected override string Arg => throw InvalidFuncEx;
 
+		internal override string ArgDescription => throw InvalidFuncEx;
+
 
 		public abstract override void AfterParse(TSetup setupObj);
 		protected sealed override void AfterParse(TSetup setupObj, string? arg) => throw InvalidFuncEx;
@@ -120,13 +125,30 @@ namespace ConsoleApp.GenericArgProcessing {
 
 		public ArgumentParser ArgParser {get;}
 
+		public string ArgName {get;}
+
 		private readonly TArg _defaultArg;
+
+		internal override string ArgDescription {
+			get {
+				if (Arity == Arity.One)
+					return ArgName;
+				if (typeof(TArg).IsEnum) {
+					string s = $"{ArgName} {string.Join("|", typeof(TArg).GetEnumNames())}";
+					if (_defaultArg!.ToString() == "0") // not sure how else to check if we have a default
+						return $"{s} (def=None)";
+					return $"{s} (def='{_defaultArg}')";
+				}
+				return $"{ArgName} (def='{_defaultArg}')";
+			}
+		}
 
 
 		// if arity is set to 1, default arg can be set to whatever
 		protected BaseOption(
 			IImmutableList<string> aliases,
 			Arity arity, string description,
+			string argName,
 			ArgumentParser argParser,
 			TArg defaultArg,
 			bool hidden = false)
@@ -136,6 +158,7 @@ namespace ConsoleApp.GenericArgProcessing {
 				throw new ArgProcessProgrammerException($"Arity cannot be {Arity.Zero} for typed BaseOption.");
 			ArgParser = argParser;
 			_defaultArg = defaultArg;
+			ArgName = argName;
 		}
 
 

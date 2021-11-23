@@ -17,7 +17,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 		
 		public enum DataTableDumpMode {
-			Default,
+			PacketAndTree,
 			Flattened,
 			TreeOnly
 		}
@@ -27,8 +27,9 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			DefaultAliases,
 			Arity.ZeroOrOne,
 			$"Dumps data table packet(s) and creates a tree of the datable hierarchy (requires {OptFolderOut.DefaultAliases[1]})",
+			"mode",
 			Utils.ParseEnum<DataTableDumpMode>,
-			DataTableDumpMode.Default) {}
+			DataTableDumpMode.PacketAndTree) {}
 		
 		
 		protected override void AfterParse(DemoParsingSetupInfo setupObj, DataTableDumpMode mode, bool isDefault) {
@@ -51,7 +52,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					pw.Append("\n\n\n");
 				if (mode != DataTableDumpMode.TreeOnly) {
 					switch (mode) {
-						case DataTableDumpMode.Default:
+						case DataTableDumpMode.PacketAndTree:
 							dataTables.PrettyWrite(pw);
 							break;
 						case DataTableDumpMode.Flattened:

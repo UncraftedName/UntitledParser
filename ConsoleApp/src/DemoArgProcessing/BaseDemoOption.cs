@@ -24,8 +24,9 @@ namespace ConsoleApp.DemoArgProcessing {
 	/// </summary>
 	/// <typeparam name="TArg">The type of the argument.</typeparam>
 	public abstract class DemoOption<TArg> : BaseOption<DemoParsingSetupInfo, DemoParsingInfo, TArg> {
-		protected DemoOption(IImmutableList<string> aliases, Arity arity, string description, ArgumentParser argParser, TArg defaultArg, bool hidden = false)
-			: base(aliases, arity, description, argParser, defaultArg, hidden) {}
+		protected DemoOption(IImmutableList<string> aliases, Arity arity, string description, string argName,
+			ArgumentParser argParser, TArg defaultArg, bool hidden = false)
+			: base(aliases, arity, description, argName, argParser, defaultArg, hidden) {}
 	}
 
 

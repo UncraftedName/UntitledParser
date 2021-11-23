@@ -26,6 +26,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		}
 		
 		
+		// assume this is a demo file or a folder of files
 		protected override void ParseDefaultArgument(string arg) {
 			if (File.Exists(arg)) {
 				FileInfo fi = new FileInfo(arg);

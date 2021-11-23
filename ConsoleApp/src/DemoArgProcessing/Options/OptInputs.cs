@@ -25,6 +25,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			DefaultAliases,
 			Arity.ZeroOrOne,
 			"Prints user inputs on every tick",
+			"mode",
 			Utils.ParseEnum<InputDisplayMode>,
 			InputDisplayMode.Text) {}
 		

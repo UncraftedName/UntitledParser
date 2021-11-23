@@ -16,6 +16,7 @@ namespace ConsoleApp.GenericArgProcessing {
 		private readonly IImmutableList<BaseOption<TSetup, TInfo>> _options;
 		private readonly IImmutableDictionary<string, BaseOption<TSetup, TInfo>> _optionLookup;
 		private readonly OptHelp _optHelp = new OptHelp();
+		private readonly OptHelpHidden _optHelpHidden = new OptHelpHidden();
 		private readonly OptVersion _optVersion = new OptVersion();
 		public abstract string VersionString {get;}
 		public abstract string UsageString {get;}
@@ -23,7 +24,7 @@ namespace ConsoleApp.GenericArgProcessing {
 
 		// order matters here, this is the same order in which the options will get processed
 		protected BaseSubCommand(IImmutableList<BaseOption<TSetup, TInfo>> options) {
-			_options = new BaseOption<TSetup, TInfo>[] {_optHelp, _optVersion}.Concat(options).ToImmutableArray();
+			_options = new BaseOption<TSetup, TInfo>[] {_optHelp, _optHelpHidden, _optVersion}.Concat(options).ToImmutableArray();
 			HashSet<string> aliasSet = new HashSet<string>();
 			foreach (var option in options) {
 				if (option.Aliases.Count == 0)
@@ -108,6 +109,10 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// <returns>Returns true if --help or --version are set and have been handled, false otherwise.</returns>
 		protected bool CheckHelpAndVersion(string[] args) {
 			var argSet = args.ToImmutableHashSet();
+			if (argSet.Overlaps(_optHelpHidden.Aliases)) {
+				PrintHelp(true);
+				return true;
+			}
 			if (argSet.Overlaps(_optHelp.Aliases)) {
 				PrintHelp();
 				return true;
@@ -120,28 +125,37 @@ namespace ConsoleApp.GenericArgProcessing {
 		}
 
 
-		public void PrintHelp() {
+		/// <summary>
+		/// Prints the full help message for this subcommand.
+		/// </summary>
+		/// <param name="showHiddenOptions">If disabled, only shows options that don't have the "Hidden" property.</param>
+		public void PrintHelp(bool showHiddenOptions = false) {
 			int width = Console.WindowWidth;
 			Utils.WriteColor($"Usage: {UsageString}\n", ConsoleColor.DarkYellow);
 			const string indentStr = "  ";
 			bool any = false;
 			foreach (var option in _options) {
+				if (option.Hidden && !showHiddenOptions)
+					continue;
 				if (any)
 					Console.WriteLine();
 				any = true;
-				Utils.PushForegroundColor(ConsoleColor.Cyan);
+				Utils.PushForegroundColor(option.Hidden ? ConsoleColor.DarkMagenta : ConsoleColor.Cyan);
 				Console.Write(string.Join(", ", option.Aliases.OrderBy(s => s.Length)));
-				// TODO
 				switch (option.Arity) {
 					case Arity.Zero:
 						break;
 					case Arity.ZeroOrOne:
+						Console.Write($" [{option.ArgDescription}]");
 						break;
 					case Arity.One:
+						Console.Write($" <{option.ArgDescription}>");
 						break;
 					default:
 						throw new ArgProcessProgrammerException($"invalid arity: {option.Arity}");
 				}
+				if (option.Hidden)
+					Console.Write(" (hidden)");
 				Utils.PopForegroundColor();
 				// Wrap the description string at the console width by removing at most width chars from the description
 				// string each pass until it's empty.
@@ -200,12 +214,22 @@ namespace ConsoleApp.GenericArgProcessing {
 				option.Reset();
 		}
 
+		
+		#region built-in options
 
-		// these are just here to provide a way to easily store the description of --help and --version
+		// this is just a lazy way of storing the description of these options
 		
 		
 		private class OptHelp : BaseOptionNoArg<TSetup, TInfo> {
 			public OptHelp() : base(new[] {"--help"}.ToImmutableArray(), "Print help text and exit") {}
+			public override void AfterParse(TSetup setupObj) {}
+			public override void Process(TInfo infoObj) {}
+			public override void PostProcess(TInfo infoObj) {}
+		}
+		
+		
+		private class OptHelpHidden : BaseOptionNoArg<TSetup, TInfo> {
+			public OptHelpHidden() : base(new[] {"--help-hidden"}.ToImmutableArray(), "Print help text including hidden options and exit", true) {}
 			public override void AfterParse(TSetup setupObj) {}
 			public override void Process(TInfo infoObj) {}
 			public override void PostProcess(TInfo infoObj) {}
@@ -218,6 +242,8 @@ namespace ConsoleApp.GenericArgProcessing {
 			public override void Process(TInfo infoObj) {}
 			public override void PostProcess(TInfo infoObj) {}
 		}
+
+		#endregion
 	}
 
 	/// <summary>

@@ -27,6 +27,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			DefaultAliases,
 			Arity.ZeroOrOne,
 			"Find commands that match the given regex (case insensitive)",
+			"pattern",
 			 RegexValidator,
 			new Regex(".*")) {}
 
