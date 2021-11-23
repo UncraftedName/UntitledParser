@@ -26,7 +26,8 @@ namespace DemoParser.Utils {
 		private readonly List<int> _indentCount;
 		private int _maxIndent;
 		private int _futureIndent;
-		
+		private readonly string _indentStr;
+
 		public int FutureIndent {
 			get => _futureIndent;
 			set {
@@ -37,7 +38,8 @@ namespace DemoParser.Utils {
 		public int LastLineLength => _lines[^1].Length;
 		
 		
-		public PrettyToStringWriter() {
+		public PrettyToStringWriter(string indentStr = "\t") {
+			_indentStr = indentStr;
 			_lines = new List<string> {""};
 			_indentCount = new List<int>{0};
 		}
@@ -77,7 +79,7 @@ namespace DemoParser.Utils {
 		public void Dispose() {}
 
 
-		public override string ToString() => ToString("\t");
+		public override string ToString() => ToString(_indentStr);
 
 
 		public string ToString(string indentStr) {

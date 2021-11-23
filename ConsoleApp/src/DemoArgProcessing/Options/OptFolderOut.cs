@@ -10,7 +10,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--folder", "-f"}.ToImmutableArray();
 		
 		
-		public OptFolderOut() : base(DefaultAliases, Arity.ZeroOrOne, "specifies a folder to redirect output to", ValidateFolderName, ".") {}
+		public OptFolderOut() : base(DefaultAliases, Arity.ZeroOrOne, "Specifies a folder to redirect output to", ValidateFolderName, ".") {}
 
 
 		private static string ValidateFolderName(string name) {

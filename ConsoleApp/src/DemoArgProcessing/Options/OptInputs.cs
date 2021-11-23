@@ -24,7 +24,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public OptInputs() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			"prints user inputs on every tick",
+			"Prints user inputs on every tick",
 			Utils.ParseEnum<InputDisplayMode>,
 			InputDisplayMode.Text) {}
 		

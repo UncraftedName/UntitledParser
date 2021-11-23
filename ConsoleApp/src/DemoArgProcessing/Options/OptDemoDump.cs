@@ -9,7 +9,9 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--demo-dump", "-D"}.ToImmutableArray();
 		
 		
-		public OptDemoDump() : base(DefaultAliases, "create a text representation of all parsable data in demos") {}
+		public OptDemoDump() : base(
+			DefaultAliases,
+			"Create a text representation of all parsable data in demos (requires -f") {}
 		
 		
 		public override void AfterParse(DemoParsingSetupInfo setupObj) {

@@ -10,13 +10,12 @@ namespace ConsoleApp.DemoArgProcessing {
 	
 	public class DemoParserSubCommand : BaseSubCommand<DemoParsingSetupInfo, DemoParsingInfo> {
 
-		public const string ArgUsageString = "<demos/dirs> [options]";
-
 		private readonly List<FileSystemInfo> _argPaths;
 		public ICollection<FileSystemInfo> ArgPaths => _argPaths;
 		private readonly SortedSet<FileInfo> _demoPaths;
 		public ICollection<FileInfo> DemoPaths => _demoPaths;
 		public override string VersionString => "version TODO";
+		public override string UsageString => $"{Utils.GetExeName()} <demos/dirs> [options]";
 
 
 		public DemoParserSubCommand(IImmutableList<BaseOption<DemoParsingSetupInfo, DemoParsingInfo>> options)

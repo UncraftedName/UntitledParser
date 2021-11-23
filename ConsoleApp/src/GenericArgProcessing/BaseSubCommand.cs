@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using DemoParser.Utils;
 
 namespace ConsoleApp.GenericArgProcessing {
 	
@@ -14,13 +15,16 @@ namespace ConsoleApp.GenericArgProcessing {
 		
 		private readonly IImmutableList<BaseOption<TSetup, TInfo>> _options;
 		private readonly IImmutableDictionary<string, BaseOption<TSetup, TInfo>> _optionLookup;
+		private readonly OptHelp _optHelp = new OptHelp();
+		private readonly OptVersion _optVersion = new OptVersion();
 		public abstract string VersionString {get;}
+		public abstract string UsageString {get;}
 
 
 		// order matters here, this is the same order in which the options will get processed
 		protected BaseSubCommand(IImmutableList<BaseOption<TSetup, TInfo>> options) {
-			_options = options;
-			HashSet<string> aliasSet = new HashSet<string> {"--help", "--version"};
+			_options = new BaseOption<TSetup, TInfo>[] {_optHelp, _optVersion}.Concat(options).ToImmutableArray();
+			HashSet<string> aliasSet = new HashSet<string>();
 			foreach (var option in options) {
 				if (option.Aliases.Count == 0)
 					throw new ArgProcessProgrammerException($"Option '{option.GetType().Name}' has no aliases.");
@@ -103,11 +107,12 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// </summary>
 		/// <returns>Returns true if --help or --version are set and have been handled, false otherwise.</returns>
 		protected bool CheckHelpAndVersion(string[] args) {
-			if (args.Contains("--help")) {
+			var argSet = args.ToImmutableHashSet();
+			if (argSet.Overlaps(_optHelp.Aliases)) {
 				PrintHelp();
 				return true;
 			}
-			if (args.Contains("--version")) {
+			if (argSet.Overlaps(_optVersion.Aliases)) {
 				Console.WriteLine(VersionString);
 				return true;
 			}
@@ -115,8 +120,58 @@ namespace ConsoleApp.GenericArgProcessing {
 		}
 
 
-		private void PrintHelp() {
-			Console.WriteLine("help yourself");
+		public void PrintHelp() {
+			int width = Console.WindowWidth;
+			Utils.WriteColor($"Usage: {UsageString}\n", ConsoleColor.DarkYellow);
+			const string indentStr = "  ";
+			bool any = false;
+			foreach (var option in _options) {
+				if (any)
+					Console.WriteLine();
+				any = true;
+				Utils.PushForegroundColor(ConsoleColor.Cyan);
+				Console.Write(string.Join(", ", option.Aliases.OrderBy(s => s.Length)));
+				// TODO
+				switch (option.Arity) {
+					case Arity.Zero:
+						break;
+					case Arity.ZeroOrOne:
+						break;
+					case Arity.One:
+						break;
+					default:
+						throw new ArgProcessProgrammerException($"invalid arity: {option.Arity}");
+				}
+				Utils.PopForegroundColor();
+				// Wrap the description string at the console width by removing at most width chars from the description
+				// string each pass until it's empty.
+				string desc = option.Description;
+				while (desc.Length > 0) {
+					Console.WriteLine();
+					Console.Write(indentStr);
+					int charsToFitOnThisLine = Math.Min(width - indentStr.Length, desc.Length);
+					string descTrunc = desc.Substring(0, charsToFitOnThisLine);
+					// separate by new line always
+					int sepIdx = descTrunc.IndexOf('\n');
+					if (sepIdx == -1) {
+						if (desc.Length + indentStr.Length <= width) {
+							// rest of the description can fit on this line
+							Console.Write(desc);
+							break;
+						}
+						// no new line, try separating by space
+						sepIdx = descTrunc.LastIndexOf(' ');
+					}
+					if (sepIdx == -1) {
+						// no separator, truncate
+						Console.Write(desc.Substring(0, charsToFitOnThisLine));
+						desc = desc.Substring(charsToFitOnThisLine);
+					} else {
+						Console.Write(desc.Substring(0, sepIdx));
+						desc = desc.Substring(sepIdx + 1);
+					}
+				}
+			}
 		}
 
 
@@ -143,6 +198,25 @@ namespace ConsoleApp.GenericArgProcessing {
 		protected virtual void Reset() {
 			foreach (var option in _options)
 				option.Reset();
+		}
+
+
+		// these are just here to provide a way to easily store the description of --help and --version
+		
+		
+		private class OptHelp : BaseOptionNoArg<TSetup, TInfo> {
+			public OptHelp() : base(new[] {"--help"}.ToImmutableArray(), "Print help text and exit") {}
+			public override void AfterParse(TSetup setupObj) {}
+			public override void Process(TInfo infoObj) {}
+			public override void PostProcess(TInfo infoObj) {}
+		}
+
+
+		private class OptVersion : BaseOptionNoArg<TSetup, TInfo> {
+			public OptVersion() : base(new[] {"--version"}.ToImmutableArray(), "Print program version and exit") {}
+			public override void AfterParse(TSetup setupObj) {}
+			public override void Process(TInfo infoObj) {}
+			public override void PostProcess(TInfo infoObj) {}
 		}
 	}
 

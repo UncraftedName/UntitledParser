@@ -14,7 +14,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--pauses", "-p"}.ToImmutableArray();
 		
 		
-		public OptPauses() : base(DefaultAliases, "find pauses, only tested for portal 1") {}
+		public OptPauses() : base(DefaultAliases, "Find pauses (only tested for portal 1)") {}
 		
 		
 		public override void AfterParse(DemoParsingSetupInfo setupObj) {

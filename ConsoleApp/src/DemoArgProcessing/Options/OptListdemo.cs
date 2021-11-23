@@ -33,7 +33,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public OptListdemo() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			"print demo info in a format similar to listdemo+",
+			"Print demo info in a format similar to listdemo+",
 			Utils.ParseEnum<ListDemoFlags>,
 			default)
 		{

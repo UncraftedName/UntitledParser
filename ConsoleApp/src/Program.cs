@@ -32,7 +32,7 @@ namespace ConsoleApp {
 				);
 				if (args.Length == 0) {
 					Console.WriteLine(demoParserCommand.VersionString);
-					Console.WriteLine($@"usage: {Utils.GetExeName()} {DemoParserSubCommand.ArgUsageString}");
+					Utils.WriteColor($"Usage: {demoParserCommand.UsageString}\n", ConsoleColor.DarkYellow);
 					Utils.WriteColor(
 						Utils.WillBeDestroyedOnExit()
 							? $@"Open a new powershell window and use '.\{Utils.GetExeName()} --help' for help."
