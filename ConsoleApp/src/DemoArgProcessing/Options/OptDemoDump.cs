@@ -11,7 +11,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		
 		public OptDemoDump() : base(
 			DefaultAliases,
-			"Create a text representation of all parsable data in demos (requires -f") {}
+			$"Create a text representation of all parsable data in demos (requires {OptFolderOut.DefaultAliases[1]})") {}
 		
 		
 		public override void AfterParse(DemoParsingSetupInfo setupObj) {
