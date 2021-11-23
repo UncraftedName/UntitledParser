@@ -27,7 +27,7 @@ namespace ConsoleApp {
 						new OptDataTablesDump(),
 						new OptInputs(),
 						new OptDemoDump(),
-						new OptListdemo() // this option should always be here and probably be last, it's sort of a default
+						new OptTime() // this option should always be here and probably be last, it's sort of a default
 					}.ToImmutableArray()
 				);
 				if (args.Length == 0) {

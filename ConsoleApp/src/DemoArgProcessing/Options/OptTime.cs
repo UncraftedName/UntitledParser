@@ -12,9 +12,9 @@ using static System.Text.RegularExpressions.RegexOptions;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
 	
-	public class OptListdemo : DemoOption<OptListdemo.ListDemoFlags> {
+	public class OptTime : DemoOption<OptTime.ListDemoFlags> {
 
-		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--listdemo", "-l"}.ToImmutableArray();
+		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--time", "-t"}.ToImmutableArray();
 
 		private const int FmtIdt = -25;
 		
@@ -30,10 +30,10 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		private SimpleDemoTimer _sdt;
 
 
-		public OptListdemo() : base(
+		public OptTime() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			"Print demo info in a format similar to listdemo+",
+			"Prints demo header and time info, enabled automatically if no other options are set",
 			"flags",
 			Utils.ParseEnum<ListDemoFlags>,
 			default)
