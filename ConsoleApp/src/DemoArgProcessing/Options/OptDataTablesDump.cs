@@ -26,7 +26,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public OptDataTablesDump() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			$"Dumps data table packet(s) and creates a tree of the datable hierarchy (requires {OptFolderOut.DefaultAliases[1]})",
+			$"Dumps data table packet(s) and creates a tree of the datable hierarchy (requires {OptOutputFolder.DefaultAliases[1]})",
 			"mode",
 			Utils.ParseEnum<DataTableDumpMode>,
 			DataTableDumpMode.PacketAndTree) {}

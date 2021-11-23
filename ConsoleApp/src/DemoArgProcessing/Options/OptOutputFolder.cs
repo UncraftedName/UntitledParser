@@ -5,12 +5,12 @@ using ConsoleApp.GenericArgProcessing;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
 	
-	public class OptFolderOut : DemoOption<string> {
+	public class OptOutputFolder : DemoOption<string> {
 
-		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--folder", "-f"}.ToImmutableArray();
+		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--output-folder", "-o"}.ToImmutableArray();
 		
 		
-		public OptFolderOut() : base(DefaultAliases, Arity.ZeroOrOne, "Specifies a folder to redirect output to", "path", ValidateFolderName, ".") {}
+		public OptOutputFolder() : base(DefaultAliases, Arity.ZeroOrOne, "Specifies a folder to redirect output to", "path", ValidateFolderName, ".") {}
 
 
 		private static string ValidateFolderName(string name) {

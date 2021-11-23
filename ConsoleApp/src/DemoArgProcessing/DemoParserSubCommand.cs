@@ -56,7 +56,7 @@ namespace ConsoleApp.DemoArgProcessing {
 			ParseArgs(args, setupInfo);
 			// check if we have/need a folder output
 			if (setupInfo.FolderOutputRequired && setupInfo.FolderOutput == null)
-				throw new ArgProcessUserException($"folder output is required, use \"{OptFolderOut.DefaultAliases[0]}\" to set one.");
+				throw new ArgProcessUserException($"folder output is required, use \"{OptOutputFolder.DefaultAliases[0]}\" to set one.");
 			// enable listdemo implicitly if there are no other options
 			if (TotalEnabledOptions == 0) {
 				if (TryGetOption(OptListdemo.DefaultAliases[0], out var option)) {

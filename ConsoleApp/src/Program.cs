@@ -20,7 +20,7 @@ namespace ConsoleApp {
 				DemoParserSubCommand demoParserCommand = new DemoParserSubCommand(
 					new BaseOption<DemoParsingSetupInfo, DemoParsingInfo>[] {
 						// order is the same order that the options will get processed in, shouldn't really matter
-						new OptFolderOut(),
+						new OptOutputFolder(),
 						new OptRecursive(),
 						new OptRegexSearch(),
 						new OptPauses(),
