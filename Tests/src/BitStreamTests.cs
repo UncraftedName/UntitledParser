@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Tests {
 	
-	public class BitStreamTester {
+	public class BitStreamTests {
 
 		private const int Iterations = 100000;
 		private Random _random;

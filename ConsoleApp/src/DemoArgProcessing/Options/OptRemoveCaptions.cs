@@ -18,11 +18,12 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		
 		public OptRemoveCaptions() : base(
 			DefaultAliases,
-			$"create a new demo without captions (requires {OptOutputFolder.DefaultAliases[1]})") {}
+			$"Create a new demo without captions {OptOutputFolder.RequiresString}") {}
 
 
 		public override void AfterParse(DemoParsingSetupInfo setupObj) {
 			setupObj.ExecutableOptions++;
+			setupObj.FolderOutputRequired = true;
 		}
 
 

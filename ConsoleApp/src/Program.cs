@@ -26,6 +26,7 @@ namespace ConsoleApp {
 						new OptPauses(),
 						new OptDataTablesDump(),
 						new OptRemoveCaptions(),
+						new OptChangeDemoDir(),
 						new OptInputs(),
 						new OptDemoDump(),
 						new OptTime() // this option should always be here and probably be last, it's sort of a default
@@ -47,8 +48,7 @@ namespace ConsoleApp {
 				Utils.WriteColor(@$"Use '.\{Utils.GetExeName()} --help' for help.", ConsoleColor.Yellow);
 				Environment.ExitCode = 1;
 			} catch (ArgProcessProgrammerException e) {
-				Utils.WriteColor("Some programmer messed up, tell them they are silly (in a nice way).\n",
-					ConsoleColor.Red);
+				Utils.WriteColor("Some programmer messed up, tell them they are silly (in a nice way).\n", ConsoleColor.Red);
 				Utils.WriteColor(e.ToString(), ConsoleColor.Red);
 				Environment.ExitCode = 2;
 			} catch (Exception e) {

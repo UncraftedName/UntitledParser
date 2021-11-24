@@ -79,13 +79,17 @@ namespace ConsoleApp.GenericArgProcessing {
 								// we can use this as an arg to the option, advance so we skip it on the next iteration
 								option.Enable(args[++argIdx]);
 							} else {
-								if (option.Arity == Arity.One)
-									throw new ArgProcessProgrammerException($"Could not create argument for option '{option.Aliases[0]}'");
+								if (option.Arity == Arity.One) {
+									if (argIdx + 1 >= args.Length)
+										throw new ArgProcessUserException($"no argument specified for option '{arg}'");
+									else
+										throw new ArgProcessUserException($"\"{args[argIdx + 1]}\" is not a valid argument for option '{arg}'");
+								}
 								option.Enable(null);
 							}
 							break;
 						default:
-							throw new ArgumentOutOfRangeException(nameof(option.Arity), $"invalid arity \"{option.Arity}\"");
+							throw new ArgProcessProgrammerException( $"invalid arity \"{option.Arity}\"");
 					}
 				} else {
 					ParseDefaultArgument(arg);

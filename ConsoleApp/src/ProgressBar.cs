@@ -17,8 +17,8 @@ namespace ConsoleApp {
 	public class ProgressBar : IProgressBar {
 		
 		private const int BlockCount = 10;
-		private readonly TimeSpan _animationInterval = TimeSpan.FromSeconds(1.0 / 8);
-		private const string Animation = @"|/-\";
+		private readonly TimeSpan _animationInterval = TimeSpan.FromSeconds(1.0 / 16);
+		private const string Animation = @"||//--\\";
 
 		private Timer? _timer;
 

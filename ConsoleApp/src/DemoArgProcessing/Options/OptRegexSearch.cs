@@ -26,7 +26,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public OptRegexSearch() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			"Find commands that match the given regex (case insensitive)",
+			"Find commands that match the given regex (case insensitive), the default pattern will match every command",
 			"pattern",
 			 RegexValidator,
 			new Regex(".*")) {}
