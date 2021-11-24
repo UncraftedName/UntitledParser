@@ -60,7 +60,10 @@ namespace ConsoleApp.GenericArgProcessing {
 			Enabled = false;
 			Arg = null;
 		}
-		
+
+
+		public override string ToString() => string.Join(", ", Aliases);
+
 
 		public virtual void AfterParse(TSetup setupObj) => AfterParse(setupObj, Arg);
 		protected abstract void AfterParse(TSetup setupObj, string? arg);

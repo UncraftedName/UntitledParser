@@ -163,7 +163,7 @@ namespace ConsoleApp.GenericArgProcessing {
 				while (desc.Length > 0) {
 					Console.WriteLine();
 					Console.Write(indentStr);
-					int charsToFitOnThisLine = Math.Min(width - indentStr.Length, desc.Length);
+					int charsToFitOnThisLine = Math.Min(width - indentStr.Length - 1, desc.Length);
 					string descTrunc = desc.Substring(0, charsToFitOnThisLine);
 					// separate by new line always
 					int sepIdx = descTrunc.IndexOf('\n');

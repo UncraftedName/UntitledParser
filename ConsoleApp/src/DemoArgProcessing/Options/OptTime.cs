@@ -33,7 +33,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public OptTime() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			"Prints demo header and time info, enabled automatically if no other options are set",
+			"Prints demo header and time info, enabled automatically if no other options are set." +
+			$"\nNote that flags can be combined, e.g. '{ListDemoFlags.NoHeader}|{ListDemoFlags.AlwaysShowTotalTime}' or '5'.",
 			"flags",
 			Utils.ParseEnum<ListDemoFlags>,
 			default)
