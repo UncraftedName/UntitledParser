@@ -2,6 +2,7 @@ using System;
 using System.Collections.Immutable;
 using ConsoleApp.DemoArgProcessing;
 using ConsoleApp.DemoArgProcessing.Options;
+using ConsoleApp.DemoArgProcessing.Options.Hidden;
 using ConsoleApp.GenericArgProcessing;
 
 namespace ConsoleApp {
@@ -24,6 +25,7 @@ namespace ConsoleApp {
 						new OptRecursive(),
 						new OptRegexSearch(),
 						new OptPauses(),
+						new OptJumps(),
 						new OptDataTablesDump(),
 						new OptRemoveCaptions(),
 						new OptChangeDemoDir(),
