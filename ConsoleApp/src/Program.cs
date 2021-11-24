@@ -26,6 +26,7 @@ namespace ConsoleApp {
 						new OptRegexSearch(),
 						new OptPauses(),
 						new OptJumps(),
+						new OptCheatCommands(),
 						new OptDataTablesDump(),
 						new OptRemoveCaptions(),
 						new OptChangeDemoDir(),
