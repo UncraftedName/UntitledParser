@@ -27,6 +27,7 @@ namespace ConsoleApp {
 						new OptDataTablesDump(),
 						new OptRemoveCaptions(),
 						new OptChangeDemoDir(),
+						new OptTeleports(),
 						new OptInputs(),
 						new OptDemoDump(),
 						new OptTime() // this option should always be here and probably be last, it's sort of a default
