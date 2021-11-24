@@ -3,10 +3,9 @@ obj/
 /packages/
 *.user
 *.DotSettings
-/Tests/sample demos/verbose output/
-/Tests/sample demos/demo output/
 .vs/
 *.iws
 *.ipr
 *.iml
 .idea/
+/Tests/sample demos/demo dump/

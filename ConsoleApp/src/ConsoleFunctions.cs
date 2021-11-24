@@ -72,7 +72,7 @@ namespace ConsoleApp {
 		private static void ConsFunc_VerboseDump() {
 			Console.WriteLine("Dumping verbose output...");
 			var fs = CreateFileStream("verbose dump");
-			CurDemo.WriteVerboseString(fs, disposeAfterWriting: true);
+			// CurDemo.WriteVerboseString(fs, disposeAfterWriting: true);
 		}
 
 

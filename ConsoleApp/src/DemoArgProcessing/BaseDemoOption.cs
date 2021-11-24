@@ -129,8 +129,9 @@ namespace ConsoleApp.DemoArgProcessing {
 		public BinaryWriter InitBinaryWriter(string message, string suffix, string extension) {
 			if (SetupInfo.FolderOutput == null)
 				throw new ArgProcessProgrammerException("Folder output not set but option is requesting a binary writer.");
+			if (SetupInfo.ExecutableOptions > 1)
+				Console.WriteLine(message);
 			DisposeWriters();
-			Console.WriteLine(message);
 			return _binaryWriter = new BinaryWriter(CreateFileStream(suffix, extension));
 		}
 

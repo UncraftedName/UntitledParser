@@ -136,16 +136,6 @@ namespace DemoParser.Parser {
 		public override string ToString() {
 			return $"{FileName}, {Reader.BitLength / 8} bytes long";
 		}
-
-		
-		public void WriteVerboseString(Stream stream, string indentStr = "\t", bool disposeAfterWriting = false) {
-			PrettyStreamWriter iw = new PrettyStreamWriter(stream, indentStr: indentStr, bufferSize: 100000);
-			PrettyWrite(iw);
-			if (disposeAfterWriting) {
-				iw.Flush();
-				iw.Dispose();
-			}
-		}
 		
 		
 		internal BitStreamReader ReaderFromOffset(int offset, int bitLength) {

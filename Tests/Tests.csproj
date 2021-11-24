@@ -26,16 +26,19 @@
     <ItemGroup>
       <Compile Remove="sample demos\verbose output\**" />
       <Compile Remove="sample demos\demo output\**" />
+      <Compile Remove="sample demos\demo dump\**" />
     </ItemGroup>
 
     <ItemGroup>
       <EmbeddedResource Remove="sample demos\verbose output\**" />
       <EmbeddedResource Remove="sample demos\demo output\**" />
+      <EmbeddedResource Remove="sample demos\demo dump\**" />
     </ItemGroup>
 
     <ItemGroup>
       <None Remove="sample demos\verbose output\**" />
       <None Remove="sample demos\demo output\**" />
+      <None Remove="sample demos\demo dump\**" />
     </ItemGroup>
 
 </Project>

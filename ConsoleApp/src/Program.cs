@@ -25,6 +25,7 @@ namespace ConsoleApp {
 						new OptRegexSearch(),
 						new OptPauses(),
 						new OptDataTablesDump(),
+						new OptRemoveCaptions(),
 						new OptInputs(),
 						new OptDemoDump(),
 						new OptTime() // this option should always be here and probably be last, it's sort of a default
