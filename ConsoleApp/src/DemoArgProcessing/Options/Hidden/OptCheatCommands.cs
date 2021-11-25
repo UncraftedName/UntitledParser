@@ -17,7 +17,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		public OptCheatCommands() : base(
 			DefaultAliases,
 			"Searches for commands which are suspected to be cheat commands." +
-			"\nNote that the list of commands is designed for portal 1 and is incomplete",
+			"\nNote that the list of commands is designed for portal 1 and is incomplete.",
 			true) {}
 		
 		
