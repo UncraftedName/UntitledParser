@@ -33,7 +33,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 			Arity.ZeroOrOne,
 			"Creates a new demo with smoother jumps, main use is for rendering demos with lots of standing glitchless hops." +
 			"\nmax_ground_ticks is at most how many ticks the player is on the ground before they jump again. High values might interp too much." +
-			"\nOnly jumps in the middle of a hop sequence will be smoothed. Only designed to work for portal 1 unpack.",
+			"\nOnly jumps in the middle of a hop sequence will be smoothed. Only designed to work for portal 1 unpack. " + OptOutputFolder.RequiresString,
 			"max_ground_ticks",
 			ValidateInterpTicks,
 			5,

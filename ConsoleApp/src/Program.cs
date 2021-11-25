@@ -31,6 +31,7 @@ namespace ConsoleApp {
 						new OptRemoveCaptions(),
 						new OptChangeDemoDir(),
 						new OptSmoothGlessHops(),
+						new OptPositionDump(),
 						new OptTeleports(),
 						new OptPortals(),
 						new OptInputs(),
