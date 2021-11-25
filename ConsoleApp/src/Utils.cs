@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace ConsoleApp {
 
@@ -47,12 +49,39 @@ namespace ConsoleApp {
 		}
 
 
-		// TODO - add special cases here, e.g. "None" for flags
+		// Ah yes I love swimming through strongly typed enum garbage, my favorite.
+		// Assumes that enum values are all positive and don't skip any values (and powers of 2 if using flags).
 		public static T ParseEnum<T>(string arg) where T : Enum {
-			return (T)Enum.Parse(typeof(T), arg, true);
+			arg = arg.Trim().ToLower();
+			if (HasFlagsAttribute(typeof(T)) && (arg == "" || arg.Equals("none", StringComparison.OrdinalIgnoreCase)))
+				return default!;
+			try {
+				ulong val;
+				if (HasFlagsAttribute(typeof(T))) {
+					// I want to support 'enum1|enum2' in addition to 'enum1, enum2'. Add up all values and remove
+					// duplicates so you can't do 2|2=4.
+					val =
+						(ulong)Regex.Split(arg, @"\||\s*,\s*")
+							.Select(s => s.Trim())
+							.Where(s => s.Length > 0)
+							.Distinct()
+							.Select(s => Convert.ToInt64(Enum.Parse(typeof(T), s, true)))
+							.Sum(); // why the frick does Sum() not support ulong?
+				} else {
+					val = Convert.ToUInt64(Enum.Parse(typeof(T), arg, true));
+				}
+				var enumVals = Enum.GetValues(typeof(T)).Cast<object>().Select(Convert.ToInt64);
+				// Check if the value is outside the range of the enum.
+				ulong maxPossible = HasFlagsAttribute(typeof(T)) ? (ulong)enumVals.Sum() : enumVals.Select(l => (ulong)l).Max();
+				if (val > maxPossible)
+					throw new Exception(); // I don't think I can even use goto here so just throw and catch immediately
+				return (T)Enum.ToObject(typeof(T), val);
+			} catch (Exception) {
+				throw new ArgProcessUserException($"\"{arg}\" could not be converted to valid enum");
+			}
 		}
-		
-		
+
+
 		public static string FormatTime(double seconds) {
 			if (Math.Abs(seconds) > 8640000) // 10 days, probably happens from initializing the tick interval to garbage 
 				return "invalid";

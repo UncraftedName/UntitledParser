@@ -34,7 +34,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			DefaultAliases,
 			Arity.ZeroOrOne,
 			"Prints demo header and time info, enabled automatically if no other options are set." +
-			$"\nNote that flags can be combined, e.g. '{ListDemoFlags.NoHeader}|{ListDemoFlags.AlwaysShowTotalTime}' or '5'.",
+			$"\nNote that flags can be combined, e.g. \"{ListDemoFlags.NoHeader | ListDemoFlags.AlwaysShowTotalTime}\" or \"5\".",
 			"flags",
 			Utils.ParseEnum<ListDemoFlags>,
 			default)

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using ConsoleApp;
 using ConsoleApp.DemoArgProcessing.Options;
 using DemoParser.Parser;
 using DemoParser.Parser.Components.Abstract;
@@ -12,6 +13,57 @@ using NUnit.Framework;
 namespace Tests {
 	
 	public class ConsoleOptionTests {
+		
+		private enum BasicEnum {
+			Val0,
+			Val1,
+			Val2,
+		}
+
+		
+		[Flags]
+		private enum BasicFlagsEnum {
+			Val1 = 1,
+			Val2 = 2,
+			Val4 = 4,
+			Val8 = 8
+		}
+
+
+		[TestCase("Val0", BasicEnum.Val0, true)]
+		[TestCase(" VAL2 \t ", BasicEnum.Val2, true)]
+		[TestCase(" 1 ", BasicEnum.Val1, true)]
+		[TestCase("val1  \t", BasicFlagsEnum.Val1, true)]
+		[TestCase("", (BasicFlagsEnum)0, true)]
+		[TestCase("0", (BasicFlagsEnum)0, true)]
+		[TestCase("none", (BasicFlagsEnum)0, true)]
+		[TestCase(" val2|val4 ", BasicFlagsEnum.Val2 | BasicFlagsEnum.Val4, true)]
+		[TestCase("val4, val8", BasicFlagsEnum.Val4 | BasicFlagsEnum.Val8, true)]
+		[TestCase("val1 | val1, val2", BasicFlagsEnum.Val1 | BasicFlagsEnum.Val2, true)]
+		[TestCase("4 | 4 |1 |2", (BasicFlagsEnum)(1|2|4), true)]
+		[TestCase("14", (BasicFlagsEnum)(2|4|8), true)]
+		[TestCase("", BasicEnum.Val0, false)]
+		[TestCase("e", BasicEnum.Val0, false)]
+		[TestCase("-1", BasicEnum.Val0, false)]
+		[TestCase("3", BasicEnum.Val0, false)]
+		[TestCase("e", BasicFlagsEnum.Val1, false)]
+		[TestCase("val1|val3|e", BasicFlagsEnum.Val1, false)]
+		[TestCase("-1", BasicFlagsEnum.Val1, false)]
+		[TestCase("16", BasicFlagsEnum.Val1, false)]
+		public void ParseEnum<T>(string arg, T expected, bool valid) where T : Enum {
+			// if not valid, expected is ignored (but we still it to get its type)
+			if (valid) {
+				Assert.AreEqual(Utils.ParseEnum<T>(arg), expected);
+			} else {
+				try {
+					Utils.ParseEnum<T>(arg);
+					Assert.Fail();
+				} catch (ArgProcessUserException) {
+					Assert.Pass();
+				}
+			}
+		}
+
 
 		[TestCase("portal 1 unpack.dem", Description = "Portal 1 5135 demo without captions")]
 		[TestCase("captions.dem"), Description("Portal 1 5135 demo with captions")]
