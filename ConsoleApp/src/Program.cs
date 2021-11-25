@@ -30,6 +30,7 @@ namespace ConsoleApp {
 						new OptDataTablesDump(),
 						new OptRemoveCaptions(),
 						new OptChangeDemoDir(),
+						new OptSmoothGlessHops(),
 						new OptTeleports(),
 						new OptPortals(),
 						new OptInputs(),
