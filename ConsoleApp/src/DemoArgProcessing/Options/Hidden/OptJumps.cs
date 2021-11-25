@@ -8,12 +8,12 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 	
 	public class OptJumps : DemoOption {
 		
-		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--jumps", "-j"}.ToImmutableArray();
+		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--jumps"}.ToImmutableArray();
 		
 		
 		public OptJumps() : base(
 			DefaultAliases,
-			$"Searches for jump commands, almost equivalent to '{OptRegexSearch.DefaultAliases[0]} [-+]jump'",
+			$"Searches for jump commands, equivalent to '{OptRegexSearch.DefaultAliases[0]} [-+]jump'",
 			true) {}
 		
 		

@@ -7,11 +7,11 @@ using DemoParser.Parser;
 using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Utils;
 
-namespace ConsoleApp.DemoArgProcessing.Options {
+namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 	
 	public class OptPortals : DemoOption {
 		
-		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--portals-fired", "-P"}.ToImmutableArray();
+		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--portals-fired"}.ToImmutableArray();
 		
 		
 		public OptPortals() : base(
