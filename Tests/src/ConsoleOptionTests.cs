@@ -67,6 +67,7 @@ namespace Tests {
 
 		[TestCase("portal 1 unpack.dem", Description = "Portal 1 5135 demo without captions")]
 		[TestCase("captions.dem"), Description("Portal 1 5135 demo with captions")]
+		[Parallelizable(ParallelScope.All)]
 		public void RemoveCaptions(string fileName) {
 			SourceDemo before = new SourceDemo($"{ParseTests.ProjectDir}/sample demos/{fileName}");
 			before.Parse();
@@ -96,6 +97,7 @@ namespace Tests {
 		[TestCase("portal 1 unpack spliced.dem", Description = "Portal 1 (Source Unpack Spliced)")]
 		[TestCase("portal 1 steampipe.dem", Description = "Portal 1 (SteamPipe)")]
 		[TestCase("portal 1 3420.dem", Description = "Portal 1 (3420)")]
+		[Parallelizable(ParallelScope.All)]
 		public void ChangeDemoDir(string fileName) {
 			const string newDir = "sussy baka uwu";
 			SourceDemo before = new SourceDemo($"{ParseTests.ProjectDir}/sample demos/{fileName}");

@@ -40,6 +40,7 @@ namespace Tests {
 		[TestCase("l4d2 2042.dem", Description = "Left 4 Dead 2 (protocol 2.0.4.2)")]
 		[TestCase("l4d2 2042_2.dem", Description = "Left 4 Dead 2 (protocol 2.0.4.2, _2)")]
 		[TestCase("hl2 oe.dem", Description = "Half life 2 Old Engine")]
+		[Parallelizable(ParallelScope.All)]
 		public void ParseAndDumpDemo(string fileName) {
 			try {
 				SourceDemo demo = new SourceDemo($"{ProjectDir}/sample demos/{fileName}");
