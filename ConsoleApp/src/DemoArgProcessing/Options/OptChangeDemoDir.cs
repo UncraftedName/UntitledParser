@@ -27,13 +27,13 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		
 		protected override void AfterParse(DemoParsingSetupInfo setupObj, string arg, bool isDefault) {
 			setupObj.ExecutableOptions++;
-			setupObj.FolderOutputRequired = true;
+			setupObj.EditsDemos = true;
 		}
 
 
 		protected override void Process(DemoParsingInfo infoObj, string arg, bool isDefault) {
-			BinaryWriter bw = infoObj.InitBinaryWriter("changing demo dir", "new_dir", ".dem");
-			ChangeDemoDir(infoObj.CurrentDemo, bw.BaseStream, arg);
+			Stream s = infoObj.StartWritingBytes("changing demo dir", "new_dir", ".dem");
+			ChangeDemoDir(infoObj.CurrentDemo, s, arg);
 		}
 
 

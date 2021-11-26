@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using ConsoleApp.DemoArgProcessing.Options;
+using ConsoleApp.DemoArgProcessing.Options.Hidden;
 using ConsoleApp.GenericArgProcessing;
 
 namespace ConsoleApp.DemoArgProcessing {
@@ -54,8 +55,11 @@ namespace ConsoleApp.DemoArgProcessing {
 				return;
 			DemoParsingSetupInfo setupInfo = new DemoParsingSetupInfo();
 			ParseArgs(args, setupInfo);
+			
+			// check the values in setupInfo
+			
 			// check if we have/need a folder output
-			if (setupInfo.FolderOutputRequired && setupInfo.FolderOutput == null)
+			if (setupInfo.FolderOutput == null && (setupInfo.FolderOutputRequired || (setupInfo.EditsDemos && !setupInfo.OverWriteDemos)))
 				throw new ArgProcessUserException($"folder output is required for the enabled option(s), use \"{OptOutputFolder.DefaultAliases[0]}\" to set one.");
 			// enable --time implicitly if there are no other options
 			if (TotalEnabledOptions == 0) {
@@ -68,6 +72,20 @@ namespace ConsoleApp.DemoArgProcessing {
 			}
 			if (setupInfo.ExecutableOptions == 0)
 				throw new ArgProcessUserException("no executable options given!");
+			// if (setupInfo.OverWriteDemos && !setupInfo.WritesNewDemos) <- I could add a check for this, is it necessary?
+			if (setupInfo.OverWriteDemos && setupInfo.EditsDemos) {
+				Utils.WriteColor("Warning:", ConsoleColor.Red);
+				Console.WriteLine($" '{OptOverwrite.DefaultAliases[0]}' enabled, this will edit demos and may cause corruption!");
+				Console.Write("Are you sure you want to continue? ");
+				string? inp = null;
+				while (inp != "Y") {
+					Console.Write("[Y/n]");
+					inp = Console.ReadLine()?.Trim();
+					if (inp == "n")
+						return;
+				}
+			}
+
 			// flatten directories/files into just files
 			foreach (FileSystemInfo fileSystemInfo in _argPaths) {
 				switch (fileSystemInfo) {
@@ -85,6 +103,7 @@ namespace ConsoleApp.DemoArgProcessing {
 			}
 			if (_demoPaths.Count == 0)
 				throw new ArgProcessUserException("no demos found!");
+			
 			// Shorten the paths of the demos if possible, the shared path between the first and last paths will give
 			// the overall shared path of everything. If it's empty then we know the demos span multiple drives.
 			string commonParent = Utils.SharedPathSubstring(_demoPaths.Min.FullName, _demoPaths.Max.FullName);

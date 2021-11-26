@@ -27,7 +27,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.InitTextWriter("searching for cheat commands", "cheat-commands");
+			TextWriter tw = infoObj.StartWritingText("searching for cheat commands", "cheat-commands");
 			bool any = false;
 			foreach (ConsoleCmd cmd in GetCheatCommands(infoObj.CurrentDemo)) {
 				any = true;

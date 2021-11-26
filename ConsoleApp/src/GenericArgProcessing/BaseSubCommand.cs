@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using DemoParser.Utils;
 
 namespace ConsoleApp.GenericArgProcessing {
 	
@@ -16,7 +15,7 @@ namespace ConsoleApp.GenericArgProcessing {
 		private readonly IImmutableList<BaseOption<TSetup, TInfo>> _options;
 		private readonly IImmutableDictionary<string, BaseOption<TSetup, TInfo>> _optionLookup;
 		private readonly OptHelp _optHelp = new OptHelp();
-		private readonly OptHelpHidden _optHelpHidden = new OptHelpHidden();
+		private readonly OptHelpAll _optHelpAll = new OptHelpAll();
 		private readonly OptVersion _optVersion = new OptVersion();
 		public abstract string VersionString {get;}
 		public abstract string UsageString {get;}
@@ -24,7 +23,7 @@ namespace ConsoleApp.GenericArgProcessing {
 
 		// order matters here, this is the same order in which the options will get processed
 		protected BaseSubCommand(IImmutableList<BaseOption<TSetup, TInfo>> options) {
-			_options = new BaseOption<TSetup, TInfo>[] {_optHelp, _optHelpHidden, _optVersion}.Concat(options).ToImmutableArray();
+			_options = new BaseOption<TSetup, TInfo>[] {_optHelp, _optHelpAll, _optVersion}.Concat(options).ToImmutableArray();
 			HashSet<string> aliasSet = new HashSet<string>();
 			foreach (var option in options) {
 				if (option.Aliases.Count == 0)
@@ -54,7 +53,7 @@ namespace ConsoleApp.GenericArgProcessing {
 		
 
 		/// <summary>
-		/// Parses the arguments, passing in the setup object to each option as it's parsed.
+		/// Parses the arguments, passing in the setup object to each option that is enabled.
 		/// </summary>
 		protected void ParseArgs(string[] args, TSetup setupObj) {
 			Reset();
@@ -113,7 +112,7 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// <returns>Returns true if --help or --version are set and have been handled, false otherwise.</returns>
 		protected bool CheckHelpAndVersion(string[] args) {
 			var argSet = args.ToImmutableHashSet();
-			if (argSet.Overlaps(_optHelpHidden.Aliases)) {
+			if (argSet.Overlaps(_optHelpAll.Aliases)) {
 				PrintHelp(true);
 				return true;
 			}
@@ -201,8 +200,10 @@ namespace ConsoleApp.GenericArgProcessing {
 			var enabledOptions = _options.Where(o => o.Enabled).ToImmutableList();
 			while (infoObj.CanAdvance()) {
 				infoObj.Advance();
-				foreach (var option in enabledOptions)
+				foreach (var option in enabledOptions) {
 					option.Process(infoObj);
+					infoObj.DoneWithOption();
+				}
 			}
 			infoObj.DoneProcessing();
 			foreach (var option in enabledOptions)
@@ -225,15 +226,16 @@ namespace ConsoleApp.GenericArgProcessing {
 		
 		
 		private class OptHelp : BaseOptionNoArg<TSetup, TInfo> {
-			public OptHelp() : base(new[] {"--help"}.ToImmutableArray(), "Print help text and exit") {}
+			public OptHelp() : base(new[] {"--help"}.ToImmutableArray(), $"Print help text and exit, to see all options use '{OptHelpAll.DefaultAlias}'") {}
 			public override void AfterParse(TSetup setupObj) {}
 			public override void Process(TInfo infoObj) {}
 			public override void PostProcess(TInfo infoObj) {}
 		}
 		
 		
-		private class OptHelpHidden : BaseOptionNoArg<TSetup, TInfo> {
-			public OptHelpHidden() : base(new[] {"--help-hidden"}.ToImmutableArray(), "Print help text including hidden options and exit", true) {}
+		private class OptHelpAll : BaseOptionNoArg<TSetup, TInfo> {
+			public const string DefaultAlias = "--help-all";
+			public OptHelpAll() : base(new[] {DefaultAlias}.ToImmutableArray(), "Print help text including hidden options and exit", true) {}
 			public override void AfterParse(TSetup setupObj) {}
 			public override void Process(TInfo infoObj) {}
 			public override void PostProcess(TInfo infoObj) {}
@@ -251,14 +253,15 @@ namespace ConsoleApp.GenericArgProcessing {
 	}
 
 	/// <summary>
-	/// A class that will be passed to options during processing. Note: A call will be made to advance before this is
-	/// passed to options.
+	/// A class that will be passed to options during processing.
 	/// </summary>
 	public interface IProcessObject {
 		// returns true if we can go to the "next thing" to be processed (e.g. a demo)
 		public bool CanAdvance();
-		// do all the setup required to get the "next thing" ready
+		// Do all the setup required before processing the next round of options. Called once before rounds of processing begin.
 		public void Advance();
+		// Advance() is called after all options are done for their current pass, this is called after every option
+		public void DoneWithOption();
 		// resource cleanup if necessary (called after process but before post process)
 		public void DoneProcessing();
 	}

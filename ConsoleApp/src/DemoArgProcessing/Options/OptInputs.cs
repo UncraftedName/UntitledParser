@@ -36,7 +36,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, InputDisplayMode mode, bool isDefault) {
-			TextWriter tw = infoObj.InitTextWriter("getting user inputs", "inputs");
+			TextWriter tw = infoObj.StartWritingText("getting user inputs", "inputs");
 			foreach ((int tick, string repr) in GetUserInputs(infoObj.CurrentDemo, mode))
 				tw.WriteLine($"[{tick}] {repr}");
 		}

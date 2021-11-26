@@ -15,7 +15,7 @@ namespace ConsoleApp.DemoArgProcessing {
 
 	public interface IParallelDemoParser : IDisposable {
 		public ICurrentParseInfo GetCurrentParseInfo();
-		public (SourceDemo demo, Exception? exception) GetNext();
+		public (SourceDemo demo, FileInfo fileInfo, Exception? exception) GetNext();
 		public bool NextReady();
 		public bool HasNext();
 	}
@@ -75,12 +75,12 @@ namespace ConsoleApp.DemoArgProcessing {
 		}
 
 
-		public (SourceDemo demo, Exception? exception) GetNext() {
+		public (SourceDemo demo, FileInfo fileInfo, Exception? exception) GetNext() {
 			Debug.Assert(HasNext());
 			ParseInfo info = _parseInfos[_parseIdx];
 			info.ResetEvent.Wait();
 			info.ResetEvent.Dispose();
-			var ret = (info.Demo, info.Exception);
+			var ret = (info.Demo, info.FileInfo, info.Exception);
 			_parseInfos[_parseIdx++] = null!; // allow garbage collection TODO fix that something doesn't get collected for large amounts of demos
 			return ret;
 		}

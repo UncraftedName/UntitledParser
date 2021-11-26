@@ -15,7 +15,7 @@ namespace ConsoleApp {
 			// Console.CancelKeyPress += (sender, eventArgs) => Console.ResetColor();
 			
 			Console.WriteLine("UntitledParser by UncraftedName");
-			// write everything with color since we have no idea what/when could have triggered the exception
+			// write everything with color since we have no idea what/when could have triggered any exceptions
 			try {
 				// only use the one sub command - no other commands for the demo parser
 				DemoParserSubCommand demoParserCommand = new DemoParserSubCommand(
@@ -23,6 +23,7 @@ namespace ConsoleApp {
 						// order is the same order that the options will get processed in, shouldn't really matter
 						new OptOutputFolder(),
 						new OptRecursive(),
+						new OptOverwrite(),
 						new OptRegexSearch(),
 						new OptPauses(),
 						new OptJumps(),

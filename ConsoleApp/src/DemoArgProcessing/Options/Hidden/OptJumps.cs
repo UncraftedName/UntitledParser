@@ -24,7 +24,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		
 		// todo: implement legit jump verification and convert cmd num to key
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.InitTextWriter("searching for jumps", "jumps");
+			TextWriter tw = infoObj.StartWritingText("searching for jumps", "jumps");
 			bool any = false;
 			foreach ((ConsoleCmd cmd, MatchCollection matches) in infoObj.CurrentDemo.CmdRegexMatches("[+-]jump")) {
 				any = true;

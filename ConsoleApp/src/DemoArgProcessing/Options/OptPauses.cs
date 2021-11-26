@@ -23,11 +23,11 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.InitTextWriter("looking for pauses", "pauses");
+			TextWriter tw = infoObj.StartWritingText("looking for pauses", "pauses");
 			bool any = false;
 			foreach (int pauseTick in GetPauseTicks(infoObj.CurrentDemo)) {
 				any = true;
-				tw.Write($"pause on tick {pauseTick}");
+				tw.Write($"[{pauseTick}] pause");
 				if (pauseTick > infoObj.CurrentDemo.EndAdjustmentTick)
 					tw.Write(" (after last adjusted tick)");
 				else if (pauseTick < infoObj.CurrentDemo.StartAdjustmentTick)

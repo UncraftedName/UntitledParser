@@ -57,7 +57,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 		protected override void Process(DemoParsingInfo infoObj, ListDemoFlags arg, bool isDefault) {
 			_sdt.Consume(infoObj.CurrentDemo);
-			TextWriter tw = infoObj.InitTextWriter("writing listdemo output...", "listdemo", bufferSize: 512);
+			TextWriter tw = infoObj.StartWritingText("timing demo", "time", bufferSize: 512);
 			if ((arg & ListDemoFlags.NoHeader) == 0)
 				WriteHeader(infoObj.CurrentDemo, tw, infoObj.SetupInfo.ExecutableOptions != 1);
 			if (!infoObj.FailedLastParse) {

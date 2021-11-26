@@ -23,13 +23,13 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 		public override void AfterParse(DemoParsingSetupInfo setupObj) {
 			setupObj.ExecutableOptions++;
-			setupObj.FolderOutputRequired = true;
+			setupObj.EditsDemos = true;
 		}
 
 
 		public override void Process(DemoParsingInfo infoObj) {
-			BinaryWriter bw = infoObj.InitBinaryWriter("removing captions", "no-captions", ".dem");
-			RemoveCaptions(infoObj.CurrentDemo, bw.BaseStream);
+			Stream s = infoObj.StartWritingBytes("removing captions", "no-captions", ".dem");
+			RemoveCaptions(infoObj.CurrentDemo, s);
 		}
 
 

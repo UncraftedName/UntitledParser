@@ -38,7 +38,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, Regex r, bool isDefault) {
-			TextWriter tw = infoObj.InitTextWriter("looking for regex matches", "regex");
+			TextWriter tw = infoObj.StartWritingText("looking for regex matches", "regex");
 			bool any = false;
 			foreach ((ConsoleCmd cmd, MatchCollection _) in infoObj.CurrentDemo.CmdRegexMatches(r)) {
 				any = true;

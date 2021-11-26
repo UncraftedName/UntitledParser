@@ -27,7 +27,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 		// todo check if these are on cap
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.InitTextWriter("searching for portals fired by player", "portals");
+			TextWriter tw = infoObj.StartWritingText("searching for portals fired by player", "portals");
 			bool any = false;
 			foreach ((Rumble userMessage, int tick) in GetPortalsFiredByPlayer(infoObj.CurrentDemo)) {
 				any = true;

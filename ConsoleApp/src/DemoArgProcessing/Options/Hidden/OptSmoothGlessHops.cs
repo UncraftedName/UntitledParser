@@ -42,13 +42,13 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 		protected override void AfterParse(DemoParsingSetupInfo setupObj, int arg, bool isDefault) {
 			setupObj.ExecutableOptions++;
-			setupObj.FolderOutputRequired = true;
+			setupObj.EditsDemos = true;
 		}
 
 
 		protected override void Process(DemoParsingInfo infoObj, int arg, bool isDefault) {
-			BinaryWriter bw = infoObj.InitBinaryWriter("smoothing jumps", "smooth-jumps", ".dem");
-			SmoothJumps(infoObj.CurrentDemo, bw.BaseStream, arg);
+			Stream s = infoObj.StartWritingBytes("smoothing jumps", "smooth-jumps", ".dem");
+			SmoothJumps(infoObj.CurrentDemo, s, arg);
 		}
 
 		/*
@@ -168,7 +168,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 					float lerpAmount = (float)(frames[idx].Tick - startTick) / (endTick - startTick);
 					Vector3 lerpVec = Vector3.Lerp(startVec, endVec, lerpAmount);
 					vecBytes.WriteVector3(lerpVec);
-					// edit the pos in the cmdinfo
+					// edit the pos in the cmdinfo, we don't actually need to edit the origin in the ent data since that isn't used during demo playback
 					bsw.EditBitsAtIndex(vecBytes, packet.Reader.AbsoluteStart + 32);
 
 					var viewOffsetProp = (SingleEntProp<float>?)(

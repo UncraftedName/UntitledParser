@@ -9,11 +9,11 @@ using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 
-namespace ConsoleApp.DemoArgProcessing.Options {
+namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 	
 	public class OptDataTablesDump : DemoOption<OptDataTablesDump.DataTableDumpMode> {
 		
-		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--dump-datatables", "-d"}.ToImmutableArray();
+		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--dump-datatables"}.ToImmutableArray();
 
 		
 		public enum DataTableDumpMode {
@@ -29,7 +29,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			$"Dumps data table packet(s) and creates a tree of the datable hierarchy {OptOutputFolder.RequiresString}",
 			"mode",
 			Utils.ParseEnum<DataTableDumpMode>,
-			DataTableDumpMode.PacketAndTree) {}
+			DataTableDumpMode.PacketAndTree,
+			true) {}
 		
 		
 		protected override void AfterParse(DemoParsingSetupInfo setupObj, DataTableDumpMode mode, bool isDefault) {
@@ -39,7 +40,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, DataTableDumpMode mode, bool isDefault) {
-			TextWriter tw = infoObj.InitTextWriter("creating data table dump", "datatables");
+			TextWriter tw = infoObj.StartWritingText("creating data table dump", "datatables");
 			WriteDataTableDump((StreamWriter)tw, infoObj.CurrentDemo, mode);
 		}
 
