@@ -134,14 +134,16 @@ namespace ConsoleApp.GenericArgProcessing {
 
 		internal override string ArgDescription {
 			get {
-				if (Arity == Arity.One)
-					return ArgName;
 				if (typeof(TArg).IsEnum) {
 					string s = $"{ArgName} {string.Join("|", typeof(TArg).GetEnumNames())}";
+					if (Arity == Arity.One)
+						return s;
 					if (_defaultArg!.ToString() == "0") // not sure how else to check if we have a default
 						return $"{s} (def=None)";
 					return $"{s} (def='{_defaultArg}')";
 				}
+				if (Arity == Arity.One)
+					return ArgName;
 				return $"{ArgName} (def='{_defaultArg}')";
 			}
 		}
