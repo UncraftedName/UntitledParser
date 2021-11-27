@@ -44,6 +44,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		public bool FolderOutputRequired {get;set;}
 		public bool EditsDemos {get;set;} // options that create new demos must set this flag
 		public bool OverWriteDemos {get;set;} // set by overwrite option
+		public bool OverwritePrompt {get;set;} = true; // set by overwrite option
 	}
 
 
