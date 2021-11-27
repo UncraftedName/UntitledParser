@@ -32,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AssemblyAttribute Include="DemoParser.Utils.BuildDateAttribute">
+      <AssemblyAttribute Include="ConsoleApp.BuildDateAttribute">
         <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
       </AssemblyAttribute>
     </ItemGroup>
@@ -41,10 +41,36 @@
       <None Remove="build-release-and-pack.bat" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Properties\Resources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Resources.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Properties\Resources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <None Remove="version.txt" />
+      <EmbeddedResource Include="version.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </EmbeddedResource>
+    </ItemGroup>
+
     <Target Condition=" '$(Configuration)' == 'Release' " Name="Merge" AfterTargets="Build">
       <PropertyGroup>
         <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
       </PropertyGroup>
       <ILRepack OutputType="$(OutputType)" MainAssembly="$(AssemblyName).Unmerged.exe" OutputAssembly="UntitledParser.exe" InputAssemblies="$(WorkingDirectory)\*.dll" WilcardInputAssemblies="true" WorkingDirectory="$(WorkingDirectory)" />
+    </Target>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+      <!--Make sure to update Utils.GetVersionString() if you edit this!-->
+      <Exec Command="git rev-list --count HEAD > version.txt"/>
+      <Exec Command="git branch --show-current >> version.txt"/>
+      <Exec Command="git describe --always --dirty --exclude=* >> version.txt"/>
     </Target>
 </Project>

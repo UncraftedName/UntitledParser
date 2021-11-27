@@ -15,7 +15,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		public ICollection<FileSystemInfo> ArgPaths => _argPaths;
 		private readonly SortedSet<FileInfo> _demoPaths;
 		public ICollection<FileInfo> DemoPaths => _demoPaths;
-		public override string VersionString => "version TODO";
+		public override string VersionString => Utils.GetVersionString() ?? "could not determine version";
 		public override string UsageString => $"{Utils.GetExeName()} <demos/dirs> [options]";
 
 

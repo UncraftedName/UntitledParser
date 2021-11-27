@@ -9,3 +9,4 @@ obj/
 *.iml
 .idea/
 /Tests/sample demos/demo dump/
+/ConsoleApp/version.txt

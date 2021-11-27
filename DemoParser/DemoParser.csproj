@@ -3,8 +3,6 @@
     <PropertyGroup>
         <TargetFramework>net461</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Version>2.3.0.0</Version>
-        <PackageVersion>2.3.0.0</PackageVersion>
         <Title>UntitledDemoParser</Title>
         <Authors>UncraftedName</Authors>
         <RepositoryUrl>https://github.com/UncraftedName/UncraftedDemoParser</RepositoryUrl>
@@ -44,11 +42,5 @@
       <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
       <PackageReference Include="System.Memory" Version="4.5.4" />
       <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <AssemblyAttribute Include="DemoParser.Utils.BuildDateAttribute">
-        <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-      </AssemblyAttribute>
     </ItemGroup>
 </Project>

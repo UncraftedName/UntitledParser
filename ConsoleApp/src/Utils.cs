@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace ConsoleApp {
@@ -114,6 +116,25 @@ namespace ConsoleApp {
 
 
 		public static string QuoteIfHasSpaces(string s) => s.Contains(" ") ? "\"s\"" : s;
+
+
+		// to be frank I have no idea how this assembly stuff works
+		public static string? GetVersionString() {
+			try {
+				var assembly = Assembly.GetExecutingAssembly();
+				DateTime? buildDate = BuildDateAttribute.GetBuildDate(Assembly.GetExecutingAssembly());
+				if (!buildDate.HasValue)
+					return null;
+				using Stream stream = assembly.GetManifestResourceStream($"{nameof(ConsoleApp)}.version.txt")!;
+				using StreamReader reader = new StreamReader(stream);
+				int numCommits = int.Parse(reader.ReadLine()!);
+				string branch = reader.ReadLine()!;
+				string commitHash = reader.ReadLine()!;
+				return $"v.{numCommits} {branch} branch ({commitHash}), {buildDate.Value:yyyy-MM-dd H:mm:ss}";
+			} catch (Exception) {
+				return null;
+			}
+		}
 	}
 
 
