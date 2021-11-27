@@ -25,7 +25,6 @@
 
     <ItemGroup>
       <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13" />
-      <PackageReference Include="System.CommandLine.Experimental" Version="0.3.0-alpha.19577.1" />
     </ItemGroup>
 
     <ItemGroup>
