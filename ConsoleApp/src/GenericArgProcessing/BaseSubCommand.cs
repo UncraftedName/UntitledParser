@@ -191,7 +191,7 @@ namespace ConsoleApp.GenericArgProcessing {
 					}
 					if (sepIdx == -1) {
 						// no separator, truncate
-						Console.Write(desc.Substring(0, charsToFitOnThisLine));
+						Console.Write(descTrunc);
 						desc = desc.Substring(charsToFitOnThisLine);
 					} else {
 						Console.Write(desc.Substring(0, sepIdx));
