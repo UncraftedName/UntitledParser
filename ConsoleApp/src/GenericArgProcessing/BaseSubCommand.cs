@@ -233,30 +233,33 @@ namespace ConsoleApp.GenericArgProcessing {
 		#region built-in options
 
 		// this is just a lazy way of storing the description of these options
-		
-		
-		private class OptHelp : BaseOptionNoArg<TSetup, TInfo> {
-			public OptHelp() : base(new[] {"--help"}.ToImmutableArray(), $"Print help text and exit, to see all options use '{OptHelpAll.DefaultAlias}'") {}
-			public override void AfterParse(TSetup setupObj) {}
-			public override void Process(TInfo infoObj) {}
-			public override void PostProcess(TInfo infoObj) {}
+
+
+		private abstract class OptBuiltIn : BaseOptionNoArg<TSetup, TInfo> {
+			protected OptBuiltIn(IImmutableList<string> aliases, string description, bool hidden = false)
+				: base(aliases, description, hidden) {}
+			public sealed override void AfterParse(TSetup setupObj) {}
+			public sealed override void Process(TInfo infoObj) {}
+			public sealed override void PostProcess(TInfo infoObj) {}
 		}
 		
 		
-		private class OptHelpAll : BaseOptionNoArg<TSetup, TInfo> {
+		private class OptHelp : OptBuiltIn {
+			public OptHelp() : base(new[] {"--help"}.ToImmutableArray(),
+				$"Print help text and exit, to see all options use '{OptHelpAll.DefaultAlias}'") {}
+		}
+		
+		
+		private class OptHelpAll : OptBuiltIn {
 			public const string DefaultAlias = "--help-all";
-			public OptHelpAll() : base(new[] {DefaultAlias}.ToImmutableArray(), "Print help text including hidden options and exit", true) {}
-			public override void AfterParse(TSetup setupObj) {}
-			public override void Process(TInfo infoObj) {}
-			public override void PostProcess(TInfo infoObj) {}
+			public OptHelpAll() : base(new[] {DefaultAlias}.ToImmutableArray(),
+				"Print help text including hidden options and exit", true) {}
 		}
 
 
-		private class OptVersion : BaseOptionNoArg<TSetup, TInfo> {
-			public OptVersion() : base(new[] {"--version"}.ToImmutableArray(), "Print program version and exit") {}
-			public override void AfterParse(TSetup setupObj) {}
-			public override void Process(TInfo infoObj) {}
-			public override void PostProcess(TInfo infoObj) {}
+		private class OptVersion : OptBuiltIn {
+			public OptVersion() : base(new[] {"--version"}.ToImmutableArray(),
+				"Print program version and exit") {}
 		}
 
 		#endregion
