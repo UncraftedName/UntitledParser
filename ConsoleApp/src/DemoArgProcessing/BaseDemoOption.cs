@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Text;
 using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
+using DemoParser.Parser.Components.Packets;
+using DemoParser.Utils;
 
 namespace ConsoleApp.DemoArgProcessing {
 	
@@ -70,7 +74,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		private int _overwriteCount; // how many times have we overwritten this demo?
 		private FileInfo _fileInfo = null!; // full path to current demo
 		private bool _curOptionOverwriting;
-		// public bool CancelOverwrite {get;set;} // TODO
+		public bool CancelOverwrite {get;set;} // any option that overwrites and fails (exception, etc.) should set this
 
 
 		public DemoParsingInfo(DemoParsingSetupInfo setupInfo, IImmutableList<(FileInfo demoPath, string displayPath)> paths) {
@@ -80,7 +84,7 @@ namespace ConsoleApp.DemoArgProcessing {
 			NumDemos = paths.Count;
 			_overwriteCount = 0;
 			_curOptionOverwriting = false;
-			// CancelOverwrite = false;
+			CancelOverwrite = false;
 			// we're sort of in an invalid state until Advance is called
 		}
 
@@ -99,6 +103,7 @@ namespace ConsoleApp.DemoArgProcessing {
 				} catch (Exception) {
 					Console.WriteLine("Editing demo failed, will not overwrite.");
 					_overwriteProgress = CurrentDemo;
+					CancelOverwrite = true;
 				}
 			}
 			_curOptionOverwriting = false;
@@ -107,6 +112,10 @@ namespace ConsoleApp.DemoArgProcessing {
 
 		private void CheckDemoOverwrite() {
 			if (SetupInfo.OverWriteDemos && _overwriteCount > 0) {
+				if (CancelOverwrite) {
+					Console.WriteLine("Overwrite failed for one or more options, leaving original demo file unmodified.");
+					return;
+				}
 				// we've gotten to this point with no exceptions, now we can overwrite the demo
 				Console.Write("Overwriting demo... ");
 				try {
@@ -119,6 +128,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		}
 
 
+		[SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
 		public void Advance() {
 			CheckDemoOverwrite();
 			DisposeWriters();
@@ -136,13 +146,18 @@ namespace ConsoleApp.DemoArgProcessing {
 			_overwriteProgress = demo;
 			_overwriteCount = 0;
 			_curOptionOverwriting = false;
+			CancelOverwrite = false;
 			progressBar.Dispose();
 			if (exception == null) {
 				Utils.WriteColor("done.\n", ConsoleColor.Green);
 			} else {
 				Utils.PushForegroundColor(ConsoleColor.Red);
-				Console.WriteLine("failed.");
-				Console.WriteLine(exception.Message);
+				Console.Write("failed.");
+				// could probably have a few more messages here regarding the nature of the failure
+				if (demo.DemoInfo == null || demo.Header.DemoProtocol < 3 || demo.Header.DemoProtocol > 4)
+					Console.WriteLine(" Demo from an unknown game.");
+				else if (demo.Frames == null || demo.FilterForPacket<Packet>().FirstOrDefault() == null)
+					Console.WriteLine(" Could not parse demo packets.");
 				Utils.PopForegroundColor();
 			}
 			FailedLastParse = exception != null;
@@ -166,22 +181,24 @@ namespace ConsoleApp.DemoArgProcessing {
 		/// <summary>
 		/// Creates and returns a new text writer only if the folder output option is set, otherwise returns
 		/// Console.Out. If you want an option to never print to console, set FolderOutputRequired in the setup object.
+		/// This stream should not be disposed by any options.
 		/// </summary>
-		public TextWriter StartWritingText(string message, string suffix, string extension = ".txt", int bufferSize = 4096) {
+		public TextWriter StartWritingText(string message, string fileSuffix, string extension = ".txt", int bufferSize = 4096) {
 			if (SetupInfo.ExecutableOptions > 1)
 				Console.WriteLine($"{message}...");
 			if (SetupInfo.FolderOutput == null)
 				return Console.Out;
 			DisposeWriters();
-			return _textWriter = new StreamWriter(CreateFileStream(suffix, extension), Encoding.UTF8, bufferSize);
+			return _textWriter = new StreamWriter(CreateFileStream(fileSuffix, extension), Encoding.UTF8, bufferSize);
 		}
 
 
 		/// <summary>
 		/// Similar to InitTextWriter, creates and returns a new Stream. Also used as a way to detect if we're
 		/// overwriting a demo with the current option - do not access CurrentDemo before calling this.
+		/// This stream should not be disposed by any options.
 		/// </summary>
-		public Stream StartWritingBytes(string message, string suffix, string extension) {
+		public Stream StartWritingBytes(string message, string fileSuffix, string extension) {
 			if (SetupInfo.FolderOutput == null && !SetupInfo.EditsDemos)
 				throw new ArgProcessProgrammerException("Folder output not set but option is requesting a binary stream.");
 			if (SetupInfo.ExecutableOptions > 1)
@@ -192,8 +209,7 @@ namespace ConsoleApp.DemoArgProcessing {
 				_curOptionOverwriting = true;
 				return _binaryStream = new MemoryStream(_overwriteProgress.Reader.ByteLength);
 			}
-			// don't think you need to flush the writer, just the file stream
-			return _binaryStream = new BinaryWriter(CreateFileStream(suffix, extension)).BaseStream;
+			return _binaryStream = CreateFileStream(fileSuffix, extension);
 		}
 
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -28,8 +29,13 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
-			Stream s = infoObj.StartWritingBytes("removing captions", "no-captions", ".dem");
-			RemoveCaptions(infoObj.CurrentDemo, s);
+			try {
+				Stream s = infoObj.StartWritingBytes("removing captions", "no-captions", ".dem");
+				RemoveCaptions(infoObj.CurrentDemo, s);
+			} catch (Exception) {
+				Utils.WriteColor("Caption removal failed.\n", ConsoleColor.Red);
+				infoObj.CancelOverwrite = true;
+			}
 		}
 
 

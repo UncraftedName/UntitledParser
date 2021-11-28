@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.IO;
 using DemoParser.Utils;
@@ -21,10 +22,14 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.StartWritingText("writing demo dump", "demo-dump");
-			PrettyStreamWriter pw = new PrettyStreamWriter(((StreamWriter)tw).BaseStream);
-			infoObj.CurrentDemo.PrettyWrite(pw);
-			pw.Flush(); // see note at PrettyStreamWriter
+			try {
+				TextWriter tw = infoObj.StartWritingText("writing demo dump", "demo-dump");
+				PrettyStreamWriter pw = new PrettyStreamWriter(((StreamWriter)tw).BaseStream);
+				infoObj.CurrentDemo.PrettyWrite(pw);
+				pw.Flush(); // see note at PrettyStreamWriter
+			} catch (Exception) {
+				Utils.WriteColor("Failed to create demo dump.", ConsoleColor.Red);
+			}
 		}
 
 

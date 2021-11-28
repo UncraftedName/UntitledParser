@@ -25,32 +25,36 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		}
 
 
-		// todo check if these are on cap
+		// todo check if portal shots are on cap
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.StartWritingText("searching for portals fired by player", "portals");
-			bool any = false;
-			foreach ((Rumble userMessage, int tick) in GetPortalsFiredByPlayer(infoObj.CurrentDemo)) {
-				any = true;
-				switch (userMessage.RumbleType) {
-					case RumbleLookup.PortalgunLeft:
-						Utils.PushForegroundColor(ConsoleColor.Cyan);
-						tw.WriteLine($"[{tick}] BLUE PORTAL fired by player");
-						break;
-					case RumbleLookup.PortalgunRight:
-						Utils.PushForegroundColor(ConsoleColor.Red); // closest we've got is red :/
-						tw.WriteLine($"[{tick}] ORANGE PORTAL fired by player");
-						break;
-					case RumbleLookup.PortalPlacementFailure:
-						Utils.PushForegroundColor(Console.ForegroundColor); // unchanged
-						tw.WriteLine($"[{tick}] portal fired and missed");
-						break;
-					default:
-						throw new ArgProcessProgrammerException($"invalid rumble type: {userMessage.RumbleType}");
+			try {
+				TextWriter tw = infoObj.StartWritingText("searching for portals fired by player", "portals");
+				bool any = false;
+				foreach ((Rumble userMessage, int tick) in GetPortalsFiredByPlayer(infoObj.CurrentDemo)) {
+					any = true;
+					switch (userMessage.RumbleType) {
+						case RumbleLookup.PortalgunLeft:
+							Utils.PushForegroundColor(ConsoleColor.Cyan);
+							tw.WriteLine($"[{tick}] BLUE PORTAL fired by player");
+							break;
+						case RumbleLookup.PortalgunRight:
+							Utils.PushForegroundColor(ConsoleColor.Red); // closest we've got is red :/
+							tw.WriteLine($"[{tick}] ORANGE PORTAL fired by player");
+							break;
+						case RumbleLookup.PortalPlacementFailure:
+							Utils.PushForegroundColor(Console.ForegroundColor); // unchanged
+							tw.WriteLine($"[{tick}] portal fired and missed");
+							break;
+						default:
+							throw new ArgProcessProgrammerException($"invalid rumble type: {userMessage.RumbleType}");
+					}
+					Utils.PopForegroundColor();
 				}
-				Utils.PopForegroundColor();
+				if (!any)
+					tw.WriteLine("no portals fired by player");
+			} catch (Exception) {
+				Utils.WriteColor("Search for portal shots failed.\n", ConsoleColor.Red);
 			}
-			if (!any)
-				tw.WriteLine("no portals fired by player");
 		}
 
 		

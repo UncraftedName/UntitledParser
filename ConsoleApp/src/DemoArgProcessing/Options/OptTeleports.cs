@@ -39,25 +39,29 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, FilterFlags flags, bool isDefault) {
-			TextWriter tw = infoObj.StartWritingText("looking for teleports", "teleports");
-			bool any = false;
-			foreach ((EntityPortalled userMessage, int tick) in FindTeleports(infoObj.CurrentDemo, flags)) {
-				any = true;
-				tw.Write($"[{tick}]");
-				if ((flags & FilterFlags.VerboseInfo) != 0) {
-					tw.Write("\n");
-					tw.WriteLine(userMessage.ToString());
-				} else {
-					tw.Write((flags & FilterFlags.PlayerOnly) != 0
-						? " player"
-						: $" entity {userMessage.Portalled}");
-					tw.WriteLine($" went through portal {userMessage.Portal}");
+			try {
+				TextWriter tw = infoObj.StartWritingText("looking for teleports", "teleports");
+				bool any = false;
+				foreach ((EntityPortalled userMessage, int tick) in FindTeleports(infoObj.CurrentDemo, flags)) {
+					any = true;
+					tw.Write($"[{tick}]");
+					if ((flags & FilterFlags.VerboseInfo) != 0) {
+						tw.Write("\n");
+						tw.WriteLine(userMessage.ToString());
+					} else {
+						tw.Write((flags & FilterFlags.PlayerOnly) != 0
+							? " player"
+							: $" entity {userMessage.Portalled}");
+						tw.WriteLine($" went through portal {userMessage.Portal}");
+					}
 				}
-			}
-			if (!any) {
-				tw.WriteLine((flags & FilterFlags.PlayerOnly) != 0
-					? "player never teleported"
-					: "no entities were teleported");
+				if (!any) {
+					tw.WriteLine((flags & FilterFlags.PlayerOnly) != 0
+						? "player never teleported"
+						: "no entities were teleported");
+				}
+			} catch (Exception) {
+				Utils.WriteColor("Search for teleports failed.\n", ConsoleColor.Red);
 			}
 		}
 

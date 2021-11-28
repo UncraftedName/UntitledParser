@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -27,14 +28,18 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.StartWritingText("searching for cheat commands", "cheat-commands");
-			bool any = false;
-			foreach (ConsoleCmd cmd in GetCheatCommands(infoObj.CurrentDemo)) {
-				any = true;
-				tw.WriteLine($"[{cmd.Tick}] {cmd.Command}");
+			try {
+				TextWriter tw = infoObj.StartWritingText("searching for cheat commands", "cheat-commands");
+				bool any = false;
+				foreach (ConsoleCmd cmd in GetCheatCommands(infoObj.CurrentDemo)) {
+					any = true;
+					tw.WriteLine($"[{cmd.Tick}] {cmd.Command}");
+				}
+				if (!any)
+					tw.WriteLine("no cheat commands found");
+			} catch (Exception) {
+				Utils.WriteColor("Search for cheat commands failed.\n", ConsoleColor.Red);
 			}
-			if (!any)
-				tw.WriteLine("no cheat commands found");
 		}
 
 

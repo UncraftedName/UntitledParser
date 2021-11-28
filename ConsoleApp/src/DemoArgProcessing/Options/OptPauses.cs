@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -14,7 +15,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--pauses", "-p"}.ToImmutableArray();
 		
 		
-		public OptPauses() : base(DefaultAliases, "Find pauses (only tested for portal 1)") {}
+		public OptPauses() : base(DefaultAliases, "Find pauses") {}
 		
 		
 		public override void AfterParse(DemoParsingSetupInfo setupObj) {
@@ -23,19 +24,23 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.StartWritingText("looking for pauses", "pauses");
-			bool any = false;
-			foreach (int pauseTick in GetPauseTicks(infoObj.CurrentDemo)) {
-				any = true;
-				tw.Write($"[{pauseTick}] pause");
-				if (pauseTick > infoObj.CurrentDemo.EndAdjustmentTick)
-					tw.Write(" (after last adjusted tick)");
-				else if (pauseTick < infoObj.CurrentDemo.StartAdjustmentTick)
-					tw.Write(" (before first adjusted tick)");
-				tw.WriteLine();
+			try {
+				TextWriter tw = infoObj.StartWritingText("looking for pauses", "pauses");
+				bool any = false;
+				foreach (int pauseTick in GetPauseTicks(infoObj.CurrentDemo)) {
+					any = true;
+					tw.Write($"[{pauseTick}] pause");
+					if (pauseTick > infoObj.CurrentDemo.EndAdjustmentTick)
+						tw.Write(" (after last adjusted tick)");
+					else if (pauseTick < infoObj.CurrentDemo.StartAdjustmentTick)
+						tw.Write(" (before first adjusted tick)");
+					tw.WriteLine();
+				}
+				if (!any)
+					tw.WriteLine("no pauses found");
+			} catch (Exception) {
+				Utils.WriteColor("Search for pauses failed.\n", ConsoleColor.Red);
 			}
-			if (!any)
-				tw.WriteLine("no pauses found");
 		}
 
 

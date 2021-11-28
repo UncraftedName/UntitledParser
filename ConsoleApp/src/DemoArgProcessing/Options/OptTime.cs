@@ -56,14 +56,18 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, ListDemoFlags arg, bool isDefault) {
-			_sdt.Consume(infoObj.CurrentDemo);
-			TextWriter tw = infoObj.StartWritingText("timing demo", "time", bufferSize: 512);
-			if ((arg & ListDemoFlags.NoHeader) == 0)
-				WriteHeader(infoObj.CurrentDemo, tw, infoObj.SetupInfo.ExecutableOptions != 1);
-			if (!infoObj.FailedLastParse) {
-				WriteAdjustedTime(infoObj.CurrentDemo, tw, (arg & ListDemoFlags.TimeFirstTick) != 0);
-				if (!infoObj.OptionOutputRedirected)
-					Console.WriteLine();
+			try {
+				TextWriter tw = infoObj.StartWritingText("timing demo", "time", bufferSize: 512);
+				_sdt.Consume(infoObj.CurrentDemo);
+				if ((arg & ListDemoFlags.NoHeader) == 0)
+					WriteHeader(infoObj.CurrentDemo, tw, infoObj.SetupInfo.ExecutableOptions != 1);
+				if (!infoObj.FailedLastParse) {
+					WriteAdjustedTime(infoObj.CurrentDemo, tw, (arg & ListDemoFlags.TimeFirstTick) != 0);
+					if (!infoObj.OptionOutputRedirected)
+						Console.WriteLine();
+				}
+			} catch (Exception) {
+				Utils.WriteColor("Timing demo failed.\n", ConsoleColor.Red);
 			}
 		}
 
@@ -84,7 +88,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					which = "Total";
 				else
 					which = "Adjusted";
-				Utils.WriteColor($"{which} time may not be valid.\n\n", ConsoleColor.Red);
+				Utils.WriteColor($"\n{which} time may not be valid.\n\n", ConsoleColor.Red);
 			}
 			Utils.PushForegroundColor(ConsoleColor.Green);
 			if (showTotal || overwrite) {
@@ -227,30 +231,35 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		/// Calculates the total time of the given demo and adds it to the total time. Sets ValidFlags if necessary.
 		/// </summary>
 		public void Consume(SourceDemo demo) {
-			_firstHash ??= QuickHash(demo);
-			// consider this demo to be part of a different run if the hash doesn't match
-			if (_firstHash.Value != QuickHash(demo))
+			try {
+				_firstHash ??= QuickHash(demo);
+				// consider this demo to be part of a different run if the hash doesn't match
+				if (_firstHash.Value != QuickHash(demo))
+					ValidFlags &= ~(Flags.TotalTimeValid | Flags.AdjustedTimeValid);
+				
+				int newTicks, newAdjustedTicks;
+				if (demo.TotalTimeValid()) {
+					newTicks = demo.TickCount(TimeFirstTick);
+				} else {
+					ValidFlags &= ~Flags.TotalTimeValid;
+					// pull tick count straight from the header if parsing failed
+					newTicks = demo.Header.TickCount + (TimeFirstTick ? 1 : 0);
+				}
+				TotalTicks += newTicks;
+				TotalTime += newTicks * demo.DemoInfo.TickInterval;
+				
+				if (demo.AdjustedTimeValid()) {
+					newAdjustedTicks = demo.AdjustedTickCount(TimeFirstTick);
+				} else {
+					ValidFlags &= ~Flags.AdjustedTimeValid;
+					newAdjustedTicks = newTicks;
+				}
+				AdjustedTicks += newAdjustedTicks;
+				AdjustedTime += newAdjustedTicks * demo.DemoInfo.TickInterval;
+			} catch (NullReferenceException) {
 				ValidFlags &= ~(Flags.TotalTimeValid | Flags.AdjustedTimeValid);
-
-			int newTicks, newAdjustedTicks;
-			if (demo.TotalTimeValid()) {
-				newTicks = demo.TickCount(TimeFirstTick);
-			} else {
-				ValidFlags &= ~Flags.TotalTimeValid;
-				// pull tick count straight from the header if parsing failed
-				newTicks = demo.Header.TickCount + (TimeFirstTick ? 1 : 0);
+				throw;
 			}
-			TotalTicks += newTicks;
-			TotalTime += newTicks * demo.DemoInfo.TickInterval;
-
-			if (demo.AdjustedTimeValid()) {
-				newAdjustedTicks = demo.AdjustedTickCount(TimeFirstTick);
-			} else {
-				ValidFlags &= ~Flags.AdjustedTimeValid;
-				newAdjustedTicks = newTicks;
-			}
-			AdjustedTicks += newAdjustedTicks;
-			AdjustedTime += newAdjustedTicks * demo.DemoInfo.TickInterval;
 		}
 
 
