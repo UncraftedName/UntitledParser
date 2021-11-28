@@ -39,8 +39,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, FilterFlags flags, bool isDefault) {
+			TextWriter tw = infoObj.StartWritingText("looking for teleports", "teleports");
 			try {
-				TextWriter tw = infoObj.StartWritingText("looking for teleports", "teleports");
 				bool any = false;
 				foreach ((EntityPortalled userMessage, int tick) in FindTeleports(infoObj.CurrentDemo, flags)) {
 					any = true;

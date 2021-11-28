@@ -24,8 +24,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
+			TextWriter tw = infoObj.StartWritingText("looking for pauses", "pauses");
 			try {
-				TextWriter tw = infoObj.StartWritingText("looking for pauses", "pauses");
 				bool any = false;
 				foreach (int pauseTick in GetPauseTicks(infoObj.CurrentDemo)) {
 					any = true;

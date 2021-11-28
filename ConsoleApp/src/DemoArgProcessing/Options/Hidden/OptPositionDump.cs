@@ -26,8 +26,8 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
+			TextWriter tw = infoObj.StartWritingText("dumping player position", "position-dump");
 			try {
-				TextWriter tw = infoObj.StartWritingText("dumping player position", "position-dump");
 				int prevTick = int.MinValue;
 				foreach (Packet packet in infoObj.CurrentDemo.FilterForPacket<Packet>()) {
 					if (packet.Tick == prevTick || packet.Tick < 0)

@@ -47,8 +47,8 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 
 		protected override void Process(DemoParsingInfo infoObj, int arg, bool isDefault) {
+			Stream s = infoObj.StartWritingBytes("smoothing jumps", "smooth-jumps", ".dem");
 			try {
-				Stream s = infoObj.StartWritingBytes("smoothing jumps", "smooth-jumps", ".dem");
 				SmoothJumps(infoObj.CurrentDemo, s, arg);
 			} catch (Exception) {
 				Utils.Warning("Smoothing jumps failed.\n");

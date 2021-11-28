@@ -148,19 +148,20 @@ namespace ConsoleApp.DemoArgProcessing {
 			_curOptionOverwriting = false;
 			CancelOverwrite = false;
 			progressBar.Dispose();
-			if (exception == null) {
+			FailedLastParse = exception != null;
+			if (!FailedLastParse) {
 				Utils.WriteColor("done.\n", ConsoleColor.Green);
 			} else {
 				Utils.PushForegroundColor(ConsoleColor.Red);
 				Console.Write("failed.");
-				// could probably have a few more messages here regarding the nature of the failure
+				// Could probably have a few more messages here regarding the nature of the failure,
+				// maybe eventually use the message of the exception, but that's not very informative atm.
 				if (demo.DemoInfo == null || demo.Header.DemoProtocol < 3 || demo.Header.DemoProtocol > 4)
 					Console.WriteLine(" Demo from an unknown game.");
 				else if (demo.Frames == null || demo.FilterForPacket<Packet>().FirstOrDefault() == null)
 					Console.WriteLine(" Could not parse demo packets.");
 				Utils.PopForegroundColor();
 			}
-			FailedLastParse = exception != null;
 		}
 
 

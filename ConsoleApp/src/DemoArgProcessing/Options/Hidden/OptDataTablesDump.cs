@@ -41,8 +41,8 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 
 		protected override void Process(DemoParsingInfo infoObj, DataTableDumpMode mode, bool isDefault) {
+			TextWriter tw = infoObj.StartWritingText("creating data table dump", "datatables");
 			try {
-				TextWriter tw = infoObj.StartWritingText("creating data table dump", "datatables");
 				WriteDataTableDump((StreamWriter)tw, infoObj.CurrentDemo, mode);
 			} catch (Exception) {
 				Utils.Warning("Data table dump failed.\n");

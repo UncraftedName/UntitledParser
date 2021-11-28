@@ -56,11 +56,11 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, ListDemoFlags arg, bool isDefault) {
+			TextWriter tw = infoObj.StartWritingText("timing demo", "time", bufferSize: 512);
 			try {
-				TextWriter tw = infoObj.StartWritingText("timing demo", "time", bufferSize: 512);
-				_sdt.Consume(infoObj.CurrentDemo);
 				if ((arg & ListDemoFlags.NoHeader) == 0)
 					WriteHeader(infoObj.CurrentDemo, tw, infoObj.SetupInfo.ExecutableOptions != 1);
+				_sdt.Consume(infoObj.CurrentDemo);
 				if (!infoObj.FailedLastParse) {
 					WriteAdjustedTime(infoObj.CurrentDemo, tw, (arg & ListDemoFlags.TimeFirstTick) != 0);
 					if (!infoObj.OptionOutputRedirected)

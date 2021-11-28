@@ -22,8 +22,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
+			TextWriter tw = infoObj.StartWritingText("writing demo dump", "demo-dump");
 			try {
-				TextWriter tw = infoObj.StartWritingText("writing demo dump", "demo-dump");
 				PrettyStreamWriter pw = new PrettyStreamWriter(((StreamWriter)tw).BaseStream);
 				infoObj.CurrentDemo.PrettyWrite(pw);
 				pw.Flush(); // see note at PrettyStreamWriter

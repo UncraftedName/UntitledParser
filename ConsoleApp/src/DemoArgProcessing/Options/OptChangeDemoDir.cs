@@ -32,8 +32,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, string arg, bool isDefault) {
+			Stream s = infoObj.StartWritingBytes("changing demo dir", "new_dir", ".dem");
 			try {
-				Stream s = infoObj.StartWritingBytes("changing demo dir", "new_dir", ".dem");
 				ChangeDemoDir(infoObj.CurrentDemo, s, arg);
 			} catch (Exception) {
 				Utils.Warning("Changing demo directory failed.\n");
