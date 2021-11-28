@@ -13,11 +13,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 	public class PlayerInfo : StringTableEntryData {
 		
 		public CSteamId? SteamId; // new
-		public CharArray Name;       // scoreboard information
-		public int UserId;           // local server user ID, unique while server is running
-		public CharArray Guid;       // global unique player identifier
-		public uint FriendsId;       // friends identification number
-		public CharArray FriendsName;
+		public string Name;       // scoreboard information
+		public int UserId;        // local server user ID, unique while server is running
+		public string Guid;       // global unique player identifier
+		public uint FriendsId;    // friends identification number
+		public string FriendsName;
 		public bool FakePlayer;      // true, if player is a bot controlled by game.dll
 		public bool IsHlTv;          // true if player is the HLTV proxy
 		public uint[] CustomFiles;   // custom files CRC for this player
@@ -47,12 +47,12 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		protected override void Parse(ref BitStreamReader bsr) {
 			if (DemoInfo.NewDemoProtocol)
 				SteamId = (CSteamId)bsr.ReadULong();
-			Name = bsr.ReadCharArray(DemoInfo.MaxPlayerNameLength);
+			Name = bsr.ReadStringOfLength(DemoInfo.MaxPlayerNameLength);
 			UserId = bsr.ReadSInt();
-			Guid = bsr.ReadCharArray(DemoInfo.SignedGuidLen + 1);
+			Guid = bsr.ReadStringOfLength(DemoInfo.SignedGuidLen + 1);
 			bsr.SkipBytes(3);
 			FriendsId = bsr.ReadUInt();
-			FriendsName = bsr.ReadCharArray(DemoInfo.MaxPlayerNameLength);
+			FriendsName = bsr.ReadStringOfLength(DemoInfo.MaxPlayerNameLength);
 			FakePlayer = bsr.ReadByte() != 0;
 			IsHlTv = bsr.ReadByte() != 0;
 			bsr.SkipBytes(2);

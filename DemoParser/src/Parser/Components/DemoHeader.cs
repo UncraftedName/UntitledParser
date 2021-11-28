@@ -7,13 +7,13 @@ namespace DemoParser.Parser.Components {
 	
 	public class DemoHeader : DemoComponent {
 
-		public CharArray FileStamp;
+		public string FileStamp;
 		public uint DemoProtocol;
 		public uint NetworkProtocol;
-		public CharArray ServerName;
-		public CharArray ClientName;
-		public CharArray MapName;
-		public CharArray GameDirectory;
+		public string ServerName;
+		public string ClientName;
+		public string MapName;
+		public string GameDirectory;
 		public float PlaybackTime;
 		public int TickCount;
 		public int FrameCount;
@@ -23,13 +23,13 @@ namespace DemoParser.Parser.Components {
 		public DemoHeader(SourceDemo? demoRef) : base(demoRef) {}
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			FileStamp = bsr.ReadCharArray(8);
+			FileStamp = bsr.ReadStringOfLength(8);
 			DemoProtocol = bsr.ReadUInt();
 			NetworkProtocol = bsr.ReadUInt();
-			ServerName = bsr.ReadCharArray(260);
-			ClientName = bsr.ReadCharArray(260);
-			MapName = bsr.ReadCharArray(260);
-			GameDirectory = bsr.ReadCharArray(260);
+			ServerName = bsr.ReadStringOfLength(260);
+			ClientName = bsr.ReadStringOfLength(260);
+			MapName = bsr.ReadStringOfLength(260);
+			GameDirectory = bsr.ReadStringOfLength(260);
 			PlaybackTime = bsr.ReadFloat();
 			TickCount = bsr.ReadSInt();
 			FrameCount = bsr.ReadSInt();

@@ -115,7 +115,7 @@ namespace Tests {
 				before.FilterForMessages().Select(t => t.messageType),
 				after.FilterForMessages().Select(t => t.messageType));
 			// check that the new demo has the new dir in header and SvcServerInfo messages
-			Assert.AreEqual(after.Header.GameDirectory.Str, newDir);
+			Assert.AreEqual(after.Header.GameDirectory, newDir);
 			Assert.That(after.FilterForMessage<SvcServerInfo>().Select(t => t.message.GameDir), Is.All.EqualTo(newDir));
 		}
 	}

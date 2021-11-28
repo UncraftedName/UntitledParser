@@ -268,7 +268,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				demo.Header.NetworkProtocol,
 				demo.DemoInfo.TickInterval,
 				demo.Header.DemoProtocol,
-				demo.Header.GameDirectory.Str);
+				demo.Header.GameDirectory);
 
 
 		[Flags]

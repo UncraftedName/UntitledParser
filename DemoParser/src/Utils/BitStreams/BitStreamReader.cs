@@ -257,6 +257,7 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
+		// always reads strLength bytes, but returns a string that is "null-terminated"
 		public string ReadStringOfLength(int strLength) {
 			if (strLength < 0)
 				throw new ArgumentException("bro that's not supposed to be negative", nameof(strLength));
@@ -275,11 +276,6 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public string ReadStringOfLength(uint strLength) => ReadStringOfLength((int)strLength);
-
-
-		public CharArray ReadCharArray(int byteCount) {
-			return new CharArray(ReadBytes(byteCount));
-		}
 		
 		// I need to write these manually because I can't do Func<Span<byte>, T> cuz Span is a ref struct. 
 
