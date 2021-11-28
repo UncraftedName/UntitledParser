@@ -115,7 +115,7 @@ namespace ConsoleApp {
 		}
 
 
-		public static string QuoteIfHasSpaces(string s) => s.Contains(" ") ? "\"s\"" : s;
+		public static string QuoteIfHasSpaces(string s) => s.Contains(" ") ? $"\"{s}\"" : s;
 
 
 		// to be frank I have no idea how this assembly stuff works
