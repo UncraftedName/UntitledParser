@@ -88,7 +88,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					which = "Total";
 				else
 					which = "Adjusted";
-				Utils.Warning($"\n{which} time may not be valid.\n\n");
+				Utils.Warning($"{which} time may not be valid.\n\n");
 			}
 			Utils.PushForegroundColor(ConsoleColor.Green);
 			if (showTotal || overwrite) {
@@ -102,7 +102,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			}
 			Utils.PopForegroundColor();
 			if (!showTotal && !showAdjusted && !overwrite)
-				Console.WriteLine($"Not showing total time from {DefaultAliases[0]} since it may not be valid.");
+				Console.WriteLine($"Not showing total time from {DefaultAliases[0]} since it may not be valid. Use '{ListDemoFlags.AlwaysShowTotalTime}' to show it regardless.");
 		}
 
 
