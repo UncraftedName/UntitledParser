@@ -45,7 +45,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 				TextWriter tw = infoObj.StartWritingText("creating data table dump", "datatables");
 				WriteDataTableDump((StreamWriter)tw, infoObj.CurrentDemo, mode);
 			} catch (Exception) {
-				Utils.WriteColor("Data table dump failed.\n", ConsoleColor.Red);
+				Utils.Warning("Data table dump failed.\n");
 			}
 		}
 

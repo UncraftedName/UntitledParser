@@ -67,7 +67,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 						Console.WriteLine();
 				}
 			} catch (Exception) {
-				Utils.WriteColor("Timing demo failed.\n", ConsoleColor.Red);
+				Utils.Warning("Timing demo failed.\n");
 			}
 		}
 
@@ -88,7 +88,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					which = "Total";
 				else
 					which = "Adjusted";
-				Utils.WriteColor($"\n{which} time may not be valid.\n\n", ConsoleColor.Red);
+				Utils.Warning($"\n{which} time may not be valid.\n\n");
 			}
 			Utils.PushForegroundColor(ConsoleColor.Green);
 			if (showTotal || overwrite) {

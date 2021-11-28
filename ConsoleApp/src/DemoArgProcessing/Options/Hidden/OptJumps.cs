@@ -35,7 +35,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 				if (!any)
 					tw.WriteLine("no jumps found");
 			} catch (Exception) {
-				Utils.WriteColor("Search for jumps failed.\n", ConsoleColor.Red);
+				Utils.Warning("Search for jumps failed.\n");
 			}
 		}
 

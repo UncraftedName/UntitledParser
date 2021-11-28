@@ -74,7 +74,7 @@ namespace ConsoleApp.DemoArgProcessing {
 				throw new ArgProcessUserException("no executable options given!");
 			// if (setupInfo.OverWriteDemos && !setupInfo.WritesNewDemos) <- I could add a check for this, is it necessary?
 			if (setupInfo.OverWriteDemos && setupInfo.EditsDemos && setupInfo.OverwritePrompt) {
-				Utils.WriteColor("Warning:", ConsoleColor.Red);
+				Utils.Warning("Warning:");
 				Console.WriteLine($" '{OptOverwrite.DefaultAliases[0]}' enabled, this will edit demos and may cause corruption!");
 				Console.Write("Are you sure you want to continue? ");
 				string? inp = null;

@@ -53,7 +53,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 				if (!any)
 					tw.WriteLine("no portals fired by player");
 			} catch (Exception) {
-				Utils.WriteColor("Search for portal shots failed.\n", ConsoleColor.Red);
+				Utils.Warning("Search for portal shots failed.\n");
 			}
 		}
 

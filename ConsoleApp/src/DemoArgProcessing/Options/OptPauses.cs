@@ -39,7 +39,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				if (!any)
 					tw.WriteLine("no pauses found");
 			} catch (Exception) {
-				Utils.WriteColor("Search for pauses failed.\n", ConsoleColor.Red);
+				Utils.Warning("Search for pauses failed.\n");
 			}
 		}
 

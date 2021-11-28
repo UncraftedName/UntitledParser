@@ -36,7 +36,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				Stream s = infoObj.StartWritingBytes("changing demo dir", "new_dir", ".dem");
 				ChangeDemoDir(infoObj.CurrentDemo, s, arg);
 			} catch (Exception) {
-				Utils.WriteColor("Changing demo directory failed.\n", ConsoleColor.Red);
+				Utils.Warning("Changing demo directory failed.\n");
 				infoObj.CancelOverwrite = true;
 			}
 		}

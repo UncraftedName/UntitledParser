@@ -51,7 +51,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 				Stream s = infoObj.StartWritingBytes("smoothing jumps", "smooth-jumps", ".dem");
 				SmoothJumps(infoObj.CurrentDemo, s, arg);
 			} catch (Exception) {
-				Utils.WriteColor("Smoothing jumps failed.\n", ConsoleColor.Red);
+				Utils.Warning("Smoothing jumps failed.\n");
 				infoObj.CancelOverwrite = true;
 			}
 		}

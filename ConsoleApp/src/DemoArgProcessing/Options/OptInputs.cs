@@ -41,7 +41,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				foreach ((int tick, string repr) in GetUserInputs(infoObj.CurrentDemo, mode))
 					tw.WriteLine($"[{tick}] {repr}");
 			} catch (Exception) {
-				Utils.WriteColor("Getting user inputs failed.\n", ConsoleColor.Red);
+				Utils.Warning("Getting user inputs failed.\n");
 			}
 		}
 

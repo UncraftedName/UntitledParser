@@ -122,7 +122,7 @@ namespace ConsoleApp.DemoArgProcessing {
 					File.WriteAllBytes(_fileInfo.FullName, _overwriteProgress.Reader.Data);
 					Utils.WriteColor("done.\n", ConsoleColor.Green);
 				} catch (Exception e) {
-					Utils.WriteColor($"failed: {e.Message}.\n", ConsoleColor.Red);
+					Utils.Warning($"failed: {e.Message}.\n");
 				}
 			}
 		}

@@ -28,7 +28,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				infoObj.CurrentDemo.PrettyWrite(pw);
 				pw.Flush(); // see note at PrettyStreamWriter
 			} catch (Exception) {
-				Utils.WriteColor("Failed to create demo dump.", ConsoleColor.Red);
+				Utils.Warning("Failed to create demo dump.");
 			}
 		}
 

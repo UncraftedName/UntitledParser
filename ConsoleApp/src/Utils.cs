@@ -33,6 +33,9 @@ namespace ConsoleApp {
 			Console.Write(s);
 			PopForegroundColor();
 		}
+
+
+		public static void Warning(string s) => WriteColor(s, ConsoleColor.Red);
 		
 		
 		// gets the common shared path between s1 & s2, e.g. basement/creepy/cats, basement/friendly/cats -> basement

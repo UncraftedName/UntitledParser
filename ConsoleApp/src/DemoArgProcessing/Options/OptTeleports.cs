@@ -61,7 +61,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 						: "no entities were teleported");
 				}
 			} catch (Exception) {
-				Utils.WriteColor("Search for teleports failed.\n", ConsoleColor.Red);
+				Utils.Warning("Search for teleports failed.\n");
 			}
 		}
 

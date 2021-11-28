@@ -39,7 +39,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 					tw.WriteLine($"|{packet.Tick}|~|{pos.X},{pos.Y},{pos.Z}|{ang.X},{ang.Y},{ang.Z}|");
 				}
 			} catch (Exception) {
-				Utils.WriteColor("Position dump failed.\n", ConsoleColor.Red);
+				Utils.Warning("Position dump failed.\n");
 			}
 		}
 

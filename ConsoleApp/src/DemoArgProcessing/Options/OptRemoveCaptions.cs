@@ -33,7 +33,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				Stream s = infoObj.StartWritingBytes("removing captions", "no-captions", ".dem");
 				RemoveCaptions(infoObj.CurrentDemo, s);
 			} catch (Exception) {
-				Utils.WriteColor("Caption removal failed.\n", ConsoleColor.Red);
+				Utils.Warning("Caption removal failed.\n");
 				infoObj.CancelOverwrite = true;
 			}
 		}

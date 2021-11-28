@@ -38,7 +38,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 				if (!any)
 					tw.WriteLine("no cheat commands found");
 			} catch (Exception) {
-				Utils.WriteColor("Search for cheat commands failed.\n", ConsoleColor.Red);
+				Utils.Warning("Search for cheat commands failed.\n");
 			}
 		}
 

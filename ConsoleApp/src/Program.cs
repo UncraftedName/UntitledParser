@@ -10,9 +10,9 @@ namespace ConsoleApp {
 	public static class Program {
 
 		public static void Main(string[] args) {
-			// TODO it would be nice if the console color was reset if ctrl+c is used, but I haven't gotten that to work yet
-			// Console.TreatControlCAsInput = false;
-			// Console.CancelKeyPress += (sender, eventArgs) => Console.ResetColor();
+			// It would be nice if the console color was reset if ctrl+c is used, but I haven't gotten that to work yet.
+			// This line of code just eats ctrl+c and delays it by way too much.
+			// Console.CancelKeyPress += (sender,eventArgs) => Console.ResetColor();
 			
 			Console.WriteLine("UntitledParser by UncraftedName");
 			// write everything with color since we have no idea what/when could have triggered any exceptions
@@ -52,16 +52,16 @@ namespace ConsoleApp {
 					demoParserCommand.Execute(args);
 				}
 			} catch (ArgProcessUserException e) {
-				Utils.WriteColor($"User error: {e.Message}\n", ConsoleColor.Red);
+				Utils.Warning($"User error: {e.Message}\n");
 				Utils.WriteColor(@$"Use '.\{Utils.GetExeName()} --help' for help.", ConsoleColor.Yellow);
 				Environment.ExitCode = 1;
 			} catch (ArgProcessProgrammerException e) {
-				Utils.WriteColor("Some programmer messed up, tell them they are silly (in a nice way).\n", ConsoleColor.Red);
-				Utils.WriteColor(e.ToString(), ConsoleColor.Red);
+				Utils.Warning("Some programmer messed up, tell them they are silly (in a nice way).\n");
+				Utils.Warning(e.ToString());
 				Environment.ExitCode = 2;
 			} catch (Exception e) {
-				Utils.WriteColor("Unhandled exception! (This is not supposed to happen):\n", ConsoleColor.Red);
-				Utils.WriteColor(e.ToString(), ConsoleColor.Red);
+				Utils.Warning("Unhandled exception! (This is not supposed to happen):\n");
+				Utils.Warning(e.ToString());
 				Environment.ExitCode = 3;
 			}
 			Console.ResetColor();

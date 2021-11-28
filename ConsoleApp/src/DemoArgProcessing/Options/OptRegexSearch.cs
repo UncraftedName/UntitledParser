@@ -48,7 +48,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				if (!any)
 					tw.WriteLine("no matches found");
 			} catch (Exception) {
-				Utils.WriteColor("Regex match search failed.\n", ConsoleColor.Red);
+				Utils.Warning("Regex match search failed.\n");
 			}
 		}
 
