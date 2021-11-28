@@ -15,13 +15,21 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 	public class OptChangeDemoDir : DemoOption<string> {
 		
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--change-demo-dir", "-C"}.ToImmutableArray();
+
+
+		private static string ParseString(string s) {
+			if (s.Length > 260)
+				throw new ArgProcessUserException("string too long");
+			return s;
+		}
+		
 		
 		public OptChangeDemoDir() : base(
 			DefaultAliases,
 			Arity.One,
 			$"Creates a new demo with the specified mod directory {OptOutputFolder.RequiresString}",
 			"new_dir_name",
-			s => s,
+			ParseString,
 			null!) {}
 		
 		

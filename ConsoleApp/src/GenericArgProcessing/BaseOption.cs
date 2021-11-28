@@ -50,7 +50,8 @@ namespace ConsoleApp.GenericArgProcessing {
 		}
 
 		
-		public abstract bool CanUseAsArg(string arg);
+		// just for option parsing, msg is non-null if we return false
+		internal abstract bool CanUseAsArg(string arg, out string? failReason);
 
 
 		/// <summary>
@@ -90,7 +91,7 @@ namespace ConsoleApp.GenericArgProcessing {
 			: base(aliases, Arity.Zero, description, hidden) {}
 
 
-		public sealed override bool CanUseAsArg(string arg) => false;
+		internal sealed override bool CanUseAsArg(string arg, out string? failReason) => throw InvalidFuncEx;
 		private protected override string Arg => throw InvalidFuncEx;
 
 		internal override string ArgDescription => throw InvalidFuncEx;
@@ -167,12 +168,13 @@ namespace ConsoleApp.GenericArgProcessing {
 		}
 
 
-		public sealed override bool CanUseAsArg(string arg) {
+		internal sealed override bool CanUseAsArg(string arg, out string? failReason) {
 			try {
 				ArgParser(arg);
+				failReason = null;
 				return true;
-			} catch (Exception e) {
-				Debug.WriteLine($"Failed to convert 'arg' to an argument for '{GetType().Name}', message: {e}");
+			} catch (ArgProcessUserException e) {
+				failReason = e.Message;
 				return false;
 			}
 		}

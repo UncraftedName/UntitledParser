@@ -6,6 +6,16 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 	public class OptOverwrite : DemoOption<bool> {
 		
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--overwrite"}.ToImmutableArray();
+
+
+		private static bool ParseBool(string s) {
+			if (bool.TryParse(s, out bool res))
+				return res;
+			if (int.TryParse(s, out int intRes) && (intRes == 0 || intRes == 1))
+				return intRes == 1;
+			throw new ArgProcessUserException("could not convert to valid boolean");
+		}
+		
 		
 		public OptOverwrite() : base(
 			DefaultAliases,
@@ -14,7 +24,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 			$"\nFor such options this acts as a replacement for {OptOutputFolder.DefaultAliases[0]}." +
 		   "\nThis is the only way to apply multiple edits to the same demo in a single pass.",
 			"prompt",
-			bool.Parse,
+			ParseBool,
 			true, // default value must also be set in BaseDemoOption
 			true) {}
 

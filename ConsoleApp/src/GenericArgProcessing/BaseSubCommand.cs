@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace ConsoleApp.GenericArgProcessing {
 	
@@ -46,10 +47,9 @@ namespace ConsoleApp.GenericArgProcessing {
 
 
 		/// <summary>
-		/// Process an argument that was determined to not be passed to an option, should throw if this argument is invalid.
+		/// Process an argument that was determined to not be passed to an option. Return true on success and false on failure.
 		/// </summary>
-		/// <exception cref="ArgProcessUserException">Thrown when the given argument isn't valid.</exception>
-		protected abstract void ParseDefaultArgument(string arg);
+		protected abstract bool ParseDefaultArgument(string arg, out string? failReason);
 		
 
 		/// <summary>
@@ -57,10 +57,13 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// </summary>
 		protected void ParseArgs(string[] args, TSetup setupObj) {
 			Reset();
+			args = args.Select(s => s.Trim()).ToArray();
 			int argIdx = 0;
+			string? argParseFailReason = null; // a bit of spaghetti so we can print a more informative message
 			while (argIdx < args.Length) {
 				string arg = args[argIdx];
 				if (_optionLookup.TryGetValue(arg, out BaseOption<TSetup, TInfo> option)) {
+					argParseFailReason = null;
 					switch (option.Arity) {
 						case Arity.Zero:
 							option.Enable(null);
@@ -73,16 +76,16 @@ namespace ConsoleApp.GenericArgProcessing {
 								goto case Arity.One;
 							break;
 						case Arity.One:
-							// TODO print a helpful message if the current option can't accept this as an arg AND it doesn't work as a default argument
-							if (argIdx + 1 < args.Length && option.CanUseAsArg(args[argIdx + 1])) {
-								// we can use this as an arg to the option, advance so we skip it on the next iteration
+							if (argIdx + 1 < args.Length && option.CanUseAsArg(args[argIdx + 1], out argParseFailReason)) {
+								// we can use the next string as an arg to the option, advance so we skip it on the next iteration
 								option.Enable(args[++argIdx]);
 							} else {
+								// can't use arg for this option
 								if (option.Arity == Arity.One) {
 									if (argIdx + 1 >= args.Length)
 										throw new ArgProcessUserException($"no argument specified for option '{arg}'");
 									else
-										throw new ArgProcessUserException($"\"{args[argIdx + 1]}\" is not a valid argument for option '{arg}'");
+										throw new ArgProcessUserException($"\"{args[argIdx + 1]}\" is not a valid argument for option '{arg}': {argParseFailReason}.");
 								}
 								option.Enable(null);
 							}
@@ -91,7 +94,14 @@ namespace ConsoleApp.GenericArgProcessing {
 							throw new ArgProcessProgrammerException( $"invalid arity \"{option.Arity}\"");
 					}
 				} else {
-					ParseDefaultArgument(arg);
+					if (!ParseDefaultArgument(arg, out string? failReason)) {
+						if (Regex.IsMatch(arg, "^-+[a-zA-Z]+.*"))
+							throw new ArgProcessUserException($"{failReason!} and is not a valid option.");
+						if (argParseFailReason == null)
+							throw new ArgProcessUserException($"{failReason!}.");
+						// we also tried to use this as an argument for the previous option, so we actually have 2 errors
+						throw new ArgProcessUserException($"{failReason} and is not a valid argument for option '{args[argIdx - 1]}': {argParseFailReason}.");
+					}
 				}
 				argIdx++;
 			}

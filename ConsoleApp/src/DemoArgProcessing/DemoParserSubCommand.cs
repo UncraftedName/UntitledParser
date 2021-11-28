@@ -28,18 +28,23 @@ namespace ConsoleApp.DemoArgProcessing {
 		
 		
 		// assume this is a demo file or a folder of files
-		protected override void ParseDefaultArgument(string arg) {
+		protected override bool ParseDefaultArgument(string arg, out string? failReason) {
 			if (File.Exists(arg)) {
 				FileInfo fi = new FileInfo(arg);
-				if (fi.Extension == ".dem")
+				if (fi.Extension == ".dem") {
 					_argPaths.Add(new FileInfo(arg));
-				else
-					throw new ArgProcessUserException($"File \"{arg}\" is not a valid demo file.");
+				} else {
+					failReason = $"File \"{arg}\" is not a valid demo file";
+					return false;
+				}
 			} else if (Directory.Exists(arg)) {
 				_argPaths.Add(new DirectoryInfo(arg));
 			} else {
-				throw new ArgProcessUserException($"\"{arg}\" is not a valid file or directory!");
+				failReason = $"\"{arg}\" is not a valid path";
+				return false;
 			}
+			failReason = null;
+			return true;
 		}
 
 

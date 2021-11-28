@@ -18,7 +18,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			try {
 				return new Regex(s, RegexOptions.IgnoreCase);
 			} catch (Exception e) {
-				throw new ArgProcessUserException($"\"{s}\" is an invalid regex ({e.Message})");
+				throw new ArgProcessUserException($"invalid regex ({e.Message})");
 			}
 		}
 

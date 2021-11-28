@@ -21,7 +21,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 		private static int ValidateInterpTicks(string s) {
 			if (!int.TryParse(s, out int numTicks))
-				throw new ArgProcessUserException($"\"{s}\" is not a valid integer");
+				throw new ArgProcessUserException("not a valid integer");
 			if (numTicks <= 0 || numTicks > 20)
 				throw new ArgProcessUserException($"expected interp ticks to be between 1 and 20, got {numTicks}");
 			return numTicks;
