@@ -65,7 +65,8 @@ namespace Tests {
 		}
 
 
-		[TestCase("portal 1 unpack.dem", Description = "Portal 1 5135 demo without captions")]
+		[TestCase("portal 1 3420.dem", Description = "Portal 1 3420 demo without captions")]
+		[TestCase("portal 1 5135.dem", Description = "Portal 1 5135 demo without captions")]
 		[TestCase("captions.dem"), Description("Portal 1 5135 demo with captions")]
 		[Parallelizable(ParallelScope.All)]
 		public void RemoveCaptions(string fileName) {
@@ -93,8 +94,8 @@ namespace Tests {
 
 
 		[TestCase("portal 1 leak.dem", Description = "Portal 1 (Leak)")]
-		[TestCase("portal 1 unpack.dem", Description = "Portal 1 (Source Unpack)")]
-		[TestCase("portal 1 unpack spliced.dem", Description = "Portal 1 (Source Unpack Spliced)")]
+		[TestCase("portal 1 5135.dem", Description = "Portal 1 (5135)")]
+		[TestCase("portal 1 5135 spliced.dem", Description = "Portal 1 (5135 Spliced)")]
 		[TestCase("portal 1 steampipe.dem", Description = "Portal 1 (SteamPipe)")]
 		[TestCase("portal 1 3420.dem", Description = "Portal 1 (3420)")]
 		[Parallelizable(ParallelScope.All)]
