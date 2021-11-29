@@ -137,6 +137,14 @@ namespace DemoParser.Parser {
 							SignOnGarbageBytes = 304;
 							TickInterval = 1f / 30;
 							break;
+						case 1040:
+							Game = L4D1_1040;
+							PacketTypes = DemoPacket.DemoProtocol4Table;
+							UserMessageTypes = UserMessage.L4D1OldTable;
+							MaxSplitscreenPlayers = 4;
+							SignOnGarbageBytes = 304;
+							TickInterval = 1f / 30;
+							break;
 						case 2000:
 							Game = L4D2_2000;
 							PacketTypes = DemoPacket.DemoProtocol4Table;
@@ -192,8 +200,8 @@ namespace DemoParser.Parser {
 				SendPropNumBitsToGetNumBits = 6;
 				SendPropTypes = SendPropEnums.OldNetPropTypes;
 			} else {
-				SendPropNumBitsToGetNumBits = Game == L4D1_1005 || Game == L4D2_2000 || Game == L4D2_2042 ? 6 : 7;
 				NetMsgTypeBits = 6;
+				SendPropNumBitsToGetNumBits = IsLeft4Dead() ? 6 : 7;
 				SendPropTypes = SendPropEnums.NewNetPropTypes;
 			}
 			SendPropTypesReverseLookup = SendPropTypes.CreateReverseLookupDict();
@@ -204,7 +212,7 @@ namespace DemoParser.Parser {
 					SendPropFlagBits = 11;
 					goto default; // I don't know any other constants for demo protocol 2 so just cry
 				case 3:
-				case 4 when Game == L4D1_1005:
+				case 4 when IsLeft4Dead1():
 					NewDemoProtocol = false;
 					SendPropFlagBits = 16;
 					SoundFlagBits = 9;
@@ -223,8 +231,7 @@ namespace DemoParser.Parser {
 				case 4:
 					NewDemoProtocol = true;
 					SendPropFlagBits = 19;
-					SoundFlagBits = 13;
-					//SoundFlagBits = 9;
+					SoundFlagBits = 13; // 9?
 					UserMessageLengthBits = Game == L4D2_2042 ? 11 : 12;
 					PropFlagChecker = new SendPropEnums.DemoProtocol4FlagChecker();
 					if (Game == PORTAL_2) {
@@ -244,6 +251,16 @@ namespace DemoParser.Parser {
 			
 			TimeAdjustmentTypes = TimingAdjustment.AdjustmentTypeFromMap(h.MapName, Game);
 		}
+	
+	
+		public bool IsLeft4Dead() {
+			return Game >= L4D1_1005 && Game <= L4D2_2042;
+		}
+
+
+		public bool IsLeft4Dead1() {
+			return Game >= L4D1_1005 && Game <= L4D1_1040;
+		}
 	}
 	
 	
@@ -259,6 +276,7 @@ namespace DemoParser.Parser {
 		PORTAL_2,
 		
 		L4D1_1005,
+		L4D1_1040,
 		L4D2_2000,
 		L4D2_2042,
 		UNKNOWN
