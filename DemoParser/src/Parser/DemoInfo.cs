@@ -44,7 +44,6 @@ namespace DemoParser.Parser {
 		public readonly SourceGame Game;
 		public readonly int MaxSplitscreenPlayers;
 		public readonly int SignOnGarbageBytes;
-		public readonly bool ProcessEnts; // only do ent stuff if you're testing or the game is supported
 		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		public readonly int SendPropFlagBits;
 		public readonly int SoundFlagBits;
@@ -75,125 +74,68 @@ namespace DemoParser.Parser {
 		public readonly IReadOnlyList<UserMessageType>? UserMessageTypes;
 		public readonly IReadOnlyDictionary<UserMessageType, int>? UserMessageTypesReverseLookup;
 		
+
+		private static readonly IDictionary<(uint demoProtocol, uint networkProtocol), SourceGame> GameLookup
+			= new Dictionary<(uint, uint), SourceGame>
+			{
+				[(3, 7)]    = HL2_OE,
+				[(3, 14)]   = PORTAL_1_3420,
+				[(3, 15)]   = PORTAL_1_5135,
+				[(3, 24)]   = PORTAL_1_1910503,
+				[(4, 37)]   = L4D1_1005,
+				[(4, 1040)] = L4D1_1040,
+				[(4, 2000)] = L4D2_2000,
+				[(4, 2001)] = PORTAL_2,
+				[(4, 2012)] = L4D2_2012,
+				[(4, 2027)] = L4D2_2027,
+				[(4, 2042)] = L4D2_2042,
+				[(4, 2100)] = L4D2_2220,
+			};
+		
 		
 		public DemoInfo(SourceDemo demo) {
 			DemoParseResult = default;
 			DemoHeader h = demo.Header;
-			switch (h.DemoProtocol) {
-				case 3:
-					switch (h.NetworkProtocol) {
-						case 7:
-							Game = HL2_OE;
-							PacketTypes = DemoPacket.Portal3420Table;
-							UserMessageTypes = UserMessage.Hl2OeTable;
-							DemoParseResult |= DemoParseResult.EntParsingEnabled;
-							MaxSplitscreenPlayers = 1;
-							SignOnGarbageBytes = 76;
-							TickInterval = 1f / 66;
-							break;
-						case 14:
-							Game = PORTAL_1_3420;
-							PacketTypes = DemoPacket.Portal3420Table;
-							UserMessageTypes = UserMessage.Portal3420Table;
-							DemoParseResult |= DemoParseResult.EntParsingEnabled;
-							MaxSplitscreenPlayers = 1;
-							SignOnGarbageBytes = 76;
-							TickInterval = 1f / 66;
-							break;
-						case 15:
-							Game = PORTAL_1_5135;
-							PacketTypes = DemoPacket.Portal1UnpackTable;
-							UserMessageTypes = UserMessage.Portal1UnpackTable;
-							DemoParseResult |= DemoParseResult.EntParsingEnabled;
-							MaxSplitscreenPlayers = 1;
-							SignOnGarbageBytes = 76;
-							TickInterval = 1f / 66;
-							break;
-						case 24:
-							Game = PORTAL_1_1910503;
-							PacketTypes = DemoPacket.Portal1UnpackTable;
-							UserMessageTypes = UserMessage.Portal1SteamTable;
-							MaxSplitscreenPlayers = 1;
-							SignOnGarbageBytes = 76;
-							TickInterval = 1f / 66;
-							break;
-						default:
-							Game = UNKNOWN;
-							// just guess, (copy of steampipe)
-							PacketTypes = DemoPacket.Portal1UnpackTable;
-							UserMessageTypes = UserMessage.Portal1SteamTable;
-							MaxSplitscreenPlayers = 1;
-							SignOnGarbageBytes = 76;
-							break;
-					}
-					break;
-				case 4:
-					switch (h.NetworkProtocol) {
-						case 37:
-							Game = L4D1_1005;
-							PacketTypes = DemoPacket.DemoProtocol4Table;
-							UserMessageTypes = UserMessage.L4D1OldTable;
-							MaxSplitscreenPlayers = 4;
-							SignOnGarbageBytes = 304;
-							TickInterval = 1f / 30;
-							break;
-						case 1040:
-							Game = L4D1_1040;
-							PacketTypes = DemoPacket.DemoProtocol4Table;
-							UserMessageTypes = UserMessage.L4D1OldTable;
-							MaxSplitscreenPlayers = 4;
-							SignOnGarbageBytes = 304;
-							TickInterval = 1f / 30;
-							break;
-						case 2000:
-							Game = L4D2_2000;
-							PacketTypes = DemoPacket.DemoProtocol4Table;
-							UserMessageTypes = UserMessage.L4D2SteamTable;
-							MaxSplitscreenPlayers = 4;
-							SignOnGarbageBytes = 304;
-							TickInterval = 1f / 30;
-							break;
-						case 2001:
-							Game = PORTAL_2;
-							PacketTypes = DemoPacket.DemoProtocol4Table;
-							UserMessageTypes = UserMessage.Portal2Table;
-							DemoParseResult |= DemoParseResult.EntParsingEnabled;
-							MaxSplitscreenPlayers = 2;
-							SignOnGarbageBytes = 152;
-							TickInterval = 1f / 60;
-							break;
-						case 2042:
-							Game = L4D2_2042;
-							PacketTypes = DemoPacket.DemoProtocol4Table;
-							UserMessageTypes = UserMessage.L4D2SteamTable;
-							MaxSplitscreenPlayers = 4;
-							SignOnGarbageBytes = 304;
-							TickInterval = 1f / 30;
-							break;
-						default:
-							Game = UNKNOWN;
-							// just guess, (copy of p2)
-							PacketTypes = DemoPacket.DemoProtocol4Table;
-							UserMessageTypes = UserMessage.Portal2Table;
-							DemoParseResult |= DemoParseResult.EntParsingEnabled;
-							MaxSplitscreenPlayers = 2;
-							SignOnGarbageBytes = 152;
-							TickInterval = 1f / 60;
-							break;
-					}
-					break;
-				default:
-					Game = UNKNOWN;
-					break;
-			}
-			UserMessageTypesReverseLookup = UserMessageTypes?.CreateReverseLookupDict();
-			PacketTypesReverseLookup = PacketTypes?.CreateReverseLookupDict(PacketType.Invalid);
-			if (Game == UNKNOWN) {
+			
+			if (!GameLookup.TryGetValue((h.DemoProtocol, h.NetworkProtocol), out Game)) {
+				Game = UNKNOWN;
 				demo.LogError($"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n");
 				DemoParseResult |= DemoParseResult.UnknownGame;
 			}
-
-			// these should all come last after the game and other constants have already been determined
+			
+			// provide default values in case of unknown game
+			if (IsPortal1() || IsHL2() || (Game == UNKNOWN && h.DemoProtocol == 3)) {
+				TickInterval = 0.015f;
+				SignOnGarbageBytes = 76;
+				MaxSplitscreenPlayers = 1;
+				if (h.NetworkProtocol <= 15)
+					DemoParseResult |= DemoParseResult.EntParsingEnabled;
+				PacketTypes = h.NetworkProtocol <= 14 ? DemoPacket.Portal3420Table : DemoPacket.Portal15135Table;
+				if (h.NetworkProtocol <= 7)
+					UserMessageTypes = UserMessage.Hl2OeTable;
+				else if (h.NetworkProtocol <= 14)
+					UserMessageTypes = UserMessage.Portal3420Table;
+				else if (h.NetworkProtocol <= 15)
+					UserMessageTypes = UserMessage.Portal5135Table;
+				else
+					UserMessageTypes = UserMessage.Portal1SteamTable;
+			} else if (Game == PORTAL_2 || (Game == UNKNOWN && h.DemoProtocol == 4)) {
+				TickInterval = 1f / 60;
+				SignOnGarbageBytes = 152;
+				MaxSplitscreenPlayers = 2;
+				DemoParseResult |= DemoParseResult.EntParsingEnabled;
+				PacketTypes = DemoPacket.DemoProtocol4Table;
+				UserMessageTypes = UserMessage.Portal2Table;
+			} else if (IsLeft4Dead()) {
+				TickInterval = 1f / 30;
+				SignOnGarbageBytes = 304;
+				MaxSplitscreenPlayers = 4;
+				UserMessageTypes = IsLeft4Dead1() ? UserMessage.L4D1OldTable : UserMessage.L4D2SteamTable;
+				PacketTypes = DemoPacket.DemoProtocol4Table;
+			}
+			
+			UserMessageTypesReverseLookup = UserMessageTypes?.CreateReverseLookupDict();
+			PacketTypesReverseLookup = PacketTypes?.CreateReverseLookupDict(PacketType.Invalid);
 
 			if (h.NetworkProtocol <= 14) {
 				NetMsgTypeBits = 5;
@@ -232,7 +174,7 @@ namespace DemoParser.Parser {
 					NewDemoProtocol = true;
 					SendPropFlagBits = 19;
 					SoundFlagBits = 13; // 9?
-					UserMessageLengthBits = Game == L4D2_2042 ? 11 : 12;
+					UserMessageLengthBits = IsLeft4Dead() ? 11 : 12;
 					PropFlagChecker = new SendPropEnums.DemoProtocol4FlagChecker();
 					if (Game == PORTAL_2) {
 						PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsPortal2();
@@ -253,14 +195,13 @@ namespace DemoParser.Parser {
 		}
 	
 	
-		public bool IsLeft4Dead() {
-			return Game >= L4D1_1005 && Game <= L4D2_2042;
-		}
+		public bool IsLeft4Dead() => Game >= L4D1_1005 && Game <= L4D2_2220;
+		
+		public bool IsLeft4Dead1() => Game >= L4D1_1005 && Game <= L4D1_1040;
 
+		public bool IsPortal1() => Game >= PORTAL_1_3420 && Game <= PORTAL_1_1910503;
 
-		public bool IsLeft4Dead1() {
-			return Game >= L4D1_1005 && Game <= L4D1_1040;
-		}
+		public bool IsHL2() => Game == HL2_OE;
 	}
 	
 	
@@ -276,9 +217,13 @@ namespace DemoParser.Parser {
 		PORTAL_2,
 		
 		L4D1_1005,
-		L4D1_1040,
+		L4D1_1040, // latest steam version
+		
 		L4D2_2000,
-		L4D2_2042,
+		L4D2_2012,
+		L4D2_2027,
+		L4D2_2042, // 2042 is protocol, version is 2063, 2075, or 2091 (thanks valve)
+		L4D2_2220, // latest steam version
 		UNKNOWN
 	}
 	

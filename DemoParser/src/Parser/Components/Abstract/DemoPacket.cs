@@ -22,7 +22,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			PacketType.Stop
 		};
 		
-		public static readonly IReadOnlyList<PacketType> Portal1UnpackTable = new[] {
+		public static readonly IReadOnlyList<PacketType> Portal15135Table = new[] {
 			PacketType.Invalid,
 			PacketType.SignOn,
 			PacketType.Packet,

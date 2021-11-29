@@ -184,7 +184,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.KillCam
 		};
 		
-		public static readonly IReadOnlyList<UserMessageType> Portal1UnpackTable = new[] {
+		public static readonly IReadOnlyList<UserMessageType> Portal5135Table = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
 			UserMessageType.HudText,
