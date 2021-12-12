@@ -153,7 +153,7 @@ namespace ConsoleApp.GenericArgProcessing {
 				if (any)
 					Console.WriteLine();
 				any = true;
-				Utils.PushForegroundColor(option.Hidden ? ConsoleColor.DarkMagenta : ConsoleColor.Cyan);
+				Utils.PushForegroundColor(option.Hidden ? ConsoleColor.DarkGreen : ConsoleColor.Cyan);
 				Console.Write(string.Join(", ", option.Aliases.OrderBy(s => s.Length)));
 				switch (option.Arity) {
 					case Arity.Zero:
