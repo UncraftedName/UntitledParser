@@ -11,6 +11,7 @@
         <AssemblyName>UntitledParser</AssemblyName>
         <Nullable>enable</Nullable>
     </PropertyGroup>
+
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <TargetName>UntitledParser.Unmerged</TargetName>
     </PropertyGroup>
@@ -35,10 +36,6 @@
       <AssemblyAttribute Include="ConsoleApp.BuildDateAttribute">
         <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
       </AssemblyAttribute>
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="build-release-and-pack.bat" />
     </ItemGroup>
 
     <ItemGroup>
