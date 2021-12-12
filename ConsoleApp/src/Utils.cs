@@ -82,7 +82,7 @@ namespace ConsoleApp {
 					throw new Exception(); // I don't think I can even use goto here so just throw and catch immediately
 				return (T)Enum.ToObject(typeof(T), val);
 			} catch (Exception) {
-				throw new ArgProcessUserException("could convert to valid enum value");
+				throw new ArgProcessUserException("could not convert to valid enum value");
 			}
 		}
 
