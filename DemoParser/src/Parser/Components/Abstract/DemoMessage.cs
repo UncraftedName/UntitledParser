@@ -85,7 +85,9 @@ namespace DemoParser.Parser.Components.Abstract {
 			MessageType.SvcGetCvarValue
 		};
 
-		public static readonly IReadOnlyList<MessageType> NewProtocolMessageList = new[] {
+		// l4d1 1.0 is missing the last 2 messages compared to NewProtocolMessageList
+		// l4d1 steam is only missing the last one
+		public static readonly IReadOnlyList<MessageType> L4D1OldMessageList = new[] {
 			MessageType.NetNop,
 			MessageType.NetDisconnect,
 			MessageType.NetFile,
@@ -117,18 +119,22 @@ namespace DemoParser.Parser.Components.Abstract {
 			MessageType.SvcPrefetch,
 			MessageType.SvcMenu,
 			MessageType.SvcGameEventList,
-			MessageType.SvcGetCvarValue,
-			MessageType.SvcCmdKeyValues,
-			MessageType.SvcPaintmapData
+			MessageType.SvcGetCvarValue
 		};
 
+		public static readonly IReadOnlyList<MessageType> L4D1SteamMessageList =
+			L4D1OldMessageList.Concat(new[] { MessageType.SvcCmdKeyValues }).ToArray();
+
+		public static readonly IReadOnlyList<MessageType> NewProtocolMessageList =
+			L4D1SteamMessageList.Concat(new[] { MessageType.SvcPaintmapData }).ToArray();
+
 		public static readonly IReadOnlyList<MessageType> SteamPipeMessageList =
-			OldProtocolMessageList.Concat(new [] {MessageType.SvcCmdKeyValues}).ToArray();
+            OldProtocolMessageList.Concat(new[] { MessageType.SvcCmdKeyValues }).ToArray();
 
-		#endregion
+        #endregion
 
 
-		public static MessageType ByteToSvcMessageType(byte b, DemoInfo demoInfo) {
+        public static MessageType ByteToSvcMessageType(byte b, DemoInfo demoInfo) {
 			var tab = demoInfo.MessageTypes;
 			if (tab == null)
 				return MessageType.Unknown;

@@ -49,7 +49,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 				// Now we have the props, rearrange them so that props that are marked with 'changes often' get a
 				// smaller index. In the new protocol the priority of the props is also taken into account.
-				if (_demoRef.DemoInfo.NewDemoProtocol) {
+				if (_demoRef.DemoInfo.NewDemoProtocol && !_demoRef.DemoInfo.IsLeft4Dead1()) {
 					List<int> priorities = new List<int> {64};
 					priorities.AddRange(fProps.Select(entry => entry.PropInfo.Priority!.Value).Distinct());
 					priorities.Sort();

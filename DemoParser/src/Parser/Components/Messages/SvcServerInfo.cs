@@ -71,12 +71,13 @@ namespace DemoParser.Parser.Components.Messages {
 			// l4d read multiple SvcServerInfo messages and broke the TickInterval parsed
 			// in the first message (that is parsed correctly)
 			// prevent the interval from being overwritten
-			if (!DemoInfo.HasParsedTickInterval) {
+			if (!DemoInfo.HasParsedTickInterval)
+			{
 				DemoInfo.TickInterval = TickInterval;
 				DemoInfo.HasParsedTickInterval = true;
 			}
 			// this packet always(?) appears before the creation of any tables
-			
+
 			DemoRef.CurStringTablesManager.ClearCurrentTables();
 			
 			// init baselines here

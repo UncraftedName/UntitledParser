@@ -17,6 +17,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			Client = bsr.ReadByte();
 			WantsToChat = bsr.ReadBool();
+			// TODO: fill out the rest of the UserMessage (don't know what SayText2
+			// is even but I guess it doesn't happen often at all since it hasn't broken a demo parse yet)
 		}
 		
 
