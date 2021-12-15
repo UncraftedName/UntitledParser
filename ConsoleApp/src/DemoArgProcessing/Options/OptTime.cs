@@ -102,7 +102,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			}
 			Utils.PopForegroundColor();
 			if (!showTotal && !showAdjusted && !overwrite)
-				Console.WriteLine($"Not showing total time from {DefaultAliases[0]} since it may not be valid. Use '{ListDemoFlags.AlwaysShowTotalTime}' to show it regardless.");
+				Console.WriteLine($"Not showing total time from {DefaultAliases[0]} since it may not be valid. Use '{DefaultAliases[0]} {ListDemoFlags.AlwaysShowTotalTime}' to show it regardless.");
 		}
 
 
