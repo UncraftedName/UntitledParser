@@ -12,7 +12,7 @@ using static System.Text.RegularExpressions.RegexOptions;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
 	
-	public class OptTime : DemoOption<OptTime.ListDemoFlags> {
+	public class OptTime : DemoOption<OptTime.TimeFlags> {
 
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--time", "-t"}.ToImmutableArray();
 
@@ -20,7 +20,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		
 		
 		[Flags]
-		public enum ListDemoFlags {
+		public enum TimeFlags {
 			NoHeader = 1,
 			TimeFirstTick = 2,
 			AlwaysShowTotalTime = 4,
@@ -34,9 +34,9 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			DefaultAliases,
 			Arity.ZeroOrOne,
 			"Prints demo header and time info, enabled automatically if no other options are set." +
-			$"\nNote that flags can be combined, e.g. \"{ListDemoFlags.NoHeader | ListDemoFlags.AlwaysShowTotalTime}\" or \"5\".",
+			$"\nNote that flags can be combined, e.g. \"{TimeFlags.NoHeader | TimeFlags.AlwaysShowTotalTime}\" or \"5\".",
 			"flags",
-			Utils.ParseEnum<ListDemoFlags>,
+			Utils.ParseEnum<TimeFlags>,
 			default)
 		{
 			_sdt = null!; // 'AfterParse' will initialize this
@@ -49,20 +49,20 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		}
 
 
-		protected override void AfterParse(DemoParsingSetupInfo setupObj, ListDemoFlags arg, bool isDefault) {
+		protected override void AfterParse(DemoParsingSetupInfo setupObj, TimeFlags arg, bool isDefault) {
 			setupObj.ExecutableOptions++;
-			_sdt = new SimpleDemoTimer((arg & ListDemoFlags.TimeFirstTick) != 0);
+			_sdt = new SimpleDemoTimer((arg & TimeFlags.TimeFirstTick) != 0);
 		}
 
 
-		protected override void Process(DemoParsingInfo infoObj, ListDemoFlags arg, bool isDefault) {
+		protected override void Process(DemoParsingInfo infoObj, TimeFlags arg, bool isDefault) {
 			TextWriter tw = infoObj.StartWritingText("timing demo", "time", bufferSize: 512);
 			try {
-				if ((arg & ListDemoFlags.NoHeader) == 0)
+				if ((arg & TimeFlags.NoHeader) == 0)
 					WriteHeader(infoObj.CurrentDemo, tw, infoObj.SetupInfo.ExecutableOptions != 1);
 				_sdt.Consume(infoObj.CurrentDemo);
 				if (!infoObj.FailedLastParse) {
-					WriteAdjustedTime(infoObj.CurrentDemo, tw, (arg & ListDemoFlags.TimeFirstTick) != 0);
+					WriteAdjustedTime(infoObj.CurrentDemo, tw, (arg & TimeFlags.TimeFirstTick) != 0);
 					if (!infoObj.OptionOutputRedirected)
 						Console.WriteLine();
 				}
@@ -72,10 +72,10 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		}
 
 
-		protected override void PostProcess(DemoParsingInfo infoObj, ListDemoFlags arg, bool isDefault) {
+		protected override void PostProcess(DemoParsingInfo infoObj, TimeFlags arg, bool isDefault) {
 			bool showTotal = _sdt.ValidFlags.HasFlag(SimpleDemoTimer.Flags.TotalTimeValid);
 			bool showAdjusted = _sdt.ValidFlags.HasFlag(SimpleDemoTimer.Flags.AdjustedTimeValid);
-			bool overwrite = (arg & ListDemoFlags.AlwaysShowTotalTime) != 0;
+			bool overwrite = (arg & TimeFlags.AlwaysShowTotalTime) != 0;
 			if (!overwrite && infoObj.NumDemos == 1)
 				return;
 
@@ -102,7 +102,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			}
 			Utils.PopForegroundColor();
 			if (!showTotal && !showAdjusted && !overwrite)
-				Console.WriteLine($"Not showing total time from {DefaultAliases[0]} since it may not be valid. Use '{DefaultAliases[0]} {ListDemoFlags.AlwaysShowTotalTime}' to show it regardless.");
+				Console.WriteLine($"Not showing total time from {DefaultAliases[0]} since it may not be valid. Use '{DefaultAliases[0]} {TimeFlags.AlwaysShowTotalTime}' to show it regardless.");
 		}
 
 

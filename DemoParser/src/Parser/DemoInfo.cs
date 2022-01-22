@@ -123,7 +123,8 @@ namespace DemoParser.Parser {
 				TickInterval = 1f / 60;
 				SignOnGarbageBytes = 152;
 				MaxSplitscreenPlayers = 2;
-				DemoParseResult |= DemoParseResult.EntParsingEnabled;
+				if (Game == PORTAL_2)
+					DemoParseResult |= DemoParseResult.EntParsingEnabled;
 				PacketTypes = DemoPacket.DemoProtocol4Table;
 				UserMessageTypes = UserMessage.Portal2Table;
 			} else if (IsLeft4Dead()) {
