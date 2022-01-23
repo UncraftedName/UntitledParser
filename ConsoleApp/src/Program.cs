@@ -49,7 +49,7 @@ namespace ConsoleApp {
 							: @$"Use '.\{Utils.GetExeName()} --help' for help.",
 						ConsoleColor.Yellow);
 				} else {
-					demoParserCommand.Execute(args);
+					demoParserCommand.Execute(Utils.FixPowerShellBullshit(args));
 				}
 			} catch (ArgProcessUserException e) {
 				Utils.Warning($"User error: {e.Message}\n");

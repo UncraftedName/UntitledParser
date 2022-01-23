@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using DemoParser.Utils;
 
 namespace ConsoleApp {
 
@@ -137,6 +138,43 @@ namespace ConsoleApp {
 			} catch (Exception) {
 				return null;
 			}
+		}
+
+
+		// microsoft, you autocomplete dir to '.\dir name\' and then that last single quote escapes into a double quote which fucks everything
+		public static string[] FixPowerShellBullshit(string[] args) {
+			// example input: '.\nosla 12 50 89\' '.\nosla 12 50 89\' gets converted to [.\nosla 12 50 89" .\nosla, 12, 50, 89"]
+			var newArgs = new List<string>();
+			bool fixing = false;
+			foreach (string arg in args) {
+				if (!fixing && arg.Substring(0, 2) == @".\" && arg.Contains('"')) { // this is a directory that breaks future args
+					int off = arg.IndexOf('"');
+					newArgs.Add(arg.Substring(0, off));
+					if (off < arg.Length - 1) {
+						// split the string by spaces, these should be separate args
+						newArgs.AddRange(arg.Substring(off + 2).Split(' '));
+						fixing = true;
+					}
+				} else if (fixing) {
+					// we're fixing, these separate args are actually the same arg separated by a space
+					newArgs[^1] += " ";
+					if (arg.Last() == '"') {
+						// this is the end of the current arg
+						newArgs[^1] += arg.Substring(0, arg.Length - 1);
+						fixing = false;
+					} else if (arg.Contains(' ')) {
+						// this is the end of the current arg and the beginning of the next one(s)
+						var splitArgs = arg.Split(' ');
+						newArgs[^1] += splitArgs[0];
+						newArgs.AddRange(splitArgs.Skip(1));
+					} else {
+						newArgs[^1] += arg;
+					}
+				} else {
+					newArgs.Add(arg);
+				}
+			}
+			return newArgs.ToArray();
 		}
 	}
 
