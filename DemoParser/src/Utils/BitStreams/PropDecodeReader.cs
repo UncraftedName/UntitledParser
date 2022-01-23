@@ -105,6 +105,8 @@ namespace DemoParser.Utils.BitStreams {
 			} else if (checker.HasFlag(flags, PropFlag.Normal)) {
 				pType = FloatParseType.Normal;
 			} else if (propInfo.DemoRef.DemoInfo.NewDemoProtocol) {
+				// these never go through for DemoProtocol3FlagChecker
+				// maybe this check should be about flag versions and not demo protocol version
 				if (checker.HasFlag(flags, PropFlag.CellCoord)) {
 					pType = FloatParseType.BitCellChord;
 				} else if (checker.HasFlag(flags, PropFlag.CellCoordLp)) {

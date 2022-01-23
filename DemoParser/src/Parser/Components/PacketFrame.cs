@@ -35,7 +35,7 @@ namespace DemoParser.Parser.Components {
 				: bsr.ReadSInt();
 
 			// last player slot byte is cut off in l4d demos
-			if ((DemoInfo.NewDemoProtocol || DemoInfo.IsLeft4Dead1()) && bsr.BitsRemaining > 0)
+			if ((DemoInfo.NewDemoProtocol) && bsr.BitsRemaining > 0)
 				PlayerSlot = bsr.ReadByte();
 			
 			Packet = PacketFactory.CreatePacket(DemoRef!, this, Type);

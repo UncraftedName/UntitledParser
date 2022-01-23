@@ -11,6 +11,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public ushort NetworkProtocol;
 		public uint ServerCount;
 		public bool IsHltv;
+		public bool? UnknownBit;
 		public bool IsDedicated;
 		public int ClientCrc;
 		public ushort MaxServerClasses;
@@ -25,6 +26,8 @@ namespace DemoParser.Parser.Components.Messages {
 		public string MapName;
 		public string SkyName;
 		public string HostName;
+		public string? MissionName;
+		public string? MutationName;
 		public bool? HasReplay;
 
 		public int GameDirBitIndex; // used for game directory changing
@@ -38,6 +41,8 @@ namespace DemoParser.Parser.Components.Messages {
 			ServerCount = bsr.ReadUInt();
 			IsHltv = bsr.ReadBool();
 			IsDedicated = bsr.ReadBool();
+			if (DemoInfo.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2220)
+				UnknownBit = bsr.ReadBool();
 			ClientCrc = bsr.ReadSInt();
 			if (DemoInfo.NewDemoProtocol) // unknown field, could be before ClientCrc
 				Unknown = bsr.ReadUInt();
@@ -48,25 +53,31 @@ namespace DemoParser.Parser.Components.Messages {
 				MapCrc = bsr.ReadUInt(); // network protocol < 18 according to p2 leak, but doesn't add up for l4d2 and p2
 			PlayerCount = bsr.ReadByte();
 			MaxClients = bsr.ReadByte();
-            TickInterval = bsr.ReadFloat();
+			TickInterval = bsr.ReadFloat();
 			Platform = (char)bsr.ReadByte();
 			GameDirBitIndex = bsr.AbsoluteBitIndex;
 			GameDir = bsr.ReadNullTerminatedString();
 			MapName = bsr.ReadNullTerminatedString();
 			SkyName = bsr.ReadNullTerminatedString();
 			HostName = bsr.ReadNullTerminatedString();
+			if (DemoInfo.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2220)
+			{
+				MissionName = bsr.ReadNullTerminatedString();
+				MutationName = bsr.ReadNullTerminatedString();
+			}
 			if (NetworkProtocol == 24)
 				HasReplay = bsr.ReadBool(); // protocol version >= 16
 
 			// l4d read multiple SvcServerInfo messages and broke the TickInterval parsed
 			// in the first message (that is parsed correctly)
 			// prevent the interval from being overwritten
-			if (!DemoInfo.HasParsedTickInterval) {
+			if (!DemoInfo.HasParsedTickInterval)
+			{
 				DemoInfo.TickInterval = TickInterval;
 				DemoInfo.HasParsedTickInterval = true;
 			}
 			// this packet always(?) appears before the creation of any tables
-			
+
 			DemoRef.CurStringTablesManager.ClearCurrentTables();
 			
 			// init baselines here
@@ -84,6 +95,8 @@ namespace DemoParser.Parser.Components.Messages {
 			pw.AppendLine($"server count: {ServerCount}");
 			pw.AppendLine($"is hltv: {IsHltv}");
 			pw.AppendLine($"is dedicated: {IsDedicated}");
+			if (UnknownBit != null)
+				pw.AppendLine($"unknown bit: {UnknownBit}");
 			pw.AppendLine($"server client CRC: {ClientCrc}"); // change to hex?
 			if (Unknown != null)
 				pw.AppendLine($"unknown byte: {Unknown}");
@@ -99,6 +112,11 @@ namespace DemoParser.Parser.Components.Messages {
 			pw.AppendLine($"map name: {MapName}");
 			pw.AppendLine($"skybox name: {SkyName}");
 			pw.Append($"host name: {HostName}");
+			if (MissionName != null && MutationName != null)
+			{
+				pw.AppendLine($"\nmission name: {MissionName}");
+				pw.Append($"mutation name: {MutationName}");
+			}
 			if (HasReplay != null)
 				pw.Append($"\nhas replay: {HasReplay}");
 		}

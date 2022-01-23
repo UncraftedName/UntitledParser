@@ -54,8 +54,8 @@ namespace DemoParser.Parser {
 		public readonly int NumNetFileFlagBits;
 		public float TickInterval; // I set the tick interval here just in case but it should get set from SvcServerInfo
 		public bool HasParsedTickInterval = false;
-		
-		
+
+
 		// a way to tell what info did/didn't get parsed
 		public DemoParseResult DemoParseResult;
 		
@@ -143,7 +143,7 @@ namespace DemoParser.Parser {
 				SendPropNumBitsToGetNumBits = 6;
 				SendPropTypes = SendPropEnums.OldNetPropTypes;
 			} else {
-				NetMsgTypeBits = 6;
+				NetMsgTypeBits = Game == L4D1_1005 ? 5 : 6;
 				SendPropNumBitsToGetNumBits = IsLeft4Dead() ? 6 : 7;
 				SendPropTypes = SendPropEnums.NewNetPropTypes;
 			}
@@ -156,7 +156,7 @@ namespace DemoParser.Parser {
 					goto default; // I don't know any other constants for demo protocol 2 so just cry
 				case 3:
 				case 4 when IsLeft4Dead1():
-					NewDemoProtocol = false;
+					NewDemoProtocol = IsLeft4Dead1();
 					SendPropFlagBits = 16;
 					SoundFlagBits = 9;
 					PropFlagChecker = new SendPropEnums.DemoProtocol3FlagChecker();
@@ -168,6 +168,10 @@ namespace DemoParser.Parser {
 						MessageTypes = DemoMessage.OeMessageList;
 					else if (h.NetworkProtocol < 24)
 						MessageTypes = DemoMessage.OldProtocolMessageList;
+					else if (Game == L4D1_1005)
+						MessageTypes = DemoMessage.L4D1OldMessageList;
+					else if (Game == L4D1_1040)
+						MessageTypes = DemoMessage.L4D1SteamMessageList;
 					else
 						MessageTypes = DemoMessage.SteamPipeMessageList;
 					break;
