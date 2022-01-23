@@ -84,7 +84,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				BitStreamReader signOnReader = signOn.Reader;
 				bsw.WriteBits(signOnReader.ReadRemainingBits());
 				signOnReader = signOnReader.FromBeginning();
-				int bytesToMessageStreamSize = demo.DemoInfo.SignOnGarbageBytes + 8;
+				int bytesToMessageStreamSize = demo.DemoInfo.MaxSplitscreenPlayers * 76 + 8;
 				signOnReader.SkipBytes(bytesToMessageStreamSize);
 				// edit the message stream length - read uint, and edit at index before the reading of said uint
 				bsw.EditIntAtIndex((int)(signOnReader.ReadUInt() + lenDiff), signOnReader.CurrentBitIndex - 32, 32);

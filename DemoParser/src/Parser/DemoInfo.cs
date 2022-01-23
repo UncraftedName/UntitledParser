@@ -43,7 +43,6 @@ namespace DemoParser.Parser {
 		// initialized from the header
 		public readonly SourceGame Game;
 		public readonly int MaxSplitscreenPlayers;
-		public readonly int SignOnGarbageBytes;
 		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		public readonly int SendPropFlagBits;
 		public readonly int SoundFlagBits;
@@ -106,7 +105,6 @@ namespace DemoParser.Parser {
 			// provide default values in case of unknown game
 			if (IsPortal1() || IsHL2() || (Game == UNKNOWN && h.DemoProtocol == 3)) {
 				TickInterval = 0.015f;
-				SignOnGarbageBytes = 76;
 				MaxSplitscreenPlayers = 1;
 				if (h.NetworkProtocol <= 15)
 					DemoParseResult |= DemoParseResult.EntParsingEnabled;
@@ -121,7 +119,6 @@ namespace DemoParser.Parser {
 					UserMessageTypes = UserMessage.Portal1SteamTable;
 			} else if (Game == PORTAL_2 || (Game == UNKNOWN && h.DemoProtocol == 4)) {
 				TickInterval = 1f / 60;
-				SignOnGarbageBytes = 152;
 				MaxSplitscreenPlayers = 2;
 				if (Game == PORTAL_2)
 					DemoParseResult |= DemoParseResult.EntParsingEnabled;
@@ -129,7 +126,6 @@ namespace DemoParser.Parser {
 				UserMessageTypes = UserMessage.Portal2Table;
 			} else if (IsLeft4Dead()) {
 				TickInterval = 1f / 30;
-				SignOnGarbageBytes = 304;
 				MaxSplitscreenPlayers = 4;
 				UserMessageTypes = IsLeft4Dead1() ? UserMessage.L4D1OldTable : UserMessage.L4D2SteamTable;
 				PacketTypes = DemoPacket.DemoProtocol4Table;
