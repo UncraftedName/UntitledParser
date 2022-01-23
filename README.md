@@ -1,36 +1,38 @@
 # Untitled Demo Parser
 
-## What is this?
+A parser for source engine demos similar to [listdemo+](https://www.speedrun.com/portal/resources "portal resources"). Mainly used to time individual demos or entire speeruns, but can be used to extract other information from demos. In addition, there is built-in flag detection which can be useful for segmented runs (ticks which have `#FLAGS#` echoed will get displayed). To time demos, simply drag a demo or a folder of demos over the [application](https://github.com/UncraftedName/UncraftedDemoParser/releases "releases"). You can also set it as the default application to open .dem files.
 
-This is a parser for source engine demos similar to [listdemo+](https://www.speedrun.com/portal/resources "portal resources"). Currently it explicitly supports Portal 1 Unpack, Portal 1 Steampipe, Portal 1 3420/leak, Portal 2, some version(s) of L4D2, and HL2 (new engine I think). If you would like support for another version and/or game, you can message me or preferably open a new issue. I plan to add support for all versions of L4D2 and L4D1 in the future.
+![](github-resources/basic-usage.gif "basic usage")
 
-## Why should I use this?
+Here is a (mostly accurate) list of all supported games/versions and what features are supported.
 
-This can be used to time individual demos like listdemo+ or entire runs. The source code probably contains the most detailed parsing of demos for games like Portal, HL2, and Portal2 (much more so than even [VolvoWrench](https://github.com/Traderain/VolvoWrench)). In addition, it has some mod support (currently only for portal 1) which only a couple of other timers partially support. For segmented runs the parser can detect more flags than just `#SAVE#` which can be useful for custom timing. As long as your flag has no spaces and is surround by `#` then the parser should detect it.
+| Game | Basic<br/>Timing | Timing<br/>adjustment | Net-Message<br/>Parsing | Entity<br/>Parsing | Sound<br/>Parsing | 
+| ------------------- | :-: | :-: | :-: | :-: | :-: |
+| HL2 OE              | ✅ | ❌ | 🔶 | ❌ | ❌ |
+| Portal 1 3420, 5135 | ✅ | ✅ | ✅ | ✅ | 🔶 |
+| Portal 1 steampipe  | ✅ | ✅ | 🔶 | ❌ | 🔶 |
+| Portal 2            | ✅ | ✅ | 🔶 | 🔶 | 🔶 |
+| L4D1 1005,1040      | ✅ | ❌ | 🔶 | ❌ | ❌ |
+| L4D2 2000-2220      | ✅ | ❌ | 🔶 | ❌ | ❌ |
 
-<p align="center">
-  <img width="408" height="294" src="github-resources/example-flags.png">
-</p>
+Additionally, HL2 is supported for all the same versions as Portal 1 with some small caveats. Timing is supported for the following Portal 1 mods (mostly for 3420/5135): gamma energy, rexaura, TFV, portal unity, portal pro, portal prelude, portal elevators, and CBoRRR. If you would like support for another game and/or mod, you can message me or preferably open a new issue.
 
-## How do I use this?
+There are more features than just timing demos, you can use `--help` to learn how to use them. If you're just curious about what exactly is in a demo, use `--demo-dump`; that will print everything that was parsed in the demo to a text file.
 
-Go to the releases tab and download the most recent exe. Currently it is only a console application and there is no GUI. To use it you can drag a demo over it or an entire folder from a run.
-![](github-resources/example-usage.gif "example usage") \
-Similarly, you can also set the parser as the default application to open .dem files instead of listdemo+. You can also do all of this and more complicated stuff from the console to get more juicy information from demos.
+![](github-resources/advanced-usage.gif "advanced usage")
 
-![](github-resources/console-usage.gif "console usage") \
-You can use `--help` to get more information on the usage. If you're just curious about what exactly is in a demo, use `-v`; that will print a full verbose dump of everything that was parsed in the file.
+Note that many of these more advanced features are only supported for some games/versions, and the primary usage is currently designed for Portal 1.
 
-## How do I code with it?
+## Building and Coding
 
-This project uses .NET 4.6.1. To build the project, just build the solution with Visual Studio or MSBuild. If you build a release build, all the assemblies get merged into one .exe which is easy to just send people or whatever.
+This project uses .NET 4.6.1. To build the project, just build the solution with Visual Studio or MSBuild. If you build a release build, all the assemblies get merged into one .exe which is easy to just send people or whatever (thanks mike). There is a pre-build step which runs some git commands to save the info used for the `--version` option, so as long as the repo has been cloned and you have a recent version of git that should work alright.
 
-There is no proper API set up for the parser because I'm still making a lot of changes to a lot of the core code very frequently; unfortunately, demos are pretty darn complicated and not documented anywhere. If you would like to learn more about how to extract information from them, feel free to get in touch with me.
+There isn't an API or even any extensive documention, and demos can be pretty darn complicated sometimes. If you want to get some information from them your best bet is to start digging through the code, or feel free to get in touch with me. The `--demo-dump` option will create a text file which contains a human readable representation of everything I know how to parse in the given demo, this is a good way to start digging for stuff.
 
 Here's an example to get the player position on every tick:
 
 <details>
-    <summary>Click to expand</summary>
+<summary>Click to expand</summary>
 	
 ```cs
 SourceDemo demo = new SourceDemo("oob.dem");
@@ -78,10 +80,10 @@ local view angles 2:       0.00°,       0.00°,       0.00°
 Here's an example to get all ticks where the forward key was pressed:
 
 <details>
-    <summary>Click to expand</summary>
+<summary>Click to expand</summary>
     
 ```cs
-SourceDemo demo = new SourceDemo("oob.dem");
+SourceDemo demo = new SourceDemo("why-are-there-so-many-bees.dem");
 demo.Parse();
 demo.FilterForPacket<UserCmd>()
     .Where(userCmd => userCmd.Buttons != null && (userCmd.Buttons & Buttons.Forward) != 0)
@@ -100,12 +102,13 @@ demo.FilterForPacket<UserCmd>()
 ```
 </details>
 
-And finally, here's a more complicated example to get the fov of demos where the fov was set while the demo was recording (if it was set before, a similar search might need to be done in the InstanceBaseline in the StringTables):
+Here's a more complicated example to get the fov of demos where the fov was set while the demo was recording (if it was set before, a similar search might need to be done in the InstanceBaseline in the StringTables):
 
 <details>
     <summary>Click to expand</summary>
 
 First, parse the demo.
+
 ```cs
 SourceDemo demo = new SourceDemo("fov-change-middemo.dem");
 demo.Parse();
@@ -163,9 +166,54 @@ foreach ((SvcPacketEntities message, int tick) in demo.FilterForMessage<SvcPacke
 { Tick = 1119, FovValue = 140 }
 { Tick = 2428, FovValue = 90 }
 ```
+
+More complicated stuff like entity-related properties or NET/SVC messages will probably only work for some versions of portal 1 and sometimes for portal 2, and I only 100% guarantee pinky promise you that it will work for portal 3420. In general, to find certain values you'll either need to dig deep into the code or ask me where to find them. Dumping the entire demo to a text file using `--demo-dump` is a good way to explore where various fields can be found.
 </details>
 
-More complicated stuff like this with entity-related properties will only work for portal 1 right now, and I only 100% guarantee pinky promise you that it will work for portal 3420. In general, to find certain values you'll either need to dig deep into the code or ask me where to find them.
+Finally, here's an example of how to use some of the existing features of the application:
+<details>
+<summary>Click to expand</summary>
+
+First, parse the demo.
+```cs
+SourceDemo demo = new SourceDemo("you wont believe whats in this file.dem");
+demo.Parse();
+```
+
+Finding teleports (currently only supported for Portal 1):
+```cs
+OptTeleports.FindTeleports(demo, OptTeleports.FilterFlags.VerboseInfo)
+	.ToList()
+	.ForEach(tuple => {
+        Console.WriteLine($"[{tuple.tick}]");
+        Console.WriteLine(tuple.userMessage.ToString());
+    });
+```
+```
+[1692]
+portal: {ent index: 23, serial: 397}
+portalled: {ent index: 1, serial: 658}
+new position: <-531.065, -396.938, 365.823>
+new angles: <45.949°, 212.396°, 37.941°>
+[1985]
+portal: {ent index: 70, serial: 846}
+portalled: {ent index: 397, serial: 208}
+new position: <-476.195, -375.380, 187.801>
+new angles: <0.000°, 90.000°, 360.000°>
+[2191]
+portal: {ent index: 23, serial: 397}
+portalled: {ent index: 397, serial: 208}
+new position: <189.178, -744.428, 201.997>
+new angles: <0.000°, 180.000°, 360.000°>
+```
+
+Removing captions:
+```cs
+FileStream outStream = new FileStream("no-captions.dem", FileMode.Create);
+OptRemoveCaptions.RemoveCaptions(demo, outStream);
+```
+</details>
+
 
 ## Other parsers and resources that I used
 - https://github.com/NeKzor/sdp.js 
