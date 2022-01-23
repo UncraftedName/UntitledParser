@@ -4,15 +4,15 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class Fade : UserMessage {
 
 		public float Duration;
 		public ushort HoldTime; // yeah idk what this is about
 		public FadeFlags Flags;
 		public byte R, G, B, A;
-		
-		
+
+
 		public Fade(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -25,7 +25,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			B = bsr.ReadByte();
 			A = bsr.ReadByte();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -41,11 +41,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 	}
 
 
-	[Flags] 
+	[Flags]
 	public enum FadeFlags : ushort {
 		None     = 0,
 		FadeIn   = 1,
-		FadeOut  = 1 << 1, 
+		FadeOut  = 1 << 1,
 		Modulate = 1 << 2, // Modulate (don't blend)
 		StayOut  = 1 << 3, // ignores the duration, stays faded out until new ScreenFade message received
 		Purge    = 1 << 4  // Purges all other fades, replacing them with this one

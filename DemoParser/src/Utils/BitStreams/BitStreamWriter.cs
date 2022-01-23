@@ -5,12 +5,12 @@ using System.Numerics;
 using System.Text;
 
 namespace DemoParser.Utils.BitStreams {
-	
+
 	// because I don't use this nearly as much as the reader atm, some of the methods may be poorly or incorrectly implemented
 	public partial class BitStreamWriter {
 
 		public static implicit operator byte[](BitStreamWriter bsw) => bsw.AsArray;
-		
+
 		public int BitLength {get; private set;}
 		private List<byte> _data;
 		public byte[] AsArray => _data.ToArray();
@@ -18,14 +18,14 @@ namespace DemoParser.Utils.BitStreams {
 		private bool IsByteAligned => IndexInByte == 0;
 		public int ByteLength => (BitLength >> 3) + (IsByteAligned ? 0 : 1);
 		internal bool IsLittleEndian; // this doesn't work w/ big endian atm, probably won't try to fix it since it's not necessary
-		
-		
+
+
 		public BitStreamWriter(int initialByteCapacity, bool isLittleEndian = true) {
 			_data = new List<byte>(initialByteCapacity);
 			IsLittleEndian = isLittleEndian;
 			BitLength = 0;
 		}
-		
+
 
 		public BitStreamWriter(bool isLittleEndian = true) : this(10, isLittleEndian) {}
 
@@ -33,8 +33,8 @@ namespace DemoParser.Utils.BitStreams {
 		public BitStreamWriter(byte[] data, bool isLittleEndian = true) : this(data.Length, isLittleEndian) {
 			WriteBytes(data);
 		}
-		
-		
+
+
 
 		public string ToBinaryString() {
 			if (IsByteAligned)
@@ -111,7 +111,7 @@ namespace DemoParser.Utils.BitStreams {
 					WriteByte(b);
 			}
 		}
-		
+
 
 		public void WriteByte(byte b) {
 			if (IsByteAligned) {
@@ -124,7 +124,7 @@ namespace DemoParser.Utils.BitStreams {
 			}
 			BitLength += 8;
 		}
-		
+
 
 		public void WriteBool(bool b) {
 			if (IsByteAligned)
@@ -133,14 +133,14 @@ namespace DemoParser.Utils.BitStreams {
 				_data[^1] |= (byte)((1 << IndexInByte) & (b ? 0xff : 0));
 			BitLength++;
 		}
-		
+
 
 		public void WriteString(string str, bool nullTerminate = true) {
 			WriteBytes(Encoding.ASCII.GetBytes(str));
 			if (nullTerminate)
 				WriteByte(0);
 		}
-		
+
 
 		private void WritePrimitive<T>(Func<T, byte[]> bitConverterFunc, T primitive) {
 			byte[] bytes = bitConverterFunc(primitive);
@@ -148,22 +148,22 @@ namespace DemoParser.Utils.BitStreams {
 				Array.Reverse(bytes);
 			WriteBytes(bytes);
 		}
-		
+
 
 		public void WriteUInt(uint i) {
 			WritePrimitive(BitConverter.GetBytes, i);
 		}
-		
-		
+
+
 		public void WriteSInt(int i) {
 			WritePrimitive(BitConverter.GetBytes, i);
 		}
-		
+
 
 		public void WriteShort(short s) {
 			WritePrimitive(BitConverter.GetBytes, s);
 		}
-		
+
 
 		public void WriteFloat(float f) {
 			WritePrimitive(BitConverter.GetBytes, f);
@@ -176,10 +176,10 @@ namespace DemoParser.Utils.BitStreams {
 			WriteFloat(vector3.Z);
 		}
 
-		
+
 		// for all 'IfExists' methods, writes a bool if the field exists before the field itself
-		
-		
+
+
 		private void WritePrimitiveIfExists<T>(Action<T> writeFunc, T? primitive) where T : struct {
 			if (primitive.HasValue) {
 				WriteBool(true);
@@ -189,7 +189,7 @@ namespace DemoParser.Utils.BitStreams {
 			}
 		}
 
-		
+
 		public void WriteUIntIfExists(uint? i) {
 			WritePrimitiveIfExists(WriteUInt, i);
 		}
@@ -208,11 +208,11 @@ namespace DemoParser.Utils.BitStreams {
 		// this does not write the 'exists' bit since the only cases where this is an optional field (in string table)
 		// do not use the bit, and instead have the bit set only for the size of the byte array before the array itself if it exists
 		public void WriteByteArrIfExists(byte[] b) {
-			if (b != null) 
+			if (b != null)
 				WriteBytes(b);
 		}
 
-		
+
 		public void WriteBitsIfExists(byte[] b, int bitCount) {
 			if (b != null) {
 				WriteBool(true);
@@ -249,7 +249,7 @@ namespace DemoParser.Utils.BitStreams {
 			/*if (IsByteAligned) {
 				return ParserTextUtils.BytesToBinaryString(_data);
 			} else {
-				return ParserTextUtils.BytesToBinaryString(_data.Take(_data.Count - 1)) 
+				return ParserTextUtils.BytesToBinaryString(_data.Take(_data.Count - 1))
 					   + " " + ParserTextUtils.ByteToBinaryString(_data.Last(), IndexInByte);
 			}*/
 		}

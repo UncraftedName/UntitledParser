@@ -13,11 +13,11 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		internal static readonly Exception E =
 			new ArgumentException("bro a property doesn't have an implemented display type wtf");
-		
+
 		private static readonly Regex HandleMatcher = new Regex("^m_h[A-Z]", RegexOptions.Compiled);
 		private static readonly Regex BoolMatcher = new Regex("^(?:m_)?b[A-Z]", RegexOptions.Compiled);
-		
-		
+
+
 		internal static DisplayType DeterminePropDisplayType(string name, SendTableProp prop, SendTableProp? arrayElemProp) {
 			SendTableProp elemInfo = prop;
 			while (true) {
@@ -45,11 +45,11 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		private static DisplayType IdentifyTypeForInt(string name, SendTableProp propInfo) {
 			if (propInfo.NumBits == 32 && name.ToLower().Contains("color"))
 				return DisplayType.Color;
-			
+
 			// check for flags and special cases first
 			if (EntityPropertyEnumManager.DetermineIntSpecialType(propInfo.TableRef.Name, propInfo.Name, out DisplayType disp))
 				return disp;
-			
+
 			string[] split = name.Split('.');
 
 			if (propInfo.NumBits == DemoInfo.NetworkedEHandleBits && split.Any(s => HandleMatcher.IsMatch(s)))
@@ -65,7 +65,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				|| lowername.Contains("enable"))
 					return DisplayType.Bool;
 			}
-			
+
 			return DisplayType.Int;
 		}
 
@@ -139,8 +139,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return val;
 		}
 	}
-	
-	
+
+
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	internal enum DisplayType {
 		Int,
@@ -154,9 +154,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		Handle,
 		Color,
 		AreaBits,
-		
+
 		// flags and enums
-		
+
 		DT_EffectData__m_fFlags,
 		DT_BaseGrenade__m_fFlags,
 		DT_BasePlayer__m_fFlags,

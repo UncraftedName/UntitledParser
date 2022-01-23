@@ -4,7 +4,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcSplitScreen : DemoMessage {
 
 		public bool RemoveUser;

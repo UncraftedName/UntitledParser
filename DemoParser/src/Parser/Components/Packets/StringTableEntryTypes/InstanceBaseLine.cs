@@ -13,7 +13,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
-	
+
 	// this is the baseline in the string tables, each one only holds the baseline for a single server class
 	public class InstanceBaseline : StringTableEntryData {
 
@@ -35,8 +35,8 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			return new InstanceBaseline(DemoRef, _entryName, _propLookup)
 				{ServerClassRef = ServerClassRef, Properties = Properties};
 		}
-		
-		
+
+
 		// if we're parsing this before the data tables, just leave it for now
 		protected override void Parse(ref BitStreamReader bsr) {
 			if (_propLookup != null) {
@@ -51,9 +51,9 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 
 		internal void ParseBaseLineData(PropLookup propLookup) => ParseBaseLineData(propLookup, ref _bsr);
-		 
-		 
-		// called once 
+
+
+		// called once
 		private void ParseBaseLineData(PropLookup propLookup, ref BitStreamReader bsr) {
 			_propLookup = propLookup;
 			int id = int.Parse(_entryName);
@@ -63,7 +63,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			// this is where I actually verify this.
 			Debug.Assert(ReferenceEquals(ServerClassRef, _propLookup.Single(tuple => tuple.serverClass.DataTableId == id).serverClass),
 				"the server classes must be searched to match ID; cannot use ID as index");
-			
+
 			List<FlattenedProp> fProps = propLookup[id].flattenedProps;
 
 			try {

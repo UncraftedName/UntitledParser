@@ -4,14 +4,14 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class CloseCaption : UserMessage {
 
 		public string TokenName;
 		public float Duration;
 		public CloseCaptionFlags Flags;
-		
-		
+
+
 		public CloseCaption(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			Duration = bsr.ReadSShort() * 0.1f;
 			Flags = (CloseCaptionFlags)bsr.ReadByte();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

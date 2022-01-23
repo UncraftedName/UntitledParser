@@ -5,12 +5,12 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcCrosshairAngle : DemoMessage {
 
 		public Vector3 Angle;
-		
-		
+
+
 		public SvcCrosshairAngle(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -21,7 +21,7 @@ namespace DemoParser.Parser.Components.Messages {
 				Z = bsr.ReadBitAngle(16),
 			};
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

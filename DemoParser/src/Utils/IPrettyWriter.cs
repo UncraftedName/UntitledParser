@@ -17,11 +17,11 @@ namespace DemoParser.Utils {
 		void AppendFormat(string format, params object?[] args);
 		void PadLastLine(int count, char c);
 	}
-	
+
 
 
 	public class PrettyToStringWriter : IPrettyWriter {
-		
+
 		private readonly List<string> _lines;
 		private readonly List<int> _indentCount;
 		private int _maxIndent;
@@ -36,8 +36,8 @@ namespace DemoParser.Utils {
 			}
 		}
 		public int LastLineLength => _lines[^1].Length;
-		
-		
+
+
 		public PrettyToStringWriter(string indentStr = "\t") {
 			_indentStr = indentStr;
 			_lines = new List<string> {""};
@@ -112,12 +112,12 @@ namespace DemoParser.Utils {
 			return buf.ToString();
 		}
 	}
-	
-	
-	
+
+
+
 	// note: you have to flush this manually; for some reason a flush to a textwriter wrapper of this might not work
 	public class PrettyStreamWriter : StreamWriter, IPrettyWriter {
-		
+
 		private int _futureIndent;
 
 		public int FutureIndent {
@@ -218,9 +218,9 @@ namespace DemoParser.Utils {
 			_tmpBuf = null!;
 		}
 	}
-	
-	
-	
+
+
+
 	public interface IPretty {
 		void PrettyWrite(IPrettyWriter pw);
 	}
@@ -229,14 +229,14 @@ namespace DemoParser.Utils {
 	// This lets me see the toString() representation by just using the append function that I implemented for every
 	// demo component anyway. Use this over the interface version for convenience.
 	public abstract class PrettyClass : IPretty {
-		
+
 		public abstract void PrettyWrite(IPrettyWriter pw);
-		
+
 		// a struct that inherits from IPretty may also override ToString() in the same way
 		public new virtual string ToString() {
 			return PrettyToStringHelper(this);
 		}
-		
+
 		public string ToString(string indentStr) {
 			PrettyToStringWriter iw = new PrettyToStringWriter();
 			PrettyWrite(iw);

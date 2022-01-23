@@ -8,7 +8,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
-	
+
 	/// <summary>
 	/// Contains client player location and server-side messages.
 	/// </summary>
@@ -33,7 +33,7 @@ namespace DemoParser.Parser.Components.Packets {
 			OutSequence = bsr.ReadUInt();
 			MessageStream = new MessageStream(DemoRef);
 			MessageStream.ParseStream(ref bsr);
-			
+
 			// After we're doing with the packet, we can process all the messages.
 			// Most things should be processed during parsing, but any additional checks should be done here.
 
@@ -48,7 +48,7 @@ namespace DemoParser.Parser.Components.Packets {
 			// todo fill prop handles with data here
 			TimingAdjustment.AdjustFromPacket(this);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -56,15 +56,15 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
-			foreach (CmdInfo cmdInfo in PacketInfo) 
+			foreach (CmdInfo cmdInfo in PacketInfo)
 				cmdInfo.PrettyWrite(pw);
 			pw.AppendLine($"in sequence: {InSequence}");
 			pw.AppendLine($"out sequence: {OutSequence}");
 			MessageStream.PrettyWrite(pw);
 		}
 	}
-	
-	
+
+
 	public class CmdInfo : DemoComponent {
 
 		public InterpFlags Flags;
@@ -89,7 +89,7 @@ namespace DemoParser.Parser.Components.Packets {
 			for (int i = 0; i < _floats.Length; i++)
 				bsr.ReadVector3(out _floats[i]);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

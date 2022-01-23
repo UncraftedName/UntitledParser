@@ -4,14 +4,14 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcTempEntities : DemoMessage {
 
 		public byte EntryCount;
 		private BitStreamReader _data;
 		public BitStreamReader Data => _data.FromBeginning();
 		public bool? Unknown;
-		
+
 
 		public SvcTempEntities(SourceDemo? demoRef) : base(demoRef) {}
 
@@ -22,10 +22,10 @@ namespace DemoParser.Parser.Components.Messages {
 			_data = bsr.SplitAndSkip(bitLen);
 			if (DemoInfo.Game == SourceGame.L4D2_2042)
 				Unknown = bsr.ReadBool();
-			
+
 			// todo
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

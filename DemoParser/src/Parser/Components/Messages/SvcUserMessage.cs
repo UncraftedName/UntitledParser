@@ -5,14 +5,14 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	// similar to a packet frame, contains the type of user message
 	public sealed class SvcUserMessage : DemoMessage {
 
 		public UserMessageType MessageType;
 		public UserMessage UserMessage;
 		private bool _unimplemented = false;
-		
+
 
 		public SvcUserMessage(SourceDemo? demoRef) : base(demoRef) {}
 
@@ -30,7 +30,7 @@ namespace DemoParser.Parser.Components.Messages {
 			string? errorStr = null;
 
 			var uMessageReader = bsr.SplitAndSkip(messageLength);
-			
+
 			switch (MessageType) {
 				case UserMessageType.Unknown:
 					errorStr = $"There is no SvcUserMessage list for this game, type {typeVal} was found";
@@ -48,7 +48,7 @@ namespace DemoParser.Parser.Components.Messages {
 							if (UserMessage.ParseStream(uMessageReader) != 0)
 								errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) didn't parse all bits";
 						} catch (Exception e) {
-							errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) " + 
+							errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) " +
 									   $"threw exception during parsing, message: {e.Message}";
 						}
 					}
@@ -56,7 +56,7 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 
 			#region error logging
-			
+
 			// if parsing fails, just convert to an unknown type - the byte array that it will print is still useful
 			if (errorStr != null) {
 				int rem = uMessageReader.BitsRemaining;
@@ -68,7 +68,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 			#endregion
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

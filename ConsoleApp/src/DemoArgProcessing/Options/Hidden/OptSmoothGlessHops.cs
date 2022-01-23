@@ -13,9 +13,9 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
-	
+
 	public class OptSmoothGlessHops : DemoOption<int> {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--smooth-jumps"}.ToImmutableArray();
 
 
@@ -26,8 +26,8 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 				throw new ArgProcessUserException($"expected interp ticks to be between 1 and 20, got {numTicks}");
 			return numTicks;
 		}
-		
-		
+
+
 		public OptSmoothGlessHops() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
@@ -60,24 +60,24 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		 * Okay so this is long and wacky and honestly I don't remember exactly how this works because I threw it
 		 * together for rendering glitchless v2 a while ago. Sooooooooo, the general idea is to smoothly transition the
 		 * player's origin and view offset during a jump.
-		 * 
-		 * 
+		 *
+		 *
 		 * Normally, a jump will look something like this (each column is a tick):
-		 * 
+		 *
 		 * cam pos:     👁️👁️👁️👁️👁️                               👁️👁️👁️👁️👁️
 		 *                        👁️👁️👁️👁️               👁️👁️👁️👁️
 		 *                                👁️👁️👁️   👁️👁️👁️
 		 *                                      👁️👁️
-		 * 
+		 *
 		 * origin pos:  🦶🦶🦶🦶🦶                               🦶🦶🦶🦶🦶
 		 *                        🦶🦶🦶🦶               🦶🦶🦶🦶
 		 *                                🦶🦶🦶   🦶🦶🦶
-		 * 
-		 * 
-		 * 
+		 *
+		 *
+		 *
 		 *                                      🦶🦶
 		 * floor:       ------------------------------------------------------------
-		 * 
+		 *
 		 * God bless you if you don't see emojis here. Notice that the player is in a crouched state until they get
 		 * close to the floor. For the 2 (in this case) ticks that the player is on the floor, they are standing. To
 		 * compensate for this, the view offset is increased and therein lies the problem. It seems like the player's
@@ -89,23 +89,23 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		 * something that should be improved in the future.
 		 */
 		public static void SmoothJumps(SourceDemo demo, Stream s, int maxGroundTicks) {
-			
+
 			if ((demo.DemoInfo.DemoParseResult & DemoParseResult.EntParsingEnabled) == 0) {
 				Console.WriteLine("Entity parsing not enabled for this demo, can't apply smoothing.");
 				return;
 			}
-			
+
 			// ReSharper disable once CompareOfFloatsByEqualityOperator
 			var jumpTicks =
-				(from msgTup in demo.FilterForMessage<SvcPacketEntities>() 
+				(from msgTup in demo.FilterForMessage<SvcPacketEntities>()
 					from update in msgTup.message.Updates
 					where update.ServerClass.ClassName == "CPortal_Player" && update is Delta
 					from deltaProp in ((Delta)update).Props
 					where deltaProp.prop.Name == "m_Local.m_flJumpTime" &&
 						  ((SingleEntProp<float>)deltaProp.prop).Value == 510.0
 					select msgTup.tick).ToList();
-			
-			
+
+
 			Console.WriteLine($"found jump ticks: {jumpTicks.SequenceToString()}");
 			BitStreamWriter bsw = new BitStreamWriter(demo.Reader.Data);
 
@@ -137,11 +137,11 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 					Console.WriteLine($"not patching jump on tick {jumpTick}, too many ticks before air time detected");
 					continue;
 				}
-				
+
 				Vector3 startVec = new Vector3(float.PositiveInfinity);
 				idx = jumpTickIdx;
 				bool shouldInterp = true;
-				
+
 				for (int ticksBeforeJump = 0; ticksBeforeJump < maxGroundTicks; ticksBeforeJump++) {
 
 					while (frames[--idx].Type != PacketType.Packet) ; // jump to previous packet
@@ -161,7 +161,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 				}
 				if (!shouldInterp)
 					continue;
-				
+
 				int startTick = frames[idx].Tick; // idx is currently the start tick (right before the first interp tick)
 
 				while (frames[idx].Tick < endTick) {

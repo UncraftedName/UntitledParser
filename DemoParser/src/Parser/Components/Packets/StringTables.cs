@@ -8,7 +8,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
-	
+
 	/*
 	 * This packet consists of a bunch of various tables most of which are used by other messages. This includes decals,
 	 * default entity states, player info, etc. Since my main goal is to create a valid toString() representation
@@ -16,15 +16,15 @@ namespace DemoParser.Parser.Components.Packets {
 	 * special messages, so I keep a copy of the tables in the string tables manager which are mutable and contain
 	 * minimal parsing code.
 	 */
-	
+
 	/// <summary>
 	/// Contains lookup tables for messages such as sounds and models.
 	/// </summary>
 	public class StringTables : DemoPacket {
-		
+
 		public List<StringTable> Tables;
-		
-		
+
+
 		public StringTables(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
@@ -39,11 +39,11 @@ namespace DemoParser.Parser.Components.Packets {
 			}
 
 			bsr.CurrentBitIndex = indexBeforeTables + (int)(dataLen << 3);
-			
+
 			// if this packet exists make sure to create the C_tables after we parse this
 			DemoRef.CurStringTablesManager.CreateTablesFromPacket(this);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -57,9 +57,9 @@ namespace DemoParser.Parser.Components.Packets {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	public class StringTable : DemoComponent {
 
 		public string Name;
@@ -90,7 +90,7 @@ namespace DemoParser.Parser.Components.Packets {
 				}
 			}
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -131,9 +131,9 @@ namespace DemoParser.Parser.Components.Packets {
 			pw.FutureIndent--;
 		}
 	}
-	
-	
-	
+
+
+
 	public class StringTableEntry : DemoComponent {
 
 		public string Name;
@@ -152,7 +152,7 @@ namespace DemoParser.Parser.Components.Packets {
 			Name = bsr.ReadNullTerminatedString();
 			if (bsr.ReadBool()) {
 				ushort dataLen = bsr.ReadUShort();
-				
+
 				Debug.Assert(DemoRef.DataTableParser.FlattenedProps != null);
 
 				EntryData = StringTableEntryDataFactory.CreateData(
@@ -160,11 +160,11 @@ namespace DemoParser.Parser.Components.Packets {
 					TableRef.Name,
 					Name,
 					DemoRef.DataTableParser.FlattenedProps);
-				
+
 				EntryData.ParseStream(bsr.SplitAndSkip(dataLen << 3));
 			}
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -193,15 +193,15 @@ namespace DemoParser.Parser.Components.Packets {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	public class StringTableClass : DemoComponent {
 
 		public string Name;
 		public string? Data;
-		
-		
+
+
 		public StringTableClass(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -212,7 +212,7 @@ namespace DemoParser.Parser.Components.Packets {
 				Data = bsr.ReadStringOfLength(dataLen);
 			}
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

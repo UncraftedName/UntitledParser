@@ -4,12 +4,12 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
-	
+
 	/// <summary>
 	/// Contains direct user input info such as mouse delta and buttons pressed.
 	/// </summary>
 	public class UserCmd : DemoPacket {
-		
+
 		public uint Cmd;
 		public uint? CommandNumber;
 		public uint? TickCount;
@@ -19,7 +19,7 @@ namespace DemoParser.Parser.Components.Packets {
 		public byte? Impulse;
 		public uint? WeaponSelect, WeaponSubtype;
 		public short? MouseDx, MouseDy;
-		
+
 		public UserCmd(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
@@ -46,7 +46,7 @@ namespace DemoParser.Parser.Components.Packets {
 			bsr.CurrentBitIndex = indexBeforeData + (int)(byteSize << 3);
 		}
 
-		
+
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
 		}
@@ -66,7 +66,7 @@ namespace DemoParser.Parser.Components.Packets {
 				$"{(VerticalMovement.HasValue ? $"{VerticalMovement.Value:F2}" : "null")} ");
 			pw.Append($"buttons: {Buttons?.ToString() ?? "null"}\n");
 			pw.Append($"impulse: {Impulse?.ToString() ?? "null"}\n");
-			pw.AppendFormat("weapon, subtype:  {0,4}, {1,4}\n", 
+			pw.AppendFormat("weapon, subtype:  {0,4}, {1,4}\n",
 				WeaponSelect?.ToString() ?? "null", WeaponSubtype?.ToString() ?? "null");
 			pw.AppendFormat("mouseDx, mouseDy: {0,4}, {1,4}",
 				MouseDx?.ToString() ?? "null", MouseDy?.ToString() ?? "null");

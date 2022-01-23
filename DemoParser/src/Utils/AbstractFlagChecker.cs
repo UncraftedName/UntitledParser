@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 
 namespace DemoParser.Utils {
-	
+
 	/*
 	 * It's one thing when different games have different lists of enums, it's another when those enums are used as
 	 * flags. This provides a way to create an object which only needs to implement the 'HasFlag()' function
@@ -23,8 +23,8 @@ namespace DemoParser.Utils {
 		public bool HasFlags(long val, T flag1, T flag2) {
 			return HasFlag(val, flag1) || HasFlag(val, flag2);
 		}
-		
-		
+
+
 		public bool HasFlags(long val, T flag1, T flag2, T flag3) {
 			return HasFlag(val, flag1) || HasFlag(val, flag2) || HasFlag(val, flag3);
 		}

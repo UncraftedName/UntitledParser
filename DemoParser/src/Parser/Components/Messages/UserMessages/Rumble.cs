@@ -4,13 +4,13 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class Rumble : UserMessage {
 
 		public RumbleLookup RumbleType;
 		public float Scale;
 		public RumbleFlags RumbleFlags;
-		
+
 
 		public Rumble(SourceDemo? demoRef) : base(demoRef) {}
 
@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			Scale = bsr.ReadByte() / 100f;
 			RumbleFlags = (RumbleFlags)bsr.ReadByte();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -54,7 +54,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		// Vehicles
 		AirboatGun,
 		JeepEngineLoop,
-	
+
 		FlatLeft,
 		FlatRight,
 		FlatBoth,

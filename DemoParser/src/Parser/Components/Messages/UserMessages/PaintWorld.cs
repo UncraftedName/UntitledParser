@@ -4,7 +4,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class PaintWorld : UserMessage {
 
 		public PaintType PaintType;
@@ -12,11 +12,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public float UnkHf1, UnkHf2;
 		public Vector3 Center;
 		public Vector3[] Positions;
-		
-		
+
+
 		public PaintWorld(SourceDemo? demoRef) : base(demoRef) {}
-		
-		
+
+
 		protected override void Parse(ref BitStreamReader bsr) {
 			PaintType = (PaintType)bsr.ReadByte();
 			EHandle = bsr.ReadEHandle();

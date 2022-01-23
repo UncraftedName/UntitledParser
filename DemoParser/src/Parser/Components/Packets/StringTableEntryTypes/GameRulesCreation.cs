@@ -4,33 +4,33 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
-    
-    public class GameRulesCreation : StringTableEntryData {
-        
-        internal override bool InlineToString => true;
-        public string ClassName;
+
+	public class GameRulesCreation : StringTableEntryData {
+
+		internal override bool InlineToString => true;
+		public string ClassName;
 
 
-        public GameRulesCreation(SourceDemo? demoRef) : base(demoRef) {}
+		public GameRulesCreation(SourceDemo? demoRef) : base(demoRef) {}
 
 
-        internal override StringTableEntryData CreateCopy() {
-            return new GameRulesCreation(DemoRef) {ClassName = ClassName};
-        }
+		internal override StringTableEntryData CreateCopy() {
+			return new GameRulesCreation(DemoRef) {ClassName = ClassName};
+		}
 
 
-        protected override void Parse(ref BitStreamReader bsr) {
-            ClassName = bsr.ReadNullTerminatedString();
-        }
+		protected override void Parse(ref BitStreamReader bsr) {
+			ClassName = bsr.ReadNullTerminatedString();
+		}
 
 
-        internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-            throw new NotImplementedException();
-        }
+		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
+			throw new NotImplementedException();
+		}
 
 
-        public override void PrettyWrite(IPrettyWriter pw) {
-            pw.Append(ClassName);
-        }
-    }
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append(ClassName);
+		}
+	}
 }

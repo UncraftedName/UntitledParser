@@ -3,30 +3,30 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
-	
+
 	/// <summary>
 	/// Represents a well-defined 'chunk' of data in the demo.
 	/// </summary>
 	public abstract class DemoComponent : PrettyClass {
-		
+
 		private int _absoluteBitStart;
 		private int _absoluteBitEnd;
 		public virtual BitStreamReader Reader =>
 			DemoRef!.ReaderFromOffset(_absoluteBitStart, _absoluteBitEnd - _absoluteBitStart);
-		
+
 		internal readonly SourceDemo? DemoRef;
 		protected DemoInfo DemoInfo => DemoRef.DemoInfo!;
 		public virtual bool MayContainData => true; // used in ToString() calls
-		
-		
+
+
 		protected DemoComponent(SourceDemo? demoRef) {
 			DemoRef = demoRef;
 		}
 
 
 		protected abstract void Parse(ref BitStreamReader bsr);
-		
-		
+
+
 		public void ParseStream(ref BitStreamReader bsr) {
 			_absoluteBitStart = bsr.AbsoluteBitIndex;
 			_absoluteBitEnd = bsr.AbsoluteBitIndex + bsr.BitLength;

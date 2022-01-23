@@ -4,9 +4,9 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class NetStringCmd : DemoMessage {
-	
+
 		public string Command;
 
 		public NetStringCmd(SourceDemo? demoRef) : base(demoRef) {}
@@ -15,7 +15,7 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			Command = bsr.ReadNullTerminatedString();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

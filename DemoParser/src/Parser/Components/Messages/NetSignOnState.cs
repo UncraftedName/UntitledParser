@@ -4,17 +4,17 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class NetSignOnState : DemoMessage {
-		
+
 		public SignOnState SignOnState;
 		public int SpawnCount;
 		// demo protocol 4 only
 		public uint? NumServerPlayers;
 		public byte[]? PlayerNetworkIds;
 		public string? MapName;
-		
-		
+
+
 		public NetSignOnState(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -33,7 +33,7 @@ namespace DemoParser.Parser.Components.Messages {
 			if (SignOnState == SignOnState.PreSpawn)
 				DemoRef.ClientSoundSequence = 1; // reset sound sequence number after receiving SignOn sounds
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -52,7 +52,7 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 		}
 	}
-	
+
 	public enum SignOnState {
 		None = 0,   // no state yet, about to connect
 		Challenge,  // client challenging server, all OOB packets

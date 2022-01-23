@@ -10,15 +10,15 @@ using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
 
 namespace DemoParser.Utils {
-	
+
 	public static class ParserUtils {
-		
+
 		public static IEnumerable<T> FilterForPacket<T>(this SourceDemo demo) where T : DemoPacket {
 			return demo.Frames
 				.Select(frame => frame.Packet)
 				.OfType<T>();
 		}
-		
+
 
 		/// <summary>
 		/// Filters for a specific kind of message from a Packet packet.
@@ -30,7 +30,7 @@ namespace DemoParser.Utils {
 				.Where(message => message != null)
 				.OfType<T>();
 		}
-		
+
 
 		/// <summary>
 		/// Filters for a specific kind of user message from a Packet packet.
@@ -40,8 +40,8 @@ namespace DemoParser.Utils {
 				.Where(frame => frame.UserMessage.GetType() == typeof(T))
 				.Select(frame => (T)frame.UserMessage);
 		}
-		
-		
+
+
 		/// <summary>
 		/// Filters for a specific type of message from a SignOn packet.
 		/// </summary>
@@ -52,7 +52,7 @@ namespace DemoParser.Utils {
 				.Where(message => message != null)
 				.OfType<T>();
 		}
-		
+
 
 		/// <summary>
 		/// Gets all message in the demo stored in the Packet packet or the SignOn packet,
@@ -61,21 +61,21 @@ namespace DemoParser.Utils {
 		public static IEnumerable<(MessageType messageType, DemoMessage message, int tick)> FilterForMessages(this SourceDemo demo) {
 			return demo.Frames.Select(frame => frame.Packet)
 				.OfType<IContainsMessageStream>()
-				.SelectMany(p => p.MessageStream, 
+				.SelectMany(p => p.MessageStream,
 					(p, msgs) => (msgs.messageType, msgs.message, ((DemoPacket)p).Tick));
 		}
-		
-		
+
+
 		public static IEnumerable<(T message, int tick)> FilterForMessage<T>(this SourceDemo demo) where T : DemoMessage {
-			return 
+			return
 				from tup in FilterForMessages(demo)
 				where tup.message is T
 				select ((T)tup.message, tup.tick);
 		}
-		
-		
+
+
 		public static IEnumerable<(T userMessage, int tick)> FilterForUserMessage<T>(this SourceDemo demo) where T : UserMessage {
-			return 
+			return
 				from tup in demo.FilterForMessage<SvcUserMessage>()
 				where tup.message.UserMessage is T
 				select ((T)tup.message.UserMessage, tup.tick);
@@ -83,7 +83,7 @@ namespace DemoParser.Utils {
 
 
 		public static IEnumerable<(T entryData, int tick)> FilterForStEntryData<T>(this SourceDemo demo) where T : StringTableEntryData {
-			return 
+			return
 				from tables in demo.FilterForPacket<StringTables>()
 				from table in tables.Tables
 				where table.TableEntries != null
@@ -91,8 +91,8 @@ namespace DemoParser.Utils {
 				where entry?.EntryData is T
 				select ((T)entry.EntryData!, tables.Tick);
 		}
-		
-		
+
+
 		public static IEnumerable<(ConsoleCmd cmd, MatchCollection matches)> CmdRegexMatches(this SourceDemo demo, Regex re) {
 			return demo.FilterForPacket<ConsoleCmd>()
 				.Select(cmd => (cmd, matches: re.Matches(cmd)))
@@ -109,8 +109,8 @@ namespace DemoParser.Utils {
 				.Select(consoleCmd => (consoleCmd, matches: Regex.Matches(consoleCmd, re, options)))
 				.Where(t => t.matches.Count != 0);
 		}
-		
-		
+
+
 		// https://stackoverflow.com/questions/489258/linqs-distinct-on-a-particular-property
 		public static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector) {
 			HashSet<TKey> seenKeys = new HashSet<TKey>();
@@ -128,26 +128,26 @@ namespace DemoParser.Utils {
 		public static bool AdjustedTimeValid(this SourceDemo demo) {
 			return demo.StartAdjustmentTick.HasValue && demo.EndAdjustmentTick.HasValue;
 		}
-		
-		
+
+
 		public static int TickCount(this SourceDemo demo, bool countFirstTick) {
 			if (!demo.TotalTimeValid())
 				throw new ArgumentException("the demo was probably not parsed correctly");
 			return demo.EndTick!.Value - demo.StartTick!.Value + (countFirstTick ? 1 : 0);
 		}
 
-		
+
 		public static int AdjustedTickCount(this SourceDemo demo, bool countFirstTick) {
 			if (!demo.AdjustedTimeValid())
 				throw new ArgumentException("the demo was probably not parsed correctly");
 			return demo.EndAdjustmentTick!.Value - demo.StartAdjustmentTick!.Value + (countFirstTick ? 1 : 0);
 		}
-		
+
 
 		internal static Dictionary<T, int> CreateReverseLookupDict<T>(
 			this IEnumerable<T> lookup,
 			T? excludeKey = null)
-			where T : struct, Enum 
+			where T : struct, Enum
 		{
 			var indexed = lookup.Select((@enum,  index) => (index, @enum)).ToList();
 			if (excludeKey != null)
@@ -177,13 +177,13 @@ namespace DemoParser.Utils {
 
 
 	public readonly struct EHandle { // todo ref to entities, maybe add special behavior for --portal-passed
-			
+
 		public readonly uint Val;
-		
+
 		public static implicit operator uint(EHandle h) => h.Val;
 		public static explicit operator EHandle(uint u) => new EHandle(u);
 		public static explicit operator EHandle(int i) => new EHandle((uint)i);
-		
+
 		public EHandle(uint val) {
 			Val = val;
 		}

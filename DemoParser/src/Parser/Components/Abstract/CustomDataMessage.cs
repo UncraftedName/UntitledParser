@@ -1,7 +1,7 @@
 using DemoParser.Parser.Components.Packets.CustomDataTypes;
 
 namespace DemoParser.Parser.Components.Abstract {
-	
+
 	/// <summary>
 	/// A 'sub-packet' in the CustomData packet.
 	/// </summary>
@@ -17,9 +17,9 @@ namespace DemoParser.Parser.Components.Abstract {
 			CustomDataMessage result = type switch {
 				CustomDataType.MenuCallback => new MenuCallBack(demoRef),
 				CustomDataType.Ping         => new Ping(demoRef),
-				_ => new UnknownCustomDataMessage(demoRef) 
+				_ => new UnknownCustomDataMessage(demoRef)
 			};
-			
+
 			if (result.GetType() == typeof(UnknownCustomDataMessage))
 				demoRef.LogError($"unknown or unimplemented custom data type: {type}");
 			return result;

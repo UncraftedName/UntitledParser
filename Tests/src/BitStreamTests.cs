@@ -4,11 +4,11 @@ using DemoParser.Utils.BitStreams;
 using NUnit.Framework;
 
 namespace Tests {
-	
+
 	public class BitStreamTests {
 
 		private const int Iterations = 100000;
-		
+
 
 		[Test, Parallelizable(ParallelScope.Self)]
 		public void WriteBools() {
@@ -21,17 +21,17 @@ namespace Tests {
 				bsw.WriteBool(r);
 			}
 			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
-			for (int i = 0; i < Iterations; i++) 
+			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bools[i], bsr.ReadBool(), "index: " + i);
 		}
-		
+
 
 		[Test, Parallelizable(ParallelScope.Self)]
 		public void WriteUBits() {
 			var random = new Random(0);
 			BitStreamWriter bsw = new BitStreamWriter();
 			List<(uint val, int size)> bits = new List<(uint val, int size)>();
-			
+
 			for (int _ = 0; _ < Iterations; _++)  {
 				(uint val, int size) r = ((uint)random.Next(), random.Next(1, 33));
 				r.val &= uint.MaxValue >> (32 - r.size);
@@ -39,17 +39,17 @@ namespace Tests {
 				bsw.WriteBitsFromUInt(r.val, r.size);
 			}
 			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
-			for (int i = 0; i < Iterations; i++) 
+			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsUInt(bits[i].size), "index: " + i);
 		}
-		
-		
+
+
 		[Test, Parallelizable(ParallelScope.Self)]
 		public void WriteSInts() {
 			var random = new Random(0);
 			BitStreamWriter bsw = new BitStreamWriter();
 			List<(int val, int size)> bits = new List<(int val, int size)>();
-			
+
 			for (int _ = 0; _ < Iterations; _++)  {
 				(int val, int size) r = (random.Next(), random.Next(1, 33));
 				r.val &= int.MaxValue >> (32 - r.size);
@@ -59,7 +59,7 @@ namespace Tests {
 				bsw.WriteBitsFromSInt(r.val, r.size);
 			}
 			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
-			for (int i = 0; i < Iterations; i++) 
+			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsSInt(bits[i].size), "index: " + i);
 		}
 
@@ -69,7 +69,7 @@ namespace Tests {
 			var random = new Random(0);
 			BitStreamWriter bsw = new BitStreamWriter();
 			List<(uint? val, int size)> bits = new List<(uint? val, int size)>();
-			
+
 			for (int _ = 0; _ < Iterations; _++)  {
 				bool rBool = random.NextDouble() >= 0.5;
 				(uint? val, int size) r = (rBool ? (uint?)null : (uint)random.Next(), random.Next(1, 33));
@@ -78,7 +78,7 @@ namespace Tests {
 				bsw.WriteBitsFromUIntIfExists(r.val, r.size);
 			}
 			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
-			for (int i = 0; i < Iterations; i++) 
+			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsUIntIfExists(bits[i].size), "index: " + i);
 		}
 
@@ -93,7 +93,7 @@ namespace Tests {
 				bsw.WriteBitCoord((float)((random.NextDouble() - 0.5) * 100000));
 				BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
 				bsr.SkipBits(skip);
-				// Write the float back and then read it again, this will constrain it to the precision of a 
+				// Write the float back and then read it again, this will constrain it to the precision of a
 				// bit coord so we can do a direct equality check.
 				float f = bsr.ReadBitCoord();
 				// Now do all the same stuff we just did but with the constrained float.

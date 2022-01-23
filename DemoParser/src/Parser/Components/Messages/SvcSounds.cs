@@ -8,13 +8,13 @@ using DemoParser.Utils.BitStreams;
 using static DemoParser.Parser.DemoInfo;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcSounds : DemoMessage {
-		
+
 		public bool Reliable;
 		public SoundInfo[]? Sounds;
-		
-		
+
+
 		public SvcSounds(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -22,13 +22,13 @@ namespace DemoParser.Parser.Components.Messages {
 			Reliable = bsr.ReadBool();
 			int soundCount = Reliable ? 1 : bsr.ReadByte();
 			int dataBitLen = (int)bsr.ReadBitsAsUInt(Reliable ? 8 : 16);
-			
+
 			BitStreamReader soundBsr = bsr.SplitAndSkip(dataBitLen);
 
 			SoundInfo sound = new SoundInfo(DemoRef);
 			SoundInfo delta = new SoundInfo(DemoRef);
 			delta.SetDefault();
-			
+
 			Exception? e = null;
 			try {
 				Sounds = new SoundInfo[soundCount];
@@ -54,13 +54,13 @@ namespace DemoParser.Parser.Components.Messages {
 				DemoRef.LogError($"exception while parsing {nameof(SoundInfo)}: {soundBsr.BitsRemaining} bits left to read");
 			}
 		}
-		
-		
+
+
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
 		}
-		
-		
+
+
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.Append($"reliable: {Reliable}");
 			if (Sounds != null) {
@@ -78,10 +78,10 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 		}
 	}
-	
-	
+
+
 	public class SoundInfo : DemoComponent {
-		
+
 		public uint EntityIndex;
 		public int? SoundNum;
 		public uint? ScriptHash;
@@ -101,8 +101,8 @@ namespace DemoParser.Parser.Components.Messages {
 		public int SpeakerEntity;
 
 		private SoundInfo? _deltaTmp;
-		
-		
+
+
 		public SoundInfo(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -124,8 +124,8 @@ namespace DemoParser.Parser.Components.Messages {
 			Origin = si.Origin;
 			SpeakerEntity = si.SpeakerEntity;
 		}
-		
-		
+
+
 		internal void SetDefault() {
 			Delay = 0.0f;
 			Volume = 1.0f;
@@ -142,8 +142,8 @@ namespace DemoParser.Parser.Components.Messages {
 			IsAmbient = false;
 			Origin = Vector3.Zero;
 		}
-		
-		
+
+
 		private void ClearStopFields() {
 			Volume = 0;
 			SoundLevel = 0;
@@ -160,18 +160,18 @@ namespace DemoParser.Parser.Components.Messages {
 			throw new InvalidOperationException();
 		}
 
-		
+
 		// ReadDelta(SoundInfo_t *this,SoundInfo_t *delta,bf_read *buf)
 		public void ParseDelta(ref BitStreamReader bsr, SoundInfo delta) {
 			_deltaTmp = delta;
 			base.ParseStream(ref bsr);
 			_deltaTmp = null;
 		}
-		
-		
+
+
 		protected override void Parse(ref BitStreamReader bsr) {
 			EntityIndex = bsr.ReadBool() ? bsr.ReadBitsAsUInt(bsr.ReadBool() ? 5 : MaxEdictBits) : _deltaTmp.EntityIndex;
-			
+
 #pragma warning disable 8629
 			if (DemoInfo.NewDemoProtocol) {
 				Flags = (SoundFlags?)bsr.ReadBitsAsUIntIfExists(DemoInfo.SoundFlagBits) ?? _deltaTmp.Flags;
@@ -185,7 +185,7 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 			Chan = (Channel?)bsr.ReadBitsAsUIntIfExists(3) ?? _deltaTmp.Chan;
 #pragma warning restore 8629
-			
+
 			#region get sound name
 
 			if (SoundNum.HasValue) {
@@ -201,10 +201,10 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 
 			#endregion
-			
+
 			IsAmbient = bsr.ReadBool();
 			IsSentence = bsr.ReadBool();
-			
+
 			if (Flags != SoundFlags.Stop) {
 
 				if (bsr.ReadBool())
@@ -213,7 +213,7 @@ namespace DemoParser.Parser.Components.Messages {
 					SequenceNumber = _deltaTmp.SequenceNumber + 1;
 				else
 					SequenceNumber = bsr.ReadBitsAsUInt(SndSeqNumberBits);
-				
+
 				Volume = bsr.ReadBitsAsUIntIfExists(7) / 127.0f ?? _deltaTmp.Volume;
 				SoundLevel = bsr.ReadBitsAsUIntIfExists(MaxSndLvlBits) ?? _deltaTmp.SoundLevel;
 				Pitch = bsr.ReadBitsAsUIntIfExists(8) ?? _deltaTmp.Pitch;
@@ -243,13 +243,13 @@ namespace DemoParser.Parser.Components.Messages {
 				ClearStopFields();
 			}
 		}
-		
-		
+
+
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
 		}
-		
-		
+
+
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.AppendLine($"entity index: {EntityIndex}");
 
@@ -276,8 +276,8 @@ namespace DemoParser.Parser.Components.Messages {
 			pw.AppendLine($"origin: {Origin}");
 			pw.Append($"speaker entity: {SpeakerEntity}");
 		}
-		
-		
+
+
 		[Flags]
 		public enum SoundFlags : uint {
 			None                 = 0,
@@ -297,8 +297,8 @@ namespace DemoParser.Parser.Components.Messages {
 			GenerateGuid         = 1 << 12, // True if we generate the GUID when we send the sound
 			OverridePitch        = 1 << 13
 		}
-		
-		
+
+
 		public enum Channel {
 			Replace = -1,
 			Auto,
@@ -307,10 +307,10 @@ namespace DemoParser.Parser.Components.Messages {
 			Item,
 			Body,
 			Stream,    // allocate stream channel from the static or dynamic area
-			Static,    // allocate channel from the static area 
+			Static,    // allocate channel from the static area
 			VoiceBase, // allocate channel for network voice data
-			
+
 			UserBase = VoiceBase + 128 // Anything >= this number is allocated to game code.
 		}
-	} 
+	}
 }

@@ -4,9 +4,9 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
-	
+
 	public class QueryPort : StringTableEntryData {
-		
+
 		internal override bool InlineToString => true;
 		public uint Port;
 

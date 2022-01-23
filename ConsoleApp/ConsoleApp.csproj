@@ -1,73 +1,73 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net461</TargetFramework>
-        <ApplicationIcon>../github-resources/investigation.ico</ApplicationIcon>
-        <Platforms>AnyCPU;x64</Platforms>
-        <Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
-        <LangVersion>8</LangVersion>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <AssemblyName>UntitledParser</AssemblyName>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net461</TargetFramework>
+		<ApplicationIcon>../github-resources/investigation.ico</ApplicationIcon>
+		<Platforms>AnyCPU;x64</Platforms>
+		<Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
+		<LangVersion>8</LangVersion>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<AssemblyName>UntitledParser</AssemblyName>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <TargetName>UntitledParser.Unmerged</TargetName>
-    </PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+	  <TargetName>UntitledParser.Unmerged</TargetName>
+	</PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug_ProcessEnts' ">
-      <DefineConstants>TRACE;DEBUG</DefineConstants>
-    </PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)' == 'Debug_ProcessEnts' ">
+	  <DefineConstants>TRACE;DEBUG</DefineConstants>
+	</PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DebugType>full</DebugType>
-    </PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+	  <DebugType>full</DebugType>
+	</PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13" />
-    </ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\DemoParser\DemoParser.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\DemoParser\DemoParser.csproj" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <AssemblyAttribute Include="ConsoleApp.BuildDateAttribute">
-        <_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-      </AssemblyAttribute>
-    </ItemGroup>
+	<ItemGroup>
+	  <AssemblyAttribute Include="ConsoleApp.BuildDateAttribute">
+		<_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+	  </AssemblyAttribute>
+	</ItemGroup>
 
-    <ItemGroup>
-      <Compile Update="Properties\Resources.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>Resources.resx</DependentUpon>
-      </Compile>
-    </ItemGroup>
+	<ItemGroup>
+	  <Compile Update="Properties\Resources.Designer.cs">
+		<DesignTime>True</DesignTime>
+		<AutoGen>True</AutoGen>
+		<DependentUpon>Resources.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
 
-    <ItemGroup>
-      <EmbeddedResource Update="Properties\Resources.resx">
-        <Generator>ResXFileCodeGenerator</Generator>
-        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      </EmbeddedResource>
-      <None Remove="version.txt" />
-      <EmbeddedResource Include="version.txt">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </EmbeddedResource>
-    </ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Update="Properties\Resources.resx">
+		<Generator>ResXFileCodeGenerator</Generator>
+		<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	  <None Remove="version.txt" />
+	  <EmbeddedResource Include="version.txt">
+		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </EmbeddedResource>
+	</ItemGroup>
 
-    <Target Condition=" '$(Configuration)' == 'Release' " Name="Merge" AfterTargets="Build">
-      <PropertyGroup>
-        <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
-      </PropertyGroup>
-      <ILRepack OutputType="$(OutputType)" MainAssembly="$(AssemblyName).Unmerged.exe" OutputAssembly="UntitledParser.exe" InputAssemblies="$(WorkingDirectory)\*.dll" WilcardInputAssemblies="true" WorkingDirectory="$(WorkingDirectory)" />
-    </Target>
+	<Target Condition=" '$(Configuration)' == 'Release' " Name="Merge" AfterTargets="Build">
+	  <PropertyGroup>
+		<WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
+	  </PropertyGroup>
+	  <ILRepack OutputType="$(OutputType)" MainAssembly="$(AssemblyName).Unmerged.exe" OutputAssembly="UntitledParser.exe" InputAssemblies="$(WorkingDirectory)\*.dll" WilcardInputAssemblies="true" WorkingDirectory="$(WorkingDirectory)" />
+	</Target>
 
-    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-      <!--Make sure to update Utils.GetVersionString() if you edit this!-->
-      <Exec Command="git rev-list --count HEAD > version.txt"/>
-      <Exec Command="git branch --show-current >> version.txt"/>
-      <Exec Command="git describe --always --dirty --exclude=* >> version.txt"/>
-    </Target>
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+	  <!--Make sure to update Utils.GetVersionString() if you edit this!-->
+	  <Exec Command="git rev-list --count HEAD > version.txt"/>
+	  <Exec Command="git branch --show-current >> version.txt"/>
+	  <Exec Command="git describe --always --dirty --exclude=* >> version.txt"/>
+	</Target>
 </Project>

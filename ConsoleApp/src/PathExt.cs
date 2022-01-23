@@ -1,6 +1,6 @@
 /*
  * More-or-less ripped straight from .NET Core runtime, with some ws/comments stripped out
- * 
+ *
  * Licensed to the .NET Foundation under one or more agreements.
  * The .NET Foundation licenses this file to you under the MIT license.
  */
@@ -13,9 +13,9 @@ using System.IO;
 using System.Text;
 
 namespace ConsoleApp {
-	
+
 	internal static class PathExt {
-		
+
 		private static bool IsDirectorySeparator(char c) => c == '\\' || c == '/';
 		private static bool EndsInDirectorySeparator(string path)
 			=> path.Length > 0 && IsDirectorySeparator(path[^1]);

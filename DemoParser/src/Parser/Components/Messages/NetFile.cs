@@ -4,14 +4,14 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class NetFile : DemoMessage {
 
 		public uint TransferId;
 		public string FileName;
 		public NetFileFlags FileFlags;
-		
-		
+
+
 		public NetFile(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages {
 			FileName = bsr.ReadNullTerminatedString();
 			FileFlags = (NetFileFlags)bsr.ReadBitsAsUInt(DemoInfo.NumNetFileFlagBits);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

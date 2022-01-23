@@ -12,7 +12,7 @@ using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
 
 namespace ConsoleApp.DemoArgProcessing {
-	
+
 	/// <summary>
 	/// Represents a base option for demo parsing that takes no arguments.
 	/// </summary>
@@ -20,8 +20,8 @@ namespace ConsoleApp.DemoArgProcessing {
 		protected DemoOption(IImmutableList<string> aliases, string description, bool hidden = false)
 			: base(aliases, description, hidden) {}
 	}
-	
-	
+
+
 	/// <summary>
 	/// Represents a base option for demo parsing that takes an optional or mandatory argument of a specific type.
 	/// If Arity is set to 1, any value can be passed to defaultArg.
@@ -68,7 +68,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		private readonly IParallelDemoParser _pdp;
 		private TextWriter? _textWriter;
 		private Stream? _binaryStream;
-		
+
 		// keep track of the overwritten demo in memory, don't write it to disk until we're doing with the current process loop
 		private SourceDemo _overwriteProgress = null!;
 		private int _overwriteCount; // how many times have we overwritten this demo?

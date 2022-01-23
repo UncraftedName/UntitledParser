@@ -3,12 +3,12 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 
 namespace ConsoleApp.GenericArgProcessing {
-	
+
 	// do not inherit from this, use one of the classes below
 	public abstract class BaseOption<TSetup, TInfo> where TInfo : IProcessObject {
-		
+
 		private protected static Exception InvalidFuncEx => new ArgProcessProgrammerException("this function shouldn't be called");
-		
+
 		public IImmutableList<string> Aliases {get;}
 
 		public Arity Arity {get;}
@@ -24,10 +24,10 @@ namespace ConsoleApp.GenericArgProcessing {
 		public bool Hidden {get;}
 
 		/// <summary>
-		/// Specifies whether or not to execute the 'AfterParse', 'Process', and 'PostProcess' methods. 
+		/// Specifies whether or not to execute the 'AfterParse', 'Process', and 'PostProcess' methods.
 		/// </summary>
 		public bool Enabled {get;private set;}
-		
+
 		// saves the arg passed to enable, user implemented classes shouldn't have to use this
 		private protected virtual string? Arg {get;private set;}
 
@@ -49,7 +49,7 @@ namespace ConsoleApp.GenericArgProcessing {
 			Enabled = true;
 		}
 
-		
+
 		// just for option parsing, msg is non-null if we return false
 		internal abstract bool CanUseAsArg(string arg, out string? failReason);
 
@@ -68,11 +68,11 @@ namespace ConsoleApp.GenericArgProcessing {
 
 		public virtual void AfterParse(TSetup setupObj) => AfterParse(setupObj, Arg);
 		protected abstract void AfterParse(TSetup setupObj, string? arg);
-		
+
 
 		public virtual void Process(TInfo infoObj) => Process(infoObj, Arg);
 		protected abstract void Process(TInfo infoObj, string? arg);
-		
+
 
 		public virtual void PostProcess(TInfo infoObj) => PostProcess(infoObj, Arg);
 		protected abstract void PostProcess(TInfo infoObj, string? arg);

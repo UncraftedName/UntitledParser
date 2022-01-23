@@ -6,13 +6,13 @@ using DemoParser.Utils.BitStreams;
 using static DemoParser.Parser.DemoInfo;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	// portal 2 specific
 	public class MpMapCompletedData : UserMessage {
-		
+
 		public List<MapCompletedInfo> Info;
-		
-		
+
+
 		public MpMapCompletedData(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -36,13 +36,13 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				}
 			}
 		}
-		
-		
+
+
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
 		}
-		
-		
+
+
 		public override void PrettyWrite(IPrettyWriter pw) {
 			if (Info.Count == 0) {
 				pw.Append("none");
@@ -56,8 +56,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				pw.FutureIndent--;
 			}
 		}
-		
-		
+
+
 		public struct MapCompletedInfo {
 			public int Player;
 			public int Branch;

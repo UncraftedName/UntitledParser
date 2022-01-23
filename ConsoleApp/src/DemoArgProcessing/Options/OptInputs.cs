@@ -8,18 +8,18 @@ using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
-	
+
 	public class OptInputs : DemoOption<OptInputs.InputDisplayMode> {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--inputs", "-i"}.ToImmutableArray();
-		
+
 
 		public enum InputDisplayMode {
 			Text,
 			Int,
 			Flags
 		}
-		
+
 
 		public OptInputs() : base(
 			DefaultAliases,
@@ -28,8 +28,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			"mode",
 			Utils.ParseEnum<InputDisplayMode>,
 			InputDisplayMode.Text) {}
-		
-		
+
+
 		protected override void AfterParse(DemoParsingSetupInfo setupObj, InputDisplayMode mode, bool isDefault) {
 			setupObj.ExecutableOptions++;
 		}

@@ -12,11 +12,11 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
-	
+
 	public class OptRemoveCaptions : DemoOption {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--remove-captions", "-c"}.ToImmutableArray();
-		
+
 		public OptRemoveCaptions() : base(
 			DefaultAliases,
 			$"Create a new demo without captions {OptOutputFolder.RequiresString}") {}
@@ -42,7 +42,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		// writes a edited version of the given demo to the stream
 		// this is all manually hacked together and it shall stay this way for now
 		public static void RemoveCaptions(SourceDemo demo, Stream s) {
-			
+
 			void Write(byte[] buf) => s.Write(buf, 0, buf.Length);
 
 			Packet[] closeCaptionPackets = demo.FilterForPacket<Packet>()
@@ -56,7 +56,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 			int changedPackets = 0;
 			Write(demo.Header.Reader.ReadRemainingBits().bytes);
-			
+
 			foreach (PacketFrame frame in demo.Frames) {
 				if (frame.Packet != closeCaptionPackets[changedPackets]) {
 					Write(frame.Reader.ReadRemainingBits().bytes); // write frames that aren't changed
@@ -69,12 +69,12 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					int msgSizeOffset = p.MessageStream.Reader.AbsoluteStart - frame.Reader.AbsoluteStart;
 					int typeInfoLen = demo.DemoInfo.NetMsgTypeBits + demo.DemoInfo.UserMessageLengthBits + 8;
 					bsw.RemoveBitsAtIndices(p.FilterForUserMessage<CloseCaption>()
-						.Select(caption => (caption.Reader.AbsoluteStart - frame.Reader.AbsoluteStart - typeInfoLen, 
+						.Select(caption => (caption.Reader.AbsoluteStart - frame.Reader.AbsoluteStart - typeInfoLen,
 							caption.Reader.BitLength + typeInfoLen)));
 					bsw.WriteUntilByteBoundary();
 					bsw.EditIntAtIndex((bsw.BitLength - msgSizeOffset - 32) >> 3, msgSizeOffset, 32);
 					Write(bsw.AsArray);
-					
+
 					// if we've edited all the packets, write the rest of the data in the demo
 					if (++changedPackets == closeCaptionPackets.Length) {
 						BitStreamReader tmp = demo.Reader;

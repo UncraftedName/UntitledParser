@@ -5,9 +5,9 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class PortalFxSurface : UserMessage {
-		
+
 		public ushort PortalEnt;
 		public ushort OwnerEnt;
 		public byte Team;
@@ -15,8 +15,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public PortalFizzleType Effect;
 		public Vector3 Origin;
 		public Vector3 Angles;
-		
-		
+
+
 		public PortalFxSurface(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -29,13 +29,13 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			bsr.ReadVectorCoord(out Origin);
 			bsr.ReadVectorCoord(out Angles);
 		}
-		
-		
+
+
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
 		}
-		
-		
+
+
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.AppendLine($"portal entity: {PortalEnt}");
 			pw.AppendLine($"owner entity: {OwnerEnt}");

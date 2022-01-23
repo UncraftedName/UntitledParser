@@ -12,10 +12,10 @@ namespace ConsoleApp {
 	public static class Utils {
 
 		private static readonly Stack<ConsoleColor> ForegroundColors = new Stack<ConsoleColor>();
-		
-		
+
+
 		public static void PushForegroundColor() => PushForegroundColor(Console.ForegroundColor);
-		
+
 		public static void PushForegroundColor(ConsoleColor color) {
 			ForegroundColors.Push(Console.ForegroundColor);
 			Console.ForegroundColor = color;
@@ -37,8 +37,8 @@ namespace ConsoleApp {
 
 
 		public static void Warning(string s) => WriteColor(s, ConsoleColor.Red);
-		
-		
+
+
 		// gets the common shared path between s1 & s2, e.g. basement/creepy/cats, basement/friendly/cats -> basement
 		public static string SharedPathSubstring(string s1, string s2) {
 			int furthestSlash = 0;
@@ -89,7 +89,7 @@ namespace ConsoleApp {
 
 
 		public static string FormatTime(double seconds) {
-			if (Math.Abs(seconds) > 8640000) // 10 days, probably happens from initializing the tick interval to garbage 
+			if (Math.Abs(seconds) > 8640000) // 10 days, probably happens from initializing the tick interval to garbage
 				return "invalid";
 			string sign = seconds < 0 ? "-" : "";
 			// timespan truncates values, (makes sense since 0.5 minutes is still 0 total minutes) so I round manually
@@ -107,8 +107,8 @@ namespace ConsoleApp {
 
 
 		public static string GetExeName() => QuoteIfHasSpaces(AppDomain.CurrentDomain.FriendlyName);
-		
-		
+
+
 		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
 		private static extern int GetConsoleProcessList(int[] buffer, int size);
 

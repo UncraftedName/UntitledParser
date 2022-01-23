@@ -5,14 +5,14 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class VguiMenu : UserMessage {
 
 		public string Message;
 		public bool Show;
 		public List<KeyValuePair<string, string>> KeyValues;
-		
-		
+
+
 		public VguiMenu(SourceDemo? demoRef) : base(demoRef) {}
 
 

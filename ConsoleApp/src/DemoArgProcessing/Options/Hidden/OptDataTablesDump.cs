@@ -11,18 +11,18 @@ using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 
 namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
-	
+
 	public class OptDataTablesDump : DemoOption<OptDataTablesDump.DataTableDumpMode> {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--dump-datatables"}.ToImmutableArray();
 
-		
+
 		public enum DataTableDumpMode {
 			PacketAndTree,
 			Flattened,
 			TreeOnly
 		}
-		
+
 
 		public OptDataTablesDump() : base(
 			DefaultAliases,
@@ -32,8 +32,8 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 			Utils.ParseEnum<DataTableDumpMode>,
 			DataTableDumpMode.PacketAndTree,
 			true) {}
-		
-		
+
+
 		protected override void AfterParse(DemoParsingSetupInfo setupObj, DataTableDumpMode mode, bool isDefault) {
 			setupObj.ExecutableOptions++;
 			setupObj.FolderOutputRequired = true;
@@ -92,26 +92,26 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 		protected override void PostProcess(DemoParsingInfo infoObj, DataTableDumpMode mode, bool isDefault) {}
 	}
-	
+
 	/// <summary>
-	/// Constructs a visualization of the datatable hierarchy. 
+	/// Constructs a visualization of the datatable hierarchy.
 	/// </summary>
 	public class DataTableTree : PrettyClass {
 
 		private class TableNodeComparer : AlphanumComparator, IComparer<TableNode> {
 			public int Compare(TableNode x, TableNode y) => base.Compare(x.Name, y.Name);
 		}
-		
-		
+
+
 		private readonly ICollection<TableNode> _roots;
-		
+
 
 		public DataTableTree(DataTables dTables, bool sort) {
-			
+
 			_roots = sort
 				? new SortedSet<TableNode>(new TableNodeComparer())
 				: (ICollection<TableNode>)new List<TableNode>();
-			
+
 			var namesToAdd = new List<(string name, string? baseName)>(
 				dTables.Tables.Select(table => {
 					string? baseName = null;
@@ -152,7 +152,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 
 		private class TableNode {
-			
+
 			internal readonly string Name;
 			private readonly bool _sort;
 			private readonly ICollection<TableNode> _children;

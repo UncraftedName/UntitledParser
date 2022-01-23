@@ -9,18 +9,18 @@ using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Utils;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
-	
+
 	public class OptTeleports : DemoOption<OptTeleports.FilterFlags> {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--teleports", "-T"}.ToImmutableArray();
 
-		
+
 		[Flags]
 		public enum FilterFlags {
 			PlayerOnly = 1,
 			VerboseInfo = 2
 		}
-		
+
 
 		public OptTeleports() : base(
 			DefaultAliases,
@@ -31,8 +31,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			"flags",
 			Utils.ParseEnum<FilterFlags>,
 			FilterFlags.VerboseInfo) {}
-		
-		
+
+
 		protected override void AfterParse(DemoParsingSetupInfo setupObj, FilterFlags flags, bool isDefault) {
 			setupObj.ExecutableOptions++;
 		}

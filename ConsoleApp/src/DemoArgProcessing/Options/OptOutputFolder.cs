@@ -4,14 +4,14 @@ using System.IO;
 using ConsoleApp.GenericArgProcessing;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
-	
+
 	public class OptOutputFolder : DemoOption<string> {
 
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--output-folder", "-o"}.ToImmutableArray();
 
 		public static readonly string RequiresString = $"(requires {DefaultAliases[1]})";
-		
-		
+
+
 		public OptOutputFolder() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,

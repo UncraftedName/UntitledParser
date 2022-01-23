@@ -4,13 +4,13 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcGetCvarValue : DemoMessage {
 
 		public int Cookie;
 		public string CvarName;
-		
-		
+
+
 		public SvcGetCvarValue(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -18,7 +18,7 @@ namespace DemoParser.Parser.Components.Messages {
 			Cookie = bsr.ReadSInt();
 			CvarName = bsr.ReadNullTerminatedString();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

@@ -4,14 +4,14 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class HudText : UserMessage {
 
 		public string? Str;
 		// sst plugin hides the messages in here - it prevents the game from crashing or screaming
 		public byte[]? SstEncryptedMessage;
-		
-		
+
+
 		public HudText(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -23,8 +23,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				Str = bsr.ReadNullTerminatedString();
 			}
 		}
-		
-		
+
+
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
 		}

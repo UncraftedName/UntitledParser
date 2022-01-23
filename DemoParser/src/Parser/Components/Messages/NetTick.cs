@@ -4,16 +4,16 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class NetTick : DemoMessage {
-		
+
 		private const float NetTickScaleUp = 100000.0f;
 
 		public uint EngineTick;
 		public float? HostFrameTime;
 		public float? HostFrameTimeStdDev;
-		
-		
+
+
 		public NetTick(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -24,7 +24,7 @@ namespace DemoParser.Parser.Components.Messages {
 				HostFrameTimeStdDev = bsr.ReadUShort() / NetTickScaleUp;
 			}
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

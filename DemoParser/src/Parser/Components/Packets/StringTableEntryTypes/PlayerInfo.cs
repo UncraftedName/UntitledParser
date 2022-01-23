@@ -8,10 +8,10 @@ using static DemoParser.Parser.Components.Packets.StringTableEntryTypes.PlayerIn
 using static DemoParser.Parser.Components.Packets.StringTableEntryTypes.PlayerInfo.CSteamId.EChatSteamIDInstanceFlags;
 
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
-	
+
 	// table entry in the "userinfo" string table
 	public class PlayerInfo : StringTableEntryData {
-		
+
 		public CSteamId? SteamId; // new
 		public string Name;       // scoreboard information
 		public int UserId;        // local server user ID, unique while server is running
@@ -22,8 +22,8 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public bool IsHlTv;          // true if player is the HLTV proxy
 		public uint[] CustomFiles;   // custom files CRC for this player
 		public byte FilesDownloaded; // this counter increases each time the server downloaded a new file
-		
-		
+
+
 		public PlayerInfo(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -88,7 +88,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		[SuppressMessage("ReSharper", "IdentifierTypo")]
 		[StructLayout(LayoutKind.Explicit, Size = 8)]
 		public struct CSteamId {
-			
+
 			[field: FieldOffset(0)]
 			public ulong m_unAll64Bits {get;set;}
 
@@ -115,7 +115,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			}
 
 
-			public readonly ulong StaticAccountKey 
+			public readonly ulong StaticAccountKey
 				=> ((ulong)m_EUniverse << 56) + ((ulong)m_EAccountType << 52) + m_unAccountId;
 
 			public readonly bool IsAnonAccount
@@ -160,8 +160,8 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 				k_EUniverseRC = 5,
 				k_EUniverseMax
 			}
-			
-			
+
+
 			// Steam account types
 			public enum EAccountType {
 				k_EAccountTypeInvalid = 0,
@@ -182,7 +182,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 			private const uint k_unSteamAccountIDMask = 0xFFFFFFFF;
 			private const uint k_unSteamAccountInstanceMask = 0x000FFFFF;
-			
+
 			// Special flags for Chat accounts - they go in the top 8 bits
 			// of the steam ID's "instance", leaving 12 for the actual instances
 			public enum EChatSteamIDInstanceFlags : uint {

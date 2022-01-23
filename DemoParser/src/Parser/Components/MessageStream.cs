@@ -8,20 +8,20 @@ using DemoParser.Utils.BitStreams;
 using static DemoParser.Parser.Components.Abstract.MessageType;
 
 namespace DemoParser.Parser.Components {
-	
+
 	/// <summary>
 	/// A special class to handle parsing an arbitrary amount of consecutive net/svc messages.
 	/// </summary>
 	public class MessageStream : DemoComponent, IEnumerable<(MessageType messageType, DemoMessage message)> {
-		
+
 		public List<(MessageType messageType, DemoMessage? message)> Messages;
-		
+
 		public static implicit operator List<(MessageType messageType, DemoMessage? message)>(MessageStream m) => m.Messages;
-		
-		
+
+
 		public MessageStream(SourceDemo? demoRef) : base(demoRef) {}
-		
-		
+
+
 		// this starts on the int before the messages which says the size of the message stream in bytes
 		protected override void Parse(ref BitStreamReader bsr) {
 			uint messagesByteLength = bsr.ReadUInt();
@@ -45,17 +45,17 @@ namespace DemoParser.Parser.Components {
 				(MessageType, DemoMessage?) pair = (messageType, null);
 				Messages.Add(pair);
 			}
-			
+
 			#region error logging
-			
+
 			MessageType lastType = Messages[^1].messageType;
 			DemoMessage? lastMessage = Messages[^1].message;
-			
+
 			if (e != null
 				|| !Enum.IsDefined(typeof(MessageType), lastType)
 				|| lastType == Unknown
 				|| lastType == Invalid
-				|| lastMessage == null) 
+				|| lastMessage == null)
 			{
 				var lastNonNopMessage = Messages.FindLast(tuple => tuple.messageType != NetNop && tuple.message != null).messageType;
 				lastNonNopMessage = lastNonNopMessage == NetNop ? Unknown : lastNonNopMessage;
@@ -73,10 +73,10 @@ namespace DemoParser.Parser.Components {
 
 				DemoRef.LogError(errorStr);
 			}
-			
+
 			#endregion
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -105,12 +105,12 @@ namespace DemoParser.Parser.Components {
 					: $"unknown type: {Messages[i].messageType}");
 			}
 		}
-		
+
 
 		public IEnumerator<(MessageType, DemoMessage)> GetEnumerator() {
 			return Messages.GetEnumerator();
 		}
-		
+
 
 		IEnumerator IEnumerable.GetEnumerator() {
 			return ((IEnumerable)Messages).GetEnumerator();

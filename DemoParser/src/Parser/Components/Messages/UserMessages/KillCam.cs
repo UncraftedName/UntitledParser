@@ -4,15 +4,15 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class KillCam : UserMessage {
 
 		public SpectatorMode SpecMode;
 		public byte Target1;
 		public byte Target2;
 		public byte Unknown;
-		
-		
+
+
 		public KillCam(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -22,7 +22,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			Target2 = bsr.ReadByte();
 			Unknown = bsr.ReadByte();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

@@ -32,26 +32,26 @@ namespace DemoParser.Parser.HelperClasses {
 		public const string DynamicModels       = "DynamicModels";
 		public const string ServerMapCycle      = "ServerMapCycle";
 	}
-	
+
 
 	// Keeps the original string tables passed here untouched, and keeps a separate "current copy"
 	// since the tables can be updated/modified as the parser reads from SvcUpdateStringTable.
 	internal class CurStringTablesManager { // todo any object taken from the tables should not be taken until the tables are updated for that tick
-		
+
 		// the list here can be updated and is meant to be separate from the list in the stringtables packet
 		private readonly SourceDemo _demoRef;
 		private readonly List<CurStringTable> _privateTables;
 		internal readonly Dictionary<string, CurStringTable> Tables;
-		
+
 		// Before accessing any values in the tables, check to see if the respective table is readable first,
 		// make sure to use GetValueOrDefault() - this will ensure that even if the corresponding SvcCreationStringTable
 		// message didn't parse there won't be an exception.
 		internal readonly Dictionary<string, bool> TableReadable;
-		
+
 		// I store this for later if there's a string tables packet, so that I can create the tables from this list
 		// and the packet instead of the create message.
 		internal readonly List<SvcCreateStringTable> CreationLookup;
-		
+
 
 		internal CurStringTablesManager(SourceDemo demoRef) {
 			_demoRef = demoRef;
@@ -95,11 +95,11 @@ namespace DemoParser.Parser.HelperClasses {
 			string entryName)
 		{
 			var entry = AddTableEntry(table, null, entryName);
-			
+
 			if (entryStream.HasValue && entry != null) {
 				entry.EntryData = StringTableEntryDataFactory.CreateData(
 					_demoRef, table.Name, entryName, _demoRef.DataTableParser.FlattenedProps);
-				
+
 				entry.EntryData.ParseStream(entryStream.Value);
 			}
 			return entry;
@@ -117,7 +117,7 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 		private void AddTableClass(CurStringTable table, string name, string? data) {
-			if (!TableReadable[table.Name]) 
+			if (!TableReadable[table.Name])
 				return;
 			var stc = new CurStringTableClass(name, data);
 			table.Classes.Add(stc);
@@ -145,7 +145,7 @@ namespace DemoParser.Parser.HelperClasses {
 					} else {
 						// create fake creation info
 						SvcCreateStringTable fakeInfo = new SvcCreateStringTable(null) {
-							TableName = table.Name, 
+							TableName = table.Name,
 							MaxEntries = -1,
 							Flags = StringTableFlags.Fake,
 							UserDataFixedSize = false,
@@ -155,9 +155,9 @@ namespace DemoParser.Parser.HelperClasses {
 						// SvcServerInfo wasn't parsed correctly, assume i is the proper table ID
 						newTable = CreateStringTable(fakeInfo);
 					}
-					
+
 					table.MaxEntries = newTable.MaxEntries;
-					
+
 					if (table.TableEntries != null)
 						foreach (StringTableEntry entry in table.TableEntries)
 							AddTableEntry(newTable, entry?.EntryData?.CreateCopy(), entry.Name);
@@ -174,8 +174,8 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 	// classes separate from the StringTables packet for managing updateable tables
-	
-	
+
+
 	public class CurStringTable {
 
 		public int Id; // the index in the table list
@@ -211,13 +211,13 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 	public class CurStringTableEntry {
-		
+
 		private readonly SourceDemo _demoRef;
 		private readonly CurStringTable _tableRef;
 		public readonly string EntryName;
 		public StringTableEntryData? EntryData;
-		
-		
+
+
 		public CurStringTableEntry(SourceDemo demoRef, CurStringTable tableRef, StringTableEntryData? eData, string entryName) {
 			_demoRef = demoRef;
 			_tableRef = tableRef;
@@ -233,11 +233,11 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 	public class CurStringTableClass {
-		
+
 		public readonly string Name;
 		public readonly string? Data;
-		
-		
+
+
 		public CurStringTableClass(string name, string? data) {
 			Name = name;
 			Data = data;

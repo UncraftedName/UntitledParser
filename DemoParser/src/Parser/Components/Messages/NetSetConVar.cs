@@ -5,7 +5,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class NetSetConVar : DemoMessage {
 
 		public List<(string, string)> ConVars;
@@ -21,7 +21,7 @@ namespace DemoParser.Parser.Components.Messages {
 			for (int i = 0; i < count; i++)
 				ConVars.Add((bsr.ReadNullTerminatedString(), bsr.ReadNullTerminatedString()));
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -51,7 +51,7 @@ namespace DemoParser.Parser.Components.Messages {
 		Archive             = 1 << 7,  // set to cause it to be saved to vars.rc
 		Notify              = 1 << 8,  // notifies players when changed
 		UserInfo            = 1 << 9,  // changes the client's info string
-		PrintableOnly       = 1 << 10, // This cvar's string cannot contain unprintable characters ( e.g., used for player name etc ). 
+		PrintableOnly       = 1 << 10, // This cvar's string cannot contain unprintable characters ( e.g., used for player name etc ).
 		Unlogged            = 1 << 11, // If this is a FCVAR_SERVER, don't log changes to the log file / console if we are creating a log
 		NeverAsString       = 1 << 12, // never try to print that cvar
 		Replicated          = 1 << 13, // server setting enforced on clients -- might be called FCVAR_SERVER

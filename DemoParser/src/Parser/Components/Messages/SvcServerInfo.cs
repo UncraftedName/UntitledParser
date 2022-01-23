@@ -5,7 +5,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcServerInfo : DemoMessage {
 
 		public ushort NetworkProtocol;
@@ -31,10 +31,10 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool? HasReplay;
 
 		public int GameDirBitIndex; // used for game directory changing
-		
+
 		public SvcServerInfo(SourceDemo? demoRef) : base(demoRef) {}
-		
-		
+
+
 		// src_main/common/netmessages.cpp  SVC_ServerInfo::WriteToBuffer
 		protected override void Parse(ref BitStreamReader bsr) {
 			NetworkProtocol = bsr.ReadUShort();
@@ -79,11 +79,11 @@ namespace DemoParser.Parser.Components.Messages {
 			// this packet always(?) appears before the creation of any tables
 
 			DemoRef.CurStringTablesManager.ClearCurrentTables();
-			
+
 			// init baselines here
 			DemoRef.CBaseLines = new CurBaseLines(DemoRef, MaxServerClasses);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

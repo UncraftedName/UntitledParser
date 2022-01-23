@@ -8,7 +8,7 @@ using ConsoleApp.DemoArgProcessing.Options.Hidden;
 using ConsoleApp.GenericArgProcessing;
 
 namespace ConsoleApp.DemoArgProcessing {
-	
+
 	public class DemoParserSubCommand : BaseSubCommand<DemoParsingSetupInfo, DemoParsingInfo> {
 
 		private readonly List<FileSystemInfo> _argPaths;
@@ -25,8 +25,8 @@ namespace ConsoleApp.DemoArgProcessing {
 			_argPaths = new List<FileSystemInfo>();
 			_demoPaths = new SortedSet<FileInfo>(new AlphanumComparatorFileInfo());
 		}
-		
-		
+
+
 		// assume this is a demo file or a folder of files
 		protected override bool ParseDefaultArgument(string arg, out string? failReason) {
 			if (File.Exists(arg)) {
@@ -60,9 +60,9 @@ namespace ConsoleApp.DemoArgProcessing {
 				return;
 			DemoParsingSetupInfo setupInfo = new DemoParsingSetupInfo();
 			ParseArgs(args, setupInfo);
-			
+
 			// check the values in setupInfo
-			
+
 			// check if we have/need a folder output
 			if (setupInfo.FolderOutput == null && (setupInfo.FolderOutputRequired || (setupInfo.EditsDemos && !setupInfo.OverWriteDemos)))
 				throw new ArgProcessUserException($"folder output is required for the enabled option(s), use \"{OptOutputFolder.DefaultAliases[0]}\" to set one.");

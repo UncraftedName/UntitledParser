@@ -14,8 +14,8 @@ using static DemoParser.Parser.HelperClasses.TimingAdjustment.AdjustmentType;
 using static DemoParser.Parser.SourceGame;
 
 namespace DemoParser.Parser.HelperClasses {
-	
-	
+
+
 	// credit to iVerb for the portal2 commands https://github.com/iVerb1/SourceLiveTimer/tree/master/Demo/GameHandler
 	// The portal 2 / steampipe ones need to be redone once I figure out ent info. I only add explicit support
 	// for unpack atm but hopefully that will change in the future.
@@ -26,9 +26,9 @@ namespace DemoParser.Parser.HelperClasses {
 		public static readonly (SourceGame game, string mapName)[] ExcludedMaps = {
 			(PORTAL_1_5135, "gex03"),      // gamma energy last map
 			(PORTAL_1_5135, "rex_menu"),   // rexaura menu (why tf does this even have a demo???)
-			(PORTAL_1_1910503, "rex_menu") 
+			(PORTAL_1_1910503, "rex_menu")
 		};
-		
+
 
 		// In vanilla you can check for game begin/end without doing ent parsing, so I use that so that the this works
 		// with steampipe.
@@ -55,7 +55,7 @@ namespace DemoParser.Parser.HelperClasses {
 							return new[] {PortalPreludeEnd};
 					}
 					goto case PORTAL_1_3420;
-					
+
 				case PORTAL_1_1910503: // todo once ents work for steampipe, add above mods (and check if map names are the same)
 				case PORTAL_1_3420:
 					switch (mapName) {
@@ -66,7 +66,7 @@ namespace DemoParser.Parser.HelperClasses {
 							return new[] {Portal1End};
 					}
 					break;
-				
+
 				case PORTAL_2:
 					switch (mapName) {
 						case "sp_a1_intro1":
@@ -79,68 +79,68 @@ namespace DemoParser.Parser.HelperClasses {
 							return new[] {Portal2CoopMapStart, Portal2CoopEnd};
 						case "mp_coop_paint_crazy_box":
 							return new[] {Portal2CoopMapStart, Portal2CoopEndCourse6};
-						case "mp_coop_lobby_3": 
+						case "mp_coop_lobby_3":
 						case "mp_coop_doors": // course 1
-						case "mp_coop_race_2": 
-						case "mp_coop_laser_2": 
-						case "mp_coop_rat_maze": 
-						case "mp_coop_laser_crusher": 
-						case "mp_coop_teambts": 
+						case "mp_coop_race_2":
+						case "mp_coop_laser_2":
+						case "mp_coop_rat_maze":
+						case "mp_coop_laser_crusher":
+						case "mp_coop_teambts":
 						case "mp_coop_fling_3": // course 2
-						case "mp_coop_infinifling_train": 
-						case "mp_coop_come_along": 
-						case "mp_coop_fling_1": 
-						case "mp_coop_catapult_1": 
-						case "mp_coop_multifling_1": 
-						case "mp_coop_fling_crushers": 
-						case "mp_coop_fan": 
+						case "mp_coop_infinifling_train":
+						case "mp_coop_come_along":
+						case "mp_coop_fling_1":
+						case "mp_coop_catapult_1":
+						case "mp_coop_multifling_1":
+						case "mp_coop_fling_crushers":
+						case "mp_coop_fan":
 						case "mp_coop_wall_intro": // course 3
-						case "mp_coop_wall_2": 
-						case "mp_coop_catapult_wall_intro": 
-						case "mp_coop_wall_block": 
-						case "mp_coop_catapult_2": 
-						case "mp_coop_turret_walls": 
-						case "mp_coop_turret_ball": 
-						case "mp_coop_wall_5": 
+						case "mp_coop_wall_2":
+						case "mp_coop_catapult_wall_intro":
+						case "mp_coop_wall_block":
+						case "mp_coop_catapult_2":
+						case "mp_coop_turret_walls":
+						case "mp_coop_turret_ball":
+						case "mp_coop_wall_5":
 						case "mp_coop_tbeam_redirect": // course 4
-						case "mp_coop_tbeam_drill": 
-						case "mp_coop_tbeam_catch_grind_1": 
-						case "mp_coop_tbeam_laser_1": 
-						case "mp_coop_tbeam_polarity": 
-						case "mp_coop_tbeam_polarity2": 
-						case "mp_coop_tbeam_polarity3": 
-						case "mp_coop_tbeam_maze": 
-						case "mp_coop_tbeam_end": 
+						case "mp_coop_tbeam_drill":
+						case "mp_coop_tbeam_catch_grind_1":
+						case "mp_coop_tbeam_laser_1":
+						case "mp_coop_tbeam_polarity":
+						case "mp_coop_tbeam_polarity2":
+						case "mp_coop_tbeam_polarity3":
+						case "mp_coop_tbeam_maze":
+						case "mp_coop_tbeam_end":
 						case "mp_coop_paint_come_along": // course 5
-						case "mp_coop_paint_redirect": 
-						case "mp_coop_paint_bridge": 
-						case "mp_coop_paint_walljumps": 
-						case "mp_coop_paint_speed_fling": 
-						case "mp_coop_paint_red_racer": 
+						case "mp_coop_paint_redirect":
+						case "mp_coop_paint_bridge":
+						case "mp_coop_paint_walljumps":
+						case "mp_coop_paint_speed_fling":
+						case "mp_coop_paint_red_racer":
 						case "mp_coop_paint_speed_catch":
-						case "mp_coop_separation_1": // course 6 
-						case "mp_coop_tripleaxis": 
-						case "mp_coop_catapult_catch": 
-						case "mp_coop_2paints_1bridge": 
-						case "mp_coop_paint_conversion": 
-						case "mp_coop_bridge_catch": 
-						case "mp_coop_laser_tbeam": 
-						case "mp_coop_paint_rat_maze": 
+						case "mp_coop_separation_1": // course 6
+						case "mp_coop_tripleaxis":
+						case "mp_coop_catapult_catch":
+						case "mp_coop_2paints_1bridge":
+						case "mp_coop_paint_conversion":
+						case "mp_coop_bridge_catch":
+						case "mp_coop_laser_tbeam":
+						case "mp_coop_paint_rat_maze":
 							return new[] {Portal2CoopMapStart, Portal2CoopMapEnd};
 					}
 					break;
 			}
 			return new AdjustmentType[] {};
 		}
-		
+
 
 		public static void AdjustFromConsoleCmd(ConsoleCmd consoleCmd) {
 			if (consoleCmd.Tick <= 0)
 				return;
-			
+
 			ref int? start = ref consoleCmd.DemoRef.StartAdjustmentTick;
 			ref int? end = ref consoleCmd.DemoRef.EndAdjustmentTick;
-			
+
 			// assume only one valid adjustment per cmd
 			foreach (AdjustmentType type in consoleCmd.DemoRef.DemoInfo.TimeAdjustmentTypes) {
 				switch (type) {
@@ -163,10 +163,10 @@ namespace DemoParser.Parser.HelperClasses {
 		public static void AdjustFromPacket(Packet packet) {
 			if (packet.Tick <= 0)
 				return;
-			
+
 			ref int? start = ref packet.DemoRef.StartAdjustmentTick;
 			ref int? end = ref packet.DemoRef.EndAdjustmentTick;
-			
+
 			// assume only one valid adjustment per packet
 			foreach (AdjustmentType type in packet.DemoRef.DemoInfo.TimeAdjustmentTypes) {
 				switch (type) {
@@ -218,7 +218,7 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 		private static bool Portal2CoopStartCheck(Packet packet) {
-			return packet.PacketInfo[0].ViewOrigin == new Vector3(-9896f, -4400f, 3048f) || 
+			return packet.PacketInfo[0].ViewOrigin == new Vector3(-9896f, -4400f, 3048f) ||
 				   packet.PacketInfo[0].ViewOrigin == new Vector3(-11168f, -4384f, 3040.03125f);
 		}
 
@@ -250,9 +250,9 @@ namespace DemoParser.Parser.HelperClasses {
 				.Select(tuple => tuple.prop)
 				.OfType<SingleEntProp<Vector3>>()
 				.ToList();
-			
+
 			bool originCheck = false, rotationCheck = false;
-			
+
 			foreach (SingleEntProp<Vector3> prop in portalVecDeltas) {
 				ref Vector3 val = ref prop.Value;
 				if (prop.Name == "m_angRotation")
@@ -282,7 +282,7 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 		private static bool Portal1WakeupCheck(Packet packet) {
-			return packet.FilterForMessage<SvcSetView>().Any(viewMsg => viewMsg.EntityIndex == 1) && 
+			return packet.FilterForMessage<SvcSetView>().Any(viewMsg => viewMsg.EntityIndex == 1) &&
 				   packet.FilterForMessage<SvcPacketEntities>()
 					   .Any(entityMessage => entityMessage.Updates!
 						   .OfType<Delta>()
@@ -295,7 +295,7 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 		private static bool PortalUnityEndCheck(Packet packet) {
-			return packet.FilterForUserMessage<Fade>().Any(fade => fade.Flags == (FadeFlags.FadeIn | FadeFlags.Purge)) && 
+			return packet.FilterForUserMessage<Fade>().Any(fade => fade.Flags == (FadeFlags.FadeIn | FadeFlags.Purge)) &&
 				   Portal1GunRemoved(packet) &&
 				   packet.FilterForMessage<SvcPacketEntities>()
 					   .Single().Updates!
@@ -328,16 +328,16 @@ namespace DemoParser.Parser.HelperClasses {
 		public enum AdjustmentType {
 			Portal1Begin,
 			Portal1End,
-			
+
 			Portal2Begin,
 			Portal2End,
-			
+
 			Portal2CoopMapStart,
 			Portal2CoopMapEnd,
 			Portal2CoopBegin,
 			Portal2CoopEnd,
 			Portal2CoopEndCourse6,
-			
+
 			TfvEnd,
 			RexauraEnd,
 			Portal1GenericWakeup,

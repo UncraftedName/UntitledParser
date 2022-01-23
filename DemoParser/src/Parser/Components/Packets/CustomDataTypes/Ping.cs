@@ -4,11 +4,11 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
-	
+
 	public class Ping : CustomDataMessage {
 
 		public uint X, Y;
-		
+
 		public Ping(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -16,7 +16,7 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 			X = bsr.ReadUInt();
 			Y = bsr.ReadUInt();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

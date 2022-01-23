@@ -4,14 +4,14 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class VoiceMask : UserMessage {
-		
+
 		public const int VoiceMaxPlayers = 2; // might be different for different games, should be 2 for p1 & p2
 		public PlayerMask[] PlayerMasks;
 		public bool PlayerModEnable;
-		
-		
+
+
 		public VoiceMask(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -21,13 +21,13 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				PlayerMasks[i] = new PlayerMask {GameRulesMask = bsr.ReadSInt(), BanMask = bsr.ReadSInt()};
 			PlayerModEnable = bsr.ReadByte() != 0;
 		}
-		
-		
+
+
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
 		}
-		
-		
+
+
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.Append("player masks:");
 			pw.FutureIndent++;
@@ -40,8 +40,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			pw.AppendLine();
 			pw.Append($"player mod enable: {PlayerModEnable}");
 		}
-		
-		
+
+
 		public struct PlayerMask {
 			public int GameRulesMask;
 			public int BanMask;

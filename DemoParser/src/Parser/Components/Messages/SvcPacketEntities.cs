@@ -7,7 +7,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcPacketEntities : DemoMessage {
 
 		public ushort MaxEntries;
@@ -21,13 +21,13 @@ namespace DemoParser.Parser.Components.Messages {
 		private BitStreamReader _entBsr;
 		public BitStreamReader EntStream => _entBsr.FromBeginning();
 		public List<EntityUpdate>? Updates;
-		
+
 
 		public SvcPacketEntities(SourceDemo? demoRef) : base(demoRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			
+
 			// first, we read the main message info here
 			MaxEntries = (ushort)bsr.ReadBitsAsUInt(11);
 			IsDelta = bsr.ReadBool();
@@ -45,7 +45,7 @@ namespace DemoParser.Parser.Components.Messages {
 			// now, we do some setup for ent parsing
 			ref CurEntitySnapshot? snapshot = ref DemoRef.CurEntitySnapshot;
 			snapshot ??= new CurEntitySnapshot(DemoRef);
-			
+
 			if (IsDelta && snapshot.EngineTick != DeltaFrom) {
 				// If the messages ever arrive in a different order I should queue them,
 				// but for now just exit if we're updating from a non-existent snapshot.
@@ -55,7 +55,7 @@ namespace DemoParser.Parser.Components.Messages {
 				DemoInfo.DemoParseResult &= ~DemoParseResult.EntParsingEnabled;
 				return;
 			}
-			
+
 			Updates = new List<EntityUpdate>(UpdatedEntries);
 			DataTableParser? tableParser = DemoRef.DataTableParser;
 			Entity?[] ents = snapshot.Entities; // current entity state
@@ -64,27 +64,27 @@ namespace DemoParser.Parser.Components.Messages {
 				DemoRef.LogError("ent parsing cannot continue because data tables are not set");
 				return;
 			}
-			
+
 			try { // the journey begins in src_main\engine\servermsghandler.cpp line 663, warning: it goes 8 layers deep
 				if (!IsDelta)
 					snapshot.ClearEntityState();
-				
+
 				// game uses different entity frames, so "oldI = old ent index = from" & "newI = new ent index = to"
 				int oldI = -1, newI = -1;
 				NextOldEntIndex(ref oldI, ents);
-				
+
 				for (int _ = 0; _ < UpdatedEntries; _++) {
-					
+
 					newI += 1 + (DemoInfo.NewDemoProtocol
 						? (int)_entBsr.ReadUBitInt()
 						: (int)_entBsr.ReadUBitVar());
-					
+
 					// get the old ent index up to at least the new one
 					if (newI > oldI) {
 						oldI = newI - 1;
 						NextOldEntIndex(ref oldI, ents);
 					}
-					
+
 					EntityUpdate update;
 					// vars used in enter pvs & delta
 					ServerClass entClass;
@@ -127,8 +127,8 @@ namespace DemoParser.Parser.Components.Messages {
 				DemoRef.LogError($"Exception while parsing entity info in {GetType().Name}: {e.Message}");
 			}
 		}
-		
-		
+
+
 		private static void NextOldEntIndex(ref int index, IReadOnlyList<Entity?> oldEnts) {
 			do {
 				index++;
@@ -138,7 +138,7 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 			} while (oldEnts[index] == null);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

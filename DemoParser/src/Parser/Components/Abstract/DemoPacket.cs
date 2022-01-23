@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using DemoParser.Parser.Components.Packets;
 
 namespace DemoParser.Parser.Components.Abstract {
-	
+
 	public abstract class DemoPacket : DemoComponent {
 
 		public readonly PacketFrame FrameRef;
 		public int Tick => FrameRef.Tick;
 
 		#region lookup tables
-		
+
 		public static readonly IReadOnlyList<PacketType> Portal3420Table = new[] {
 			PacketType.StringTables,
 			PacketType.SignOn,
@@ -21,7 +21,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			PacketType.DataTables,
 			PacketType.Stop
 		};
-		
+
 		public static readonly IReadOnlyList<PacketType> Portal15135Table = new[] {
 			PacketType.Invalid,
 			PacketType.SignOn,
@@ -33,7 +33,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			PacketType.Stop,
 			PacketType.StringTables
 		};
-		
+
 		public static readonly IReadOnlyList<PacketType> DemoProtocol4Table = new[] {
 			PacketType.Invalid,
 			PacketType.SignOn,
@@ -46,14 +46,14 @@ namespace DemoParser.Parser.Components.Abstract {
 			PacketType.CustomData,
 			PacketType.StringTables
 		};
-		
+
 		#endregion
-		
+
 		protected DemoPacket(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef) {
 			FrameRef = frameRef;
 		}
-		
-		
+
+
 		// gets the packet type associated with this byte value
 		public static PacketType ByteToPacketType(DemoInfo demoInfo, byte b) {
 			var tab = demoInfo.PacketTypes;
@@ -64,8 +64,8 @@ namespace DemoParser.Parser.Components.Abstract {
 			else
 				return tab[b];
 		}
-		
-		
+
+
 		// gets the byte value associated with this packet type
 		public static byte PacketTypeToByte(DemoInfo demoInfo, PacketType p) {
 			if (demoInfo.PacketTypesReverseLookup.TryGetValue(p, out int i))
@@ -73,10 +73,10 @@ namespace DemoParser.Parser.Components.Abstract {
 			throw new ArgumentException($"no packet id found for {p}");
 		}
 	}
-	
-	
+
+
 	public static class PacketFactory {
-		
+
 		public static DemoPacket CreatePacket(SourceDemo demoRef, PacketFrame frameRef, PacketType packetType) {
 			return packetType switch {
 				PacketType.SignOn       => new SignOn(demoRef, frameRef),
@@ -92,13 +92,13 @@ namespace DemoParser.Parser.Components.Abstract {
 			};
 		}
 	}
-	
-	
+
+
 	public enum PacketType {
 		// just used by me
 		Unknown,
 		Invalid,
-		
+
 		SignOn,
 		Packet,
 		SyncTick,

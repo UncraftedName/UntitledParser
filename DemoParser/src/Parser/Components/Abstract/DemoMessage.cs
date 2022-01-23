@@ -4,7 +4,7 @@ using System.Linq;
 using DemoParser.Parser.Components.Messages;
 
 namespace DemoParser.Parser.Components.Abstract {
-	
+
 	/// <summary>
 	/// A 'sub-packet' in the Packet or SignOn packets.
 	/// </summary>
@@ -48,7 +48,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			MessageType.SvcGameEventList,
 			MessageType.SvcGetCvarValue
 		};
-		
+
 		// same as oe but without terrain mod
 		public static readonly IReadOnlyList<MessageType> OldProtocolMessageList = new[] {
 			MessageType.NetNop,
@@ -194,12 +194,12 @@ namespace DemoParser.Parser.Components.Abstract {
 			};
 		}
 	}
-	
-	
+
+
 	public enum MessageType {
 		Unknown,
 		Invalid,
-		
+
 		NetNop,
 		NetDisconnect,
 		NetFile,
@@ -236,7 +236,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		SvcPaintmapData,
 		SvcTerrainMod
 	}
-	
+
 
 	public interface IContainsMessageStream {
 		MessageStream MessageStream {get;set;}

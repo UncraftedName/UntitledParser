@@ -11,9 +11,9 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
-	
+
 	public class OptChangeDemoDir : DemoOption<string> {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--change-demo-dir", "-C"}.ToImmutableArray();
 
 
@@ -22,8 +22,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				throw new ArgProcessUserException("string too long");
 			return s;
 		}
-		
-		
+
+
 		public OptChangeDemoDir() : base(
 			DefaultAliases,
 			Arity.One,
@@ -31,8 +31,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			"new_dir_name",
 			ParseString,
 			null!) {}
-		
-		
+
+
 		protected override void AfterParse(DemoParsingSetupInfo setupObj, string arg, bool isDefault) {
 			setupObj.ExecutableOptions++;
 			setupObj.EditsDemos = true;
@@ -51,9 +51,9 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		public static void ChangeDemoDir(SourceDemo demo, Stream s, string newDir) {
-			
+
 			void Write(byte[] buf) => s.Write(buf, 0, buf.Length);
-			
+
 			string old = demo.Header.GameDirectory;
 			if (old == newDir) {
 				// no difference

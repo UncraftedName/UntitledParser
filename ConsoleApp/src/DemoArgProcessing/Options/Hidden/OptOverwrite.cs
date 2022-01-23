@@ -2,9 +2,9 @@ using System.Collections.Immutable;
 using ConsoleApp.GenericArgProcessing;
 
 namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
-	
+
 	public class OptOverwrite : DemoOption<bool> {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--overwrite"}.ToImmutableArray();
 
 
@@ -15,8 +15,8 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 				return intRes == 1;
 			throw new ArgProcessUserException("could not convert to valid boolean");
 		}
-		
-		
+
+
 		public OptOverwrite() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,

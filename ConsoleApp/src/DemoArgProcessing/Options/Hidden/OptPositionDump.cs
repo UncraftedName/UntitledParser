@@ -6,11 +6,11 @@ using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
 
 namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
-	
+
 	public class OptPositionDump : DemoOption {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--position-dump"}.ToImmutableArray();
-		
+
 		public OptPositionDump() : base(
 			DefaultAliases,
 			"Dumps player's 1 position and angles on every tick in the following format:" +
@@ -18,8 +18,8 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		   $"\nNote that this option does not require '{OptOutputFolder.DefaultAliases[1]}', and is a great way to flood the console with garbage." +
 		   "\nIntended use is for the demo overlay render.",
 			true) {}
-		
-		
+
+
 		public override void AfterParse(DemoParsingSetupInfo setupObj) {
 			setupObj.ExecutableOptions++;
 		}

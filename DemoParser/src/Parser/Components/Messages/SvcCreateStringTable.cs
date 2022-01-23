@@ -4,7 +4,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcCreateStringTable : DemoMessage {
 
 		public string TableName;
@@ -15,7 +15,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public int UserDataSizeBits;
 		public StringTableFlags? Flags;
 		public StringTableUpdates? TableUpdates;
-		
+
 
 		public SvcCreateStringTable(SourceDemo? demoRef) : base(demoRef) {}
 
@@ -30,12 +30,12 @@ namespace DemoParser.Parser.Components.Messages {
 			UserDataSizeBits = (int)(UserDataFixedSize ? bsr.ReadBitsAsUInt(4) : 0);
 			if (DemoRef.Header.NetworkProtocol >= 15)
 				Flags = (StringTableFlags)bsr.ReadBitsAsUInt(DemoInfo.NewDemoProtocol ? 2 : 1);
-			
+
 			DemoRef.CurStringTablesManager.CreateStringTable(this);
 			TableUpdates = new StringTableUpdates(DemoRef, TableName, NumEntries);
 			TableUpdates.ParseStream(bsr.SplitAndSkip(dataLen));
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -61,14 +61,14 @@ namespace DemoParser.Parser.Components.Messages {
 			pw.FutureIndent--;
 		}
 	}
-	
-	
+
+
 	[Flags]
 	public enum StringTableFlags : uint { // hl2sdk-portal2  public/networkstringtabledefs.h   line 60
 		None              = 0,
 		DictionaryEnabled = 1,
 		Unknown           = 1 << 1,
-		
+
 		Fake              = 1 << 30 // I created this SvcCreateStringTable object myself and it's fake
-	} 
+	}
 }

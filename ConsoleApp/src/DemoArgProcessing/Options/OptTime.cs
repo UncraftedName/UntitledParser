@@ -11,21 +11,21 @@ using DemoParser.Utils;
 using static System.Text.RegularExpressions.RegexOptions;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
-	
+
 	public class OptTime : DemoOption<OptTime.TimeFlags> {
 
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--time", "-t"}.ToImmutableArray();
 
 		private const int FmtIdt = -25;
-		
-		
+
+
 		[Flags]
 		public enum TimeFlags {
 			NoHeader = 1,
 			TimeFirstTick = 2,
 			AlwaysShowTotalTime = 4,
 		}
-		
+
 
 		private SimpleDemoTimer _sdt;
 
@@ -132,7 +132,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				("Autosavedangerous",       new Regex(@"^\s*autosavedangerous\s*$",       IgnoreCase)),
 				("Autosavedangerousissafe", new Regex(@"^\s*autosavedangerousissafe\s*$", IgnoreCase))
 			};
-			
+
 			var customGroups = customRe.SelectMany(
 					t => demo.CmdRegexMatches(t.re),
 					(t, matchTup) => (t.str, matchTup.cmd.Tick))
@@ -186,7 +186,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				Utils.PopForegroundColor();
 				tw.WriteLine();
 			}
-			
+
 			Utils.PushForegroundColor(ConsoleColor.Cyan);
 			tw.WriteLine($"{"Measured time ",FmtIdt}: {Utils.FormatTime(demo.TickCount(tfs) * tickInterval)}");
 			tw.WriteLine($"{"Measured ticks ",FmtIdt}: {demo.TickCount(tfs)}");
@@ -236,7 +236,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				// consider this demo to be part of a different run if the hash doesn't match
 				if (_firstHash.Value != QuickHash(demo))
 					ValidFlags &= ~(Flags.TotalTimeValid | Flags.AdjustedTimeValid);
-				
+
 				int newTicks, newAdjustedTicks;
 				if (demo.TotalTimeValid()) {
 					newTicks = demo.TickCount(TimeFirstTick);
@@ -247,7 +247,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				}
 				TotalTicks += newTicks;
 				TotalTime += newTicks * demo.DemoInfo.TickInterval;
-				
+
 				if (demo.AdjustedTimeValid()) {
 					newAdjustedTicks = demo.AdjustedTickCount(TimeFirstTick);
 				} else {

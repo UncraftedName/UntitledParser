@@ -109,7 +109,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return iw.ToString();
 		}
 	}
-	
+
 
 	public static class SendPropEnums {
 
@@ -122,7 +122,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			Array,
 			DataTable
 		}
-		
+
 
 		#region send prop type enums for different versions
 
@@ -144,9 +144,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			SendPropType.Array,
 			SendPropType.DataTable
 		};
-		
+
 		#endregion
-		
+
 
 		// csgo: https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/SendTableProperty.cs
 		public enum PropFlag {
@@ -163,14 +163,14 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			IsVectorElem,
 			Collapsible,
 			CoordMp,
-			CoordMpLp, // low precision  
+			CoordMpLp, // low precision
 			CoordMpInt,
 			CellCoord,
 			CellCoordLp,
 			CellCoordInt,
 			ChangesOften
 		}
-		
+
 
 		#region prop flags for different versions
 

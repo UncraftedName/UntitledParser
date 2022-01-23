@@ -3,7 +3,7 @@ using System.Text;
 using System.Threading;
 
 namespace ConsoleApp {
-	
+
 	// https://gist.github.com/DanielSWolf/0ab6a96899cc5377bf54#file-progressbar-cs
 
 	/// <summary>
@@ -12,10 +12,10 @@ namespace ConsoleApp {
 	public interface IProgressBar : IDisposable, IProgress<double> {
 		public void StartShowing();
 	}
-	
-	
+
+
 	public class ProgressBar : IProgressBar {
-		
+
 		private const int BlockCount = 10;
 		private readonly TimeSpan _animationInterval = TimeSpan.FromSeconds(1.0 / 16);
 		private const string Animation = @"||//--\\";
@@ -48,14 +48,14 @@ namespace ConsoleApp {
 			_timer = new Timer(TimerHandler);
 			ResetTimer();
 		}
-		
+
 
 		public void Report(double value) {
 			// Make sure value is in [0..1] range
 			value = Math.Max(0, Math.Min(1, value));
 			Interlocked.Exchange(ref _currentProgress, value);
 		}
-		
+
 
 		private void TimerHandler(object state) {
 			lock (_timer!) {
@@ -73,7 +73,7 @@ namespace ConsoleApp {
 				ResetTimer();
 			}
 		}
-		
+
 
 		private void UpdateText(string text) {
 			// Get length of common portion
@@ -99,12 +99,12 @@ namespace ConsoleApp {
 			Console.Write(outputBuilder);
 			_currentText = text;
 		}
-		
+
 
 		private void ResetTimer() {
 			_timer!.Change(_animationInterval, TimeSpan.FromMilliseconds(-1));
 		}
-		
+
 
 		public void Dispose() {
 			if (!_displayProgress)

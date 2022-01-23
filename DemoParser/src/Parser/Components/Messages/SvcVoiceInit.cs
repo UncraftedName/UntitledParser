@@ -4,13 +4,13 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcVoiceInit : DemoMessage {
 
 		public string Codec;
 		public byte Quality;
 		public float? Unknown;
-		
+
 		public SvcVoiceInit(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages {
 			if (Quality == 255)
 				Unknown = bsr.ReadFloat();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

@@ -6,16 +6,16 @@ using DemoParser.Parser;
 using DemoParser.Parser.Components.Abstract;
 
 namespace DemoParser.Utils.BitStreams {
-    
+
     // This file will have all of the brute force searching utilities,
     // these should never be used when parsing the demo, only for finding new patters and offsets.
     // Be sure to create a substream if you don't want the offset of the reader to be affected.
     public partial struct BitStreamReader {
-        
-		
+
+
 		public int FindUInt(uint val) => FindUInt(val, BitUtils.HighestBitIndex(val) + 1);
-		
-		
+
+
 		public int FindUInt(uint val, int bitCount) {
 			var tmp = new BitStreamWriter(4, IsLittleEndian);
 			tmp.WriteUInt(val);

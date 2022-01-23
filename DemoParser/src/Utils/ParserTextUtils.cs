@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 namespace DemoParser.Utils {
-	
+
 	public static class ParserTextUtils {
 
 		public static string BytesToBinaryString(IEnumerable<byte> bytes) {
@@ -44,7 +44,7 @@ namespace DemoParser.Utils {
 			fixed (byte* bytePtr = bytes)
 				return new string((sbyte*)bytePtr);
 		}
-		
+
 
 		public static string SequenceToString(this IEnumerable enumerable, string separator = ", ", string start = "[", string end = "]") {
 			StringBuilder builder = new StringBuilder(start);
@@ -53,7 +53,7 @@ namespace DemoParser.Utils {
 				builder.Append($"{x}{separator}");
 				containsElements = true;
 			}
-			if (containsElements) 
+			if (containsElements)
 				builder.Remove(builder.Length - separator.Length, separator.Length);
 			builder.Append(end);
 			return builder.ToString();

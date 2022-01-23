@@ -5,13 +5,13 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcGameEvent : DemoMessage {
 
 		public uint EventId;
 		public GameEventDescription EventDescription;
 		public List<(string name, object descriptor)> EventDescriptors;
-		
+
 
 		public SvcGameEvent(SourceDemo? demoRef) : base(demoRef) {}
 
@@ -19,11 +19,11 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			uint dataBitLen = bsr.ReadBitsAsUInt(11);
 			int indexBeforeData = bsr.CurrentBitIndex;
-			
+
 			EventId = bsr.ReadBitsAsUInt(9);
 			EventDescription = DemoRef.GameEventManager.EventDescriptions[EventId];
 			EventDescriptors = new List<(string, object)>();
-			
+
 			foreach ((string Name, EventDescriptorType type) descriptor in EventDescription.Keys) {
 				object o = descriptor.type switch {
 					EventDescriptorType.String => bsr.ReadNullTerminatedString(),
@@ -39,7 +39,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 			bsr.CurrentBitIndex = (int)dataBitLen + indexBeforeData;
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

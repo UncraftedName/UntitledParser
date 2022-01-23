@@ -4,14 +4,14 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace DemoParser.Utils.BitStreams {
-	
+
 	public partial struct BitStreamReader {
-		
+
 		public readonly byte[] Data;
 		public int BitLength;
 		public readonly int AbsoluteStart; // index of first readable bit
 		internal bool IsLittleEndian; // this doesn't work w/ big endian atm, probably won't try to fix it since it's not necessary
-		
+
 		public int AbsoluteBitIndex {get;private set;}
 		public readonly int ByteLength => BitLength >> 3;
 		public readonly int AbsoluteByteIndex => AbsoluteBitIndex >> 3;
@@ -34,7 +34,7 @@ namespace DemoParser.Utils.BitStreams {
 			for (int count = 0; count < 8; count++)
 				BitMaskLookup[inByte, count] = (byte)((0xff << inByte) & ~(0xff << (count + inByte)));
 		}
-		
+
 
 		public BitStreamReader(byte[] data, bool isLittleEndian = true) : this(data, data.Length << 3, 0, isLittleEndian) {}
 
@@ -52,11 +52,11 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public readonly BitStreamReader Split(uint bitLength) => Split((int)bitLength);
-		
-		
+
+
 		public readonly BitStreamReader Split(int bitLength) => Split(CurrentBitIndex, bitLength);
-		
-		
+
+
 		public readonly BitStreamReader Split(int fromBitIndex, int bitCount) {
 			if (bitCount < 0)
 				throw new ArgumentOutOfRangeException(nameof(bitCount), $"{nameof(bitCount)} cannot be less than 0");
@@ -75,7 +75,7 @@ namespace DemoParser.Utils.BitStreams {
 			AbsoluteBitIndex += bits;
 			return ret;
 		}
-		
+
 
 		public readonly BitStreamReader FromBeginning() {
 			return new BitStreamReader(Data, BitLength, AbsoluteStart, IsLittleEndian);
@@ -137,7 +137,7 @@ namespace DemoParser.Utils.BitStreams {
 			AbsoluteBitIndex++;
 			return result;
 		}
-		
+
 
 		public byte ReadByte() {
 			EnsureCapacity(8);
@@ -159,7 +159,7 @@ namespace DemoParser.Utils.BitStreams {
 		public sbyte ReadSByte() {
 			return (sbyte)ReadByte();
 		}
-		
+
 
 		public byte[] ReadBytes(int byteCount) {
 			if (byteCount < 0)
@@ -168,8 +168,8 @@ namespace DemoParser.Utils.BitStreams {
 			ReadBytesToSpan(result.AsSpan());
 			return result;
 		}
-		
-		
+
+
 		public void ReadBytesToSpan(Span<byte> byteSpan) {
 			if (byteSpan.Length == 0)
 				return;
@@ -178,12 +178,12 @@ namespace DemoParser.Utils.BitStreams {
 				Data.AsSpan(AbsoluteByteIndex, byteSpan.Length).CopyTo(byteSpan);
 				AbsoluteBitIndex += byteSpan.Length << 3;
 			} else {
-				for (int i = 0; i < byteSpan.Length; i++) 
+				for (int i = 0; i < byteSpan.Length; i++)
 					byteSpan[i] = ReadByte();
 			}
 		}
-		
-		
+
+
 		public byte[] ReadBits(int bitCount) {
 			byte[] result = new byte[(bitCount >> 3) + ((bitCount & 0x07) > 0 ? 1 : 0)];
 			ReadBitsToSpan(result.AsSpan(), bitCount);
@@ -249,7 +249,7 @@ namespace DemoParser.Utils.BitStreams {
 			unsafe {
 				sbyte* strPtr = stackalloc sbyte[1024];
 				int i = 0;
-				do 
+				do
 					strPtr[i] = ReadSByte();
 				while (strPtr[i++] != 0);
 				return new string(strPtr);
@@ -261,11 +261,11 @@ namespace DemoParser.Utils.BitStreams {
 		public string ReadStringOfLength(int strLength) {
 			if (strLength < 0)
 				throw new ArgumentException("bro that's not supposed to be negative", nameof(strLength));
-			
-			Span<byte> bytes = strLength < 1000 
-				? stackalloc byte[strLength + 1] 
+
+			Span<byte> bytes = strLength < 1000
+				? stackalloc byte[strLength + 1]
 				: new byte[strLength + 1];
-			
+
 			ReadBytesToSpan(bytes.Slice(0, strLength));
 			bytes[strLength] = 0; // I would assume that in this case the string might not be null-terminated.
 			unsafe {
@@ -276,8 +276,8 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public string ReadStringOfLength(uint strLength) => ReadStringOfLength((int)strLength);
-		
-		// I need to write these manually because I can't do Func<Span<byte>, T> cuz Span is a ref struct. 
+
+		// I need to write these manually because I can't do Func<Span<byte>, T> cuz Span is a ref struct.
 
 
 		public ulong ReadULong() {
@@ -285,7 +285,7 @@ namespace DemoParser.Utils.BitStreams {
 			ReadBytesToSpan(span);
 			return BitUtils.ToUInt64(span, IsLittleEndian);
 		}
-		
+
 		public uint ReadUInt() {
 			Span<byte> span = stackalloc byte[sizeof(uint)];
 			ReadBytesToSpan(span);
@@ -308,7 +308,7 @@ namespace DemoParser.Utils.BitStreams {
 			ReadBytesToSpan(span);
 			return (short)BitUtils.ToUInt16(span, IsLittleEndian);
 		}
-		
+
 
 		public float ReadFloat() {
 			Span<byte> span = stackalloc byte[sizeof(float)];
@@ -320,8 +320,8 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public EHandle ReadEHandle() => (EHandle)ReadUInt();
-		
-		
+
+
 		public T ReadStruct<T>(int size) where T : struct {
 			Span<byte> span = stackalloc byte[size];
 			ReadBytesToSpan(span);
@@ -335,24 +335,24 @@ namespace DemoParser.Utils.BitStreams {
 			vec3.Z = ReadFloat();
 		}
 
-		
+
 		// for all 'IfExists' methods - read one bit, if it's set, read the desired field
 
 
 		public byte? ReadByteIfExists() {
 			return ReadBool() ? ReadByte() : (byte?) null;
 		}
-		
-		
+
+
 		public uint? ReadUIntIfExists() {
 			return ReadBool() ? ReadUInt() : (uint?)null;
 		}
-		
-		
+
+
 		public ushort? ReadUShortIfExists() {
 			return ReadBool() ? ReadUShort() : (ushort?)null;
 		}
-		
+
 
 		public float? ReadFloatIfExists() {
 			return ReadBool() ? ReadFloat() : (float?)null;

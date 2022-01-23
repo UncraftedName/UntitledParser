@@ -9,12 +9,12 @@ using DemoParser.Utils;
 using static DemoParser.Parser.SourceGame;
 
 namespace DemoParser.Parser {
-	
+
 	/// <summary>
 	/// A class containing many useful constants used while parsing the demo.
 	/// </summary>
 	public class DemoInfo {
-		
+
 		// these seem to be constant in all games
 		public const int MaxEdictBits = 11;
 		public const int MaxEdicts = 1 << MaxEdictBits;
@@ -28,7 +28,7 @@ namespace DemoParser.Parser {
 		public const int MaxPortal2CoopLevelsPerBranch = 16;
 		public const int MaxNetMessage = 6;
 		public const int AreaBitsNumBits = 8;
-		
+
 		public const int MaxSndIndexBits = 13;
 		public const int SndSeqNumberBits = 10;
 		public const int MaxSndLvlBits = 9;
@@ -38,7 +38,7 @@ namespace DemoParser.Parser {
 
 		public const int MaxPlayerNameLength = 32;
 		public const int SignedGuidLen = 32;
-		
+
 
 		// initialized from the header
 		public readonly SourceGame Game;
@@ -58,13 +58,13 @@ namespace DemoParser.Parser {
 
 		// a way to tell what info did/didn't get parsed
 		public DemoParseResult DemoParseResult;
-		
-		
+
+
 		// game specific enum lists
 		public readonly AbstractFlagChecker<SendPropEnums.PropFlag> PropFlagChecker;
 		public readonly AbstractFlagChecker<PropEnums.PlayerMfFlags_t> PlayerMfFlagChecker;
 		public readonly IReadOnlyList<PropEnums.Collision_Group_t> CollisionsGroupList;
-		
+
 		public readonly IReadOnlyList<SendPropEnums.SendPropType> SendPropTypes;
 		public readonly IReadOnlyDictionary<SendPropEnums.SendPropType, int> SendPropTypesReverseLookup;
 		public readonly IReadOnlyList<PacketType>? PacketTypes;
@@ -73,7 +73,7 @@ namespace DemoParser.Parser {
 		public readonly IReadOnlyDictionary<MessageType, int>? MessageTypesReverseLookup;
 		public readonly IReadOnlyList<UserMessageType>? UserMessageTypes;
 		public readonly IReadOnlyDictionary<UserMessageType, int>? UserMessageTypesReverseLookup;
-		
+
 
 		private static readonly IDictionary<(uint demoProtocol, uint networkProtocol), SourceGame> GameLookup
 			= new Dictionary<(uint, uint), SourceGame>
@@ -91,18 +91,18 @@ namespace DemoParser.Parser {
 				[(4, 2042)] = L4D2_2042,
 				[(4, 2100)] = L4D2_2220,
 			};
-		
-		
+
+
 		public DemoInfo(SourceDemo demo) {
 			DemoParseResult = default;
 			DemoHeader h = demo.Header;
-			
+
 			if (!GameLookup.TryGetValue((h.DemoProtocol, h.NetworkProtocol), out Game)) {
 				Game = UNKNOWN;
 				demo.LogError($"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n");
 				DemoParseResult |= DemoParseResult.UnknownGame;
 			}
-			
+
 			// provide default values in case of unknown game
 			if (IsPortal1() || IsHL2() || (Game == UNKNOWN && h.DemoProtocol == 3)) {
 				TickInterval = 0.015f;
@@ -134,7 +134,7 @@ namespace DemoParser.Parser {
 				UserMessageTypes = IsLeft4Dead1() ? UserMessage.L4D1OldTable : UserMessage.L4D2SteamTable;
 				PacketTypes = DemoPacket.DemoProtocol4Table;
 			}
-			
+
 			UserMessageTypesReverseLookup = UserMessageTypes?.CreateReverseLookupDict();
 			PacketTypesReverseLookup = PacketTypes?.CreateReverseLookupDict(PacketType.Invalid);
 
@@ -148,7 +148,7 @@ namespace DemoParser.Parser {
 				SendPropTypes = SendPropEnums.NewNetPropTypes;
 			}
 			SendPropTypesReverseLookup = SendPropTypes.CreateReverseLookupDict();
-			
+
 			switch (h.DemoProtocol) {
 				case 2:
 					NewDemoProtocol = false;
@@ -195,35 +195,35 @@ namespace DemoParser.Parser {
 					throw new ArgumentException($"What the heck is demo protocol version {h.DemoProtocol}?");
 			}
 			MessageTypesReverseLookup = MessageTypes.CreateReverseLookupDict(MessageType.Invalid);
-			
+
 			TimeAdjustmentTypes = TimingAdjustment.AdjustmentTypeFromMap(h.MapName, Game);
 		}
-	
-	
+
+
 		public bool IsLeft4Dead() => Game >= L4D1_1005 && Game <= L4D2_2220;
-		
+
 		public bool IsLeft4Dead1() => Game >= L4D1_1005 && Game <= L4D1_1040;
 
 		public bool IsPortal1() => Game >= PORTAL_1_3420 && Game <= PORTAL_1_1910503;
 
 		public bool IsHL2() => Game == HL2_OE;
 	}
-	
-	
+
+
 	// keep individual games grouped together and order them by release date
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	public enum SourceGame {
 		HL2_OE, // todo add regular hl2
-		
+
 		PORTAL_1_3420,
 		PORTAL_1_5135,
 		PORTAL_1_1910503, // latest steam version
-		
+
 		PORTAL_2,
-		
+
 		L4D1_1005,
 		L4D1_1040, // latest steam version
-		
+
 		L4D2_2000,
 		L4D2_2012,
 		L4D2_2027,
@@ -231,8 +231,8 @@ namespace DemoParser.Parser {
 		L4D2_2220, // latest steam version
 		UNKNOWN
 	}
-	
-	
+
+
 	// flags that get set during parsing, very WIP
 	[Flags]
 	public enum DemoParseResult {

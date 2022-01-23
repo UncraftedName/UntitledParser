@@ -4,17 +4,17 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class PaintEntity : UserMessage {
 
 		public EHandle Ent;
 		public PaintType PaintType;
 		public Vector3 Pos;
-		
-		
+
+
 		public PaintEntity(SourceDemo? demoRef) : base(demoRef) {}
-		
-		
+
+
 		protected override void Parse(ref BitStreamReader bsr) {
 			Ent = bsr.ReadEHandle();
 			PaintType = (PaintType)bsr.ReadByte();

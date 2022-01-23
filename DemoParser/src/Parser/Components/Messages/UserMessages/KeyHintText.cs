@@ -4,13 +4,13 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class KeyHintText : UserMessage {
 
 		public int Count; // should always be 1 lmao
 		public string KeyString;
-		
-		
+
+
 		public KeyHintText(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				DemoRef.LogError($"{GetType()} is borking, there should only be one string but count is {Count}");
 			KeyString = bsr.ReadNullTerminatedString();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

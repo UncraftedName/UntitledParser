@@ -49,7 +49,7 @@ namespace ConsoleApp {
 	public class AlphanumComparatorFileInfo : AlphanumComparator, IComparer<FileInfo> {
 		public int Compare(FileInfo x, FileInfo y) => base.Compare(x.FullName, y.FullName);
 	}
-	
+
 	public class AlphanumComparator : IComparer<string> {
 
 		private enum ChunkType {
@@ -84,7 +84,7 @@ namespace ConsoleApp {
 
 				char thisCh = s1[thisMarker];
 				char thatCh = s2[thatMarker];
-				
+
 				StringBuilder thisChunk = new StringBuilder();
 				StringBuilder thatChunk = new StringBuilder();
 

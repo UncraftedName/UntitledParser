@@ -19,7 +19,7 @@ namespace DemoParser.Parser.Components.Packets {
 	 * property of the 'CProp_Portal' class, which has a corresponding data table called 'DT_Prop_Portal'.
 	 * That property is also a vector 3, and must be read accordingly. Needless to say, it gets a little wack.
 	 */
-	
+
 	/// <summary>
 	/// Contains all the information needed to decode entity properties.
 	/// </summary>
@@ -27,8 +27,8 @@ namespace DemoParser.Parser.Components.Packets {
 
 		public List<SendTable> Tables;
 		public List<ServerClass>? ServerClasses;
-		
-		
+
+
 		public DataTables(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
@@ -52,14 +52,14 @@ namespace DemoParser.Parser.Components.Packets {
 					if (i != ServerClasses[i].DataTableId)
 						throw new ConstraintException("server class ID does not match its index in the list");
 				}
-				
+
 				// in case SvcServerInfo parsing fails
 				DemoRef.CBaseLines ??= new CurBaseLines(DemoRef, ServerClasses.Count);
-				
+
 				// re-init the baselines if the count doesn't match (maybe I should just init them from here?)
 				if (DemoRef.CBaseLines!.ClassBaselines.Length != classCount)
 					DemoRef.CBaseLines.ClearBaseLineState(classCount);
-				
+
 				// create the prop list for each class
 				DemoRef.DataTableParser = new DataTableParser(DemoRef, this);
 				DemoRef.DataTableParser.FlattenClasses(true);
@@ -70,7 +70,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 			bsr.CurrentBitIndex = indexBeforeData + (byteSize << 3);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -100,15 +100,15 @@ namespace DemoParser.Parser.Components.Packets {
 			}
 		}
 	}
-	
-	
+
+
 	public class SendTable : DemoComponent {
 
 		public bool NeedsDecoder;
 		public string Name;
 		public List<SendTableProp> SendProps;
-		
-		
+
+
 		public SendTable(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -122,7 +122,7 @@ namespace DemoParser.Parser.Components.Packets {
 				SendProps[^1].ParseStream(ref bsr);
 			}
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

@@ -11,16 +11,16 @@ using DemoParser.Utils;
 using NUnit.Framework;
 
 namespace Tests {
-	
+
 	public class ConsoleOptionTests {
-		
+
 		private enum BasicEnum {
 			Val0,
 			Val1,
 			Val2,
 		}
 
-		
+
 		[Flags]
 		private enum BasicFlagsEnum {
 			Val1 = 1,

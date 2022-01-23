@@ -13,7 +13,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser {
-	
+
 	/// <summary>
 	/// Once parsed, contains an in-memory representation of a demo file.
 	/// </summary>
@@ -21,7 +21,7 @@ namespace DemoParser.Parser {
 
 		private BitStreamReader _privateReader;
 		public override BitStreamReader Reader => _privateReader.FromBeginning();
-		
+
 		public readonly string? FileName;
 		public new DemoInfo DemoInfo;
 		public DemoHeader Header;
@@ -30,7 +30,7 @@ namespace DemoParser.Parser {
 		// initialized to null, these are set in the packet packet and from console commands
 		public int? StartTick, EndTick, StartAdjustmentTick, EndAdjustmentTick;
 		internal uint ClientSoundSequence; // increases with each reliable sound
-		
+
 		// Helper classes, these are used by the demo components, are temporary and might be created/destroyed whenever.
 		// Any classes that require the use of any lookup tables e.g. string tables, game event list, etc. should store
 		// a local copy of any objects from those tables.
@@ -42,16 +42,16 @@ namespace DemoParser.Parser {
 		internal CurBaseLines? CBaseLines;
 		private readonly IProgress<double>? _parseProgress;
 
-		
-		public SourceDemo(FileInfo info, IProgress<double>? parseProgress = null) 
+
+		public SourceDemo(FileInfo info, IProgress<double>? parseProgress = null)
 			: this(info.FullName, parseProgress) {}
-		
-		
-		public SourceDemo(string fileDir, IProgress<double>? parseProgress = null) 
+
+
+		public SourceDemo(string fileDir, IProgress<double>? parseProgress = null)
 			: this(File.ReadAllBytes(fileDir), parseProgress, Path.GetFileName(fileDir)) {}
 
 
-		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null, string demoName = "") 
+		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null, string demoName = "")
 			: base(null)
 		{
 			_parseProgress = parseProgress;
@@ -66,7 +66,7 @@ namespace DemoParser.Parser {
 			Header.ParseStream(ref bsr);
 			DemoInfo = new DemoInfo(this);
 			// it might be worth it to implement updating helper classes with listeners, but it's not a huge deal atm
-			CurStringTablesManager = new CurStringTablesManager(this); 
+			CurStringTablesManager = new CurStringTablesManager(this);
 			ErrorList = new List<string>();
 			Frames = new List<PacketFrame>();
 			StartTick = 0;
@@ -88,7 +88,7 @@ namespace DemoParser.Parser {
 			EndAdjustmentTick ??= EndTick;
 			DemoInfo.DemoParseResult |= DemoParseResult.Success;
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -113,7 +113,7 @@ namespace DemoParser.Parser {
 			if (FileName != null)
 				pw.AppendLine($"file name: {FileName}");
 			pw.Append($"predicted game: {DemoInfo.Game}\n\n");
-			
+
 			Header.PrettyWrite(pw);
 			foreach (PacketFrame frame in Frames) {
 				pw.Append("\n\n");
@@ -134,12 +134,12 @@ namespace DemoParser.Parser {
 		public override string ToString() {
 			return $"{FileName}, {Reader.BitLength / 8} bytes long";
 		}
-		
-		
+
+
 		internal BitStreamReader ReaderFromOffset(int offset, int bitLength) {
 			return new BitStreamReader(_privateReader.Data, bitLength, offset);
 		}
-		
+
 
 		// todo iterate over ent snapshots
 	}

@@ -9,22 +9,22 @@ using static DemoParser.Parser.HelperClasses.EntityStuff.EntPropToStringHelper;
 using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
-	
+
 	public abstract class EntityProperty : PrettyClass {
-		
+
 		public readonly FlattenedProp FProp;
 		public string Name => FProp.Name;
 		public int Offset;
 		public int BitLength;
-		
-		
+
+
 		protected EntityProperty(FlattenedProp fProp, int offset, int bitLength) {
 			FProp = fProp;
 			Offset = offset;
 			BitLength = bitLength;
 		}
-		
-		
+
+
 		public override void PrettyWrite(IPrettyWriter pw) {
 			int tmp = pw.LastLineLength;
 			pw.Append(FProp.TypeString());
@@ -32,44 +32,44 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			pw.Append($"{FProp.Name}: ");
 			pw.Append(PropToString());
 		}
-		
-		
+
+
 		public abstract EntityProperty CopyProperty();
-		
+
 		public abstract void CopyPropertyTo(EntityProperty other);
-		
+
 		protected abstract string PropToString();
 	}
-	
+
 
 
 	public class SingleEntProp<T> : EntityProperty {
-		
+
 		public T Value;
 
 		public static implicit operator T(SingleEntProp<T> prop) => prop.Value;
-		
-		
+
+
 		public SingleEntProp(FlattenedProp fProp, in T value, int offset, int bitLength)
 			: base(fProp, offset, bitLength)
 		{
 			Value = value;
 		}
-		
-		
+
+
 		public override EntityProperty CopyProperty() {
 			return new SingleEntProp<T>(FProp, Value, Offset, BitLength);
 		}
-		
-		
+
+
 		public override void CopyPropertyTo(EntityProperty other) {
 			var casted = (SingleEntProp<T>)other;
 			casted.Value = Value;
 			casted.Offset = Offset;
 			casted.BitLength = BitLength;
 		}
-		
-		
+
+
 		protected override string PropToString() {
 			return this switch {
 				SingleEntProp<int>     ip  => CreateIntPropStr(ip.Value, FProp.DisplayType, FProp.DemoInfo),
@@ -81,24 +81,24 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			};
 		}
 	}
-	
+
 
 
 	public class ArrEntProp<T> : EntityProperty, IReadOnlyList<T> {
-		
+
 		public List<T> Values;
-		
-		
+
+
 		public ArrEntProp(FlattenedProp fProp, List<T> values, int offset, int bitLength) : base(fProp, offset, bitLength) {
 			Values = values;
 		}
-		
-		
+
+
 		public override EntityProperty CopyProperty() {
 			return new ArrEntProp<T>(FProp, Values, Offset, BitLength);
 		}
-		
-		
+
+
 		public override void CopyPropertyTo(EntityProperty other) {
 			ArrEntProp<T> casted = (ArrEntProp<T>)other;
 			casted.Offset = Offset;
@@ -110,8 +110,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					casted.Values[i] = Values[i];
 			}
 		}
-		
-		
+
+
 		protected override string PropToString() {
 			return this switch {
 				ArrEntProp<int> aip => aip.Values.Select(i => CreateIntPropStr(i, FProp.DisplayType, FProp.DemoInfo)).SequenceToString(),
@@ -122,36 +122,36 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				_ => throw new Exception($"bad property type: {GetType()}")
 			};
 		}
-		
-		
+
+
 		public IEnumerator<T> GetEnumerator() {
 			return Values.GetEnumerator();
 		}
-		
-		
+
+
 		IEnumerator IEnumerable.GetEnumerator() {
 			return GetEnumerator();
 		}
-		
-		
+
+
 		public int Count => Values.Count;
-		
-		
+
+
 		public T this[int index] => Values[index];
 	}
-	
-	
+
+
 
 	// a 'failed to parse' type of thing that doesn't have a value
 	// used to suppress some exceptions that might happen during prop parsing
-	public class UnparsedProperty : EntityProperty { 
-		
+	public class UnparsedProperty : EntityProperty {
+
 		internal UnparsedProperty(FlattenedProp fProp) : base(fProp, -1, -1) {}
-		
+
 		public override EntityProperty CopyProperty() {
 			return new UnparsedProperty(FProp);
 		}
-		
+
 		public override void CopyPropertyTo(EntityProperty other) {
 			throw new InvalidOperationException("unparsed property attempted to be copied to another property");
 		}
@@ -161,11 +161,11 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			return "UNPARSED_DATA";
 		}
 	}
-	
-	
+
+
 
 	public static class EntPropFactory {
-		
+
 		// this right here is the real juice, it's how prop info is decoded
 		public static List<(int propIndex, EntityProperty prop)> ReadEntProps(
 			this ref BitStreamReader bsr,
@@ -173,7 +173,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			SourceDemo? demoRef)
 		{
 			var props = new List<(int propIndex, EntityProperty prop)>();
-			
+
 			int i = -1;
 			if (demoRef.DemoInfo.NewDemoProtocol) {
 				bool newWay = bsr.ReadBool();
@@ -187,8 +187,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			}
 			return props;
 		}
-		
-		
+
+
 		// all of this fun jazz can be found in src_main/engine/dt_encode.cpp, a summary with comments is at the very end
 		private static EntityProperty CreateAndReadProp(this ref BitStreamReader bsr, FlattenedProp fProp) {
 			const string exceptionMsg = "an impossible entity type has appeared while creating/reading props ";

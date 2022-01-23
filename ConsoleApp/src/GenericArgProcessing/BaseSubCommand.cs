@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ConsoleApp.GenericArgProcessing {
-	
+
 	/// <summary>
 	/// A subcommand that can have some number of options and default arguments.
 	/// </summary>
 	/// <typeparam name="TSetup">The type of setup object that will be passed to the options when parsing arguments.</typeparam>
 	/// <typeparam name="TInfo">The type of object that will be passed to the options when executing options.</typeparam>
 	public abstract class BaseSubCommand<TSetup, TInfo> where TInfo : IProcessObject {
-		
+
 		private readonly IImmutableList<BaseOption<TSetup, TInfo>> _options;
 		private readonly IImmutableDictionary<string, BaseOption<TSetup, TInfo>> _optionLookup;
 		private readonly OptHelp _optHelp = new OptHelp();
@@ -50,7 +50,7 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// Process an argument that was determined to not be passed to an option. Return true on success and false on failure.
 		/// </summary>
 		protected abstract bool ParseDefaultArgument(string arg, out string? failReason);
-		
+
 
 		/// <summary>
 		/// Parses the arguments, passing in the setup object to each option that is enabled.
@@ -229,7 +229,7 @@ namespace ConsoleApp.GenericArgProcessing {
 				option.Reset();
 		}
 
-		
+
 		#region built-in options
 
 		// this is just a lazy way of storing the description of these options
@@ -242,14 +242,14 @@ namespace ConsoleApp.GenericArgProcessing {
 			public sealed override void Process(TInfo infoObj) {}
 			public sealed override void PostProcess(TInfo infoObj) {}
 		}
-		
-		
+
+
 		private class OptHelp : OptBuiltIn {
 			public OptHelp() : base(new[] {"--help"}.ToImmutableArray(),
 				$"Print help text and exit, to see all options use '{OptHelpAll.DefaultAlias}'") {}
 		}
-		
-		
+
+
 		private class OptHelpAll : OptBuiltIn {
 			public const string DefaultAlias = "--help-all";
 			public OptHelpAll() : base(new[] {DefaultAlias}.ToImmutableArray(),

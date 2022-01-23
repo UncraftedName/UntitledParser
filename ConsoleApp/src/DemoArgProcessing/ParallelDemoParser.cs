@@ -11,7 +11,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		public string DisplayPath {get;}
 		public IProgressBar ProgressBar {get;}
 	}
-	
+
 
 	public interface IParallelDemoParser : IDisposable {
 		public ICurrentParseInfo GetCurrentParseInfo();
@@ -19,20 +19,20 @@ namespace ConsoleApp.DemoArgProcessing {
 		public bool NextReady();
 		public bool HasNext();
 	}
-	
-	
+
+
 	// queues jobs in the thread pool, this seems to be faster than manually using locks and having a specific number of threads
 	public class ThreadPoolDemoParser : IParallelDemoParser {
 
 		private class ParseInfo : ICurrentParseInfo {
-			
+
 			public readonly ManualResetEventSlim ResetEvent;
 			public IProgressBar ProgressBar {get;}
 			public readonly FileInfo FileInfo;
 			public string DisplayPath {get;}
 			public SourceDemo Demo;
 			public Exception? Exception;
-			
+
 
 			public ParseInfo(ManualResetEventSlim resetEvent, IProgressBar progressBar, FileInfo fileInfo, string displayPath) {
 				ResetEvent = resetEvent;
@@ -43,13 +43,13 @@ namespace ConsoleApp.DemoArgProcessing {
 				Exception = null;
 			}
 		}
-		
+
 
 		private readonly ParseInfo[] _parseInfos;
 		private int _parseIdx;
 		private volatile bool _disposed;
-		
-		
+
+
 		public ThreadPoolDemoParser(IImmutableList<(FileInfo demoPath, string displayPath)> paths) {
 			_parseInfos = new ParseInfo[paths.Count];
 			for (int i = 0; i < paths.Count; i++) {

@@ -4,17 +4,17 @@ using System.IO;
 using DemoParser.Utils;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
-	
+
 	public class OptDemoDump : DemoOption {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--demo-dump", "-D"}.ToImmutableArray();
-		
-		
+
+
 		public OptDemoDump() : base(
 			DefaultAliases,
 			$"Create a text representation of all parsable data in demos {OptOutputFolder.RequiresString}") {}
-		
-		
+
+
 		public override void AfterParse(DemoParsingSetupInfo setupObj) {
 			setupObj.ExecutableOptions++;
 			setupObj.FolderOutputRequired = true;

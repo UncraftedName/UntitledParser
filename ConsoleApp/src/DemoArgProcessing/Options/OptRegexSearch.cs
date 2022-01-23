@@ -7,10 +7,10 @@ using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
-	
+
 	// I can use Regex as the template since it has a simple ToString() implementation
 	public class OptRegexSearch : DemoOption<Regex> {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--regex", "-R"}.ToImmutableArray();
 
 

@@ -4,9 +4,9 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
-	
+
 	public class LightStyle : StringTableEntryData {
-		
+
 		internal override bool InlineToString => true;
 		public byte[]? Values;
 

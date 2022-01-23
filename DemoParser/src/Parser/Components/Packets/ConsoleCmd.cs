@@ -5,12 +5,12 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
-	
+
 	/// <summary>
 	/// Contains a command entered in the console or in-game.
 	/// </summary>
 	public class ConsoleCmd : DemoPacket {
-		
+
 		public string Command;
 
 		public static implicit operator string(ConsoleCmd cmd) => cmd.Command;
@@ -26,7 +26,7 @@ namespace DemoParser.Parser.Components.Packets {
 			bsr.CurrentBitIndex = (int)(indexBefore + len * 8); // to prevent null bytes from hecking this up
 			TimingAdjustment.AdjustFromConsoleCmd(this);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

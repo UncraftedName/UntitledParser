@@ -6,7 +6,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
-	
+
 	/// <summary>
 	/// Contains a single custom game message.
 	/// </summary>
@@ -30,7 +30,7 @@ namespace DemoParser.Parser.Components.Packets {
 				DataMessage = new UnknownCustomDataMessage(DemoRef);
 			}
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

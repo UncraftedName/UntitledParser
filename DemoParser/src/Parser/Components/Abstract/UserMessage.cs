@@ -7,7 +7,7 @@ using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Parser.Components.Messages.UserMessages.Haptic;
 
 namespace DemoParser.Parser.Components.Abstract {
-	
+
 	/* The idea here is that the enum corresponding to user messages is shuffled/shifted in different games,
 	 * and the user messages seem to be a byte number of bits long, with every byte of the data being used.
 	 * Therefore, if each byte isn't read, then I know that the message is either being read wrong, or I'm reading
@@ -15,14 +15,14 @@ namespace DemoParser.Parser.Components.Abstract {
 	 * log an error, and the unknown message type will simply print the contents of the message in hex (when converting
 	 * this to string). The lookup tables can be obtained from the RegisterUserMessages() function in server.dll.
 	 */
-	
+
 	/// <summary>
 	/// The payload in SvcUserMessage.
 	/// </summary>
 	public abstract class UserMessage : DemoComponent {
-		
+
 		#region user message lookup tables for different versions
-		
+
 		public static readonly IReadOnlyList<UserMessageType> Hl2OeTable = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -47,7 +47,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.AmmoDenied,
 			UserMessageType.CreditsMsg
 		};
-		
+
 		public static readonly IReadOnlyList<UserMessageType> Hl2UnpackTable = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -84,7 +84,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapSetConst,
 			UserMessageType.HapMeleeContact
 		};
-		
+
 		public static readonly IReadOnlyList<UserMessageType> Portal2Table = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -150,7 +150,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.ChallengeModCheatSession,
 			UserMessageType.ChallengeModCloseAllUI
 		};
-		
+
 		public static readonly IReadOnlyList<UserMessageType> Portal3420Table = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -183,7 +183,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.EntityPortalled,
 			UserMessageType.KillCam
 		};
-		
+
 		public static readonly IReadOnlyList<UserMessageType> Portal5135Table = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -222,7 +222,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapSetConst,
 			UserMessageType.HapMeleeContact
 		};
-		
+
 		public static readonly IReadOnlyList<UserMessageType> Portal1SteamTable = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -266,7 +266,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapSetConst,
 			UserMessageType.HapMeleeContact
 		};
-		
+
 		public static readonly IReadOnlyList<UserMessageType> L4D2SteamTable = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
@@ -389,12 +389,12 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.DisconnectToLobby,
 			UserMessageType.CallVoteFailed
 		};
-		
+
 		#endregion
 
 		protected UserMessage(SourceDemo? demoRef) : base(demoRef) {}
-		
-		
+
+
 		public static UserMessageType ByteToUserMessageType(DemoInfo demoInfo, byte b) {
 			var tab = demoInfo.UserMessageTypes;
 			if (tab == null)
@@ -404,18 +404,18 @@ namespace DemoParser.Parser.Components.Abstract {
 			else
 				return tab[b];
 		}
-		
-		
+
+
 		public static byte UserMessageTypeToByte(DemoInfo demoInfo, UserMessageType m) {
 			if (demoInfo.UserMessageTypesReverseLookup.TryGetValue(m, out int i))
 				return (byte)i;
 			throw new ArgumentException($"no user message found for {m}");
 		}
 	}
-	
-	
+
+
 	public static class SvcUserMessageFactory {
-		
+
 		private static readonly ImmutableHashSet<UserMessageType> EmptyMessages = new[] {
 			UserMessageType.GameTitle,
 			UserMessageType.RequestState,
@@ -432,8 +432,8 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapMeleeContact,
 			UserMessageType.HideLoadingPlaque
 		}.ToImmutableHashSet();
-		
-		
+
+
 		public static UserMessage? CreateUserMessage(
 			SourceDemo? demoRef,
 			UserMessageType messageType)
@@ -441,7 +441,7 @@ namespace DemoParser.Parser.Components.Abstract {
 
 			if (EmptyMessages.Contains(messageType))
 				return new EmptyUserMessage(demoRef);
-			
+
 			return messageType switch {
 				UserMessageType.CloseCaption       => new CloseCaption(demoRef),
 				UserMessageType.AchievementEvent   => new AchievementEvent(demoRef),
@@ -480,8 +480,8 @@ namespace DemoParser.Parser.Components.Abstract {
 			};
 		}
 	}
-	
-	
+
+
 	// These types may be different and shuffled depending on the game.
 	// For portal it's in src_main/game/shared/portal/portal_usermessages.cpp.
 	// For other sdk's it's in similar locations, the csgo values can be found at
@@ -513,7 +513,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		VoiceMask,
 		RequestState,
 		CloseCaption,
-		HintText,  
+		HintText,
 		KeyHintText,
 		SquadMemberDied,
 		AmmoDenied,
@@ -607,5 +607,5 @@ namespace DemoParser.Parser.Components.Abstract {
 		PZEndGameVoteStatsMsg,
 		// additional types from l4d1
 		HideLoadingPlaque,
-	} 
+	}
 }

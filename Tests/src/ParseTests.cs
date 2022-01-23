@@ -5,9 +5,9 @@ using DemoParser.Utils;
 using NUnit.Framework;
 
 namespace Tests {
-	
+
 	public class ParseTests {
-		
+
 		public static readonly string ProjectDir =
 			// bin/Debug/net461 -> ../../..
 			Directory.GetParent(
@@ -15,7 +15,7 @@ namespace Tests {
 				.Parent!.Parent!.FullName;
 
 		private static readonly string DumpFolder = $"{ProjectDir}/sample demos/demo dump";
-		
+
 
 		[OneTimeSetUp]
 		public void Init() {
@@ -25,7 +25,7 @@ namespace Tests {
 
 		private static object[] _demoList = {
 			new TestCaseData("hl2 oe.dem").SetName("Half life 2 Old Engine"),
-			
+
 			new TestCaseData("portal 1 leak.dem").SetName("Portal 1 (Leak)"),
 			new TestCaseData("portal 1 3420.dem").SetName("Portal 1 (3420)"),
 			new TestCaseData("portal 1 5135.dem").SetName("Portal 1 (5135)"),
@@ -33,10 +33,10 @@ namespace Tests {
 			new TestCaseData("portal 1 5135 hltv server.dem").SetName("Portal 1 (5135 HLTV Server)"),
 			new TestCaseData("portal 1 5135 spliced.dem").SetName("Portal 1 (5135 Spliced)"),
 			new TestCaseData("portal 1 steampipe.dem").SetName("Portal 1 (SteamPipe)"),
-			
+
 			new TestCaseData("portal 2 sp.dem").SetName("Portal 2 single player"),
 			new TestCaseData("portal 2 coop.dem").SetName("Portal 2 co-op"),
-			
+
 			new TestCaseData("l4d1 37 v1005.dem").SetName("Left 4 Dead 1 (version 1.0.0.5)"),
 			new TestCaseData("l4d1 1040.dem").SetName("Left 4 Dead 1 (version 1.0.4.0)"),
 			new TestCaseData("l4d2 2000.dem").SetName("Left 4 Dead 2 (version 2.0.0.0)"),
@@ -47,8 +47,8 @@ namespace Tests {
 			new TestCaseData("l4d2 2042 v2091.dem").SetName("Left 4 Dead 2 (version 2.0.9.1)"),
 			new TestCaseData("l4d2 2100 v2220.dem").SetName("Left 4 Dead 2 (version 2.2.2.0)"),
 		};
-		
-		
+
+
 		[TestCaseSource(nameof(_demoList)), Parallelizable(ParallelScope.All)]
 		public void ParseAndDumpDemo(string fileName) {
 			SourceDemo demo = new SourceDemo($"{ProjectDir}/sample demos/{fileName}");

@@ -4,13 +4,13 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
-	
+
 	public class MenuCallBack : CustomDataMessage {
 
 		public int Unknown;
 		public string CallbackStr;
-		
-		
+
+
 		public MenuCallBack(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -18,7 +18,7 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 			Unknown = bsr.ReadSInt();
 			CallbackStr = bsr.ReadNullTerminatedString();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

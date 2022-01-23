@@ -3,15 +3,15 @@ using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 
 namespace DemoParser.Parser.Components.Abstract {
-	
+
 	/// <summary>
 	/// Optional data for a string table entry.
 	/// </summary>
 	public abstract class StringTableEntryData : DemoComponent {
-		
+
 		internal virtual bool ContentsKnown => true; // for pretty printing
 		internal virtual bool InlineToString => false;
-		
+
 		protected StringTableEntryData(SourceDemo? demoRef) : base(demoRef) {}
 
 		internal abstract StringTableEntryData CreateCopy();
@@ -19,7 +19,7 @@ namespace DemoParser.Parser.Components.Abstract {
 
 
 	public static class StringTableEntryDataFactory {
-		
+
 		// Pass in substream. If prop lookup is populated the baseline will get parsed right away.
 		public static StringTableEntryData CreateData(
 			SourceDemo? demoRef, string tableName, string entryName,

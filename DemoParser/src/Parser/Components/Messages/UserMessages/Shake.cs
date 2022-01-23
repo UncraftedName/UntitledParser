@@ -4,15 +4,15 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class Shake : UserMessage {
 
 		public ShakeCommand Command;
 		public float Amplitude;
 		public float Frequency;
 		public float Duration;
-		
-		
+
+
 		public Shake(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -22,7 +22,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			Frequency = bsr.ReadFloat();
 			Duration = bsr.ReadFloat();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

@@ -8,7 +8,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcUpdateStringTable : DemoMessage {
 
 		public byte TableId;
@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Messages {
 			TableUpdates = new StringTableUpdates(DemoRef, TableName, ChangedEntriesCount);
 			TableUpdates.ParseStream(bsr.SplitAndSkip(dataLen));
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -47,20 +47,20 @@ namespace DemoParser.Parser.Components.Messages {
 			pw.FutureIndent--;
 		}
 	}
-	
+
 
 
 	public class StringTableUpdates : DemoComponent {
-		
+
 		private readonly int _updatedEntries; // just used when parsing
 		private readonly string _tableName;
 		private bool _exceptionWhileParsing;
 		public readonly List<TableUpdate?> TableUpdates;
-		
+
 		public static implicit operator List<TableUpdate?>(StringTableUpdates u) => u.TableUpdates;
-		
-		
-		
+
+
+
 		public StringTableUpdates(SourceDemo? demoRef, string tableName, int updatedEntries) : base(demoRef) {
 			_tableName = tableName;
 			_updatedEntries = updatedEntries;
@@ -68,8 +68,8 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		protected override void Parse(ref BitStreamReader bsr) { 
-			
+		protected override void Parse(ref BitStreamReader bsr) {
+
 			CurStringTablesManager manager = DemoRef.CurStringTablesManager;
 			if (!manager.TableReadable.GetValueOrDefault(_tableName)) {
 				DemoRef.LogError($"{_tableName} table is marked as non-readable, can't update :/");
@@ -84,14 +84,14 @@ namespace DemoParser.Parser.Components.Messages {
 				bsr.SkipToEnd();
 				return;
 			}
-			
+
 			try { // se2007/engine/networkstringtable.cpp  line 595
 				CurStringTable tableToUpdate = manager.Tables[_tableName];
 				int entryIndex = -1;
 				List<string> history = new List<string>();
 
 				for (int i = 0; i < _updatedEntries; i++) {
-					
+
 					entryIndex++;
 					if (!bsr.ReadBool()) {
 						if (DemoRef.Header.NetworkProtocol > 14) // i'm actually not sure if this is where this goes
@@ -117,7 +117,7 @@ namespace DemoParser.Parser.Components.Messages {
 						int streamLen = tableToUpdate.UserDataFixedSize
 							? tableToUpdate.UserDataSizeBits
 							: (int)bsr.ReadBitsAsUInt(DemoInfo.MaxUserDataBits) * 8;
-						
+
 						entryStream = bsr.SplitAndSkip(streamLen);
 					}
 
@@ -130,7 +130,7 @@ namespace DemoParser.Parser.Components.Messages {
 						int j = tableToUpdate.Entries.FindIndex(tableEntry => tableEntry.EntryName == entryName);
 						if (j == -1) {
 							TableUpdates.Add(new TableUpdate(
-								manager.AddTableEntry(tableToUpdate, ref entryStream, entryName), 
+								manager.AddTableEntry(tableToUpdate, ref entryStream, entryName),
 								TableUpdateType.NewEntry,
 								tableToUpdate.Entries.Count - 1)); // sub 1 since we update the table 2 lines up
 						} else {
@@ -153,7 +153,7 @@ namespace DemoParser.Parser.Components.Messages {
 				bsr.SkipToEnd();
 			}
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -174,7 +174,7 @@ namespace DemoParser.Parser.Components.Messages {
 					.Select(t => t.Name.Length + 2)
 					.DefaultIfEmpty(2)
 					.Max();
-				
+
 				for (int i = 0; i < TableUpdates.Count; i++) {
 					if (i != 0)
 						pw.AppendLine();
@@ -199,8 +199,8 @@ namespace DemoParser.Parser.Components.Messages {
 			UpdateType = updateType;
 			Index = index;
 		}
-		
-		
+
+
 		public override void PrettyWrite(IPrettyWriter pw) { // similar logic to that in string tables
 			pw.Append($"[{Index}] {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
 			if (TableEntry?.EntryData != null) {

@@ -6,14 +6,14 @@ using ConsoleApp.DemoArgProcessing.Options.Hidden;
 using ConsoleApp.GenericArgProcessing;
 
 namespace ConsoleApp {
-	
+
 	public static class Program {
 
 		public static void Main(string[] args) {
 			// It would be nice if the console color was reset if ctrl+c is used, but I haven't gotten that to work yet.
 			// This line of code just eats ctrl+c and delays it by way too much.
 			// Console.CancelKeyPress += (sender,eventArgs) => Console.ResetColor();
-			
+
 			Console.WriteLine("UntitledParser by UncraftedName");
 			// write everything with color since we have no idea what/when could have triggered any exceptions
 			try {

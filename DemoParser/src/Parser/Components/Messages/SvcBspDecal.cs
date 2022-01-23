@@ -6,15 +6,15 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcBspDecal : DemoMessage {
-	
+
 		public Vector3 Pos;
 		public int DecalTextureIndex;
 		public uint? EntityIndex;
 		public uint? ModelIndex;
 		public bool LowPriority;
-		
+
 
 		public SvcBspDecal(SourceDemo? demoRef) : base(demoRef) {}
 
@@ -28,7 +28,7 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 			LowPriority = bsr.ReadBool();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

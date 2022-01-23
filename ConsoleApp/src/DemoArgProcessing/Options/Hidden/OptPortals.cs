@@ -8,18 +8,18 @@ using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Utils;
 
 namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
-	
+
 	public class OptPortals : DemoOption {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--portals-fired"}.ToImmutableArray();
-		
-		
+
+
 		public OptPortals() : base(
 			DefaultAliases,
 			"Searches for portals that have been fired from the player's portal gun",
 			true) {}
-		
-		
+
+
 		public override void AfterParse(DemoParsingSetupInfo setupObj) {
 			setupObj.ExecutableOptions++;
 		}
@@ -57,7 +57,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 			}
 		}
 
-		
+
 		public static IEnumerable<(Rumble userMessage, int tick)> GetPortalsFiredByPlayer(SourceDemo demo) {
 			return demo.FilterForUserMessage<Rumble>().Where(t =>
 				t.userMessage.RumbleType == RumbleLookup.PortalgunLeft ||

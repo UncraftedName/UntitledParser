@@ -4,9 +4,9 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class SayText : UserMessage {
-		
+
 		public byte ClientId;
 		public string Str;
 		public bool WantsToChat;

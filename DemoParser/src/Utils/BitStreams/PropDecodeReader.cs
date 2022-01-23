@@ -10,7 +10,7 @@ using static DemoParser.Utils.BitStreams.PropDecodeConsts;
 // ReSharper disable PossibleInvalidOperationException
 
 namespace DemoParser.Utils.BitStreams {
-	
+
 	// mostly just an extra class to keep this nasty unusual stuff separate
 	public partial struct BitStreamReader  {
 
@@ -27,7 +27,7 @@ namespace DemoParser.Utils.BitStreams {
 					vec3.Z = 0;
 				if (sign)
 					vec3.Z = -vec3.Z;
-			} else { 
+			} else {
 				vec3.Z = DecodeFloat(propInfo);
 			}
 		}
@@ -91,7 +91,7 @@ namespace DemoParser.Utils.BitStreams {
 		private static void SetFloatParseType(SendTableProp propInfo) {
 			int flags = propInfo.Flags;
 			AbstractFlagChecker<PropFlag> checker = propInfo.DemoRef.DemoInfo.PropFlagChecker;
-			ref FloatParseType? pType = ref propInfo.FloatParseType; 
+			ref FloatParseType? pType = ref propInfo.FloatParseType;
 			if (checker.HasFlag(flags, PropFlag.Coord)) {
 				pType = FloatParseType.Coord;
 			} else if (checker.HasFlag(flags, PropFlag.CoordMp)) {
@@ -194,7 +194,7 @@ namespace DemoParser.Utils.BitStreams {
 		public List<int> DecodeIntArr(FlattenedProp propInfo) {
 			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<int> result = new List<int>(count);
-			for (int i = 0; i < count; i++) 
+			for (int i = 0; i < count; i++)
 				result.Add(DecodeInt(propInfo.ArrayElementPropInfo!));
 			return result;
 		}
@@ -203,7 +203,7 @@ namespace DemoParser.Utils.BitStreams {
 		public List<float> DecodeFloatArr(FlattenedProp propInfo) {
 			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<float> result = new List<float>(count);
-			for (int i = 0; i < count; i++) 
+			for (int i = 0; i < count; i++)
 				result.Add(DecodeFloat(propInfo.ArrayElementPropInfo!));
 			return result;
 		}
@@ -212,7 +212,7 @@ namespace DemoParser.Utils.BitStreams {
 		public List<string> DecodeStringArr(FlattenedProp propInfo) {
 			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<string> result = new List<string>(count);
-			for (int i = 0; i < count; i++) 
+			for (int i = 0; i < count; i++)
 				result.Add(DecodeString());
 			return result;
 		}
@@ -227,8 +227,8 @@ namespace DemoParser.Utils.BitStreams {
 			}
 			return result;
 		}
-		
-		
+
+
 		public List<Vector2> DecodeVector2Arr(FlattenedProp propInfo) {
 			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<Vector2> result = new List<Vector2>(count);
@@ -238,10 +238,10 @@ namespace DemoParser.Utils.BitStreams {
 			}
 			return result;
 		}
-		
+
 
 #pragma warning disable 8509
-		
+
 		public uint ReadUBitVar() {
 			return ReadBitsAsUInt(2) switch {
 				0 => ReadBitsAsUInt(4),
@@ -282,7 +282,7 @@ namespace DemoParser.Utils.BitStreams {
 				return -1;
 			return lastIndex + 1 + (int)ret;
 		}
-		
+
 #pragma warning restore 8509
 
 
@@ -302,7 +302,7 @@ namespace DemoParser.Utils.BitStreams {
 
 	// these might be different depending on the game, i sure hope fucking not
 	// found in src_main\public\coordsize.h
-	internal static class PropDecodeConsts { 
+	internal static class PropDecodeConsts {
 		public const int   CoordFracBits     = 5;
 		public const int   CoordDenom        = 1 << CoordFracBits;
 		public const float CoordRes          = 1.0f / CoordDenom;

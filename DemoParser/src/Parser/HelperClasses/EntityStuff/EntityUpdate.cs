@@ -6,32 +6,32 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 	// base class
 	public abstract class EntityUpdate : PrettyClass {
-		
+
 		public readonly ServerClass ServerClass;
-		
+
 		protected EntityUpdate(ServerClass serverClass) {
 			ServerClass = serverClass;
 		}
 	}
-	
+
 
 	/// <summary>
 	/// An entity update consisting of only deltas to a previous entity state.
 	/// </summary>
 	public class Delta : EntityUpdate {
-		
+
 		public readonly int EntIndex;
 		public readonly IReadOnlyList<(int propIndex, EntityProperty prop)> Props;
-		
-		
-		public Delta(int entIndex, ServerClass serverClass, IReadOnlyList<(int propIndex, EntityProperty prop)> props) 
+
+
+		public Delta(int entIndex, ServerClass serverClass, IReadOnlyList<(int propIndex, EntityProperty prop)> props)
 			: base(serverClass)
 		{
 			EntIndex = entIndex;
 			Props = props;
 		}
-		
-		
+
+
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.Append($"({EntIndex}) DELTA - ");
 			ServerClass.PrettyWrite(pw);
@@ -44,8 +44,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			pw.FutureIndent--;
 		}
 	}
-	
-	
+
+
 	/// <summary>
 	/// An entity update where an entity enters the PVS, as well as any deltas from the baseline/previous entity state.
 	/// </summary>
@@ -56,17 +56,17 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		public EnterPvs(
-			int entIndex, 
-			ServerClass serverClass, 
-			IReadOnlyList<(int propIndex, EntityProperty prop)> props, 
-			uint serial, 
-			bool @new) 
-			: base(entIndex, serverClass, props) 
+			int entIndex,
+			ServerClass serverClass,
+			IReadOnlyList<(int propIndex, EntityProperty prop)> props,
+			uint serial,
+			bool @new)
+			: base(entIndex, serverClass, props)
 		{
 			Serial = serial;
 			New = @new;
 		}
-		
+
 
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.Append($"({EntIndex}) {(New ? "CREATE" : "ENTER_PVS")} - ");
@@ -82,22 +82,22 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			pw.FutureIndent--;
 		}
 	}
-	
-	
+
+
 	/// <summary>
 	/// An entity update where an entity leaves the PVS, possibly being deleted.
 	/// </summary>
 	public class LeavePvs : EntityUpdate {
-		
+
 		public readonly int Index;
 		public readonly bool Delete;
-		
-		
+
+
 		public LeavePvs(int index, ServerClass serverClass, bool delete) : base(serverClass) {
 			Index = index;
 			Delete = delete;
 		}
-		
+
 
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - ");

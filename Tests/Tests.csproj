@@ -1,44 +1,44 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net461</TargetFramework>
-        <IsPackable>false</IsPackable>
-        <Platforms>AnyCPU;x64</Platforms>
-        <Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
-        <LangVersion>8.0</LangVersion>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net461</TargetFramework>
+		<IsPackable>false</IsPackable>
+		<Platforms>AnyCPU;x64</Platforms>
+		<Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
+		<LangVersion>8.0</LangVersion>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="nunit" Version="3.12.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="nunit" Version="3.12.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\ConsoleApp\ConsoleApp.csproj" />
-      <ProjectReference Include="..\DemoParser\DemoParser.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\ConsoleApp\ConsoleApp.csproj" />
+	  <ProjectReference Include="..\DemoParser\DemoParser.csproj" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="sample demos" />
-    </ItemGroup>
+	<ItemGroup>
+	  <Folder Include="sample demos" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <Compile Remove="sample demos\verbose output\**" />
-      <Compile Remove="sample demos\demo output\**" />
-      <Compile Remove="sample demos\demo dump\**" />
-    </ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="sample demos\verbose output\**" />
+	  <Compile Remove="sample demos\demo output\**" />
+	  <Compile Remove="sample demos\demo dump\**" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <EmbeddedResource Remove="sample demos\verbose output\**" />
-      <EmbeddedResource Remove="sample demos\demo output\**" />
-      <EmbeddedResource Remove="sample demos\demo dump\**" />
-    </ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Remove="sample demos\verbose output\**" />
+	  <EmbeddedResource Remove="sample demos\demo output\**" />
+	  <EmbeddedResource Remove="sample demos\demo dump\**" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <None Remove="sample demos\verbose output\**" />
-      <None Remove="sample demos\demo output\**" />
-      <None Remove="sample demos\demo dump\**" />
-    </ItemGroup>
+	<ItemGroup>
+	  <None Remove="sample demos\verbose output\**" />
+	  <None Remove="sample demos\demo output\**" />
+	  <None Remove="sample demos\demo dump\**" />
+	</ItemGroup>
 
 </Project>

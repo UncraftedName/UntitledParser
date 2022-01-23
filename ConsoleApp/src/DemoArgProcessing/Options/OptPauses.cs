@@ -9,15 +9,15 @@ using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
 
 namespace ConsoleApp.DemoArgProcessing.Options {
-	
+
 	public class OptPauses : DemoOption {
-		
+
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--pauses", "-p"}.ToImmutableArray();
-		
-		
+
+
 		public OptPauses() : base(DefaultAliases, "Find pauses") {}
-		
-		
+
+
 		public override void AfterParse(DemoParsingSetupInfo setupObj) {
 			setupObj.ExecutableOptions++;
 		}

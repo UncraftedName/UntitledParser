@@ -5,7 +5,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
-	
+
 	/*
 	 * The general structure of the sign on data looks like this:
 	 * SignOn packet, DataTables packet, <StringTables packet>.
@@ -18,7 +18,7 @@ namespace DemoParser.Parser.Components.Packets {
 	 * messages contain the server info (which is very juicy) and the creation of the string tables. Since most games
 	 * also have a string tables packet, I'm not sure what the purpose of having that data twice is...
 	 */
-	
+
 	/// <summary>
 	/// Contains server info and messages for the creation of string tables.
 	/// </summary>
@@ -40,7 +40,7 @@ namespace DemoParser.Parser.Components.Packets {
 			MessageStream = new MessageStream(DemoRef);
 			MessageStream.ParseStream(ref bsr);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

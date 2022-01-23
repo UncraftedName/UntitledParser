@@ -4,13 +4,13 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class SayText2 : UserMessage {
 
 		public byte Client;
 		public bool WantsToChat;
-		
-		
+
+
 		public SayText2(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -20,7 +20,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			// TODO: fill out the rest of the UserMessage (don't know what SayText2
 			// is even but I guess it doesn't happen often at all since it hasn't broken a demo parse yet)
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

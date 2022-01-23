@@ -5,15 +5,15 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class EntityPortalled : UserMessage {
 
 		public EHandle Portal;
 		public EHandle Portalled;
 		public Vector3 NewPosition;
 		public Vector3 NewAngles;
-		
-		
+
+
 		public EntityPortalled(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -23,7 +23,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			bsr.ReadVector3(out NewPosition);
 			bsr.ReadVector3(out NewAngles);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

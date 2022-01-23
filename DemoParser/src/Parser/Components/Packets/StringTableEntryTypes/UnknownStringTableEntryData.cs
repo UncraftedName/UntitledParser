@@ -4,11 +4,11 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
-	
+
 	public class UnknownStringTableEntryData : StringTableEntryData {
-		
+
 		internal override bool ContentsKnown => false;
-		
+
 
 		public UnknownStringTableEntryData(SourceDemo? demoRef) : base(demoRef) {}
 
@@ -21,7 +21,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		protected override void Parse(ref BitStreamReader bsr) {
 			bsr.SkipToEnd();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

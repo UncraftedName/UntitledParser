@@ -5,15 +5,15 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class Damage : UserMessage {
 
 		public byte Armor;
 		public byte DamageTaken;
 		public int BitsDamage;
 		public Vector3 VecFrom;
-		
-		
+
+
 		public Damage(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -28,7 +28,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				Z = bsr.ReadCoord()
 			};*/
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();

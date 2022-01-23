@@ -5,19 +5,19 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcPrefetch : DemoMessage {
 
 		public int SoundIndex;
 		public string? SoundName;
-		
-		
+
+
 		public SvcPrefetch(SourceDemo? demoRef) : base(demoRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			SoundIndex = (int)bsr.ReadBitsAsUInt(13);
-			
+
 			var mgr = DemoRef.CurStringTablesManager;
 
 			if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache)) {
@@ -27,7 +27,7 @@ namespace DemoParser.Parser.Components.Messages {
 					SoundName = mgr.Tables[TableNames.SoundPreCache].Entries[SoundIndex].EntryName;
 			}
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -35,10 +35,10 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
-			pw.Append(SoundName != null 
-				? $"sound: {SoundName}" 
+			pw.Append(SoundName != null
+				? $"sound: {SoundName}"
 				: "sound index:");
-			
+
 			pw.Append($" [{SoundIndex}]");
 		}
 	}

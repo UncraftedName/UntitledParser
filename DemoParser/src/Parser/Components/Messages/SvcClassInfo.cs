@@ -9,14 +9,14 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
-	
+
 	public class SvcClassInfo : DemoMessage {
 
 		public bool CreateOnClient;
 		public ServerClass[]? ServerClasses;
 		public ushort ClassCount;
-		
-		
+
+
 		public SvcClassInfo(SourceDemo? demoRef) : base(demoRef) {}
 
 
@@ -24,12 +24,12 @@ namespace DemoParser.Parser.Components.Messages {
 			ClassCount = bsr.ReadUShort();
 			CreateOnClient = bsr.ReadBool();
 			if (!CreateOnClient) {
-				
+
 				// if this ever gets used then it should update the CurTables
 				string s = $"I haven't implemented {GetType().Name} to update the C_string tables.";
 				DemoRef.LogError(s);
 				Debug.WriteLine(s);
-				
+
 				ServerClasses = new ServerClass[ClassCount];
 				for (int i = 0; i < ServerClasses.Length; i++) {
 					ServerClasses[i] = new ServerClass(DemoRef, this);
@@ -39,10 +39,10 @@ namespace DemoParser.Parser.Components.Messages {
 						throw new ConstraintException("server class ID does not match it's index in the list");
 				}
 			}
-			
+
 			DemoRef.CBaseLines ??= new CurBaseLines(DemoRef, ClassCount);
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -62,8 +62,8 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 		}
 	}
-	
-	
+
+
 	// a very important part of the demo - corresponds to an entity class. used extensively in data tables and ent parsing
 	public class ServerClass : DemoComponent, IEquatable<ServerClass> {
 
@@ -84,7 +84,7 @@ namespace DemoParser.Parser.Components.Messages {
 			ClassName = bsr.ReadNullTerminatedString();
 			DataTableName = bsr.ReadNullTerminatedString();
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			throw new NotImplementedException();
@@ -100,8 +100,8 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool Equals(ServerClass? other) {
 			if (ReferenceEquals(null, other)) return false;
 			if (ReferenceEquals(this, other)) return true;
-			return DataTableId == other.DataTableId 
-				   && ClassName == other.ClassName 
+			return DataTableId == other.DataTableId
+				   && ClassName == other.ClassName
 				   && DataTableName == other.DataTableName;
 		}
 

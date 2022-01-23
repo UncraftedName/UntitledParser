@@ -4,7 +4,7 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components {
-	
+
 	public class DemoHeader : DemoComponent {
 
 		public string FileStamp;
@@ -18,8 +18,8 @@ namespace DemoParser.Parser.Components {
 		public int TickCount;
 		public int FrameCount;
 		public uint SignOnLength;
-		
-		
+
+
 		public DemoHeader(SourceDemo? demoRef) : base(demoRef) {}
 
 		protected override void Parse(ref BitStreamReader bsr) {

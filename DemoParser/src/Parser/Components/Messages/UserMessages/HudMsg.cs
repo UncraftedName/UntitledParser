@@ -5,12 +5,12 @@ using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
-	
+
 	public class HudMsg : UserMessage {
 
 		public HudChannel Channel;
 		public HudMsgInfo? MsgInfo;
-		
+
 
 		public HudMsg(SourceDemo? demoRef) : base(demoRef) {}
 
@@ -25,7 +25,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				MsgInfo.ParseStream(ref bsr);
 			}
 		}
-		
+
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
 			bsw.WriteByte((byte)Channel);
@@ -43,15 +43,15 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 
 		public class HudMsgInfo : DemoComponent {
-			
+
 			public float X, Y; // 0-1 & resolution independent, -1 means center in each dimension
 			public byte R1, G1, B1, A1;
 			public byte R2, G2, B2, A2;
 			public HudMsgEffect Effect;
 			public float FadeIn, FadeOut, HoldTime, FxTime; // the fade times seem to be per character
 			public string Message;
-			
-			
+
+
 			public HudMsgInfo(SourceDemo? demoRef) : base(demoRef) {}
 
 
