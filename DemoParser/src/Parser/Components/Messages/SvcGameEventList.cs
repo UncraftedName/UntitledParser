@@ -93,6 +93,7 @@ namespace DemoParser.Parser.Components.Messages {
 		Int32,
 		Int16,
 		Int8,
-		Bool
+		Bool,
+		UInt64
 	}
 }

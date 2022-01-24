@@ -16,7 +16,10 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			SoundIndex = (int)bsr.ReadBitsAsUInt(13);
+			// TODO: l4d2 2091 and onwards use 15 bits for SoundIndex
+			// we need to figure out a way to distinguish the games since
+			// no protocol version changes
+			SoundIndex = (int)bsr.ReadBitsAsUInt(DemoInfo.IsLeft4Dead2() ? 14 : 13);
 
 			var mgr = DemoRef.CurStringTablesManager;
 

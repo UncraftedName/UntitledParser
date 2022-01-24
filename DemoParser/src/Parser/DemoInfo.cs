@@ -200,6 +200,8 @@ namespace DemoParser.Parser {
 
 		public bool IsLeft4Dead1() => Game >= L4D1_1005 && Game <= L4D1_1040;
 
+		public bool IsLeft4Dead2() => Game >= L4D2_2000 && Game <= L4D2_2220;
+
 		public bool IsPortal1() => Game >= PORTAL_1_3420 && Game <= PORTAL_1_1910503;
 
 		public bool IsHL2() => Game == HL2_OE;
@@ -223,7 +225,7 @@ namespace DemoParser.Parser {
 		L4D2_2000,
 		L4D2_2012,
 		L4D2_2027,
-		L4D2_2042, // 2042 is protocol, version is 2063, 2075, or 2091 (thanks valve)
+		L4D2_2042, // 2042 is protocol, version is 2045, 2063, 2075, or 2091 (thanks valve)
 		L4D2_2220, // latest steam version
 		UNKNOWN
 	}

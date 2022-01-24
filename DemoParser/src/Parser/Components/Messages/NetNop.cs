@@ -1,4 +1,5 @@
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
@@ -12,10 +13,14 @@ namespace DemoParser.Parser.Components.Messages {
 		public NetNop(SourceDemo? demoRef) : base(demoRef) {}
 
 
-		protected override void Parse(ref BitStreamReader bsr) {
-		}
+		protected override void Parse(ref BitStreamReader bsr) {}
 
 
 		internal override void WriteToStreamWriter(BitStreamWriter bsw) {}
+
+
+		public override void PrettyWrite(IPrettyWriter pw) {
+			pw.Append("NetNop");
+		}
 	}
 }

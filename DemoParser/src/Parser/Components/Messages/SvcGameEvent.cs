@@ -32,6 +32,7 @@ namespace DemoParser.Parser.Components.Messages {
 					EventDescriptorType.Int16  => bsr.ReadSShort(),
 					EventDescriptorType.Int8   => bsr.ReadByte(),
 					EventDescriptorType.Bool   => bsr.ReadBool(),
+					EventDescriptorType.UInt64 => bsr.ReadULong(),
 					_ => throw new ArgumentOutOfRangeException(nameof(descriptor.type), $"unknown descriptor type: {descriptor.type}")
 				};
 				EventDescriptors.Add((descriptor.Name, o));
