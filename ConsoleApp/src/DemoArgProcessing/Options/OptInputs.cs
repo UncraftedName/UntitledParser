@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
 using DemoParser.Parser.Components.Packets;
@@ -24,7 +23,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public OptInputs() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			"Prints user inputs on every tick",
+			"Print user inputs on every tick",
 			"mode",
 			Utils.ParseEnum<InputDisplayMode>,
 			InputDisplayMode.Text) {}
@@ -36,10 +35,10 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, InputDisplayMode mode, bool isDefault) {
-			TextWriter tw = infoObj.StartWritingText("getting user inputs", "inputs");
+			infoObj.PrintOptionMessage("getting user inputs");
 			try {
 				foreach ((int tick, string repr) in GetUserInputs(infoObj.CurrentDemo, mode))
-					tw.WriteLine($"[{tick}] {repr}");
+					Console.WriteLine($"[{tick}] {repr}");
 			} catch (Exception) {
 				Utils.Warning("Getting user inputs failed.\n");
 			}
@@ -56,19 +55,12 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					continue;
 				prevButtons = b;
 				prevTick = u.Tick;
-				switch (mode) {
-					case InputDisplayMode.Text:
-						yield return (u.Tick, b?.ToString() ?? "none");
-						break;
-					case InputDisplayMode.Int:
-						yield return (u.Tick, b.HasValue ? ((uint)b.Value).ToString() : "0");
-						break;
-					case InputDisplayMode.Flags:
-						yield return (u.Tick, Convert.ToString(b.HasValue ? (uint)b.Value : 0, 2).PadLeft(32, '0'));
-						break;
-					default:
-						throw new ArgProcessProgrammerException($"invalid input display mode: \"{mode}\"");
-				}
+				yield return mode switch {
+					InputDisplayMode.Text => (u.Tick, b?.ToString() ?? "none"),
+					InputDisplayMode.Int => (u.Tick, b.HasValue ? ((uint)b.Value).ToString() : "0"),
+					InputDisplayMode.Flags => (u.Tick, Convert.ToString(b.HasValue ? (uint)b.Value : 0, 2).PadLeft(32, '0')),
+					_ => throw new ArgProcessProgrammerException($"invalid input display mode: \"{mode}\"")
+				};
 			}
 		}
 

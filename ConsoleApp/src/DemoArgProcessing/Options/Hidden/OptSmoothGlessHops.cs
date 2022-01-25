@@ -31,9 +31,9 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		public OptSmoothGlessHops() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			"Creates a new demo with smoother jumps, main use is for rendering demos with lots of standing glitchless hops." +
+			"Create a new demo with smoother jumps, main use is for rendering demos with lots of standing glitchless hops." +
 			"\nmax_ground_ticks is at most how many ticks the player is on the ground before they jump again. High values might interp too much." +
-			"\nOnly jumps in the middle of a hop sequence will be smoothed. Only designed to work for portal 1 unpack. " + OptOutputFolder.RequiresString,
+			"\nOnly jumps in the middle of a hop sequence will be smoothed. Only designed to work for portal 1 unpack.",
 			"max_ground_ticks",
 			ValidateInterpTicks,
 			5,
@@ -47,7 +47,8 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 
 		protected override void Process(DemoParsingInfo infoObj, int arg, bool isDefault) {
-			Stream s = infoObj.StartWritingBytes("smoothing jumps", "smooth-jumps", ".dem");
+			infoObj.PrintOptionMessage("smoothing jumps");
+			Stream s = infoObj.StartWritingBytes("smooth-jumps", ".dem");
 			try {
 				SmoothJumps(infoObj.CurrentDemo, s, arg);
 			} catch (Exception) {

@@ -63,9 +63,6 @@ namespace ConsoleApp.DemoArgProcessing {
 
 			// check the values in setupInfo
 
-			// check if we have/need a folder output
-			if (setupInfo.FolderOutput == null && (setupInfo.FolderOutputRequired || (setupInfo.EditsDemos && !setupInfo.OverWriteDemos)))
-				throw new ArgProcessUserException($"folder output is required for the enabled option(s), use \"{OptOutputFolder.DefaultAliases[0]}\" to set one.");
 			// enable --time implicitly if there are no other options
 			if (TotalEnabledOptions == 0) {
 				if (TryGetOption(OptTime.DefaultAliases[0], out var option)) {

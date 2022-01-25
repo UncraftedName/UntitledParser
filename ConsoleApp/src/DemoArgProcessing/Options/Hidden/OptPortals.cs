@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using DemoParser.Parser;
 using DemoParser.Parser.Components.Messages.UserMessages;
@@ -16,7 +15,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 		public OptPortals() : base(
 			DefaultAliases,
-			"Searches for portals that have been fired from the player's portal gun",
+			"Search for portals that have been fired from the player's portal gun",
 			true) {}
 
 
@@ -27,7 +26,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 		// todo check if portal shots are on cap
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.StartWritingText("searching for portals fired by player", "portals");
+			infoObj.PrintOptionMessage("searching for fired portals");
 			try {
 				bool any = false;
 				foreach ((Rumble userMessage, int tick) in GetPortalsFiredByPlayer(infoObj.CurrentDemo)) {
@@ -35,15 +34,15 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 					switch (userMessage.RumbleType) {
 						case RumbleLookup.PortalgunLeft:
 							Utils.PushForegroundColor(ConsoleColor.Cyan);
-							tw.WriteLine($"[{tick}] BLUE PORTAL fired by player");
+							Console.WriteLine($"[{tick}] BLUE PORTAL fired by player");
 							break;
 						case RumbleLookup.PortalgunRight:
 							Utils.PushForegroundColor(ConsoleColor.Red); // closest we've got is red :/
-							tw.WriteLine($"[{tick}] ORANGE PORTAL fired by player");
+							Console.WriteLine($"[{tick}] ORANGE PORTAL fired by player");
 							break;
 						case RumbleLookup.PortalPlacementFailure:
 							Utils.PushForegroundColor(Console.ForegroundColor); // unchanged
-							tw.WriteLine($"[{tick}] portal fired and missed");
+							Console.WriteLine($"[{tick}] portal fired and missed");
 							break;
 						default:
 							throw new ArgProcessProgrammerException($"invalid rumble type: {userMessage.RumbleType}");
@@ -51,7 +50,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 					Utils.PopForegroundColor();
 				}
 				if (!any)
-					tw.WriteLine("no portals fired by player");
+					Console.WriteLine("no portals fired by player");
 			} catch (Exception) {
 				Utils.Warning("Search for portal shots failed.\n");
 			}

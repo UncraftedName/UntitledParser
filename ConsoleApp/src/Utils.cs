@@ -147,7 +147,8 @@ namespace ConsoleApp {
 			var newArgs = new List<string>();
 			bool fixing = false;
 			foreach (string arg in args) {
-				if (!fixing && arg.Substring(0, 2) == @".\" && arg.Contains('"')) { // this is a directory that breaks future args
+				if (!fixing && arg.Length > 2 && arg.Substring(0, 2) == @".\" && arg.Contains('"')) {
+					// this is a directory that breaks future args
 					int off = arg.IndexOf('"');
 					newArgs.Add(arg.Substring(0, off));
 					if (off < arg.Length - 1) {

@@ -17,9 +17,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--remove-captions", "-c"}.ToImmutableArray();
 
-		public OptRemoveCaptions() : base(
-			DefaultAliases,
-			$"Create a new demo without captions {OptOutputFolder.RequiresString}") {}
+		public OptRemoveCaptions() : base(DefaultAliases, "Create a new demo without captions") {}
 
 
 		public override void AfterParse(DemoParsingSetupInfo setupObj) {
@@ -29,7 +27,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
-			Stream s = infoObj.StartWritingBytes("removing captions", "no-captions", ".dem");
+			infoObj.PrintOptionMessage("removing captions");
+			Stream s = infoObj.StartWritingBytes("no-captions", ".dem");
 			try {
 				RemoveCaptions(infoObj.CurrentDemo, s);
 			} catch (Exception) {

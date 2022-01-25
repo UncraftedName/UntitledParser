@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using DemoParser.Parser;
 using DemoParser.Parser.Components.Messages;
@@ -24,20 +23,20 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.StartWritingText("looking for pauses", "pauses");
+			infoObj.PrintOptionMessage("looking for pauses");
 			try {
 				bool any = false;
 				foreach (int pauseTick in GetPauseTicks(infoObj.CurrentDemo)) {
 					any = true;
-					tw.Write($"[{pauseTick}] pause");
+					Console.Write($"[{pauseTick}] pause");
 					if (pauseTick > infoObj.CurrentDemo.EndAdjustmentTick)
-						tw.Write(" (after last adjusted tick)");
+						Console.Write(" (after last adjusted tick)");
 					else if (pauseTick < infoObj.CurrentDemo.StartAdjustmentTick)
-						tw.Write(" (before first adjusted tick)");
-					tw.WriteLine();
+						Console.Write(" (before first adjusted tick)");
+					Console.WriteLine();
 				}
 				if (!any)
-					tw.WriteLine("no pauses found");
+					Console.WriteLine("no pauses found");
 			} catch (Exception) {
 				Utils.Warning("Search for pauses failed.\n");
 			}

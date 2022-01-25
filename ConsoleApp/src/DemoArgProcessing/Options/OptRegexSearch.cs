@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Immutable;
-using System.IO;
 using System.Text.RegularExpressions;
 using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser.Components.Packets;
@@ -38,15 +37,15 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, Regex r, bool isDefault) {
-			TextWriter tw = infoObj.StartWritingText("looking for regex matches", "regex");
+			infoObj.PrintOptionMessage("looking for regex matches");
 			try {
 				bool any = false;
 				foreach ((ConsoleCmd cmd, MatchCollection _) in infoObj.CurrentDemo.CmdRegexMatches(r)) {
 					any = true;
-					tw.WriteLine($"[{cmd.Tick}] {cmd.Command}");
+					Console.WriteLine($"[{cmd.Tick}] {cmd.Command}");
 				}
 				if (!any)
-					tw.WriteLine("no matches found");
+					Console.WriteLine("no matches found");
 			} catch (Exception) {
 				Utils.Warning("Regex match search failed.\n");
 			}

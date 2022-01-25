@@ -33,7 +33,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public OptTime() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			"Prints demo header and time info, enabled automatically if no other options are set." +
+			"Print demo header and time info, enabled automatically if no other options are set." +
 			$"\nNote that flags can be combined, e.g. \"{TimeFlags.NoHeader | TimeFlags.AlwaysShowTotalTime}\" or \"5\".",
 			"flags",
 			Utils.ParseEnum<TimeFlags>,
@@ -56,15 +56,14 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, TimeFlags arg, bool isDefault) {
-			TextWriter tw = infoObj.StartWritingText("timing demo", "time", bufferSize: 512);
+			infoObj.PrintOptionMessage("timing demo");
 			try {
 				if ((arg & TimeFlags.NoHeader) == 0)
-					WriteHeader(infoObj.CurrentDemo, tw, infoObj.SetupInfo.ExecutableOptions != 1);
+					WriteHeader(infoObj.CurrentDemo, Console.Out, infoObj.SetupInfo.ExecutableOptions != 1);
 				_sdt.Consume(infoObj.CurrentDemo);
 				if (!infoObj.FailedLastParse) {
-					WriteAdjustedTime(infoObj.CurrentDemo, tw, (arg & TimeFlags.TimeFirstTick) != 0);
-					if (!infoObj.OptionOutputRedirected)
-						Console.WriteLine();
+					WriteAdjustedTime(infoObj.CurrentDemo, Console.Out, (arg & TimeFlags.TimeFirstTick) != 0);
+					Console.WriteLine();
 				}
 			} catch (Exception) {
 				Utils.Warning("Timing demo failed.\n");

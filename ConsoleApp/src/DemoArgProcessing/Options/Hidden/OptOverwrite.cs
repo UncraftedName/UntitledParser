@@ -13,7 +13,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 				return res;
 			if (int.TryParse(s, out int intRes) && (intRes == 0 || intRes == 1))
 				return intRes == 1;
-			throw new ArgProcessUserException("could not convert to valid boolean");
+			throw new ArgProcessUserException($"could not convert {s} to valid boolean");
 		}
 
 

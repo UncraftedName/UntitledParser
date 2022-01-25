@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Immutable;
-using System.IO;
 using System.Text.RegularExpressions;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
@@ -14,7 +13,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 		public OptJumps() : base(
 			DefaultAliases,
-			$"Searches for jump commands, equivalent to '{OptRegexSearch.DefaultAliases[0]} [-+]jump'",
+			$"Search for jump commands, equivalent to '{OptRegexSearch.DefaultAliases[0]} [-+]jump'",
 			true) {}
 
 
@@ -25,15 +24,15 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 		// todo: implement legit jump verification and convert cmd num to key
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.StartWritingText("searching for jumps", "jumps");
+			infoObj.PrintOptionMessage("searching for jumps");
 			try {
 				bool any = false;
 				foreach ((ConsoleCmd cmd, MatchCollection matches) in infoObj.CurrentDemo.CmdRegexMatches("[+-]jump")) {
 					any = true;
-					tw.WriteLine($"[{cmd.Tick}] {cmd.Command}");
+					Console.WriteLine($"[{cmd.Tick}] {cmd.Command}");
 				}
 				if (!any)
-					tw.WriteLine("no jumps found");
+					Console.WriteLine("no jumps found");
 			} catch (Exception) {
 				Utils.Warning("Search for jumps failed.\n");
 			}

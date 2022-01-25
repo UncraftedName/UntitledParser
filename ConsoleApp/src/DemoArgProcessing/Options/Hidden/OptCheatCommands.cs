@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DemoParser.Parser;
@@ -17,7 +16,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 		public OptCheatCommands() : base(
 			DefaultAliases,
-			"Searches for commands which are suspected to be cheat commands." +
+			"Search for commands which are suspected to be cheat commands." +
 			"\nNote that the list of commands is designed for portal 1 and is incomplete.",
 			true) {}
 
@@ -28,15 +27,15 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 
 		public override void Process(DemoParsingInfo infoObj) {
-			TextWriter tw = infoObj.StartWritingText("searching for cheat commands", "cheat-commands");
+			infoObj.PrintOptionMessage("searching for cheat commands");
 			try {
 				bool any = false;
 				foreach (ConsoleCmd cmd in GetCheatCommands(infoObj.CurrentDemo)) {
 					any = true;
-					tw.WriteLine($"[{cmd.Tick}] {cmd.Command}");
+					Console.WriteLine($"[{cmd.Tick}] {cmd.Command}");
 				}
 				if (!any)
-					tw.WriteLine("no cheat commands found");
+					Console.WriteLine("no cheat commands found");
 			} catch (Exception) {
 				Utils.Warning("Search for cheat commands failed.\n");
 			}

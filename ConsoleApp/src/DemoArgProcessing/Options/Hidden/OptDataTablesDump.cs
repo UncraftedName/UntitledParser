@@ -27,7 +27,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		public OptDataTablesDump() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			$"Dumps data table packet(s) and creates a tree of the datable hierarchy {OptOutputFolder.RequiresString}",
+			"Dump data table packet(s) and creates a tree of the datatable hierarchy",
 			"mode",
 			Utils.ParseEnum<DataTableDumpMode>,
 			DataTableDumpMode.PacketAndTree,
@@ -36,12 +36,12 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 		protected override void AfterParse(DemoParsingSetupInfo setupObj, DataTableDumpMode mode, bool isDefault) {
 			setupObj.ExecutableOptions++;
-			setupObj.FolderOutputRequired = true;
 		}
 
 
 		protected override void Process(DemoParsingInfo infoObj, DataTableDumpMode mode, bool isDefault) {
-			TextWriter tw = infoObj.StartWritingText("creating data table dump", "datatables");
+			infoObj.PrintOptionMessage("creating data table dump");
+			TextWriter tw = infoObj.StartWritingText("datatables");
 			try {
 				WriteDataTableDump((StreamWriter)tw, infoObj.CurrentDemo, mode);
 			} catch (Exception) {

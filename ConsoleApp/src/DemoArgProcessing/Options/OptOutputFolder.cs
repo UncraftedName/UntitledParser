@@ -9,13 +9,11 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--output-folder", "-o"}.ToImmutableArray();
 
-		public static readonly string RequiresString = $"(requires {DefaultAliases[1]})";
-
 
 		public OptOutputFolder() : base(
 			DefaultAliases,
-			Arity.ZeroOrOne,
-			"Specifies a folder to redirect option output to, the default path is wherever this program is executed",
+			Arity.One,
+			"If set, any options that generate files will output to this folder; useful when checking many demos",
 			"path",
 			ValidateFolderName,
 			".") {}

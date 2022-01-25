@@ -27,7 +27,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public OptChangeDemoDir() : base(
 			DefaultAliases,
 			Arity.One,
-			$"Creates a new demo with the specified mod directory {OptOutputFolder.RequiresString}",
+			"Create a new demo with the specified mod directory",
 			"new_dir_name",
 			ParseString,
 			null!) {}
@@ -40,7 +40,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, string arg, bool isDefault) {
-			Stream s = infoObj.StartWritingBytes("changing demo dir", "new_dir", ".dem");
+			infoObj.PrintOptionMessage("changing demo dir");
+			Stream s = infoObj.StartWritingBytes("new_dir", ".dem");
 			try {
 				ChangeDemoDir(infoObj.CurrentDemo, s, arg);
 			} catch (Exception) {

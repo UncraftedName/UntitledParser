@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
@@ -25,7 +24,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public OptTeleports() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			"Finds instances where entities got teleported by a portal." +
+			"Find instances where entities got teleported by a portal." +
 			"\nNote that this is only supported for portal 1 and will not check for camera teleports." +
 			"\nThe flags can be combined.",
 			"flags",
@@ -39,24 +38,24 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void Process(DemoParsingInfo infoObj, FilterFlags flags, bool isDefault) {
-			TextWriter tw = infoObj.StartWritingText("looking for teleports", "teleports");
+			infoObj.PrintOptionMessage("looking for teleports");
 			try {
 				bool any = false;
 				foreach ((EntityPortalled userMessage, int tick) in FindTeleports(infoObj.CurrentDemo, flags)) {
 					any = true;
-					tw.Write($"[{tick}]");
+					Console.Write($"[{tick}]");
 					if ((flags & FilterFlags.VerboseInfo) != 0) {
-						tw.Write("\n");
-						tw.WriteLine(userMessage.ToString());
+						Console.Write("\n");
+						Console.WriteLine(userMessage.ToString());
 					} else {
-						tw.Write((flags & FilterFlags.PlayerOnly) != 0
+						Console.Write((flags & FilterFlags.PlayerOnly) != 0
 							? " player"
 							: $" entity {userMessage.Portalled}");
-						tw.WriteLine($" went through portal {userMessage.Portal}");
+						Console.WriteLine($" went through portal {userMessage.Portal}");
 					}
 				}
 				if (!any) {
-					tw.WriteLine((flags & FilterFlags.PlayerOnly) != 0
+					Console.WriteLine((flags & FilterFlags.PlayerOnly) != 0
 						? "player never teleported"
 						: "no entities were teleported");
 				}

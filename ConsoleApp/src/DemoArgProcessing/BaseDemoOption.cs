@@ -43,12 +43,10 @@ namespace ConsoleApp.DemoArgProcessing {
 		public int ExecutableOptions {get;set;}
 		public bool ShouldSaveAllDemos {get;set;}
 		public bool ShouldSearchForDemosRecursively {get;set;} // set by recursive option
-		public string? FolderOutput {get;set;} // set by folder output option
-		// options that dump large amounts of text or write to special binary files must set this flag
-		public bool FolderOutputRequired {get;set;}
-		public bool EditsDemos {get;set;} // options that create new demos must set this flag
-		public bool OverWriteDemos {get;set;} // set by overwrite option
-		public bool OverwritePrompt {get;set;} = true; // set by overwrite option
+		public string FolderOutput {get;set;} = ".";           // set by folder output option
+		public bool EditsDemos {get;set;}                      // options that create new demos must set this flag
+		public bool OverWriteDemos {get;set;}                  // set by overwrite option
+		public bool OverwritePrompt {get;set;} = true;         // set by overwrite option
 	}
 
 
@@ -61,7 +59,6 @@ namespace ConsoleApp.DemoArgProcessing {
 		// this allows us to chain multiple overwrites
 		public SourceDemo CurrentDemo => _curOptionOverwriting ? _overwriteProgress : _demos[^1];
 		public bool FailedLastParse {get;private set;}
-		public bool OptionOutputRedirected => SetupInfo.FolderOutput != null;
 		public int NumDemos {get;}
 
 		private readonly List<SourceDemo> _demos;
@@ -101,7 +98,7 @@ namespace ConsoleApp.DemoArgProcessing {
 					_overwriteProgress = demo;
 					_overwriteCount++;
 				} catch (Exception) {
-					Console.WriteLine("Editing demo failed, will not overwrite.");
+					Utils.Warning("Editing demo failed, will not overwrite.\n");
 					_overwriteProgress = CurrentDemo;
 					CancelOverwrite = true;
 				}
@@ -113,7 +110,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		private void CheckDemoOverwrite() {
 			if (SetupInfo.OverWriteDemos && _overwriteCount > 0) {
 				if (CancelOverwrite) {
-					Console.WriteLine("Overwrite failed for one or more options, leaving original demo file unmodified.");
+					Utils.Warning("Overwrite failed for one or more options, leaving original demo file unmodified.\n");
 					return;
 				}
 				// we've gotten to this point with no exceptions, now we can overwrite the demo
@@ -141,13 +138,13 @@ namespace ConsoleApp.DemoArgProcessing {
 			if (!_pdp.NextReady())
 				progressBar.StartShowing();
 			(SourceDemo demo, FileInfo fileInfo, Exception? exception) = _pdp.GetNext();
+			progressBar.Dispose();
 			_demos.Add(demo);
 			_fileInfo = fileInfo; // save the full file info in case we are overwriting
 			_overwriteProgress = demo;
 			_overwriteCount = 0;
 			_curOptionOverwriting = false;
 			CancelOverwrite = false;
-			progressBar.Dispose();
 			FailedLastParse = exception != null;
 			if (!FailedLastParse) {
 				Utils.WriteColor("done.\n", ConsoleColor.Green);
@@ -156,7 +153,9 @@ namespace ConsoleApp.DemoArgProcessing {
 				Console.Write("failed.");
 				// Could probably have a few more messages here regarding the nature of the failure,
 				// maybe eventually use the message of the exception, but that's not very informative atm.
-				if (demo.DemoInfo == null || demo.Header.DemoProtocol < 3 || demo.Header.DemoProtocol > 4)
+				if (demo.Header == null || demo.DemoInfo == null)
+					Console.WriteLine(" Bad demo header.");
+				else if ((demo.DemoInfo.DemoParseResult & DemoParseResult.UnknownGame) != 0)
 					Console.WriteLine(" Demo from an unknown game.");
 				else if (demo.Frames == null || demo.FilterForPacket<Packet>().FirstOrDefault() == null)
 					Console.WriteLine(" Could not parse demo packets.");
@@ -179,18 +178,20 @@ namespace ConsoleApp.DemoArgProcessing {
 		}
 
 
+		public void PrintOptionMessage(string message) {
+			if (SetupInfo.ExecutableOptions > 1)
+				Console.WriteLine($"{message}...");
+		}
+
+
 		/// <summary>
 		/// Creates and returns a new text writer only if the folder output option is set, otherwise returns
 		/// Console.Out. If you want an option to never print to console, set FolderOutputRequired in the setup object.
 		/// This stream should not be disposed by any options.
 		/// </summary>
-		public TextWriter StartWritingText(string message, string fileSuffix, string extension = ".txt", int bufferSize = 4096) {
-			if (SetupInfo.ExecutableOptions > 1)
-				Console.WriteLine($"{message}...");
-			if (SetupInfo.FolderOutput == null)
-				return Console.Out;
+		public TextWriter StartWritingText(string suffix, string extension = ".txt", int bufferSize = 4096) {
 			DisposeWriters();
-			return _textWriter = new StreamWriter(CreateFileStream(fileSuffix, extension), Encoding.UTF8, bufferSize);
+			return _textWriter = new StreamWriter(CreateFileStream(suffix, extension), Encoding.UTF8, bufferSize);
 		}
 
 
@@ -199,11 +200,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		/// overwriting a demo with the current option - do not access CurrentDemo before calling this.
 		/// This stream should not be disposed by any options.
 		/// </summary>
-		public Stream StartWritingBytes(string message, string fileSuffix, string extension) {
-			if (SetupInfo.FolderOutput == null && !SetupInfo.EditsDemos)
-				throw new ArgProcessProgrammerException("Folder output not set but option is requesting a binary stream.");
-			if (SetupInfo.ExecutableOptions > 1)
-				Console.WriteLine($"{message}...");
+		public Stream StartWritingBytes(string fileSuffix, string extension) {
 			DisposeWriters();
 			// if we're overwriting, write to a memory stream and don't overwrite the file we're done with the current process loop
 			if (SetupInfo.OverWriteDemos && extension == ".dem") {
@@ -215,9 +212,9 @@ namespace ConsoleApp.DemoArgProcessing {
 
 
 		private FileStream CreateFileStream(string suffix, string extension) {
-			Directory.CreateDirectory(SetupInfo.FolderOutput!);
+			Directory.CreateDirectory(SetupInfo.FolderOutput);
 			return new FileStream(
-				Path.Combine(SetupInfo.FolderOutput!, $"{CurrentDemo.FileName![..^4]}--{suffix}{extension}"),
+				Path.Combine(SetupInfo.FolderOutput, $"{CurrentDemo.FileName![..^4]}--{suffix}{extension}"),
 				FileMode.Create);
 		}
 
