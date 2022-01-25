@@ -7,6 +7,7 @@ namespace DemoParser.Utils.BitStreams {
 
 	public partial struct BitStreamReader {
 
+		public const int MaxDataSize = int.MaxValue / 8;
 		public readonly byte[] Data;
 		public int BitLength;
 		public readonly int AbsoluteStart; // index of first readable bit
@@ -40,6 +41,8 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public BitStreamReader(byte[] data, int bitLength, int start, bool isLittleEndian = true) {
+			if (data.Length > MaxDataSize)
+				throw new ArgumentException("input array is too long", nameof(data));
 			Data = data;
 			BitLength = bitLength;
 			AbsoluteBitIndex = AbsoluteStart = start;

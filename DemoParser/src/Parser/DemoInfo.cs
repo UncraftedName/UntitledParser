@@ -55,10 +55,6 @@ namespace DemoParser.Parser {
 		public bool HasParsedTickInterval = false;
 
 
-		// a way to tell what info did/didn't get parsed
-		public DemoParseResult DemoParseResult;
-
-
 		// game specific enum lists
 		public readonly AbstractFlagChecker<SendPropEnums.PropFlag> PropFlagChecker;
 		public readonly AbstractFlagChecker<PropEnums.PlayerMfFlags_t> PlayerMfFlagChecker;
@@ -93,13 +89,12 @@ namespace DemoParser.Parser {
 
 
 		public DemoInfo(SourceDemo demo) {
-			DemoParseResult = default;
 			DemoHeader h = demo.Header;
 
 			if (!GameLookup.TryGetValue((h.DemoProtocol, h.NetworkProtocol), out Game)) {
 				Game = UNKNOWN;
 				demo.LogError($"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n");
-				DemoParseResult |= DemoParseResult.UnknownGame;
+				demo.DemoParseResult |= DemoParseResult.UnknownGame;
 			}
 
 			// provide default values in case of unknown game
@@ -107,7 +102,7 @@ namespace DemoParser.Parser {
 				TickInterval = 0.015f;
 				MaxSplitscreenPlayers = 1;
 				if (h.NetworkProtocol <= 15)
-					DemoParseResult |= DemoParseResult.EntParsingEnabled;
+					demo.DemoParseResult |= DemoParseResult.EntParsingEnabled;
 				PacketTypes = h.NetworkProtocol <= 14 ? DemoPacket.Portal3420Table : DemoPacket.Portal15135Table;
 				if (h.NetworkProtocol <= 7)
 					UserMessageTypes = UserMessage.Hl2OeTable;
@@ -121,7 +116,7 @@ namespace DemoParser.Parser {
 				TickInterval = 1f / 60;
 				MaxSplitscreenPlayers = 2;
 				if (Game == PORTAL_2)
-					DemoParseResult |= DemoParseResult.EntParsingEnabled;
+					demo.DemoParseResult |= DemoParseResult.EntParsingEnabled;
 				PacketTypes = DemoPacket.DemoProtocol4Table;
 				UserMessageTypes = UserMessage.Portal2Table;
 			} else if (IsLeft4Dead()) {
@@ -228,14 +223,5 @@ namespace DemoParser.Parser {
 		L4D2_2042, // 2042 is protocol, version is 2045, 2063, 2075, or 2091 (thanks valve)
 		L4D2_2220, // latest steam version
 		UNKNOWN
-	}
-
-
-	// flags that get set during parsing, very WIP
-	[Flags]
-	public enum DemoParseResult {
-		Success = 1,
-		EntParsingEnabled = 2,
-		UnknownGame = 4,
 	}
 }

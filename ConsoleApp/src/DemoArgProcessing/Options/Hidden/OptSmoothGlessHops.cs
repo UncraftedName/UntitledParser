@@ -91,11 +91,6 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		 */
 		public static void SmoothJumps(SourceDemo demo, Stream s, int maxGroundTicks) {
 
-			if ((demo.DemoInfo.DemoParseResult & DemoParseResult.EntParsingEnabled) == 0) {
-				Console.WriteLine("Entity parsing not enabled for this demo, can't apply smoothing.");
-				return;
-			}
-
 			// ReSharper disable once CompareOfFloatsByEqualityOperator
 			var jumpTicks =
 				(from msgTup in demo.FilterForMessage<SvcPacketEntities>()

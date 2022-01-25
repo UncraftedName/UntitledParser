@@ -151,11 +151,13 @@ namespace ConsoleApp.DemoArgProcessing {
 			} else {
 				Utils.PushForegroundColor(ConsoleColor.Red);
 				Console.Write("failed.");
-				// Could probably have a few more messages here regarding the nature of the failure,
-				// maybe eventually use the message of the exception, but that's not very informative atm.
-				if (demo.Header == null || demo.DemoInfo == null)
+				// Print the nature of the failure; the exception thrown from the parser doesn't provide much info,
+				// so that's partially what the parser result is for.
+				if ((demo.DemoParseResult & DemoParseResult.DataTooLong) != 0)
+					Console.WriteLine(" File too long.");
+				else if (demo.Header == null || demo.DemoInfo == null)
 					Console.WriteLine(" Bad demo header.");
-				else if ((demo.DemoInfo.DemoParseResult & DemoParseResult.UnknownGame) != 0)
+				else if ((demo.DemoParseResult & DemoParseResult.UnknownGame) != 0)
 					Console.WriteLine(" Demo from an unknown game.");
 				else if (demo.Frames == null || demo.FilterForPacket<Packet>().FirstOrDefault() == null)
 					Console.WriteLine(" Could not parse demo packets.");

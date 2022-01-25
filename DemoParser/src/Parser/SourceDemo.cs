@@ -42,25 +42,42 @@ namespace DemoParser.Parser {
 		internal CurBaseLines? CBaseLines;
 		private readonly IProgress<double>? _parseProgress;
 
-
-		public SourceDemo(FileInfo info, IProgress<double>? parseProgress = null)
-			: this(info.FullName, parseProgress) {}
+		// a way to tell what info did/didn't get parsed
+		public DemoParseResult DemoParseResult;
 
 
 		public SourceDemo(string fileDir, IProgress<double>? parseProgress = null)
-			: this(File.ReadAllBytes(fileDir), parseProgress, Path.GetFileName(fileDir)) {}
+			: this(new FileInfo(fileDir), parseProgress) {}
+
+
+		// the fact that C# only allows ctors to call other ctors with this syntax is quite silly
+		public SourceDemo(FileInfo file, IProgress<double>? parseProgress = null) : base(null) {
+			if (file.Length > BitStreamReader.MaxDataSize) {
+				DemoParseResult |= DemoParseResult.DataTooLong;
+			} else {
+				_parseProgress = parseProgress;
+				FileName = file.Name;
+				_privateReader = new BitStreamReader(File.ReadAllBytes(file.FullName));
+			}
+		}
 
 
 		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null, string demoName = "")
 			: base(null)
 		{
-			_parseProgress = parseProgress;
-			FileName = demoName;
-			_privateReader = new BitStreamReader(data);
+			if (data.Length > BitStreamReader.MaxDataSize) {
+				DemoParseResult |= DemoParseResult.DataTooLong;
+			} else {
+				_parseProgress = parseProgress;
+				FileName = demoName;
+				_privateReader = new BitStreamReader(data);
+			}
 		}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
+			if ((DemoParseResult & DemoParseResult.DataTooLong) != 0)
+				throw new InvalidDataException("data too long");
 			// make sure we set the demo settings first
 			Header = new DemoHeader(this);
 			Header.ParseStream(ref bsr);
@@ -86,7 +103,7 @@ namespace DemoParser.Parser {
 				throw;
 			}
 			EndAdjustmentTick ??= EndTick;
-			DemoInfo.DemoParseResult |= DemoParseResult.Success;
+			DemoParseResult |= DemoParseResult.Success;
 		}
 
 
@@ -142,5 +159,15 @@ namespace DemoParser.Parser {
 
 
 		// todo iterate over ent snapshots
+	}
+
+
+	// flags that get set during parsing, gives a way for other projects to figure out how much data we got, very WIP
+	[Flags]
+	public enum DemoParseResult {
+		Success           = 1,
+		EntParsingEnabled = 1 << 1,
+		UnknownGame       = 1 << 2,
+		DataTooLong       = 1 << 3,
 	}
 }
