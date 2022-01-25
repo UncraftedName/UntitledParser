@@ -98,7 +98,7 @@ namespace DemoParser.Parser.HelperClasses {
 
 			if (entryStream.HasValue && entry != null) {
 				entry.EntryData = StringTableEntryDataFactory.CreateData(
-					_demoRef, table.Name, entryName, _demoRef.DataTableParser.FlattenedProps);
+					_demoRef, table.Name, entryName, _demoRef.DataTableParser?.FlattenedProps);
 
 				entry.EntryData.ParseStream(entryStream.Value);
 			}
