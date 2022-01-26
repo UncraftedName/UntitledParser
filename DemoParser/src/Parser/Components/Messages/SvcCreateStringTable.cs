@@ -32,7 +32,7 @@ namespace DemoParser.Parser.Components.Messages {
 				Flags = (StringTableFlags)bsr.ReadBitsAsUInt(DemoInfo.NewDemoProtocol ? 2 : 1);
 
 			DemoRef.CurStringTablesManager.CreateStringTable(this);
-			TableUpdates = new StringTableUpdates(DemoRef, TableName, NumEntries);
+			TableUpdates = new StringTableUpdates(DemoRef, TableName, NumEntries, true);
 			TableUpdates.ParseStream(bsr.SplitAndSkip(dataLen));
 		}
 
@@ -65,10 +65,10 @@ namespace DemoParser.Parser.Components.Messages {
 
 	[Flags]
 	public enum StringTableFlags : uint { // hl2sdk-portal2  public/networkstringtabledefs.h   line 60
-		None              = 0,
-		DictionaryEnabled = 1,
-		Unknown           = 1 << 1,
+		None           = 0,
+		DataCompressed = 1,
+		Unknown        = 1 << 1,
 
-		Fake              = 1 << 30 // I created this SvcCreateStringTable object myself and it's fake
+		Fake           = 1 << 30 // I created this SvcCreateStringTable object myself and it's fake
 	}
 }

@@ -78,8 +78,9 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			pw.AppendLine($"friends name: {FriendsName}");
 			pw.AppendLine($"fake player: {FakePlayer}");
 			pw.AppendLine($"is hltv: {IsHlTv}");
-			pw.AppendLine($"custom file crc's: [logo: 0x{CustomFiles[0]:X}, sounds: 0x{CustomFiles[1]:X}, " +
-						  $"models: 0x{CustomFiles[2]:X}, txt: 0x{CustomFiles[3]:X}]");
+			if (CustomFiles != null)
+				pw.AppendLine($"custom file crc's: [logo: 0x{CustomFiles[0]:X}, sounds: 0x{CustomFiles[1]:X}, " +
+							  $"models: 0x{CustomFiles[2]:X}, txt: 0x{CustomFiles[3]:X}]");
 			pw.Append($"files downloaded: {FilesDownloaded}");
 		}
 

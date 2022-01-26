@@ -26,7 +26,7 @@ namespace DemoParser.Parser.Components.Messages {
 			ChangedEntriesCount = bsr.ReadUShortIfExists() ?? 1;
 			uint dataLen = bsr.ReadBitsAsUInt(20);
 
-			TableUpdates = new StringTableUpdates(DemoRef, TableName, ChangedEntriesCount);
+			TableUpdates = new StringTableUpdates(DemoRef, TableName, ChangedEntriesCount, false);
 			TableUpdates.ParseStream(bsr.SplitAndSkip(dataLen));
 		}
 
@@ -52,8 +52,9 @@ namespace DemoParser.Parser.Components.Messages {
 
 	public class StringTableUpdates : DemoComponent {
 
-		private readonly int _updatedEntries; // just used when parsing
+		private readonly int _numUpdatedEntries;
 		private readonly string _tableName;
+		private bool _isSvcCreate;
 		private bool _exceptionWhileParsing;
 		public readonly List<TableUpdate?> TableUpdates;
 
@@ -61,10 +62,11 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 
-		public StringTableUpdates(SourceDemo? demoRef, string tableName, int updatedEntries) : base(demoRef) {
+		public StringTableUpdates(SourceDemo? demoRef, string tableName, int numUpdatedEntries, bool isSvcCreate) : base(demoRef) {
 			_tableName = tableName;
-			_updatedEntries = updatedEntries;
-			TableUpdates = new List<TableUpdate?>(_updatedEntries);
+			_numUpdatedEntries = numUpdatedEntries;
+			_isSvcCreate = isSvcCreate;
+			TableUpdates = new List<TableUpdate?>(_numUpdatedEntries);
 		}
 
 
@@ -87,17 +89,24 @@ namespace DemoParser.Parser.Components.Messages {
 
 			try { // se2007/engine/networkstringtable.cpp  line 595
 				CurStringTable tableToUpdate = manager.Tables[_tableName];
+
+				if (tableToUpdate.Flags.HasValue && (tableToUpdate.Flags & StringTableFlags.DataCompressed) != 0 && _isSvcCreate) {
+					// decompress the data - engine/baseclientstate.cpp (hl2_src) line 1364
+					int uncompressedSize = bsr.ReadSInt();
+					int compressedSize = bsr.ReadSInt();
+					byte[] data = Compression.Decompress(ref bsr, compressedSize - 8); // -8 to ignore header
+					if (data.Length != uncompressedSize)
+						throw new Exception("could not decompress data in string table update");
+					bsr = new BitStreamReader(data);
+				}
+
 				int entryIndex = -1;
 				List<string> history = new List<string>();
 
-				for (int i = 0; i < _updatedEntries; i++) {
-
+				for (int i = 0; i < _numUpdatedEntries; i++) {
 					entryIndex++;
-					if (!bsr.ReadBool()) {
-						if (DemoRef.Header.NetworkProtocol > 14) // i'm actually not sure if this is where this goes
-							throw new NotImplementedException("encoded with dictionary");
+					if (!bsr.ReadBool())
 						entryIndex = (int)bsr.ReadBitsAsUInt(BitUtils.HighestBitIndex(tableToUpdate.MaxEntries));
-					}
 
 					string? entryName = null;
 					if (bsr.ReadBool()) {
@@ -150,8 +159,8 @@ namespace DemoParser.Parser.Components.Messages {
 				DemoRef.LogError($"error while parsing {GetType().Name} for table {_tableName}: {e.Message}");
 				_exceptionWhileParsing = true;
 				manager.TableReadable[_tableName] = false;
-				bsr.SkipToEnd();
 			}
+			bsr.SkipToEnd(); // in case of an exception I don't want this to be logged, otherwise assume the data parsed fine
 		}
 
 

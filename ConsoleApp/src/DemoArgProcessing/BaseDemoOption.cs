@@ -152,7 +152,7 @@ namespace ConsoleApp.DemoArgProcessing {
 				Utils.PushForegroundColor(ConsoleColor.Red);
 				Console.Write("failed.");
 				// Print the nature of the failure; the exception thrown from the parser doesn't provide much info,
-				// so that's partially what the parser result is for.
+				// so that's partially what the parse result flags are for.
 				if ((demo.DemoParseResult & DemoParseResult.DataTooLong) != 0)
 					Console.WriteLine(" File too long.");
 				else if (demo.Header == null || demo.DemoInfo == null)
