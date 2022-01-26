@@ -148,7 +148,7 @@ namespace DemoParser.Parser {
 				case 3:
 				case 4 when IsLeft4Dead1():
 					NewDemoProtocol = IsLeft4Dead1();
-					SendPropFlagBits = 16;
+					SendPropFlagBits = Game == HL2_OE ? 13 : 16;
 					SoundFlagBits = 9;
 					PropFlagChecker = new SendPropEnums.DemoProtocol3FlagChecker();
 					PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsOldDemoProtocol();

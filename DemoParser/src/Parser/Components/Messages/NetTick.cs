@@ -19,7 +19,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			EngineTick = bsr.ReadUInt();
-			if (DemoRef.Header.NetworkProtocol >= 14) {
+			if (DemoInfo.Game != SourceGame.HL2_OE) {
 				HostFrameTime = bsr.ReadUShort() / NetTickScaleUp;
 				HostFrameTimeStdDev = bsr.ReadUShort() / NetTickScaleUp;
 			}
@@ -33,7 +33,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.Append($"engine tick: {EngineTick}");
-			if (DemoRef.Header.NetworkProtocol >= 14) {
+			if (DemoInfo.Game != SourceGame.HL2_OE) {
 				pw.AppendLine($"\nhost frame time: {HostFrameTime}");
 				pw.Append($"host frame time std dev: {HostFrameTimeStdDev}");
 			}
