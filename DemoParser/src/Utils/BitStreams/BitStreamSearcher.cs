@@ -17,28 +17,28 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public int FindUInt(uint val, int bitCount) {
-			var tmp = new BitStreamWriter(4, IsLittleEndian);
+			var tmp = new BitStreamWriter(4);
 			tmp.WriteUInt(val);
 			return FindBytes(tmp.AsArray, bitCount);
 		}
 
 
 		public IEnumerable<int> FindUIntAllInstances(uint val, int bitCount) {
-			var tmp = new BitStreamWriter(4, IsLittleEndian);
+			var tmp = new BitStreamWriter(4);
 			tmp.WriteUInt(val);
 			return FindBytesAllInstances(tmp.AsArray, bitCount);
 		}
 
 
 		public IEnumerable<int> FindFloatAllInstances(float f) {
-			var tmp = new BitStreamWriter(4, IsLittleEndian);
+			var tmp = new BitStreamWriter(4);
 			tmp.WriteFloat(f);
 			return FindBytesAllInstances(tmp.AsArray, 32);
 		}
 
 
 		public int FindFloat(float val) {
-			var tmp = new BitStreamWriter(4, IsLittleEndian);
+			var tmp = new BitStreamWriter(4);
 			tmp.WriteFloat(val);
 			return FindBytes(tmp.AsArray, 32);
 		}

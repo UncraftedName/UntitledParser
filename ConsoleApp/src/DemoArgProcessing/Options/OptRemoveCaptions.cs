@@ -61,7 +61,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					Write(frame.Reader.ReadRemainingBits().bytes); // write frames that aren't changed
 				} else {
 					Packet p = (Packet)frame.Packet;
-					BitStreamWriter bsw = new BitStreamWriter(frame.Reader.ByteLength);
+					BitStreamWriter bsw = new BitStreamWriter(frame.Reader.BitLength / 8);
 					var last = p.MessageStream.Last().message;
 					int len = last.Reader.AbsoluteStart - frame.Reader.AbsoluteStart + last.Reader.BitLength;
 					bsw.WriteBits(frame.Reader.ReadBits(len), len);

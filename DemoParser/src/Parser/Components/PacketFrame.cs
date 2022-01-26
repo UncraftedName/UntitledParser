@@ -40,7 +40,10 @@ namespace DemoParser.Parser.Components {
 
 			Packet = PacketFactory.CreatePacket(DemoRef!, this, Type);
 			Packet.ParseStream(ref bsr);
-			bsr.EnsureByteAlignment(); // make sure the next frame starts on a byte boundary
+
+			// make sure the next frame starts on a byte boundary
+			if (bsr.CurrentBitIndex % 8 != 0)
+				bsr.SkipBits(8 - bsr.CurrentBitIndex % 8);
 		}
 
 

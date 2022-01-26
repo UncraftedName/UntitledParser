@@ -207,7 +207,7 @@ namespace ConsoleApp.DemoArgProcessing {
 			// if we're overwriting, write to a memory stream and don't overwrite the file we're done with the current process loop
 			if (SetupInfo.OverWriteDemos && extension == ".dem") {
 				_curOptionOverwriting = true;
-				return _binaryStream = new MemoryStream(_overwriteProgress.Reader.ByteLength);
+				return _binaryStream = new MemoryStream(_overwriteProgress.Reader.BitLength / 8);
 			}
 			return _binaryStream = CreateFileStream(fileSuffix, extension);
 		}

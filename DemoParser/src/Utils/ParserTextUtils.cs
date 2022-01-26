@@ -16,7 +16,7 @@ namespace DemoParser.Utils {
 
 
 		public static string ByteToBinaryString(byte b, int bitCount = 8) {
-			return Convert.ToString(b, 2).PadLeft(8, '0').Substring(0, bitCount);
+			return Convert.ToString(b, 2).PadLeft(8, '0')[(8 - bitCount)..];
 		}
 
 

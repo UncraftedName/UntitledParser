@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DemoParser.Utils.BitStreams;
 using NUnit.Framework;
 
@@ -20,7 +21,7 @@ namespace Tests {
 				bools.Add(r);
 				bsw.WriteBool(r);
 			}
-			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
+			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bools[i], bsr.ReadBool(), "index: " + i);
 		}
@@ -38,7 +39,7 @@ namespace Tests {
 				bits.Add(r);
 				bsw.WriteBitsFromUInt(r.val, r.size);
 			}
-			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
+			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsUInt(bits[i].size), "index: " + i);
 		}
@@ -58,7 +59,7 @@ namespace Tests {
 				bits.Add(r);
 				bsw.WriteBitsFromSInt(r.val, r.size);
 			}
-			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
+			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsSInt(bits[i].size), "index: " + i);
 		}
@@ -77,9 +78,30 @@ namespace Tests {
 				bits.Add(r);
 				bsw.WriteBitsFromUIntIfExists(r.val, r.size);
 			}
-			BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
+			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsUIntIfExists(bits[i].size), "index: " + i);
+		}
+
+
+		[Test, Parallelizable(ParallelScope.Self)]
+		public void SkipBits() {
+			var random = new Random(0);
+			BitStreamWriter bsw = new BitStreamWriter();
+			List<(int skipCount, uint val)> data = new List<(int skipCount, uint val)>();
+			byte[] randArr = new byte[100 / 8 + 1];
+			random.NextBytes(randArr);
+			for (int _ = 0; _ < Iterations; _++) {
+				(int skip, uint val) r = (random.Next(0, 100), (uint)random.Next());
+				data.Add(r);
+				bsw.WriteBits(randArr, r.skip);
+				bsw.WriteUInt(r.val);
+			}
+			BitStreamReader bsr = new BitStreamReader(bsw);
+			for (int i = 0; i < Iterations; i++) {
+				bsr.SkipBits(data[i].skipCount);
+				Assert.AreEqual(bsr.ReadUInt(), data[i].val, $"index: {i}");
+			}
 		}
 
 
@@ -91,7 +113,7 @@ namespace Tests {
 				BitStreamWriter bsw = new BitStreamWriter();
 				bsw.WriteBitsFromSInt(random.Next(), skip);
 				bsw.WriteBitCoord((float)((random.NextDouble() - 0.5) * 100000));
-				BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
+				BitStreamReader bsr = new BitStreamReader(bsw);
 				bsr.SkipBits(skip);
 				// Write the float back and then read it again, this will constrain it to the precision of a
 				// bit coord so we can do a direct equality check.
@@ -100,7 +122,7 @@ namespace Tests {
 				bsw = new BitStreamWriter();
 				bsw.WriteBitsFromSInt(random.Next(), skip);
 				bsw.WriteBitCoord(f);
-				bsr = new BitStreamReader(bsw.AsArray);
+				bsr = new BitStreamReader(bsw);
 				bsr.SkipBits(skip);
 				Assert.AreEqual(bsr.ReadBitCoord(), f, "index: " + i);
 			}
@@ -120,7 +142,7 @@ namespace Tests {
 				bsw.WriteBits(rand, bitLen);
 				if ((bitLen & 0x07) != 0)
 					rand[^1] &= (byte)(0xff >> (8 - (bitLen & 0x07))); // get rid of unused bits
-				BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
+				BitStreamReader bsr = new BitStreamReader(bsw);
 				bsr.SkipBits(skip);
 				CollectionAssert.AreEqual(rand, bsr.ReadBits(bitLen), $"index: {i}, bitlen: {bitLen}");
 			}
@@ -146,7 +168,7 @@ namespace Tests {
 				if ((bitLen & 0x07) != 0)
 					rand[^1] &= (byte)(0xff >> (8 - (bitLen & 0x07))); // get rid of unused bits
 				// okay, now lets read and compare to the rand array
-				BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
+				BitStreamReader bsr = new BitStreamReader(bsw);
 				bsr.SkipBits(skipBefore);
 				CollectionAssert.AreEqual(rand, bsr.ReadBits(bitLen), $"index: {i}, bitlen: {bitLen}");
 			}
@@ -168,9 +190,33 @@ namespace Tests {
 				bsw.WriteBits(rand, randCount);
 				bsw.WriteBitsFromSInt(testInt, testIntBits);
 				bsw.RemoveBitsAtIndex(skip, randCount);
-				BitStreamReader bsr = new BitStreamReader(bsw.AsArray);
+				BitStreamReader bsr = new BitStreamReader(bsw);
 				bsr.SkipBits(skip);
-				Assert.AreEqual((int)bsr.ReadBitsAsSInt(testIntBits), testInt);
+				Assert.AreEqual(bsr.ReadBitsAsSInt(testIntBits), testInt, $"index: {i}");
+			}
+		}
+
+
+		[Test, Parallelizable(ParallelScope.Self)]
+		public void WriteNullTerminatedStrings() {
+			var random = new Random(0);
+			List<(int skip, string str)> data = new List<(int skip, string str)>();
+			BitStreamWriter bsw = new BitStreamWriter();
+			byte[] randArr = new byte[100 / 8 + 1];
+			random.NextBytes(randArr);
+			for (int _ = 0; _ < Iterations; _++) {
+				(int skip, string str) r =
+					(random.Next(0, 100),
+						new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", random.Next(0, 15))
+							.Select(s => s[random.Next(s.Length)]).ToArray()));
+				data.Add(r);
+				bsw.WriteBits(randArr, r.skip);
+				bsw.WriteString(r.str);
+			}
+			BitStreamReader bsr = new BitStreamReader(bsw);
+			for (int i = 0; i < Iterations; i++) {
+				bsr.SkipBits(data[i].skip);
+				Assert.AreEqual(bsr.ReadNullTerminatedString(), data[i].str, $"index: {i}");
 			}
 		}
 	}
