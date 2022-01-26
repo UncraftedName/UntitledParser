@@ -12,7 +12,7 @@ using NUnit.Framework;
 
 namespace Tests {
 
-	public class ConsoleOptionTests {
+	public class ConsoleOptionTestses : DemoParseTests {
 
 		private enum BasicEnum {
 			Val0,
@@ -66,12 +66,10 @@ namespace Tests {
 
 
 		[TestCase("portal 1 3420.dem", Description = "Portal 1 3420 demo without captions")]
-		[TestCase("portal 1 5135.dem", Description = "Portal 1 5135 demo without captions")]
-		[TestCase("captions.dem"), Description("Portal 1 5135 demo with captions")]
+		[TestCase("portal 1 5135 captions.dem"), Description("Portal 1 5135 demo with captions")]
 		[Parallelizable(ParallelScope.All)]
 		public void RemoveCaptions(string fileName) {
-			SourceDemo before = new SourceDemo($"{ParseTests.ProjectDir}/sample demos/{fileName}");
-			before.Parse();
+			var before = GetDemo(fileName);
 			MemoryStream outStream = new MemoryStream();
 			OptRemoveCaptions.RemoveCaptions(before, outStream);
 			SourceDemo after = new SourceDemo(outStream.ToArray());
@@ -94,15 +92,14 @@ namespace Tests {
 
 
 		[TestCase("portal 1 leak.dem", Description = "Portal 1 (Leak)")]
-		[TestCase("portal 1 5135.dem", Description = "Portal 1 (5135)")]
 		[TestCase("portal 1 5135 spliced.dem", Description = "Portal 1 (5135 Spliced)")]
 		[TestCase("portal 1 steampipe.dem", Description = "Portal 1 (SteamPipe)")]
 		[TestCase("portal 1 3420.dem", Description = "Portal 1 (3420)")]
+		[TestCase("portal 1 5135 captions.dem"), Description("Portal 1 5135 demo with captions")]
 		[Parallelizable(ParallelScope.All)]
 		public void ChangeDemoDir(string fileName) {
 			const string newDir = "sussy baka uwu";
-			SourceDemo before = new SourceDemo($"{ParseTests.ProjectDir}/sample demos/{fileName}");
-			before.Parse();
+			var before = GetDemo(fileName);
 			MemoryStream outStream = new MemoryStream();
 			OptChangeDemoDir.ChangeDemoDir(before, outStream, newDir);
 			SourceDemo after = new SourceDemo(outStream.ToArray());
