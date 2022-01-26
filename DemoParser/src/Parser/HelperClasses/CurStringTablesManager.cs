@@ -91,14 +91,17 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 
 
-		internal CurStringTableEntry? AddTableEntry(CurStringTable table, ref BitStreamReader? entryStream,
+		internal CurStringTableEntry? AddTableEntry(
+			CurStringTable table,
+			ref BitStreamReader? entryStream,
+			int? decompressedIndex,
 			string entryName)
 		{
 			var entry = AddTableEntry(table, null, entryName);
 
 			if (entryStream.HasValue && entry != null) {
 				entry.EntryData = StringTableEntryDataFactory.CreateData(
-					_demoRef, table.Name, entryName, _demoRef.DataTableParser?.FlattenedProps);
+					_demoRef, decompressedIndex, table.Name, entryName, _demoRef.DataTableParser?.FlattenedProps);
 
 				entry.EntryData.ParseStream(entryStream.Value);
 			}
@@ -127,7 +130,7 @@ namespace DemoParser.Parser.HelperClasses {
 		internal CurStringTableEntry? SetEntryData(CurStringTable table, CurStringTableEntry entry) {
 			if (!TableReadable[table.Name])
 				return null;
-			entry.EntryData = StringTableEntryDataFactory.CreateData(_demoRef, table.Name, entry.EntryName);
+			entry.EntryData = StringTableEntryDataFactory.CreateData(_demoRef, null, table.Name, entry.EntryName);
 			return entry;
 		}
 

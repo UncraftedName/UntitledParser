@@ -9,10 +9,10 @@ namespace DemoParser.Parser.Components.Abstract {
 	/// </summary>
 	public abstract class DemoComponent : PrettyClass {
 
-		private int _absoluteBitStart;
-		private int _absoluteBitEnd;
+		protected int AbsoluteBitStart;
+		protected int AbsoluteBitEnd;
 		public virtual BitStreamReader Reader =>
-			DemoRef!.ReaderFromOffset(_absoluteBitStart, _absoluteBitEnd - _absoluteBitStart);
+			DemoRef!.ReaderFromOffset(AbsoluteBitStart, AbsoluteBitEnd - AbsoluteBitStart);
 
 		internal readonly SourceDemo? DemoRef;
 		protected DemoInfo DemoInfo => DemoRef.DemoInfo!;
@@ -28,16 +28,16 @@ namespace DemoParser.Parser.Components.Abstract {
 
 
 		public void ParseStream(ref BitStreamReader bsr) {
-			_absoluteBitStart = bsr.AbsoluteBitIndex;
-			_absoluteBitEnd = bsr.AbsoluteBitIndex + bsr.BitLength;
+			AbsoluteBitStart = bsr.AbsoluteBitIndex;
+			AbsoluteBitEnd = bsr.AbsoluteBitIndex + bsr.BitLength;
 			Parse(ref bsr);
-			_absoluteBitEnd = bsr.AbsoluteBitIndex;
+			AbsoluteBitEnd = bsr.AbsoluteBitIndex;
 		}
 
 
 		public int ParseStream(BitStreamReader bsr) {
-			_absoluteBitStart = bsr.AbsoluteBitIndex;
-			_absoluteBitEnd = bsr.AbsoluteBitIndex + bsr.BitLength;
+			AbsoluteBitStart = bsr.AbsoluteBitIndex;
+			AbsoluteBitEnd = bsr.AbsoluteBitIndex + bsr.BitLength;
 			Parse(ref bsr);
 			if (bsr.BitsRemaining > 0)
 				Debug.WriteLine($"{GetType().Name} didn't finish reading all bits! {bsr.BitsRemaining} left.");

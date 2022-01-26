@@ -11,11 +11,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public byte[]? Values;
 
 
-		public LightStyle(SourceDemo? demoRef) : base(demoRef) {}
+		public LightStyle(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef, decompressedIndex) {}
 
 
 		internal override StringTableEntryData CreateCopy() {
-			return new LightStyle(DemoRef) {Values = Values};
+			return new LightStyle(DemoRef, DecompressedIndex) {Values = Values};
 		}
 
 

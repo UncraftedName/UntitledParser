@@ -10,11 +10,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		internal override bool ContentsKnown => false;
 
 
-		public UnknownStringTableEntryData(SourceDemo? demoRef) : base(demoRef) {}
+		public UnknownStringTableEntryData(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef, decompressedIndex) {}
 
 
 		internal override StringTableEntryData CreateCopy() {
-			return new UnknownStringTableEntryData(DemoRef);
+			return new UnknownStringTableEntryData(DemoRef, DecompressedIndex);
 		}
 
 

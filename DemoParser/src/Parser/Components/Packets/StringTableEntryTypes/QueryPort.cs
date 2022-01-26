@@ -11,11 +11,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public uint Port;
 
 
-		public QueryPort(SourceDemo? demoRef) : base(demoRef) {}
+		public QueryPort(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef, decompressedIndex) {}
 
 
 		internal override StringTableEntryData CreateCopy() {
-			return new QueryPort(DemoRef) {Port = Port};
+			return new QueryPort(DemoRef, DecompressedIndex) {Port = Port};
 		}
 
 

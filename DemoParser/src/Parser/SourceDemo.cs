@@ -42,6 +42,10 @@ namespace DemoParser.Parser {
 		internal CurBaseLines? CBaseLines;
 		private readonly IProgress<double>? _parseProgress;
 
+		// We want access to the bit reader of each component after parsing,
+		// but some data must be decompressed first so we'll store that data here.
+		internal List<byte[]> DecompressedLookup;
+
 		// a way to tell what info did/didn't get parsed
 		public DemoParseResult DemoParseResult;
 
@@ -85,6 +89,7 @@ namespace DemoParser.Parser {
 			// it might be worth it to implement updating helper classes with listeners, but it's not a huge deal atm
 			CurStringTablesManager = new CurStringTablesManager(this);
 			ErrorList = new List<string>();
+			DecompressedLookup = new List<byte[]>();
 			Frames = new List<PacketFrame>();
 			StartTick = 0;
 			try {

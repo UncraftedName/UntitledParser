@@ -54,7 +54,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		private readonly int _numUpdatedEntries;
 		private readonly string _tableName;
-		private bool _isSvcCreate;
+		private readonly bool _isSvcCreate;
 		private bool _exceptionWhileParsing;
 		public readonly List<TableUpdate?> TableUpdates;
 
@@ -90,11 +90,14 @@ namespace DemoParser.Parser.Components.Messages {
 			try { // se2007/engine/networkstringtable.cpp  line 595
 				CurStringTable tableToUpdate = manager.Tables[_tableName];
 
+				int? decompressedIndex = null;
 				if (tableToUpdate.Flags.HasValue && (tableToUpdate.Flags & StringTableFlags.DataCompressed) != 0 && _isSvcCreate) {
 					// decompress the data - engine/baseclientstate.cpp (hl2_src) line 1364
 					int uncompressedSize = bsr.ReadSInt();
 					int compressedSize = bsr.ReadSInt();
 					byte[] data = Compression.Decompress(ref bsr, compressedSize - 8); // -8 to ignore header
+					decompressedIndex = DemoRef.DecompressedLookup.Count;
+					DemoRef.DecompressedLookup.Add(data); // so that we can access the reader for the entries later
 					if (data.Length != uncompressedSize)
 						throw new Exception("could not decompress data in string table update");
 					bsr = new BitStreamReader(data);
@@ -113,7 +116,7 @@ namespace DemoParser.Parser.Components.Messages {
 						if (bsr.ReadBool()) { // the first part of the string may be the same as for other entries
 							int index = (int)bsr.ReadBitsAsUInt(5);
 							int subStrLen = (int)bsr.ReadBitsAsUInt(DemoInfo.SubStringBits);
-							entryName = history[index].Substring(0, subStrLen);
+							entryName = history[index][..subStrLen];
 							entryName += bsr.ReadNullTerminatedString();
 						} else {
 							entryName = bsr.ReadNullTerminatedString();
@@ -139,7 +142,7 @@ namespace DemoParser.Parser.Components.Messages {
 						int j = tableToUpdate.Entries.FindIndex(tableEntry => tableEntry.EntryName == entryName);
 						if (j == -1) {
 							TableUpdates.Add(new TableUpdate(
-								manager.AddTableEntry(tableToUpdate, ref entryStream, entryName),
+								manager.AddTableEntry(tableToUpdate, ref entryStream, decompressedIndex, entryName),
 								TableUpdateType.NewEntry,
 								tableToUpdate.Entries.Count - 1)); // sub 1 since we update the table 2 lines up
 						} else {

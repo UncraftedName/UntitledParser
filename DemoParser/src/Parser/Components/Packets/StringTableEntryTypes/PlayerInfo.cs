@@ -24,11 +24,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public byte FilesDownloaded; // this counter increases each time the server downloaded a new file
 
 
-		public PlayerInfo(SourceDemo? demoRef) : base(demoRef) {}
+		public PlayerInfo(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef, decompressedIndex) {}
 
 
 		internal override StringTableEntryData CreateCopy() {
-			return new PlayerInfo(DemoRef) {
+			return new PlayerInfo(DemoRef, DecompressedIndex) {
 				SteamId = SteamId,
 				Name = Name,
 				UserId = UserId,

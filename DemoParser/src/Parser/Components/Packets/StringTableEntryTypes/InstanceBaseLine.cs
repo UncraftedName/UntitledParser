@@ -25,14 +25,16 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public IReadOnlyList<(int propIndex, EntityProperty prop)>? Properties;
 
 
-		public InstanceBaseline(SourceDemo? demoRef, string entryName, PropLookup? propLookup) : base(demoRef) {
+		public InstanceBaseline(SourceDemo? demoRef, int? decompressedIndex, string entryName, PropLookup? propLookup)
+			: base(demoRef, decompressedIndex)
+		{
 			_entryName = entryName;
 			_propLookup = propLookup;
 		}
 
 
 		internal override StringTableEntryData CreateCopy() {
-			return new InstanceBaseline(DemoRef, _entryName, _propLookup)
+			return new InstanceBaseline(DemoRef, DecompressedIndex, _entryName, _propLookup)
 				{ServerClassRef = ServerClassRef, Properties = Properties};
 		}
 

@@ -11,11 +11,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public string ClassName;
 
 
-		public GameRulesCreation(SourceDemo? demoRef) : base(demoRef) {}
+		public GameRulesCreation(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef, decompressedIndex) {}
 
 
 		internal override StringTableEntryData CreateCopy() {
-			return new GameRulesCreation(DemoRef) {ClassName = ClassName};
+			return new GameRulesCreation(DemoRef, DecompressedIndex) {ClassName = ClassName};
 		}
 
 

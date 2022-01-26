@@ -157,6 +157,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 				EntryData = StringTableEntryDataFactory.CreateData(
 					DemoRef,
+					null,
 					TableRef.Name,
 					Name,
 					DemoRef.DataTableParser.FlattenedProps);
