@@ -106,6 +106,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 		public bool NeedsDecoder;
 		public string Name;
+		public int ExpectedPropCount; // for tests
 		public List<SendTableProp> SendProps;
 
 
@@ -115,9 +116,9 @@ namespace DemoParser.Parser.Components.Packets {
 		protected override void Parse(ref BitStreamReader bsr) {
 			NeedsDecoder = bsr.ReadBool();
 			Name = bsr.ReadNullTerminatedString();
-			uint propCount = bsr.ReadBitsAsUInt(10);
-			SendProps = new List<SendTableProp>((int)propCount);
-			for (int i = 0; i < propCount; i++) {
+			ExpectedPropCount = (int)bsr.ReadBitsAsUInt(10);
+			SendProps = new List<SendTableProp>(ExpectedPropCount);
+			for (int i = 0; i < ExpectedPropCount; i++) {
 				SendProps.Add(new SendTableProp(DemoRef, this));
 				SendProps[^1].ParseStream(ref bsr);
 			}

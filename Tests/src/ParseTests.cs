@@ -1,6 +1,9 @@
 using System.IO;
 using System.Reflection;
+using System.Text;
 using DemoParser.Parser;
+using DemoParser.Parser.Components.Packets;
+using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using NUnit.Framework;
 
@@ -10,9 +13,7 @@ namespace Tests {
 
 		public static readonly string ProjectDir =
 			// bin/Debug/net461 -> ../../..
-			Directory.GetParent(
-				Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
-				.Parent!.Parent!.FullName;
+			Directory.GetParent(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!)!.Parent!.Parent!.FullName;
 
 		private static readonly string DumpFolder = $"{ProjectDir}/sample demos/demo dump";
 
@@ -50,10 +51,21 @@ namespace Tests {
 		};
 
 
-		[TestCaseSource(nameof(_demoList)), Parallelizable(ParallelScope.All)]
-		public void ParseAndDumpDemo(string fileName) {
+		private static SourceDemo GetDemo(string fileName) {
 			SourceDemo demo = new SourceDemo($"{ProjectDir}/sample demos/{fileName}");
 			demo.Parse();
+			return demo;
+		}
+
+
+		private static bool IsAscii(string s) {
+			return Encoding.UTF8.GetByteCount(s) == s.Length;
+		}
+
+
+		[TestCaseSource(nameof(_demoList)), Parallelizable(ParallelScope.All)]
+		public void ParseAndDumpDemo(string fileName) {
+			var demo = GetDemo(fileName);
 			using PrettyStreamWriter psw = new PrettyStreamWriter(
 				new FileStream($"{DumpFolder}/{demo.FileName![..^4]}.txt", FileMode.Create));
 			demo.PrettyWrite(psw);
@@ -62,8 +74,7 @@ namespace Tests {
 
 		[TestCaseSource(nameof(_demoList)), Parallelizable(ParallelScope.All)]
 		public void BasicTimeTest(string fileName) {
-			SourceDemo demo = new SourceDemo($"{ProjectDir}/sample demos/{fileName}");
-			demo.Parse();
+			var demo = GetDemo(fileName);
 			// all these demos should be a few seconds to a few minutes long
 			Assert.Greater(demo.TickCount(false), 100);
 			Assert.Less(demo.TickCount(false), 100000);
@@ -71,6 +82,24 @@ namespace Tests {
 			Assert.Less(demo.AdjustedTickCount(false), 100000);
 			Assert.Greater(demo.DemoInfo.TickInterval, 1.0/100);
 			Assert.Less(demo.DemoInfo.TickInterval, 1.0/10);
+		}
+
+
+		[TestCaseSource(nameof(_demoList)), Parallelizable(ParallelScope.All)]
+		public void EnsureDataTablesParsed(string fileName) {
+			var demo = GetDemo(fileName);
+			foreach (DataTables dataTables in demo.FilterForPacket<DataTables>()) {
+				Assert.NotNull(dataTables.Tables);
+				CollectionAssert.AllItemsAreNotNull(dataTables.Tables);
+				foreach (SendTable sendTable in dataTables.Tables) {
+					Assert.NotNull(sendTable.SendProps);
+					CollectionAssert.AllItemsAreNotNull(sendTable.SendProps);
+					Assert.That(IsAscii(sendTable.Name), $"table name \"{sendTable.Name}\" contains non-ascii chars");
+					Assert.AreEqual(sendTable.ExpectedPropCount, sendTable.SendProps.Count, "wrong number of send props read");
+					foreach (SendTableProp sendProp in sendTable.SendProps)
+						Assert.That(IsAscii(sendProp.Name), $"table prop name \"{sendProp.Name}\" contains non-ascii chars");
+				}
+			}
 		}
 	}
 }
