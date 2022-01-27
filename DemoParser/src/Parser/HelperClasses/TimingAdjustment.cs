@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
@@ -23,11 +24,11 @@ namespace DemoParser.Parser.HelperClasses {
 	[SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
 	public static class TimingAdjustment {
 
-		public static readonly (SourceGame game, string mapName)[] ExcludedMaps = {
+		public static readonly ICollection<(SourceGame game, string mapName)> ExcludedMaps = new [] {
 			(PORTAL_1_5135, "gex03"),      // gamma energy last map
 			(PORTAL_1_5135, "rex_menu"),   // rexaura menu (why tf does this even have a demo???)
 			(PORTAL_1_1910503, "rex_menu")
-		};
+		}.ToImmutableHashSet();
 
 
 		// In vanilla you can check for game begin/end without doing ent parsing, so I use that so that the this works

@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
+using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using static System.Text.RegularExpressions.RegexOptions;
 
@@ -235,6 +236,9 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				// consider this demo to be part of a different run if the hash doesn't match
 				if (_firstHash.Value != QuickHash(demo))
 					ValidFlags &= ~(Flags.TotalTimeValid | Flags.AdjustedTimeValid);
+
+				if (TimingAdjustment.ExcludedMaps.Contains((demo.DemoInfo.Game, demo.Header.MapName)))
+					return;
 
 				int newTicks, newAdjustedTicks;
 				if (demo.TotalTimeValid()) {
