@@ -153,7 +153,9 @@ namespace ConsoleApp.DemoArgProcessing {
 				Console.Write("failed.");
 				// Print the nature of the failure; the exception thrown from the parser doesn't provide much info,
 				// so that's partially what the parse result flags are for.
-				if ((demo.DemoParseResult & DemoParseResult.DataTooLong) != 0)
+				if (demo == null)
+					Console.WriteLine(" Could not read file.");
+				else if ((demo.DemoParseResult & DemoParseResult.DataTooLong) != 0)
 					Console.WriteLine(" File too long.");
 				else if (demo.Header == null || demo.DemoInfo == null)
 					Console.WriteLine(" Bad demo header.");

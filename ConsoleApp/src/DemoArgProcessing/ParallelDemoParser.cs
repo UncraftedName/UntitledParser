@@ -56,8 +56,8 @@ namespace ConsoleApp.DemoArgProcessing {
 				ThreadPool.QueueUserWorkItem(state => {
 					ParseInfo info = (ParseInfo)state;
 					if (!_disposed) {
-						info.Demo = new SourceDemo(info.FileInfo, info.ProgressBar);
 						try {
+							info.Demo = new SourceDemo(info.FileInfo, info.ProgressBar);
 							info.Demo.Parse();
 						} catch (Exception e) {
 							info.Exception = e;
