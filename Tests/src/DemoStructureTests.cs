@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text;
+using DemoParser.Parser;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
@@ -61,6 +62,22 @@ namespace Tests {
 						Assert.That(IsAscii(sendProp.Name), $"table prop name \"{sendProp.Name}\" contains non-ascii chars");
 				}
 			}
+		}
+
+
+		[TestCase("portal 1 leak.dem", Description = "Portal 1 (Leak)")]
+		[TestCase("portal 1 5135 spliced.dem", Description = "Portal 1 (5135 Spliced)")]
+		[TestCase("portal 1 3420.dem", Description = "Portal 1 (3420)")]
+		[TestCase("portal 1 5135 captions.dem", Description = "Portal 1 5135 demo with captions")]
+		[TestCase("portal 1 5135 hltv client.dem", Description = "Portal 1 (5135 HLTV Client)")]
+		[TestCase("portal 1 5135 hltv server.dem", Description = "Portal 1 (5135 HLTV Server)")]
+		[TestCase("portal 2 sp.dem", Description = "Portal 2 single player")]
+		[TestCase("portal 2 coop.dem", Description = "Portal 2 co-op")]
+		[Parallelizable(ParallelScope.All)]
+		public void EnsureEntsParsed(string fileName) {
+			var demo = GetDemo(fileName);
+			// flag will get set to 0 if ent parsing fails
+			Assert.That((demo.DemoParseResult & DemoParseResult.EntParsingEnabled) != 0);
 		}
 	}
 }
