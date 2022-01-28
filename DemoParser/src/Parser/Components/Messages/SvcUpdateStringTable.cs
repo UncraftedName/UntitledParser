@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -105,7 +104,7 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 
 				int entryIndex = -1;
-				List<string> history = new List<string>();
+				var history = new C5.CircularQueue<string>(32);
 
 				for (int i = 0; i < _numUpdatedEntries; i++) {
 					entryIndex++;
@@ -134,29 +133,27 @@ namespace DemoParser.Parser.Components.Messages {
 						entryStream = bsr.SplitAndSkip(streamLen);
 					}
 
-					// Check if we are updating an old entry or adding a new one
+					// are we are updating an old entry or adding a new one
 					if (entryIndex < tableToUpdate.Entries.Count) {
 						// if client-side then negative index, otherwise positive
 						entryName = tableToUpdate.Entries[Math.Abs(entryIndex)].EntryName;
 					} else { // Grow the table (entryIndex must be the next empty slot)
 						entryName ??= ""; // avoid crash because of NULL strings
-						int j = tableToUpdate.Entries.FindIndex(tableEntry => tableEntry.EntryName == entryName);
-						if (j == -1) {
-							TableUpdates.Add(new TableUpdate(
-								manager.AddTableEntry(tableToUpdate, ref entryStream, decompressedIndex, entryName),
-								TableUpdateType.NewEntry,
-								tableToUpdate.Entries.Count - 1)); // sub 1 since we update the table 2 lines up
-						} else {
+						if (tableToUpdate.EntryToIndex.TryGetValue(entryName, out int j)) {
 							TableUpdates.Add(new TableUpdate(
 								manager.SetEntryData(tableToUpdate, tableToUpdate.Entries[j]),
 								TableUpdateType.ChangeEntryData,
 								j));
+						} else {
+							TableUpdates.Add(new TableUpdate(
+								manager.AddTableEntry(tableToUpdate, ref entryStream, decompressedIndex, entryName),
+								TableUpdateType.NewEntry,
+								tableToUpdate.Entries.Count - 1)); // sub 1 since we update the table 2 lines up
 						}
 					}
-
-					if (history.Count > 31)
-						history.RemoveAt(0);
-					history.Add(entryName);
+					if (history.Count == 32)
+						history.Dequeue();
+					history.Push(entryName);
 				}
 			} catch (Exception e) {
 				// there was an update I couldn't parse, assume this C_table contain irrelevant data from here

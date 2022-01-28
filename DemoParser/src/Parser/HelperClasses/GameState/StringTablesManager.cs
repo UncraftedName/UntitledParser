@@ -100,22 +100,19 @@ namespace DemoParser.Parser.HelperClasses.GameState {
 			var entry = AddTableEntry(table, null, entryName);
 
 			if (entryStream.HasValue && entry != null) {
-				entry.EntryData = StringTableEntryDataFactory.CreateData(
-					_demoRef, decompressedIndex, table.Name, entryName, _demoRef.DataTableParser?.FlattenedProps);
-
+				entry.EntryData = StringTableEntryDataFactory.CreateEntryData(_demoRef, decompressedIndex, table.Name, entryName);
 				entry.EntryData.ParseStream(entryStream.Value);
 			}
 			return entry;
 		}
 
 
-		internal MutableStringTableEntry? AddTableEntry(MutableStringTable table, StringTableEntryData? eData,
-			string entryName)
-		{
+		private MutableStringTableEntry? AddTableEntry(MutableStringTable table, StringTableEntryData? eData, string entryName) {
 			if (!TableReadable[table.Name])
 				return null;
-			table.Entries.Add(new MutableStringTableEntry(_demoRef, table, eData, entryName));
-			return table.Entries[^1];
+			var entry = new MutableStringTableEntry(_demoRef, table, eData, entryName);
+			table.AddNewEntry(entry);
+			return entry;
 		}
 
 
@@ -130,7 +127,7 @@ namespace DemoParser.Parser.HelperClasses.GameState {
 		internal MutableStringTableEntry? SetEntryData(MutableStringTable table, MutableStringTableEntry entry) {
 			if (!TableReadable[table.Name])
 				return null;
-			entry.EntryData = StringTableEntryDataFactory.CreateData(_demoRef, null, table.Name, entry.EntryName);
+			entry.EntryData = StringTableEntryDataFactory.CreateEntryData(_demoRef, null, table.Name, entry.EntryName);
 			return entry;
 		}
 
@@ -192,6 +189,7 @@ namespace DemoParser.Parser.HelperClasses.GameState {
 		public readonly StringTableFlags? Flags;
 		// string table fields
 		public readonly List<MutableStringTableEntry> Entries;
+		public readonly Dictionary<string, int> EntryToIndex;
 		public readonly List<MutableStringTableClass> Classes;
 
 
@@ -204,7 +202,14 @@ namespace DemoParser.Parser.HelperClasses.GameState {
 			UserDataSizeBits = creationInfo.UserDataSizeBits;
 			Flags = creationInfo.Flags;
 			Entries = new List<MutableStringTableEntry>();
+			EntryToIndex = new Dictionary<string, int>();
 			Classes = new List<MutableStringTableClass>();
+		}
+
+
+		public void AddNewEntry(MutableStringTableEntry entry) {
+			EntryToIndex[entry.EntryName] = Entries.Count;
+			Entries.Add(entry);
 		}
 
 

@@ -19,46 +19,31 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 	public class InstanceBaseline : StringTableEntryData {
 
 		private readonly string _entryName;
-		private BitStreamReader _bsr;
-		// might not get set until later
-		private PropLookup? _propLookup;
+		private PropLookup? _propLookup; // save if we copy this entry (in case of spliced demos or something idk)
 		public ServerClass? ServerClassRef;
 		public IReadOnlyList<(int propIndex, EntityProperty prop)>? Properties;
 
 
-		public InstanceBaseline(SourceDemo? demoRef, int? decompressedIndex, string entryName, PropLookup? propLookup)
+		public InstanceBaseline(SourceDemo? demoRef, int? decompressedIndex, string entryName)
 			: base(demoRef, decompressedIndex)
 		{
 			_entryName = entryName;
-			_propLookup = propLookup;
 		}
 
 
 		internal override StringTableEntryData CreateCopy() {
-			return new InstanceBaseline(DemoRef, DecompressedIndex, _entryName, _propLookup)
-				{ServerClassRef = ServerClassRef, Properties = Properties};
+			return new InstanceBaseline(DemoRef, DecompressedIndex, _entryName) {ServerClassRef = ServerClassRef, Properties = Properties};
 		}
 
 
-		// if we're parsing this before the data tables, just leave it for now
 		protected override void Parse(ref BitStreamReader bsr) {
-			if (_propLookup != null) {
-				ParseBaseLineData(_propLookup, ref bsr);
-				if (bsr.BitsRemaining < 8) // suppress warnings
-					bsr.SkipToEnd();
-			} else {
-				_bsr = bsr;
+			_propLookup ??= DemoRef.DataTableParser?.FlattenedProps;
+			if (_propLookup == null) {
+				// we don't have data tables yet, come back later...
 				bsr.SkipToEnd();
+				return;
 			}
-		}
-
-
-		internal void ParseBaseLineData(PropLookup propLookup) => ParseBaseLineData(propLookup, ref _bsr);
-
-
-		// called once
-		private void ParseBaseLineData(PropLookup propLookup, ref BitStreamReader bsr) {
-			_propLookup = propLookup;
+			// we should only get to here once
 			int id = int.Parse(_entryName);
 			ServerClassRef = _propLookup[id].serverClass;
 
@@ -67,7 +52,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			Debug.Assert(ReferenceEquals(ServerClassRef, _propLookup.Single(tuple => tuple.serverClass.DataTableId == id).serverClass),
 				"the server classes must be searched to match ID; cannot use ID as index");
 
-			List<FlattenedProp> fProps = propLookup[id].flattenedProps;
+			List<FlattenedProp> fProps = _propLookup[id].flattenedProps;
 
 			try {
 				Properties = bsr.ReadEntProps(fProps, DemoRef);
@@ -77,6 +62,8 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			} catch (Exception e) {
 				DemoRef.LogError($"error while parsing baseline for class {ServerClassRef.ClassName}: {e.Message}");
 			}
+			if (bsr.BitsRemaining < 8) // suppress warnings
+				bsr.SkipToEnd();
 		}
 
 

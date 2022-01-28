@@ -151,18 +151,10 @@ namespace DemoParser.Parser.Components.Packets {
 		protected override void Parse(ref BitStreamReader bsr) {
 			Name = bsr.ReadNullTerminatedString();
 			if (bsr.ReadBool()) {
-				ushort dataLen = bsr.ReadUShort();
-
+				ushort byteLen = bsr.ReadUShort();
 				Debug.Assert(DemoRef.DataTableParser.FlattenedProps != null);
-
-				EntryData = StringTableEntryDataFactory.CreateData(
-					DemoRef,
-					null,
-					TableRef.Name,
-					Name,
-					DemoRef.DataTableParser.FlattenedProps);
-
-				EntryData.ParseStream(bsr.SplitAndSkip(dataLen << 3));
+				EntryData = StringTableEntryDataFactory.CreateEntryData(DemoRef, null, TableRef.Name, Name);
+				EntryData.ParseStream(bsr.SplitAndSkip(byteLen * 8));
 			}
 		}
 

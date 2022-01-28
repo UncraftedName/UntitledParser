@@ -31,16 +31,11 @@ namespace DemoParser.Parser.Components.Abstract {
 
 
 	public static class StringTableEntryDataFactory {
-
-		// Pass in substream. If prop lookup is populated the baseline will get parsed right away.
-		public static StringTableEntryData CreateData(
-			SourceDemo? demoRef, int? decompressedIndex, string tableName, string entryName,
-			PropLookup? propLookup = null)
-		{
+		public static StringTableEntryData CreateEntryData(SourceDemo? demoRef, int? decompressedIndex, string tableName, string entryName) {
 			return tableName switch {
 				TableNames.UserInfo          => new PlayerInfo(demoRef, decompressedIndex),
 				TableNames.ServerQueryInfo   => new QueryPort(demoRef, decompressedIndex),
-				TableNames.InstanceBaseLine  => new InstanceBaseline(demoRef, decompressedIndex, entryName, propLookup),
+				TableNames.InstanceBaseLine  => new InstanceBaseline(demoRef, decompressedIndex, entryName),
 				TableNames.GameRulesCreation => new GameRulesCreation(demoRef, decompressedIndex),
 				TableNames.LightStyles       => new LightStyle(demoRef, decompressedIndex),
 				_ => new UnknownStringTableEntryData(demoRef, decompressedIndex)

@@ -99,11 +99,11 @@ namespace DemoParser.Parser.HelperClasses.GameState {
 
 			if (allowModifyDemo && _demoRef.StringTablesManager.TableReadable.GetValueOrDefault(TableNames.InstanceBaseLine)) {
 				_demoRef.StringTablesManager.Tables[TableNames.InstanceBaseLine]
-					.Entries.ToList()
+					.Entries
 					.Select(entry => entry.EntryData)
 					.Cast<InstanceBaseline>()
 					.ToList()
-					.ForEach(baseline => baseline.ParseBaseLineData(FlattenedProps!));
+					.ForEach(baseline => baseline.ParseStream(baseline.Reader));
 			}
 		}
 
