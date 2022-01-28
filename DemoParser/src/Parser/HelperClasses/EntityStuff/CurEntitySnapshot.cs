@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using C5;
 using DemoParser.Parser.Components.Messages;
 
 namespace DemoParser.Parser.HelperClasses.EntityStuff {
@@ -12,18 +13,22 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		private readonly SourceDemo _demoRef;
 		public readonly Entity?[] Entities;
+		private readonly TreeSet<int> _nonNullEnts;
 		public uint EngineTick; // set from the packet packet
 
 
 		public CurEntitySnapshot(SourceDemo demoRef) {
 			_demoRef = demoRef;
 			Entities = new Entity?[DemoInfo.MaxEdicts];
+			_nonNullEnts = new TreeSet<int>();
 		}
 
 
 		private CurEntitySnapshot(SourceDemo demoRef, Entity?[] entities, uint engineTick) {
 			_demoRef = demoRef;
 			Entities = entities;
+			_nonNullEnts = new TreeSet<int>();
+			_nonNullEnts.AddSorted(entities.Select((e,  i) => (e, i)).Where(t => t.e != null).Select(t => t.i));
 			EngineTick = engineTick;
 		}
 
@@ -34,15 +39,18 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 		internal void ClearEntityState() {
 			Array.Clear(Entities, 0, Entities.Length);
+			_nonNullEnts.Clear();
 		}
 
 
 		internal void ProcessEnterPvs(SvcPacketEntities msg, EnterPvs u) {
 			Debug.Assert(_demoRef.CBaseLines != null, "baselines are null");
-			if (u.New) // force a recreate
+			if (u.New) {
+				// create the ent
 				Entities[u.EntIndex] = _demoRef.CBaseLines.EntFromBaseLine(u.ServerClass, u.Serial);
-			Entity e = Entities[u.EntIndex]
-					   ?? throw new InvalidOperationException($"entity {u.EntIndex} should not be null by now");
+				_nonNullEnts.UpdateOrAdd(u.EntIndex);
+			}
+			Entity e = Entities[u.EntIndex] ?? throw new InvalidOperationException($"entity {u.EntIndex} should not be null by now");
 			e.InPvs = true;
 			ProcessDelta(u);
 			if (msg.UpdateBaseline) { // if update baseline then set the current baseline to the ent props, wacky
@@ -55,10 +63,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		internal void ProcessLeavePvs(LeavePvs u) {
-			if (u.Delete)
+			if (u.Delete) {
 				Entities[u.Index] = null;
-			else
+				_nonNullEnts.Remove(u.Index);
+			} else {
 				Entities[u.Index].InPvs = false;
+			}
 		}
 
 
@@ -70,6 +80,14 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				else
 					prop.CopyPropertyTo(old);
 			}
+		}
+
+
+		internal void GetNextNonNullEntIndex(ref int index) {
+			if (index >= Entities.Length)
+				return;
+			if (!_nonNullEnts.TrySuccessor(index, out index))
+				index = int.MaxValue; // something bigger than the max number of ents
 		}
 	}
 }

@@ -50,22 +50,17 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				// Now we have the props, rearrange them so that props that are marked with 'changes often' get a
 				// smaller index. In the new protocol the priority of the props is also taken into account.
 				if (_demoRef.DemoInfo.NewDemoProtocol && !_demoRef.DemoInfo.IsLeft4Dead1()) {
-					List<int> priorities = new List<int> {64};
-					priorities.AddRange(fProps.Select(entry => entry.PropInfo.Priority!.Value).Distinct());
-					priorities.Sort();
 					int start = 0;
-					foreach (int priority in priorities) {
+					var priorities = fProps.Select(entry => entry.PropInfo.Priority!.Value).Concat(new[] {64}).Distinct();
+					foreach (int priority in priorities.OrderBy(i => i)) {
 						while (true) {
 							int currentProp = start;
 							while (currentProp < fProps.Count) {
 								SendTableProp prop = fProps[currentProp].PropInfo;
 								// ChangesOften gets the same priority as 64
 								if (prop.Priority == priority || (DemSet.PropFlagChecker.HasFlag(prop.Flags, ChangesOften) && priority == 64)) {
-									if (start != currentProp) {
-										FlattenedProp tmp = fProps[start];
-										fProps[start] = fProps[currentProp];
-										fProps[currentProp] = tmp;
-									}
+									if (start != currentProp)
+										(fProps[start], fProps[currentProp]) = (fProps[currentProp], fProps[start]);
 									start++;
 									break;
 								}
@@ -218,5 +213,6 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 	}
 
 
+	// if only we had typedefs...
 	public class PropLookup : List<(ServerClass serverClass, List<FlattenedProp> flattenedProps)> {}
 }

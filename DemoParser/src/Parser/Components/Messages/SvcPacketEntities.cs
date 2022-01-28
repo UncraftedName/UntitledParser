@@ -71,7 +71,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 				// game uses different entity frames, so "oldI = old ent index = from" & "newI = new ent index = to"
 				int oldI = -1, newI = -1;
-				NextOldEntIndex(ref oldI, ents);
+				snapshot.GetNextNonNullEntIndex(ref oldI);
 
 				for (int _ = 0; _ < UpdatedEntries; _++) {
 
@@ -82,7 +82,7 @@ namespace DemoParser.Parser.Components.Messages {
 					// get the old ent index up to at least the new one
 					if (newI > oldI) {
 						oldI = newI - 1;
-						NextOldEntIndex(ref oldI, ents);
+						snapshot.GetNextNonNullEntIndex(ref oldI);
 					}
 
 					EntityUpdate update;
@@ -99,7 +99,7 @@ namespace DemoParser.Parser.Components.Messages {
 							(entClass, fProps) = tableParser.FlattenedProps[iClass];
 							update = new Delta(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef));
 							snapshot.ProcessDelta((Delta)update);
-							NextOldEntIndex(ref oldI, ents);
+							snapshot.GetNextNonNullEntIndex(ref oldI);
 							break;
 						case 2: // enter PVS
 							iClass = (int)_entBsr.ReadBitsAsUInt(tableParser.ServerClassBits);
@@ -109,13 +109,13 @@ namespace DemoParser.Parser.Components.Messages {
 							update = new EnterPvs(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);
 							snapshot.ProcessEnterPvs(this, (EnterPvs)update); // update baseline check in here
 							if (oldI == newI)
-								NextOldEntIndex(ref oldI, ents);
+								snapshot.GetNextNonNullEntIndex(ref oldI);
 							break;
 						case 1: // leave PVS
 						case 3: // delete
 							update = new LeavePvs(oldI, ents[oldI].ServerClass, updateType == 3);
 							snapshot.ProcessLeavePvs((LeavePvs)update);
-							NextOldEntIndex(ref oldI, ents);
+							snapshot.GetNextNonNullEntIndex(ref oldI);
 							break;
 						default:
 							throw new ArgumentException($"unknown ent update type: {updateType}");
@@ -126,17 +126,6 @@ namespace DemoParser.Parser.Components.Messages {
 				Updates = null;
 				DemoRef.LogError($"Exception while parsing entity info in {GetType().Name}: {e.Message}");
 			}
-		}
-
-
-		private static void NextOldEntIndex(ref int index, IReadOnlyList<Entity?> oldEnts) {
-			do {
-				index++;
-				if (index >= oldEnts.Count) {
-					index = int.MaxValue - 1; // entity sentinel, something bigger than the number of entities
-					return;
-				}
-			} while (oldEnts[index] == null);
 		}
 
 
