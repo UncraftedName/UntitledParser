@@ -6,6 +6,7 @@ using System.Diagnostics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -54,11 +55,11 @@ namespace DemoParser.Parser.Components.Packets {
 				}
 
 				// in case SvcServerInfo parsing fails
-				DemoRef.CBaseLines ??= new CurBaseLines(DemoRef, ServerClasses.Count);
+				DemoRef.EntBaseLines ??= new EntityBaseLines(DemoRef, ServerClasses.Count);
 
 				// re-init the baselines if the count doesn't match (maybe I should just init them from here?)
-				if (DemoRef.CBaseLines!.ClassBaselines.Length != classCount)
-					DemoRef.CBaseLines.ClearBaseLineState(classCount);
+				if (DemoRef.EntBaseLines!.Baselines.Length != classCount)
+					DemoRef.EntBaseLines.ClearBaseLineState(classCount);
 
 				// create the prop list for each class
 				DemoRef.DataTableParser = new DataTableParser(DemoRef, this);

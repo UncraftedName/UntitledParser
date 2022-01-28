@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -22,7 +23,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			TableId = (byte)bsr.ReadBitsAsUInt(5);
-			TableName = DemoRef.CurStringTablesManager.TableById(TableId).Name;
+			TableName = DemoRef.StringTablesManager.TableById(TableId).Name;
 			ChangedEntriesCount = bsr.ReadUShortIfExists() ?? 1;
 			uint dataLen = bsr.ReadBitsAsUInt(20);
 
@@ -72,7 +73,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 
-			CurStringTablesManager manager = DemoRef.CurStringTablesManager;
+			StringTablesManager manager = DemoRef.StringTablesManager;
 			if (!manager.TableReadable.GetValueOrDefault(_tableName)) {
 				DemoRef.LogError($"{_tableName} table is marked as non-readable, can't update :/");
 				_exceptionWhileParsing = true;
@@ -88,7 +89,7 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 
 			try { // se2007/engine/networkstringtable.cpp  line 595
-				CurStringTable tableToUpdate = manager.Tables[_tableName];
+				MutableStringTable tableToUpdate = manager.Tables[_tableName];
 
 				int? decompressedIndex = null;
 				if (tableToUpdate.Flags.HasValue && (tableToUpdate.Flags & StringTableFlags.DataCompressed) != 0 && _isSvcCreate) {
@@ -201,12 +202,12 @@ namespace DemoParser.Parser.Components.Messages {
 	public class TableUpdate : PrettyClass {
 
 		internal int PadCount; // just for toString()
-		public readonly CurStringTableEntry? TableEntry;
+		public readonly MutableStringTableEntry? TableEntry;
 		public readonly int Index;
 		public readonly TableUpdateType UpdateType;
 
 
-		public TableUpdate(CurStringTableEntry? tableEntry, TableUpdateType updateType, int index) {
+		public TableUpdate(MutableStringTableEntry? tableEntry, TableUpdateType updateType, int index) {
 			TableEntry = tableEntry;
 			UpdateType = updateType;
 			Index = index;

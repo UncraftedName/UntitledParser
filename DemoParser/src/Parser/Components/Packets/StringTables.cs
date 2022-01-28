@@ -41,7 +41,7 @@ namespace DemoParser.Parser.Components.Packets {
 			bsr.CurrentBitIndex = indexBeforeTables + (int)(dataLen << 3);
 
 			// if this packet exists make sure to create the C_tables after we parse this
-			DemoRef.CurStringTablesManager.CreateTablesFromPacket(this);
+			DemoRef.StringTablesManager.CreateTablesFromPacket(this);
 		}
 
 

@@ -6,13 +6,16 @@ using System.Linq;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
+using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Utils;
 using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
 using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums.PropFlag;
 
-namespace DemoParser.Parser.HelperClasses.EntityStuff {
+namespace DemoParser.Parser.HelperClasses.GameState {
 
 	// https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/DataTableParser.cs#L69
+
+	// expands the DataTables packet into a list of entity properties for each server class
 	public class DataTableParser {
 
 		private readonly SourceDemo _demoRef;
@@ -94,8 +97,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 			// array and reparsed every time they're updated during demo playback. I just parse them once and store
 			// them in a more accessible format.
 
-			if (allowModifyDemo && _demoRef.CurStringTablesManager.TableReadable.GetValueOrDefault(TableNames.InstanceBaseLine)) {
-				_demoRef.CurStringTablesManager.Tables[TableNames.InstanceBaseLine]
+			if (allowModifyDemo && _demoRef.StringTablesManager.TableReadable.GetValueOrDefault(TableNames.InstanceBaseLine)) {
+				_demoRef.StringTablesManager.Tables[TableNames.InstanceBaseLine]
 					.Entries.ToList()
 					.Select(entry => entry.EntryData)
 					.Cast<InstanceBaseline>()

@@ -3,6 +3,7 @@ using System;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 using static DemoParser.Parser.DemoInfo;
@@ -189,7 +190,7 @@ namespace DemoParser.Parser.Components.Messages {
 			#region get sound name
 
 			if (SoundNum.HasValue) {
-				var mgr = DemoRef.CurStringTablesManager;
+				var mgr = DemoRef.StringTablesManager;
 
 				if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache)) {
 					_soundTableReadable = true;

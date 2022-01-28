@@ -1,11 +1,12 @@
 #nullable enable
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Messages;
+using DemoParser.Parser.HelperClasses.EntityStuff;
 
-namespace DemoParser.Parser.HelperClasses.EntityStuff {
+namespace DemoParser.Parser.HelperClasses.GameState {
 
-    // like CurStringTablesManager, keeps a local copy of the baselines that can be updated and changed whenever
-    public class CurBaseLines {
+    // like the StringTables, the baselines are updated as we parse the demo
+    public class EntityBaseLines {
 
         /* The baseline is an array of all server classes and their default properties.
          * However, a server class will not appear in the demo unless it is actually used in the level,
@@ -14,18 +15,18 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
          * is always given a default value. (I'm guessing this is for properties that are known to be set to
          * something as soon as the entity is created.)
          */
-        public (ServerClass? serverClass, EntityProperty?[]? entityProperties)[] ClassBaselines;
+        public (ServerClass? serverClass, EntityProperty?[]? entityProperties)[] Baselines;
         private readonly SourceDemo _demoRef;
 
 
-        public CurBaseLines(SourceDemo demoRef, int maxServerClasses) {
+        public EntityBaseLines(SourceDemo demoRef, int maxServerClasses) {
             _demoRef = demoRef;
             ClearBaseLineState(maxServerClasses);
         }
 
 
         public void ClearBaseLineState(int maxServerClasses) {
-            ClassBaselines = new (ServerClass? serverClass, EntityProperty?[]? entityProperties)[maxServerClasses];
+            Baselines = new (ServerClass? serverClass, EntityProperty?[]? entityProperties)[maxServerClasses];
         }
 
 
@@ -37,14 +38,14 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
             int entPropCount)
         {
             int i = serverClass.DataTableId;
-            if (ClassBaselines[i] == default) { // just init that class slot, i'll write the properties next anyway
-                ClassBaselines[i].serverClass = serverClass;
-                ClassBaselines[i].entityProperties = new EntityProperty[entPropCount];
+            if (Baselines[i]! == default) { // just init that class slot, i'll write the properties next anyway
+                Baselines[i].serverClass = serverClass;
+                Baselines[i].entityProperties = new EntityProperty[entPropCount];
             }
 
             // update the slot
             foreach ((int propIndex, EntityProperty? from) in props) {
-                ref EntityProperty? to = ref ClassBaselines[i].entityProperties[propIndex];
+                ref EntityProperty? to = ref Baselines[i].entityProperties[propIndex];
                 if (to == null)
                     to = from.CopyProperty();
                 else
@@ -57,7 +58,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
             // assume classes[ID] is valid
             int classIndex = serverClass.DataTableId;
-            ref EntityProperty?[]? props = ref ClassBaselines[classIndex].entityProperties;
+            ref EntityProperty?[]? props = ref Baselines[classIndex].entityProperties;
 
             // I need this because for now I cannot parse string tables that are encoded with dictionaries,
             // so in anything that isn't 3420 I cannot parse baseline table updates outside of the string table packet.
@@ -67,7 +68,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
                 List<FlattenedProp> fProps = _demoRef.DataTableParser.FlattenedProps[classIndex].flattenedProps;
                 props = new EntityProperty[fProps.Count];
-                ClassBaselines[classIndex].serverClass = serverClass;
+                Baselines[classIndex].serverClass = serverClass;
             }
 
             EntityProperty?[] newEntProps = new EntityProperty[props.Length];

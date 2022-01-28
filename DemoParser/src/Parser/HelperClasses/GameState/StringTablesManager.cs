@@ -7,7 +7,7 @@ using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils.BitStreams;
 
-namespace DemoParser.Parser.HelperClasses {
+namespace DemoParser.Parser.HelperClasses.GameState {
 
 	public static class TableNames {
 		public const string Downloadables       = "downloadables";
@@ -34,14 +34,14 @@ namespace DemoParser.Parser.HelperClasses {
 	}
 
 
-	// Keeps the original string tables passed here untouched, and keeps a separate "current copy"
+	// Keeps the original string tables passed here untouched, and keeps a separate mutable copy
 	// since the tables can be updated/modified as the parser reads from SvcUpdateStringTable.
-	internal class CurStringTablesManager { // todo any object taken from the tables should not be taken until the tables are updated for that tick
+	internal class StringTablesManager { // todo any object taken from the tables should not be taken until the tables are updated for that tick
 
 		// the list here can be updated and is meant to be separate from the list in the stringtables packet
 		private readonly SourceDemo _demoRef;
-		private readonly List<CurStringTable> _privateTables;
-		internal readonly Dictionary<string, CurStringTable> Tables;
+		private readonly List<MutableStringTable> _privateTables;
+		internal readonly Dictionary<string, MutableStringTable> Tables;
 
 		// Before accessing any values in the tables, check to see if the respective table is readable first,
 		// make sure to use GetValueOrDefault() - this will ensure that even if the corresponding SvcCreationStringTable
@@ -53,24 +53,24 @@ namespace DemoParser.Parser.HelperClasses {
 		internal readonly List<SvcCreateStringTable> CreationLookup;
 
 
-		internal CurStringTablesManager(SourceDemo demoRef) {
+		internal StringTablesManager(SourceDemo demoRef) {
 			_demoRef = demoRef;
-			_privateTables = new List<CurStringTable>();
-			Tables = new Dictionary<string, CurStringTable>();
+			_privateTables = new List<MutableStringTable>();
+			Tables = new Dictionary<string, MutableStringTable>();
 			TableReadable = new Dictionary<string, bool>();
 			CreationLookup = new List<SvcCreateStringTable>();
 		}
 
 
-		internal CurStringTable CreateStringTable(SvcCreateStringTable creationInfo) {
+		internal MutableStringTable CreateStringTable(SvcCreateStringTable creationInfo) {
 			CreationLookup.Add(creationInfo);
 			TableReadable[creationInfo.TableName] = true;
 			return InitNewTable(_privateTables.Count, creationInfo);
 		}
 
 
-		private CurStringTable InitNewTable(int id, SvcCreateStringTable creationInfo) {
-			var table = new CurStringTable(id, creationInfo);
+		private MutableStringTable InitNewTable(int id, SvcCreateStringTable creationInfo) {
+			var table = new MutableStringTable(id, creationInfo);
 			_privateTables.Add(table);
 			Tables[creationInfo.TableName] = table;
 			TableReadable[creationInfo.TableName] = true;
@@ -86,13 +86,13 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 
 
-		internal CurStringTable TableById(int id) {
+		internal MutableStringTable TableById(int id) {
 			return _privateTables[id]; // should be right™
 		}
 
 
-		internal CurStringTableEntry? AddTableEntry(
-			CurStringTable table,
+		internal MutableStringTableEntry? AddTableEntry(
+			MutableStringTable table,
 			ref BitStreamReader? entryStream,
 			int? decompressedIndex,
 			string entryName)
@@ -109,25 +109,25 @@ namespace DemoParser.Parser.HelperClasses {
 		}
 
 
-		internal CurStringTableEntry? AddTableEntry(CurStringTable table, StringTableEntryData? eData,
+		internal MutableStringTableEntry? AddTableEntry(MutableStringTable table, StringTableEntryData? eData,
 			string entryName)
 		{
 			if (!TableReadable[table.Name])
 				return null;
-			table.Entries.Add(new CurStringTableEntry(_demoRef, table, eData, entryName));
+			table.Entries.Add(new MutableStringTableEntry(_demoRef, table, eData, entryName));
 			return table.Entries[^1];
 		}
 
 
-		private void AddTableClass(CurStringTable table, string name, string? data) {
+		private void AddTableClass(MutableStringTable table, string name, string? data) {
 			if (!TableReadable[table.Name])
 				return;
-			var stc = new CurStringTableClass(name, data);
+			var stc = new MutableStringTableClass(name, data);
 			table.Classes.Add(stc);
 		}
 
 
-		internal CurStringTableEntry? SetEntryData(CurStringTable table, CurStringTableEntry entry) {
+		internal MutableStringTableEntry? SetEntryData(MutableStringTable table, MutableStringTableEntry entry) {
 			if (!TableReadable[table.Name])
 				return null;
 			entry.EntryData = StringTableEntryDataFactory.CreateData(_demoRef, null, table.Name, entry.EntryName);
@@ -141,7 +141,7 @@ namespace DemoParser.Parser.HelperClasses {
 			bool useCreationLookup = CreationLookup.Any();
 			try {
 				foreach (StringTable table in tablesPacket.Tables) {
-					CurStringTable newTable;
+					MutableStringTable newTable;
 					if (useCreationLookup) {
 						int tableId = CreationLookup.FindIndex(info => info.TableName == table.Name);
 						newTable = InitNewTable(tableId, CreationLookup[tableId]);
@@ -165,7 +165,7 @@ namespace DemoParser.Parser.HelperClasses {
 						foreach (StringTableEntry entry in table.TableEntries)
 							AddTableEntry(newTable, entry?.EntryData?.CreateCopy(), entry.Name);
 					if (table.Classes != null)
-						foreach (CurStringTableClass tableClass in newTable.Classes)
+						foreach (MutableStringTableClass tableClass in newTable.Classes)
 							AddTableClass(newTable, tableClass.Name, tableClass.Data);
 				}
 			} catch (Exception e) {
@@ -177,9 +177,10 @@ namespace DemoParser.Parser.HelperClasses {
 
 
 	// classes separate from the StringTables packet for managing updateable tables
+	// todo a whole lot of this stuff should be redone cuz even I don't know what the fuck is going on anymore
 
 
-	public class CurStringTable {
+	public class MutableStringTable {
 
 		public int Id; // the index in the table list
 		// flattened fields from SvcCreateStringTable
@@ -190,11 +191,11 @@ namespace DemoParser.Parser.HelperClasses {
 		public readonly int UserDataSizeBits;
 		public readonly StringTableFlags? Flags;
 		// string table fields
-		public readonly List<CurStringTableEntry> Entries;
-		public readonly List<CurStringTableClass> Classes;
+		public readonly List<MutableStringTableEntry> Entries;
+		public readonly List<MutableStringTableClass> Classes;
 
 
-		public CurStringTable(int id, SvcCreateStringTable creationInfo) {
+		public MutableStringTable(int id, SvcCreateStringTable creationInfo) {
 			Id = id;
 			Name = creationInfo.TableName;
 			MaxEntries = creationInfo.MaxEntries;
@@ -202,8 +203,8 @@ namespace DemoParser.Parser.HelperClasses {
 			UserDataSize = creationInfo.UserDataSize;
 			UserDataSizeBits = creationInfo.UserDataSizeBits;
 			Flags = creationInfo.Flags;
-			Entries = new List<CurStringTableEntry>();
-			Classes = new List<CurStringTableClass>();
+			Entries = new List<MutableStringTableEntry>();
+			Classes = new List<MutableStringTableClass>();
 		}
 
 
@@ -213,15 +214,15 @@ namespace DemoParser.Parser.HelperClasses {
 	}
 
 
-	public class CurStringTableEntry {
+	public class MutableStringTableEntry {
 
 		private readonly SourceDemo _demoRef;
-		private readonly CurStringTable _tableRef;
+		private readonly MutableStringTable _tableRef;
 		public readonly string EntryName;
 		public StringTableEntryData? EntryData;
 
 
-		public CurStringTableEntry(SourceDemo demoRef, CurStringTable tableRef, StringTableEntryData? eData, string entryName) {
+		public MutableStringTableEntry(SourceDemo demoRef, MutableStringTable tableRef, StringTableEntryData? eData, string entryName) {
 			_demoRef = demoRef;
 			_tableRef = tableRef;
 			EntryData = eData;
@@ -235,13 +236,13 @@ namespace DemoParser.Parser.HelperClasses {
 	}
 
 
-	public class CurStringTableClass {
+	public class MutableStringTableClass {
 
 		public readonly string Name;
 		public readonly string? Data;
 
 
-		public CurStringTableClass(string name, string? data) {
+		public MutableStringTableClass(string name, string? data) {
 			Name = name;
 			Data = data;
 		}

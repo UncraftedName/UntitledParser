@@ -9,6 +9,7 @@ using System.Linq;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -72,7 +73,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 				Properties = bsr.ReadEntProps(fProps, DemoRef);
 				// once we're done, update the Cur baselines so I can actually use this for prop creation
 				if ((DemoRef.DemoParseResult & DemoParseResult.EntParsingEnabled) != 0)
-					DemoRef.CBaseLines?.UpdateBaseLine(ServerClassRef, Properties!, fProps.Count);
+					DemoRef.EntBaseLines?.UpdateBaseLine(ServerClassRef, Properties!, fProps.Count);
 			} catch (Exception e) {
 				DemoRef.LogError($"error while parsing baseline for class {ServerClassRef.ClassName}: {e.Message}");
 			}

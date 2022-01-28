@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 using static DemoParser.Parser.HelperClasses.EntityStuff.EntPropToStringHelper;

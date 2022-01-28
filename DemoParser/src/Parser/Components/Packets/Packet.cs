@@ -40,10 +40,10 @@ namespace DemoParser.Parser.Components.Packets {
 			var netTickMessages = MessageStream.Where(tuple => tuple.messageType == MessageType.NetTick).ToList();
 			if (netTickMessages.Count > 1)
 				DemoRef.LogError("there's more than 2 net tick messages in this packet");
-			NetTick? tickInfo = (NetTick)netTickMessages.FirstOrDefault().message;
+			NetTick? tickInfo = (NetTick?)netTickMessages.FirstOrDefault().message;
 			if (tickInfo != null) {
-				if (DemoRef.CurEntitySnapshot != null)
-					DemoRef.CurEntitySnapshot.EngineTick = tickInfo.EngineTick;
+				if (DemoRef.EntitySnapshot != null)
+					DemoRef.EntitySnapshot.EngineTick = tickInfo.EngineTick;
 			}
 			// todo fill prop handles with data here
 			TimingAdjustment.AdjustFromPacket(this);

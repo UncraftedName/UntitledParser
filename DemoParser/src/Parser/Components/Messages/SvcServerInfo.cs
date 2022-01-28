@@ -1,6 +1,7 @@
 using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -78,10 +79,10 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 			// this packet always(?) appears before the creation of any tables
 
-			DemoRef.CurStringTablesManager.ClearCurrentTables();
+			DemoRef.StringTablesManager.ClearCurrentTables();
 
 			// init baselines here
-			DemoRef.CBaseLines = new CurBaseLines(DemoRef, MaxServerClasses);
+			DemoRef.EntBaseLines = new EntityBaseLines(DemoRef, MaxServerClasses);
 		}
 
 

@@ -1,6 +1,7 @@
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {

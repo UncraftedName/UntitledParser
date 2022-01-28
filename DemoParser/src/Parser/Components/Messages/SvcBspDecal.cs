@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -38,7 +39,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.AppendLine($"position: {Pos:F4}");
 
-			var mgr = DemoRef.CurStringTablesManager;
+			var mgr = DemoRef.StringTablesManager;
 			pw.Append(mgr.TableReadable.GetValueOrDefault(TableNames.DecalPreCache)
 				? $"decal texture: {mgr.Tables[TableNames.DecalPreCache].Entries[DecalTextureIndex]}"
 				: "decal texture index:");

@@ -31,7 +31,7 @@ namespace DemoParser.Parser.Components.Messages {
 			if (DemoRef.Header.NetworkProtocol >= 15)
 				Flags = (StringTableFlags)bsr.ReadBitsAsUInt(DemoInfo.NewDemoProtocol ? 2 : 1);
 
-			DemoRef.CurStringTablesManager.CreateStringTable(this);
+			DemoRef.StringTablesManager.CreateStringTable(this);
 			TableUpdates = new StringTableUpdates(DemoRef, TableName, NumEntries, true);
 			TableUpdates.ParseStream(bsr.SplitAndSkip(dataLen));
 		}

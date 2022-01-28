@@ -1,6 +1,7 @@
 using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -21,7 +22,7 @@ namespace DemoParser.Parser.Components.Messages {
 			// no protocol version changes
 			SoundIndex = (int)bsr.ReadBitsAsUInt(DemoInfo.IsLeft4Dead2() ? 14 : 13);
 
-			var mgr = DemoRef.CurStringTablesManager;
+			var mgr = DemoRef.StringTablesManager;
 
 			if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache)) {
 				if (SoundIndex >= mgr.Tables[TableNames.SoundPreCache].Entries.Count)

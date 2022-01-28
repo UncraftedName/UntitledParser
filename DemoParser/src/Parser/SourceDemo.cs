@@ -9,6 +9,7 @@ using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -37,9 +38,9 @@ namespace DemoParser.Parser {
 		public List<string> ErrorList;
 		internal GameEventManager GameEventManager;
 		public DataTableParser? DataTableParser;
-		internal CurStringTablesManager CurStringTablesManager;
-		internal CurEntitySnapshot? CurEntitySnapshot;
-		internal CurBaseLines? CBaseLines;
+		internal StringTablesManager StringTablesManager;
+		internal EntitySnapshot? EntitySnapshot;
+		internal EntityBaseLines? EntBaseLines;
 		private readonly IProgress<double>? _parseProgress;
 
 		// We want access to the bit reader of each component after parsing,
@@ -87,7 +88,7 @@ namespace DemoParser.Parser {
 			Header.ParseStream(ref bsr);
 			DemoInfo = new DemoInfo(this);
 			// it might be worth it to implement updating helper classes with listeners, but it's not a huge deal atm
-			CurStringTablesManager = new CurStringTablesManager(this);
+			StringTablesManager = new StringTablesManager(this);
 			ErrorList = new List<string>();
 			DecompressedLookup = new List<byte[]>();
 			Frames = new List<PacketFrame>();

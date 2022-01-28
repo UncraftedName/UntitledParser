@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -25,7 +26,7 @@ namespace DemoParser.Parser.Components.Messages {
 			CreateOnClient = bsr.ReadBool();
 			if (!CreateOnClient) {
 
-				// if this ever gets used then it should update the CurTables
+				// if this ever gets used then it should update the mutable tables
 				string s = $"I haven't implemented {GetType().Name} to update the C_string tables.";
 				DemoRef.LogError(s);
 				Debug.WriteLine(s);
@@ -40,7 +41,7 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 			}
 
-			DemoRef.CBaseLines ??= new CurBaseLines(DemoRef, ClassCount);
+			DemoRef.EntBaseLines ??= new EntityBaseLines(DemoRef, ClassCount);
 		}
 
 

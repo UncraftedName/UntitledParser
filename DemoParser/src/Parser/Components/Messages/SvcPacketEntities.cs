@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -43,8 +44,8 @@ namespace DemoParser.Parser.Components.Messages {
 				return;
 #endif
 			// now, we do some setup for ent parsing
-			ref CurEntitySnapshot? snapshot = ref DemoRef.CurEntitySnapshot;
-			snapshot ??= new CurEntitySnapshot(DemoRef);
+			ref EntitySnapshot? snapshot = ref DemoRef.EntitySnapshot;
+			snapshot ??= new EntitySnapshot(DemoRef);
 
 			if (IsDelta && snapshot.EngineTick != DeltaFrom) {
 				// If the messages ever arrive in a different order I should queue them,
