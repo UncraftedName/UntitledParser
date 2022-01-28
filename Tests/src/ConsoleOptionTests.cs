@@ -12,7 +12,7 @@ using NUnit.Framework;
 
 namespace Tests {
 
-	public class ConsoleOptionTestses : DemoParseTests {
+	public class ConsoleOptionTests : DemoParseTests {
 
 		private enum BasicEnum {
 			Val0,
