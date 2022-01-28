@@ -94,11 +94,13 @@ namespace DemoParser.Parser {
 			Frames = new List<PacketFrame>();
 			StartTick = 0;
 			try {
+				PacketFrame frame;
 				do {
-					Frames.Add(new PacketFrame(this));
-					Frames[^1].ParseStream(ref bsr);
+					frame = new PacketFrame(this);
+					Frames.Add(frame);
+					frame.ParseStream(ref bsr);
 					_parseProgress?.Report((double)bsr.CurrentBitIndex / bsr.BitLength);
-				} while (Frames[^1].Type != PacketType.Stop && bsr.BitsRemaining >= 24); // would be 32 but the last byte is often cut off
+				} while (frame.Type != PacketType.Stop && bsr.BitsRemaining >= 24); // would be 32 but the last byte is often cut off
 				StartAdjustmentTick ??= 0;
 				EndTick = this.FilterForPacket<Packet>().Select(packet => packet.Tick).Where(i => i >= 0).Max();
 			}

@@ -149,9 +149,9 @@ namespace DemoParser.Utils {
 			T? excludeKey = null)
 			where T : struct, Enum
 		{
-			var indexed = lookup.Select((@enum,  index) => (index, @enum)).ToList();
+			var indexed = lookup.Select((@enum,  index) => (index, @enum));
 			if (excludeKey != null)
-				indexed = indexed.Where(t => !Equals(excludeKey, t.@enum)).ToList();
+				indexed = indexed.Where(t => !Equals(excludeKey, t.@enum));
 			return indexed.ToDictionary(t => t.@enum, t => t.index);
 		}
 

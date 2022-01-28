@@ -29,18 +29,18 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			uint dataLen = bsr.ReadUInt();
+			int byteLen = bsr.ReadSInt();
 			int indexBeforeTables = bsr.CurrentBitIndex;
 			byte tableCount = bsr.ReadByte();
 			Tables = new List<StringTable>(tableCount);
 			for (int i = 0; i < tableCount; i++) {
-				Tables.Add(new StringTable(DemoRef));
-				Tables[^1].ParseStream(ref bsr);
+				var table = new StringTable(DemoRef);
+				Tables.Add(table);
+				table.ParseStream(ref bsr);
 			}
+			bsr.CurrentBitIndex = indexBeforeTables + byteLen * 8;
 
-			bsr.CurrentBitIndex = indexBeforeTables + (int)(dataLen << 3);
-
-			// if this packet exists make sure to create the C_tables after we parse this
+			// if this packet exists make sure to create the tables manager after we parse this
 			DemoRef.StringTablesManager.CreateTablesFromPacket(this);
 		}
 
@@ -77,16 +77,18 @@ namespace DemoParser.Parser.Components.Packets {
 			if (entryCount > 0) {
 				TableEntries = new List<StringTableEntry>(entryCount);
 				for (int i = 0; i < entryCount; i++) {
-					TableEntries.Add(new StringTableEntry(DemoRef,this));
-					TableEntries[^1].ParseStream(ref bsr);
+					var entry = new StringTableEntry(DemoRef, this);
+					TableEntries.Add(entry);
+					entry.ParseStream(ref bsr);
 				}
 			}
 			if (bsr.ReadBool()) {
 				ushort classCount = bsr.ReadUShort();
 				Classes = new List<StringTableClass>(classCount);
 				for (int i = 0; i < classCount; i++) {
-					Classes.Add(new StringTableClass(DemoRef));
-					Classes[^1].ParseStream(ref bsr);
+					var @class = new StringTableClass(DemoRef);
+					Classes.Add(@class);
+					@class.ParseStream(ref bsr);
 				}
 			}
 		}

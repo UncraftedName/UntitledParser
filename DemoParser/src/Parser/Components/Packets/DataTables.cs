@@ -39,17 +39,18 @@ namespace DemoParser.Parser.Components.Packets {
 			try {
 				Tables = new List<SendTable>();
 				while (bsr.ReadBool()) {
-					Tables.Add(new SendTable(DemoRef));
-					Tables[^1].ParseStream(ref bsr);
+					var table = new SendTable(DemoRef);
+					Tables.Add(table);
+					table.ParseStream(ref bsr);
 				}
 
 				ushort classCount = bsr.ReadUShort();
 				ServerClasses = new List<ServerClass>(classCount);
 				for (int i = 0; i < classCount; i++) {
-					// class info's come at the end
-					ServerClasses.Add(new ServerClass(DemoRef, null));
-					ServerClasses[^1].ParseStream(ref bsr);
-					// this is an assumption I make in the structure of all the entity stuff, very critical
+					var @class = new ServerClass(DemoRef, null);
+					ServerClasses.Add(@class);
+					@class.ParseStream(ref bsr);
+					// I assume in many places that the ID of the table matches its index
 					if (i != ServerClasses[i].DataTableId)
 						throw new ConstraintException("server class ID does not match its index in the list");
 				}
@@ -120,8 +121,9 @@ namespace DemoParser.Parser.Components.Packets {
 			ExpectedPropCount = (int)bsr.ReadBitsAsUInt(DemoInfo.Game == SourceGame.HL2_OE ? 9 : 10);
 			SendProps = new List<SendTableProp>(ExpectedPropCount);
 			for (int i = 0; i < ExpectedPropCount; i++) {
-				SendProps.Add(new SendTableProp(DemoRef, this));
-				SendProps[^1].ParseStream(ref bsr);
+				var sendProp = new SendTableProp(DemoRef, this);
+				SendProps.Add(sendProp);
+				sendProp.ParseStream(ref bsr);
 			}
 		}
 
