@@ -163,6 +163,8 @@ namespace ConsoleApp.DemoArgProcessing {
 					Console.WriteLine(" Demo from an unknown game.");
 				else if (demo.Frames == null || demo.FilterForPacket<Packet>().FirstOrDefault() == null)
 					Console.WriteLine(" Could not parse demo packets.");
+				else
+					Console.WriteLine();
 				Utils.PopForegroundColor();
 			}
 		}
