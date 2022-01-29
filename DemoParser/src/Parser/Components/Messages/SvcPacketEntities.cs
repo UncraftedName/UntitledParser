@@ -61,8 +61,9 @@ namespace DemoParser.Parser.Components.Messages {
 			DataTableParser? tableParser = DemoRef.DataTableParser;
 			Entity?[] ents = snapshot.Entities; // current entity state
 
-			if (tableParser == null) {
-				DemoRef.LogError("ent parsing cannot continue because data tables are not set");
+			if (tableParser?.FlattenedProps == null) {
+				DemoRef.LogError("ent parsing cannot continue because data tables have not been parsed");
+				DemoRef.DemoParseResult &= ~DemoParseResult.EntParsingEnabled;
 				return;
 			}
 
@@ -125,6 +126,7 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 			} catch (Exception e) {
 				Updates = null;
+				DemoRef.DemoParseResult &= ~DemoParseResult.EntParsingEnabled;
 				DemoRef.LogError($"Exception while parsing entity info in {GetType().Name}: {e.Message}");
 			}
 		}
