@@ -41,7 +41,7 @@ namespace DemoParser.Parser {
 
 
 		// initialized from the header
-		public readonly SourceGame Game;
+		public SourceGame Game; // might be set after parsing some data
 		public readonly int MaxSplitscreenPlayers;
 		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		public readonly int SendPropFlagBits;
@@ -84,7 +84,7 @@ namespace DemoParser.Parser {
 				[(4, 2012)] = L4D2_2012,
 				[(4, 2027)] = L4D2_2027,
 				[(4, 2042)] = L4D2_2042,
-				[(4, 2100)] = L4D2_2220,
+				[(4, 2100)] = L4D2_2203,
 			};
 
 
@@ -191,11 +191,11 @@ namespace DemoParser.Parser {
 		}
 
 
-		public bool IsLeft4Dead() => Game >= L4D1_1005 && Game <= L4D2_2220;
+		public bool IsLeft4Dead() => Game >= L4D1_1005 && Game <= L4D2_2203;
 
 		public bool IsLeft4Dead1() => Game >= L4D1_1005 && Game <= L4D1_1040;
 
-		public bool IsLeft4Dead2() => Game >= L4D2_2000 && Game <= L4D2_2220;
+		public bool IsLeft4Dead2() => Game >= L4D2_2000 && Game <= L4D2_2203;
 
 		public bool IsPortal1() => Game >= PORTAL_1_3420 && Game <= PORTAL_1_1910503;
 
@@ -220,8 +220,10 @@ namespace DemoParser.Parser {
 		L4D2_2000,
 		L4D2_2012,
 		L4D2_2027,
-		L4D2_2042, // 2042 is protocol, version is 2045, 2063, 2075, or 2091 (thanks valve)
-		L4D2_2220, // latest steam version
+		L4D2_2042, // 2042 protocol, version is 2045, 2063 or 2075 (thanks valve)
+		L4D2_2091, // 2042 protocol, version 2091 (yes, same protocol version, but has to be distinguished)
+		L4D2_2147, // 2042 protocol, version 2147 (yet again, has to be distinguished without any protocol version indicating that)
+		L4D2_2203, // 2100 protocol, version 2203. compatible with latest steam version (2220)
 		UNKNOWN
 	}
 }

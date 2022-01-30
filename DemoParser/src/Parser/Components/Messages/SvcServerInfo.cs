@@ -42,7 +42,7 @@ namespace DemoParser.Parser.Components.Messages {
 			ServerCount = bsr.ReadUInt();
 			IsHltv = bsr.ReadBool();
 			IsDedicated = bsr.ReadBool();
-			if (DemoInfo.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2220)
+			if (DemoInfo.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2147)
 				UnknownBit = bsr.ReadBool();
 			ClientCrc = bsr.ReadSInt();
 			if (DemoInfo.NewDemoProtocol) // unknown field, could be before ClientCrc
@@ -61,7 +61,7 @@ namespace DemoParser.Parser.Components.Messages {
 			MapName = bsr.ReadNullTerminatedString();
 			SkyName = bsr.ReadNullTerminatedString();
 			HostName = bsr.ReadNullTerminatedString();
-			if (DemoInfo.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2220)
+			if (DemoInfo.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2147)
 			{
 				MissionName = bsr.ReadNullTerminatedString();
 				MutationName = bsr.ReadNullTerminatedString();
@@ -69,9 +69,9 @@ namespace DemoParser.Parser.Components.Messages {
 			if (NetworkProtocol == 24)
 				HasReplay = bsr.ReadBool(); // protocol version >= 16
 
-			// l4d read multiple SvcServerInfo messages and broke the TickInterval parsed
-			// in the first message (that is parsed correctly)
-			// prevent the interval from being overwritten
+			// there's a good change that the first SvcServerInfo parsed is parsed correctly
+			// prevent the interval from being overwritten by subsequent, incorrectly detected, SvcServerInfo messages
+			// TODO: check if changing tickrate mid game sends another SvcServerInfo
 			if (!DemoInfo.HasParsedTickInterval)
 			{
 				DemoInfo.TickInterval = TickInterval;
