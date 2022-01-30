@@ -29,6 +29,7 @@ namespace ConsoleApp {
 						new OptJumps(),
 						new OptCheatCommands(),
 						new OptDataTablesDump(),
+						new OptStringTablesDump(),
 						new OptRemoveCaptions(),
 						new OptChangeDemoDir(),
 						new OptSmoothGlessHops(),
