@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) Max Biryukov, Michael Smith, and Robert Taliancich
+Copyright (c) Max Biryukov, Michael Smith, Robert Taliancich, and Willian Henrique
 
 AlphanumComparator.cs:
 Copyright (c) David Koelle
