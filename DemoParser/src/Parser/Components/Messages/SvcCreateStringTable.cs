@@ -23,13 +23,13 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			TableName = bsr.ReadNullTerminatedString();
 			MaxEntries = (short)bsr.ReadUShort();
-			NumEntries = (int)bsr.ReadBitsAsUInt(BitUtils.HighestBitIndex(MaxEntries) + 1);
-			uint dataLen = bsr.ReadBitsAsUInt(DemoInfo.IsLeft4Dead2() ? 21 : 20);
+			NumEntries = (int)bsr.ReadUInt(BitUtils.HighestBitIndex(MaxEntries) + 1);
+			uint dataLen = bsr.ReadUInt(DemoInfo.IsLeft4Dead2() ? 21 : 20);
 			UserDataFixedSize = bsr.ReadBool();
-			UserDataSize = (int)(UserDataFixedSize ? bsr.ReadBitsAsUInt(12) : 0);
-			UserDataSizeBits = (int)(UserDataFixedSize ? bsr.ReadBitsAsUInt(4) : 0);
+			UserDataSize = (int)(UserDataFixedSize ? bsr.ReadUInt(12) : 0);
+			UserDataSizeBits = (int)(UserDataFixedSize ? bsr.ReadUInt(4) : 0);
 			if (DemoRef.Header.NetworkProtocol >= 15)
-				Flags = (StringTableFlags)bsr.ReadBitsAsUInt(DemoInfo.NewDemoProtocol ? 2 : 1);
+				Flags = (StringTableFlags)bsr.ReadUInt(DemoInfo.NewDemoProtocol ? 2 : 1);
 
 			DemoRef.StringTablesManager.CreateStringTable(this);
 			TableUpdates = new StringTableUpdates(DemoRef, TableName, NumEntries, true);

@@ -38,8 +38,8 @@ namespace DemoParser.Parser.Components.Packets {
 			Buttons = (Buttons?)bsr.ReadUIntIfExists();
 			Impulse = bsr.ReadByteIfExists();
 			if (bsr.ReadBool()) {
-				WeaponSelect = bsr.ReadBitsAsUInt(11);
-				WeaponSubtype = bsr.ReadBitsAsUIntIfExists(6);
+				WeaponSelect = bsr.ReadUInt(11);
+				WeaponSubtype = bsr.ReadUIntIfExists(6);
 			}
 			MouseDx = (short?)bsr.ReadUShortIfExists();
 			MouseDy = (short?)bsr.ReadUShortIfExists();

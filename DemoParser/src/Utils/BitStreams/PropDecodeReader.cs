@@ -41,20 +41,20 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		private float ReadBitCellCoord(SendTableProp propInfo) {
-			uint intval = ReadBitsAsUInt(propInfo.NumBits!.Value);
+			uint intVal = (uint)ReadULong((int)propInfo.NumBits!.Value);
 			if (propInfo.FloatParseType == FloatParseType.BitCellChordInt) {
-				return intval;
+				return intVal;
 			} else {
 				bool lp = propInfo.FloatParseType == FloatParseType.BitCellChordLp;
-				uint fractVal = ReadBitsAsUInt(lp ? CoordFracBitsMpLp : CoordFracBits);
-				return intval + fractVal * (lp ? CoordResLp : CoordRes);
+				uint fractVal = ReadUInt(lp ? CoordFracBitsMpLp : CoordFracBits);
+				return intVal + fractVal * (lp ? CoordResLp : CoordRes);
 			}
 		}
 
 
 		public float ReadBitNormal() { // src_main\tier1\newbitbuf.cpp line 662
 			bool signBit = ReadBool();
-			float val = ReadBitsAsUInt(NormFracBits) * NormRes;
+			float val = ReadUInt(NormFracBits) * NormRes;
 			if (signBit)
 				val = -val;
 			return val;
@@ -83,7 +83,7 @@ namespace DemoParser.Utils.BitStreams {
 
 		private float ReadStandardFloat(SendTableProp propInfo) {
 			int bits = (int)propInfo.NumBits!.Value;
-			uint dwInterp = ReadBitsAsUInt(bits);
+			uint dwInterp = ReadUInt(bits);
 			float val = (float)dwInterp / ((1 << bits) - 1);
 			return propInfo.LowValue!.Value + (propInfo.HighValue!.Value - propInfo.LowValue.Value) * val;
 		}
@@ -139,9 +139,9 @@ namespace DemoParser.Utils.BitStreams {
 			if (hasInt || hasFrac) {
 				bool sign = ReadBool();
 				if (hasInt)
-					val += ReadBitsAsUInt(CoordIntBits) + 1;
+					val += ReadUInt(CoordIntBits) + 1;
 				if (hasFrac)
-					val += ReadBitsAsUInt(CoordFracBits) * CoordRes;
+					val += ReadUInt(CoordFracBits) * CoordRes;
 				if (sign)
 					val = -val;
 			}
@@ -157,22 +157,22 @@ namespace DemoParser.Utils.BitStreams {
 				if (ReadBool()) {
 					sign = ReadBool();
 					if (bInBounds)
-						val = ReadBitsAsUInt(CoordIntBitsMp) + 1;
+						val = ReadUInt(CoordIntBitsMp) + 1;
 					else
-						val = ReadBitsAsUInt(CoordIntBits) + 1;
+						val = ReadUInt(CoordIntBits) + 1;
 				}
 			} else {
-				uint intval = (uint)(ReadBool() ? 1 : 0);
+				uint intVal = (uint)(ReadBool() ? 1 : 0);
 				sign = ReadBool();
-				if (intval != 0) {
+				if (intVal != 0) {
 					if (bInBounds)
-						intval = ReadBitsAsUInt(CoordIntBitsMp) + 1;
+						intVal = ReadUInt(CoordIntBitsMp) + 1;
 					else
-						intval = ReadBitsAsUInt(CoordIntBits) + 1;
+						intVal = ReadUInt(CoordIntBits) + 1;
 				}
 				bool lp = propInfo.FloatParseType == FloatParseType.BitCoordMpLp;
-				uint fractval = ReadBitsAsUInt(lp ? CoordFracBitsMpLp : CoordFracBits);
-				val = intval + fractval * (lp ? CoordResLp : CoordRes);
+				uint fractVal = ReadUInt(lp ? CoordFracBitsMpLp : CoordFracBits);
+				val = intVal + fractVal * (lp ? CoordResLp : CoordRes);
 			}
 			if (sign)
 				val = -val;
@@ -182,18 +182,18 @@ namespace DemoParser.Utils.BitStreams {
 
 		public int DecodeInt(SendTableProp propInfo) {
 			return propInfo.DemoRef.DemoInfo.PropFlagChecker.HasFlag(propInfo.Flags, PropFlag.Unsigned)
-				? (int)ReadBitsAsUInt(propInfo.NumBits!.Value)
-				: ReadBitsAsSInt(propInfo.NumBits!.Value);
+				? (int)(uint)ReadULong((int)propInfo.NumBits!.Value)
+				: ReadSInt((int)propInfo.NumBits!.Value);
 		}
 
 
 		public string DecodeString() {
-			return ReadStringOfLength(ReadBitsAsUInt(DtMaxStringBits));
+			return ReadStringOfLength((int)ReadULong(DtMaxStringBits));
 		}
 
 
 		public List<int> DecodeIntArr(FlattenedProp propInfo) {
-			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			int count = (int)ReadUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<int> result = new List<int>(count);
 			for (int i = 0; i < count; i++)
 				result.Add(DecodeInt(propInfo.ArrayElementPropInfo!));
@@ -202,7 +202,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public List<float> DecodeFloatArr(FlattenedProp propInfo) {
-			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			int count = (int)ReadUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<float> result = new List<float>(count);
 			for (int i = 0; i < count; i++)
 				result.Add(DecodeFloat(propInfo.ArrayElementPropInfo!));
@@ -211,7 +211,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public List<string> DecodeStringArr(FlattenedProp propInfo) {
-			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			int count = (int)ReadUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<string> result = new List<string>(count);
 			for (int i = 0; i < count; i++)
 				result.Add(DecodeString());
@@ -220,7 +220,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public List<Vector3> DecodeVector3Arr(FlattenedProp propInfo) {
-			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			int count = (int)ReadUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<Vector3> result = new List<Vector3>(count);
 			for (int i = 0; i < count; i++) {
 				DecodeVector3(propInfo.ArrayElementPropInfo!, out Vector3 v3);
@@ -231,7 +231,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public List<Vector2> DecodeVector2Arr(FlattenedProp propInfo) {
-			int count = (int)ReadBitsAsUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			int count = (int)ReadUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
 			List<Vector2> result = new List<Vector2>(count);
 			for (int i = 0; i < count; i++) {
 				DecodeVector2(propInfo.ArrayElementPropInfo!, out Vector2 v2);
@@ -244,22 +244,22 @@ namespace DemoParser.Utils.BitStreams {
 #pragma warning disable 8509
 
 		public uint ReadUBitVar() {
-			return ReadBitsAsUInt(2) switch {
-				0 => ReadBitsAsUInt(4),
-				1 => ReadBitsAsUInt(8),
-				2 => ReadBitsAsUInt(12),
-				3 => ReadBitsAsUInt(32)
+			return ReadUInt(2) switch {
+				0 => ReadUInt(4),
+				1 => ReadUInt(8),
+				2 => ReadUInt(12),
+				3 => ReadUInt(32)
 			};
 		}
 
 
 		public uint ReadUBitInt() {
-			uint ret = ReadBitsAsUInt(4);
-			return ReadBitsAsUInt(2) switch {
+			uint ret = ReadUInt(4);
+			return ReadUInt(2) switch {
 				0 => ret,
-				1 => ret | (ReadBitsAsUInt(4) << 4),
-				2 => ret | (ReadBitsAsUInt(8) << 4),
-				3 => ret | (ReadBitsAsUInt(28) << 4)
+				1 => ret | (ReadUInt(4) << 4),
+				2 => ret | (ReadUInt(8) << 4),
+				3 => ret | (ReadUInt(28) << 4)
 			};
 		}
 
@@ -269,14 +269,14 @@ namespace DemoParser.Utils.BitStreams {
 				return lastIndex + 1;
 			uint ret;
 			if (bNewWay && ReadBool()) {
-				ret = ReadBitsAsUInt(3);
+				ret = ReadUInt(3);
 			} else {
-				ret = ReadBitsAsUInt(5);
-				ret = ReadBitsAsUInt(2) switch {
+				ret = ReadUInt(5);
+				ret = ReadUInt(2) switch {
 					0 => ret,
-					1 => ret | (ReadBitsAsUInt(2) << 5),
-					2 => ret | (ReadBitsAsUInt(4) << 5),
-					3 => ret | (ReadBitsAsUInt(7) << 5)
+					1 => ret | (ReadUInt(2) << 5),
+					2 => ret | (ReadUInt(4) << 5),
+					3 => ret | (ReadUInt(7) << 5)
 				};
 			}
 			if (ret == 0xFFF) // end marker
@@ -288,7 +288,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public float ReadBitAngle(int bitCount) {
-			return ReadBitsAsUInt(bitCount) * (360f / (1 << bitCount));
+			return ReadUInt(bitCount) * (360f / (1 << bitCount));
 		}
 
 

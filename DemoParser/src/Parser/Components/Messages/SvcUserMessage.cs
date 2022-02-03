@@ -26,7 +26,7 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			byte typeVal = bsr.ReadByte();
 			MessageType = UserMessage.ByteToUserMessageType(DemoInfo, typeVal);
-			uint messageLength = bsr.ReadBitsAsUInt(DemoInfo.UserMessageLengthBits);
+			uint messageLength = bsr.ReadUInt(DemoInfo.UserMessageLengthBits);
 			string? errorStr = null;
 
 			var uMessageReader = bsr.SplitAndSkip(messageLength);

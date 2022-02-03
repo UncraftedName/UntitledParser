@@ -8,7 +8,15 @@ namespace Tests {
 
 	public class BitStreamTests {
 
+		// It's really hard to come up with all possible alignments and sizes for which a particular read/write may
+		// happen. The easiest solution is to just do thousands of reads/writes on random data and hope that catches all
+		// edge cases.
 		private const int Iterations = 100000;
+
+
+		private static string RandomString(Random r, int length) {
+			return new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", length).Select(s => s[r.Next(s.Length)]).ToArray());
+		}
 
 
 		[Test, Parallelizable(ParallelScope.Self)]
@@ -23,12 +31,12 @@ namespace Tests {
 			}
 			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
-				Assert.AreEqual(bools[i], bsr.ReadBool(), "index: " + i);
+				Assert.AreEqual(bools[i], bsr.ReadBool(), $"index: {i}");
 		}
 
 
 		[Test, Parallelizable(ParallelScope.Self)]
-		public void WriteUBits() {
+		public void WriteUInts() {
 			var random = new Random(0);
 			BitStreamWriter bsw = new BitStreamWriter();
 			List<(uint val, int size)> bits = new List<(uint val, int size)>();
@@ -41,7 +49,7 @@ namespace Tests {
 			}
 			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
-				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsUInt(bits[i].size), "index: " + i);
+				Assert.AreEqual(bits[i].val, bsr.ReadUInt(bits[i].size), $"index: {i}");
 		}
 
 
@@ -61,7 +69,7 @@ namespace Tests {
 			}
 			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
-				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsSInt(bits[i].size), "index: " + i);
+				Assert.AreEqual(bits[i].val, bsr.ReadSInt(bits[i].size), $"index: {i}");
 		}
 
 
@@ -80,7 +88,7 @@ namespace Tests {
 			}
 			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
-				Assert.AreEqual(bits[i].val, bsr.ReadBitsAsUIntIfExists(bits[i].size), "index: " + i);
+				Assert.AreEqual(bits[i].val, bsr.ReadUIntIfExists(bits[i].size), $"index: {i}");
 		}
 
 
@@ -100,7 +108,7 @@ namespace Tests {
 			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++) {
 				bsr.SkipBits(data[i].skipCount);
-				Assert.AreEqual(bsr.ReadUInt(), data[i].val, $"index: {i}");
+				Assert.AreEqual(data[i].val, bsr.ReadUInt(), $"index: {i}");
 			}
 		}
 
@@ -124,7 +132,7 @@ namespace Tests {
 				bsw.WriteBitCoord(f);
 				bsr = new BitStreamReader(bsw);
 				bsr.SkipBits(skip);
-				Assert.AreEqual(bsr.ReadBitCoord(), f, "index: " + i);
+				Assert.AreEqual(f, bsr.ReadBitCoord(), $"index: {i}");
 			}
 		}
 
@@ -192,7 +200,7 @@ namespace Tests {
 				bsw.RemoveBitsAtIndex(skip, randCount);
 				BitStreamReader bsr = new BitStreamReader(bsw);
 				bsr.SkipBits(skip);
-				Assert.AreEqual(bsr.ReadBitsAsSInt(testIntBits), testInt, $"index: {i}");
+				Assert.AreEqual(testInt, bsr.ReadSInt(testIntBits), $"index: {i}");
 			}
 		}
 
@@ -205,10 +213,7 @@ namespace Tests {
 			byte[] randArr = new byte[100 / 8 + 1];
 			random.NextBytes(randArr);
 			for (int _ = 0; _ < Iterations; _++) {
-				(int skip, string str) r =
-					(random.Next(0, 100),
-						new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", random.Next(0, 15))
-							.Select(s => s[random.Next(s.Length)]).ToArray()));
+				(int skip, string str) r = (random.Next(0, 100), RandomString(random, random.Next(0, 15)));
 				data.Add(r);
 				bsw.WriteBits(randArr, r.skip);
 				bsw.WriteString(r.str);
@@ -216,7 +221,48 @@ namespace Tests {
 			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++) {
 				bsr.SkipBits(data[i].skip);
-				Assert.AreEqual(bsr.ReadNullTerminatedString(), data[i].str, $"index: {i}");
+				Assert.AreEqual(data[i].str, bsr.ReadNullTerminatedString(), $"index: {i}");
+			}
+
+			// ReadNullTerminatedString fetches 8 bytes at a time when it's not aligned, this is a special check to make
+			// sure that it keeps track of the index correctly (which the above code may have missed).
+
+			const bool test1 = true;
+			const string test2 = "The FitnessGram Pacer Test is a multistage aerobic capacity test that progressively gets more difficult as it continues.";
+			const byte test3 = 69;
+			bsw = new BitStreamWriter();
+			bsw.WriteBool(test1);
+			bsw.WriteString(test2);
+			bsw.WriteByte(test3);
+			bsr = new BitStreamReader(bsw);
+			Assert.AreEqual(test1, bsr.ReadBool());
+			Assert.AreEqual(test2, bsr.ReadNullTerminatedString());
+			Assert.AreEqual(test3, bsr.ReadByte());
+		}
+
+
+		[Test, Parallelizable(ParallelScope.Self)]
+		public void WriteStringsOfLength() {
+			var random = new Random(0);
+			List<(int skip, string str)> data = new List<(int skip, string str)>();
+			BitStreamWriter bsw = new BitStreamWriter();
+			byte[] randArr = new byte[100 / 8 + 1];
+			random.NextBytes(randArr);
+			for (int _ = 0; _ < Iterations; _++) {
+				(int skip, string str) = (random.Next(0, 100), RandomString(random, random.Next(0, 15)));
+				// give some of these strings a null terminator in the middle (which we don't expect to see)
+				if (random.NextDouble() > 0.5)
+					str += "\0tactical spoon";
+				bsw.WriteBits(randArr, skip);
+				bsw.WriteString(str, false);
+				data.Add((skip, str));
+			}
+			BitStreamReader bsr = new BitStreamReader(bsw);
+			for (int i = 0; i < Iterations; i++) {
+				bsr.SkipBits(data[i].skip);
+				int terminator = data[i].str.IndexOf('\0');
+				string actual = terminator == -1 ? data[i].str : data[i].str[..terminator];
+				Assert.AreEqual(actual, bsr.ReadStringOfLength(data[i].str.Length), $"index: {i}");
 			}
 		}
 	}

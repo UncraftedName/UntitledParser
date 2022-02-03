@@ -16,7 +16,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			RemoveUser = bsr.ReadBool();
-			uint dataLen = bsr.ReadBitsAsUInt(11);
+			uint dataLen = bsr.ReadUInt(11);
 			Data = bsr.SplitAndSkip(dataLen);
 		}
 

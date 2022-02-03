@@ -19,7 +19,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			Info = new List<MapCompletedInfo>();
 			Span<byte> bytes = stackalloc byte[2 * MaxPortal2CoopBranches * MaxPortal2CoopLevelsPerBranch / 8];
-			bsr.ReadBytesToSpan(bytes);
+			bsr.ReadToSpan(bytes);
 			int current = 0;
 			int mask = 0x01;
 			for (int player = 0; player < 2; player++) {

@@ -18,8 +18,8 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			EventCount = (int)bsr.ReadBitsAsUInt(9);
-			int dataLen = (int)bsr.ReadBitsAsUInt(20);
+			EventCount = (int)bsr.ReadUInt(9);
+			int dataLen = (int)bsr.ReadUInt(20);
 			int indexBeforeData = bsr.CurrentBitIndex;
 
 			Descriptors = new List<GameEventDescription>(EventCount);
@@ -63,11 +63,11 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			EventId = bsr.ReadBitsAsUInt(9);
+			EventId = bsr.ReadUInt(9);
 			Name = bsr.ReadNullTerminatedString();
 			Keys = new List<(string Name, EventDescriptorType type)>();
 			uint type;
-			while ((type = bsr.ReadBitsAsUInt(3)) != 0)
+			while ((type = bsr.ReadUInt(3)) != 0)
 				Keys.Add((bsr.ReadNullTerminatedString(), (EventDescriptorType)type));
 		}
 

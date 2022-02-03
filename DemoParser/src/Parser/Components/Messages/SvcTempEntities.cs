@@ -16,7 +16,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			EntryCount = bsr.ReadByte();
-			uint bitLen = bsr.ReadBitsAsUInt(DemoInfo.IsLeft4Dead2() ? 18 : 17);
+			uint bitLen = bsr.ReadUInt(DemoInfo.IsLeft4Dead2() ? 18 : 17);
 			_data = bsr.SplitAndSkip(bitLen);
 
 			// todo

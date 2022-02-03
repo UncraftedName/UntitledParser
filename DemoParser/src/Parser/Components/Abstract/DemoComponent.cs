@@ -15,7 +15,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			DemoRef!.ReaderFromOffset(AbsoluteBitStart, AbsoluteBitEnd - AbsoluteBitStart);
 
 		internal readonly SourceDemo? DemoRef;
-		protected DemoInfo DemoInfo => DemoRef.DemoInfo!;
+		protected DemoInfo DemoInfo => DemoRef.DemoInfo;
 		public virtual bool MayContainData => true; // used in ToString() calls
 
 

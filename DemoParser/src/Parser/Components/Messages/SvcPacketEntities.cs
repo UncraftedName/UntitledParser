@@ -30,12 +30,12 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 
 			// first, we read the main message info here
-			MaxEntries = (ushort)bsr.ReadBitsAsUInt(11);
+			MaxEntries = (ushort)bsr.ReadUInt(11);
 			IsDelta = bsr.ReadBool();
 			DeltaFrom = IsDelta ? bsr.ReadSInt() : -1;
-			BaseLine = bsr.ReadBitsAsUInt(1);
-			UpdatedEntries = (ushort)bsr.ReadBitsAsUInt(11);
-			uint dataLen = bsr.ReadBitsAsUInt(20);
+			BaseLine = bsr.ReadUInt(1);
+			UpdatedEntries = (ushort)bsr.ReadUInt(11);
+			uint dataLen = bsr.ReadUInt(20);
 			UpdateBaseline = bsr.ReadBool();
 			_entBsr = bsr.SplitAndSkip(dataLen);
 
@@ -92,7 +92,7 @@ namespace DemoParser.Parser.Components.Messages {
 					ServerClass entClass;
 					List<FlattenedProp> fProps;
 					int iClass;
-					uint updateType = _entBsr.ReadBitsAsUInt(2);
+					uint updateType = _entBsr.ReadUInt(2);
 					switch (updateType) {
 						case 0: // delta
 							if (oldI != newI)
@@ -104,8 +104,8 @@ namespace DemoParser.Parser.Components.Messages {
 							snapshot.GetNextNonNullEntIndex(ref oldI);
 							break;
 						case 2: // enter PVS
-							iClass = (int)_entBsr.ReadBitsAsUInt(tableParser.ServerClassBits);
-							uint iSerial = _entBsr.ReadBitsAsUInt(DemoInfo.HandleSerialNumberBits);
+							iClass = (int)_entBsr.ReadUInt(tableParser.ServerClassBits);
+							uint iSerial = (uint)_entBsr.ReadULong((int)DemoInfo.HandleSerialNumberBits);
 							(entClass, fProps) = tableParser.FlattenedProps[iClass];
 							bool bNew = ents[newI] == null || ents[newI].Serial != iSerial;
 							update = new EnterPvs(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);

@@ -22,7 +22,7 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			Reliable = bsr.ReadBool();
 			int soundCount = Reliable ? 1 : bsr.ReadByte();
-			int dataBitLen = (int)bsr.ReadBitsAsUInt(Reliable ? 8 : 16);
+			int dataBitLen = (int)bsr.ReadUInt(Reliable ? 8 : 16);
 
 			BitStreamReader soundBsr = bsr.SplitAndSkip(dataBitLen);
 
@@ -171,20 +171,20 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			EntityIndex = bsr.ReadBool() ? bsr.ReadBitsAsUInt(bsr.ReadBool() ? 5 : MaxEdictBits) : _deltaTmp.EntityIndex;
+			EntityIndex = bsr.ReadBool() ? bsr.ReadUInt(bsr.ReadBool() ? 5 : MaxEdictBits) : _deltaTmp.EntityIndex;
 
 #pragma warning disable 8629
 			if (DemoInfo.NewDemoProtocol) {
-				Flags = (SoundFlags?)bsr.ReadBitsAsUIntIfExists(DemoInfo.SoundFlagBits) ?? _deltaTmp.Flags;
+				Flags = (SoundFlags?)bsr.ReadUIntIfExists(DemoInfo.SoundFlagBits) ?? _deltaTmp.Flags;
 				if ((Flags & SoundFlags.IsScriptHandle) != 0)
 					ScriptHash = bsr.ReadUInt();
 				else
-					SoundNum = (int?)bsr.ReadBitsAsUIntIfExists(MaxSndIndexBits) ?? _deltaTmp.SoundNum;
+					SoundNum = (int?)bsr.ReadUIntIfExists(MaxSndIndexBits) ?? _deltaTmp.SoundNum;
 			} else {
-				SoundNum = (int?)bsr.ReadBitsAsUIntIfExists(MaxSndIndexBits) ?? _deltaTmp.SoundNum;
-				Flags = (SoundFlags?)bsr.ReadBitsAsUIntIfExists(DemoInfo.SoundFlagBits) ?? _deltaTmp.Flags;
+				SoundNum = (int?)bsr.ReadUIntIfExists(MaxSndIndexBits) ?? _deltaTmp.SoundNum;
+				Flags = (SoundFlags?)bsr.ReadUIntIfExists(DemoInfo.SoundFlagBits) ?? _deltaTmp.Flags;
 			}
-			Chan = (Channel?)bsr.ReadBitsAsUIntIfExists(3) ?? _deltaTmp.Chan;
+			Chan = (Channel?)bsr.ReadUIntIfExists(3) ?? _deltaTmp.Chan;
 #pragma warning restore 8629
 
 			#region get sound name
@@ -213,18 +213,18 @@ namespace DemoParser.Parser.Components.Messages {
 				else if (bsr.ReadBool())
 					SequenceNumber = _deltaTmp.SequenceNumber + 1;
 				else
-					SequenceNumber = bsr.ReadBitsAsUInt(SndSeqNumberBits);
+					SequenceNumber = bsr.ReadUInt(SndSeqNumberBits);
 
-				Volume = bsr.ReadBitsAsUIntIfExists(7) / 127.0f ?? _deltaTmp.Volume;
-				SoundLevel = bsr.ReadBitsAsUIntIfExists(MaxSndLvlBits) ?? _deltaTmp.SoundLevel;
-				Pitch = bsr.ReadBitsAsUIntIfExists(8) ?? _deltaTmp.Pitch;
+				Volume = bsr.ReadUIntIfExists(7) / 127.0f ?? _deltaTmp.Volume;
+				SoundLevel = bsr.ReadUIntIfExists(MaxSndLvlBits) ?? _deltaTmp.SoundLevel;
+				Pitch = bsr.ReadUIntIfExists(8) ?? _deltaTmp.Pitch;
 
 				if (DemoInfo.NewDemoProtocol) {
-					RandomSeed = bsr.ReadBitsAsSIntIfExists(6) ?? _deltaTmp.RandomSeed; // 6, 18, or 29
+					RandomSeed = bsr.ReadSIntIfExists(6) ?? _deltaTmp.RandomSeed; // 6, 18, or 29
 					Delay = bsr.ReadFloatIfExists() ?? _deltaTmp.Delay;
 				} else {
 					if (bsr.ReadBool()) {
-						Delay = bsr.ReadBitsAsSInt(MaxSndDelayMSecEncodeBits) / 1000.0f;
+						Delay = bsr.ReadSInt(MaxSndDelayMSecEncodeBits) / 1000.0f;
 						if (Delay < 0)
 							Delay *= 10.0f;
 						Delay -= SndDelayOffset;
@@ -235,11 +235,11 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 
 				Origin = new Vector3 {
-					X = bsr.ReadBitsAsSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? _deltaTmp.Origin.X,
-					Y = bsr.ReadBitsAsSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? _deltaTmp.Origin.Y,
-					Z = bsr.ReadBitsAsSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? _deltaTmp.Origin.Z
+					X = bsr.ReadSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? _deltaTmp.Origin.X,
+					Y = bsr.ReadSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? _deltaTmp.Origin.Y,
+					Z = bsr.ReadSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? _deltaTmp.Origin.Z
 				};
-				SpeakerEntity = bsr.ReadBitsAsSIntIfExists(MaxEdictBits + 1) ?? _deltaTmp.SpeakerEntity;
+				SpeakerEntity = bsr.ReadSIntIfExists(MaxEdictBits + 1) ?? _deltaTmp.SpeakerEntity;
 			} else {
 				ClearStopFields();
 			}

@@ -29,14 +29,16 @@ namespace DemoParser.Parser.Components {
 			else if (Type == PacketType.Invalid)
 				throw new ArgumentException($"Illegal packet type: {typeVal}");
 
-			// stop tick is cut off in portal demos, not that it really matters
-			Tick = Type == PacketType.Stop && !DemoInfo.NewDemoProtocol
-				? (int)bsr.ReadBitsAsUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24))
-				: bsr.ReadSInt();
+			// very last byte is cut off in (all?) demos, copy data from the previous frame if this is the case
 
-			// last player slot byte is cut off in l4d demos
-			if ((DemoInfo.NewDemoProtocol) && bsr.BitsRemaining > 0)
-				PlayerSlot = bsr.ReadByte();
+			Tick = bsr.BitsRemaining >= 32
+				? bsr.ReadSInt()
+				: (int)bsr.ReadUInt(24) | (DemoRef.Frames[^2].Tick & (0xff << 24));
+
+			if (DemoInfo.NewDemoProtocol)
+				PlayerSlot = bsr.BitsRemaining >= 8
+					? bsr.ReadByte()
+					: DemoRef.Frames[^2].PlayerSlot;
 
 			Packet = PacketFactory.CreatePacket(DemoRef!, this, Type);
 			Packet.ParseStream(ref bsr);

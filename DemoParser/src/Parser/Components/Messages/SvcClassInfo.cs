@@ -81,7 +81,7 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			DataTableId = _classInfoRef == null
 				? bsr.ReadUShort()
-				: (int)bsr.ReadBitsAsUInt(DemoRef.DataTableParser.ServerClassBits);
+				: (int)bsr.ReadUInt(DemoRef.DataTableParser.ServerClassBits);
 			ClassName = bsr.ReadNullTerminatedString();
 			DataTableName = bsr.ReadNullTerminatedString();
 		}

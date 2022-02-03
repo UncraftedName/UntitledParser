@@ -32,7 +32,7 @@ namespace DemoParser.Parser.Components {
 			Exception? e = null;
 			try {
 				do {
-					messageValue = (byte)messageBsr.ReadBitsAsUInt(DemoInfo.NetMsgTypeBits);
+					messageValue = (byte)messageBsr.ReadUInt(DemoInfo.NetMsgTypeBits);
 					messageType = DemoMessage.ByteToSvcMessageType(messageValue, DemoInfo);
 					DemoMessage? demoMessage = MessageFactory.CreateMessage(DemoRef,messageType);
 					demoMessage?.ParseStream(ref messageBsr);

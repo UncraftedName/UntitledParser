@@ -22,10 +22,10 @@ namespace DemoParser.Parser.Components.Messages {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			bsr.ReadVectorCoord(out Pos);
-			DecalTextureIndex = (int)bsr.ReadBitsAsUInt(9);
+			DecalTextureIndex = (int)bsr.ReadUInt(9);
 			if (bsr.ReadBool()) {
-				EntityIndex = bsr.ReadBitsAsUInt(DemoInfo.MaxEdictBits);
-				ModelIndex = bsr.ReadBitsAsUInt(DemoInfo.MaxEdictBits);
+				EntityIndex = bsr.ReadUInt(DemoInfo.MaxEdictBits);
+				ModelIndex = bsr.ReadUInt(DemoInfo.MaxEdictBits);
 			}
 			LowPriority = bsr.ReadBool();
 		}

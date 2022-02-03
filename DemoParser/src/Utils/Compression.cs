@@ -16,7 +16,7 @@ namespace DemoParser.Utils {
 			switch (type) {
 				case LZSS_ID:
 					Span<byte> dataIn = compSize < 100000 ? stackalloc byte[compSize] : new byte[compSize];
-					bsr.ReadBytesToSpan(dataIn);
+					bsr.ReadToSpan(dataIn);
 					byte[] arrOut = new byte[decompSize];
 					fixed (byte* pDataIn = dataIn)
 					fixed (byte* pDataOut = arrOut)

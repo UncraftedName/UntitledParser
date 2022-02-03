@@ -118,7 +118,7 @@ namespace DemoParser.Parser.Components.Packets {
 		protected override void Parse(ref BitStreamReader bsr) {
 			NeedsDecoder = bsr.ReadBool();
 			Name = bsr.ReadNullTerminatedString();
-			ExpectedPropCount = (int)bsr.ReadBitsAsUInt(DemoInfo.Game == SourceGame.HL2_OE ? 9 : 10);
+			ExpectedPropCount = (int)bsr.ReadUInt(DemoInfo.Game == SourceGame.HL2_OE ? 9 : 10);
 			SendProps = new List<SendTableProp>(ExpectedPropCount);
 			for (int i = 0; i < ExpectedPropCount; i++) {
 				var sendProp = new SendTableProp(DemoRef, this);

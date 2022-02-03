@@ -31,9 +31,9 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			SendPropType = DemoInfo.SendPropTypes[(int)bsr.ReadBitsAsUInt(5)];
+			SendPropType = DemoInfo.SendPropTypes[(int)bsr.ReadUInt(5)];
 			Name = bsr.ReadNullTerminatedString();
-			Flags = (int)bsr.ReadBitsAsUInt(DemoInfo.SendPropFlagBits);
+			Flags = (int)bsr.ReadUInt(DemoInfo.SendPropFlagBits);
 			if (DemoInfo.NewDemoProtocol && !DemoInfo.IsLeft4Dead1())
 				Priority = bsr.ReadByte();
 			if (SendPropType == SendPropType.DataTable || DemoInfo.PropFlagChecker.HasFlag(Flags, PropFlag.Exclude)) {
@@ -47,10 +47,10 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 					case SendPropType.Vector2:
 						LowValue = bsr.ReadFloat();
 						HighValue = bsr.ReadFloat();
-						NumBits = bsr.ReadBitsAsUInt(DemoInfo.SendPropNumBitsToGetNumBits);
+						NumBits = bsr.ReadUInt(DemoInfo.SendPropNumBitsToGetNumBits);
 						break;
 					case SendPropType.Array:
-						NumElements = bsr.ReadBitsAsUInt(10);
+						NumElements = bsr.ReadUInt(10);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException(nameof(SendPropType),

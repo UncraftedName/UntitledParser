@@ -21,10 +21,10 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			TableId = (byte)bsr.ReadBitsAsUInt(5);
+			TableId = (byte)bsr.ReadUInt(5);
 			TableName = DemoRef.StringTablesManager.TableById(TableId).Name;
 			ChangedEntriesCount = bsr.ReadUShortIfExists() ?? 1;
-			uint dataLen = bsr.ReadBitsAsUInt(20);
+			uint dataLen = bsr.ReadUInt(20);
 
 			TableUpdates = new StringTableUpdates(DemoRef, TableName, ChangedEntriesCount, false);
 			TableUpdates.ParseStream(bsr.SplitAndSkip(dataLen));
@@ -109,13 +109,13 @@ namespace DemoParser.Parser.Components.Messages {
 				for (int i = 0; i < _numUpdatedEntries; i++) {
 					entryIndex++;
 					if (!bsr.ReadBool())
-						entryIndex = (int)bsr.ReadBitsAsUInt(BitUtils.HighestBitIndex(tableToUpdate.MaxEntries));
+						entryIndex = (int)bsr.ReadUInt(BitUtils.HighestBitIndex(tableToUpdate.MaxEntries));
 
 					string? entryName = null;
 					if (bsr.ReadBool()) {
 						if (bsr.ReadBool()) { // the first part of the string may be the same as for other entries
-							int index = (int)bsr.ReadBitsAsUInt(5);
-							int subStrLen = (int)bsr.ReadBitsAsUInt(DemoInfo.SubStringBits);
+							int index = (int)bsr.ReadUInt(5);
+							int subStrLen = (int)bsr.ReadUInt(DemoInfo.SubStringBits);
 							entryName = history[index][..subStrLen];
 							entryName += bsr.ReadNullTerminatedString();
 						} else {
@@ -128,7 +128,7 @@ namespace DemoParser.Parser.Components.Messages {
 					if (bsr.ReadBool()) {
 						int streamLen = tableToUpdate.UserDataFixedSize
 							? tableToUpdate.UserDataSizeBits
-							: (int)bsr.ReadBitsAsUInt(DemoInfo.MaxUserDataBits) * 8;
+							: (int)bsr.ReadUInt(DemoInfo.MaxUserDataBits) * 8;
 
 						entryStream = bsr.SplitAndSkip(streamLen);
 					}

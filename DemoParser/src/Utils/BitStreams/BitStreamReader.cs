@@ -49,13 +49,13 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		// uses relative bit index (not absolute)
-		public readonly BitStreamReader Split(int fromBitIndex, int bitCount) {
-			if (bitCount < 0)
-				throw new ArgumentOutOfRangeException(nameof(bitCount), $"{nameof(bitCount)} cannot be less than 0");
-			if (fromBitIndex + bitCount > CurrentBitIndex + BitsRemaining)
-				throw new ArgumentOutOfRangeException(nameof(bitCount),
-					$"{BitsRemaining} bits remaining, attempted to create a substream with {fromBitIndex + bitCount - BitsRemaining} too many bits");
-			return new BitStreamReader(Data, bitCount, AbsoluteStart + fromBitIndex);
+		public readonly BitStreamReader Split(int fromBitIndex, int numBits) {
+			if (numBits < 0)
+				throw new ArgumentOutOfRangeException(nameof(numBits), $"{nameof(numBits)} cannot be less than 0");
+			if (fromBitIndex + numBits > CurrentBitIndex + BitsRemaining)
+				throw new ArgumentOutOfRangeException(nameof(numBits),
+					$"{BitsRemaining} bits remaining, attempted to create a substream with {fromBitIndex + numBits - BitsRemaining} too many bits");
+			return new BitStreamReader(Data, numBits, AbsoluteStart + fromBitIndex);
 		}
 
 
@@ -82,114 +82,105 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		private unsafe void FetchIfAligned() {
-			if (AbsoluteBitIndex % 64 == 0)
-				fixed (byte* pData = Data)
-					_prefetch = *(ulong*)(pData + AbsoluteBitIndex / 8);
-		}
-
-
 		// to suppress debug warnings that I didn't finish reading a component
 		internal void SkipToEnd() => SkipBits(BitsRemaining);
 
 
 		public void SkipBytes(int byteCount) => SkipBits(byteCount * 8);
 
-		public void SkipBits(int bitCount) {
-			EnsureCapacity(bitCount);
-			AbsoluteBitIndex += bitCount;
+		public void SkipBits(int numBits) {
+			EnsureCapacity(numBits);
+			AbsoluteBitIndex += numBits;
 			Fetch();
 		}
 
 
-		private readonly void EnsureCapacity(int bitCount) {
-			if (bitCount > BitsRemaining)
-				throw new ArgumentOutOfRangeException(nameof(bitCount),
-					$"{nameof(EnsureCapacity)} failed - {bitCount} bits were needed but only {BitsRemaining} were left");
+		private readonly void EnsureCapacity(int numBits) {
+			if (numBits > BitsRemaining)
+				throw new ArgumentOutOfRangeException(nameof(numBits),
+					$"{nameof(EnsureCapacity)} failed - {numBits} bits were needed but only {BitsRemaining} were left");
 		}
 
 
-		public bool ReadBool() {
+		public unsafe bool ReadBool() {
 			EnsureCapacity(1);
 			bool ret = (_prefetch & 1) != 0;
-			_prefetch >>= 1;
-			AbsoluteBitIndex++;
-			FetchIfAligned();
+			if (++AbsoluteBitIndex % 64 == 0) { // fetch if we're on an 8-byte boundary
+				fixed (byte* pData = Data)
+					_prefetch = *(ulong*)(pData + AbsoluteBitIndex / 8);
+			} else {
+				_prefetch >>= 1;
+			}
 			return ret;
 		}
 
 
 		public byte[] ReadBytes(int byteCount) {
-			if (byteCount < 0)
-				throw new IndexOutOfRangeException($"{nameof(byteCount)} should not be negative");
+			Debug.Assert(byteCount >= 0);
 			byte[] result = new byte[byteCount];
-			ReadBytesToSpan(result.AsSpan());
+			ReadToSpan(result);
 			return result;
 		}
 
 
-		public void ReadBytesToSpan(Span<byte> byteSpan) {
-			if (byteSpan.Length == 0)
+		public void ReadToSpan(Span<byte> span) {
+			if (span.Length == 0)
 				return;
 			if (AbsoluteBitIndex % 8 == 0) {
 				// we're byte-aligned
-				Data.AsSpan(AbsoluteBitIndex / 8, byteSpan.Length).CopyTo(byteSpan);
-				SkipBytes(byteSpan.Length);
+				Data.AsSpan(AbsoluteBitIndex / 8, span.Length).CopyTo(span);
+				SkipBytes(span.Length);
 			} else {
-				for (int i = 0; i < byteSpan.Length; i++)
-					byteSpan[i] = ReadByte();
+				for (int i = 0; i < span.Length; i++)
+					span[i] = ReadByte();
 			}
 		}
 
 
-		public byte[] ReadBits(int bitCount) {
-			byte[] result = new byte[bitCount / 8 + (bitCount % 8 == 0 ? 0 : 1)];
-			ReadBitsToSpan(result.AsSpan(), bitCount);
+		public byte[] ReadBits(int numBits) {
+			byte[] result = new byte[numBits / 8 + (numBits % 8 == 0 ? 0 : 1)];
+			ReadToSpan(result.AsSpan(0, numBits / 8));
+			if (numBits % 8 != 0)
+				result[^1] = (byte)ReadULong(numBits % 8);
 			return result;
 		}
 
 
-		private void ReadBitsToSpan(Span<byte> byteSpan, int bitCount) {
-			ReadBytesToSpan(byteSpan[..(bitCount / 8)]);
-			if (bitCount % 8 != 0)
-				byteSpan[^1] = (byte)ReadBitsAsUInt(bitCount % 8);
-		}
-
-
-		public (byte[] bytes, int bitCount) ReadRemainingBits() {
+		public (byte[] bytes, int numBits) ReadRemainingBits() {
 			int rem = BitsRemaining;
 			return (ReadBits(rem), rem);
 		}
 
 
-		public uint ReadBitsAsUInt(uint bitCount) => ReadBitsAsUInt((int)bitCount);
-
-		public uint ReadBitsAsUInt(int bitCount) {
-			Debug.Assert(bitCount >= 0 && bitCount <= 32);
-			EnsureCapacity(bitCount);
-			int firstShiftCount = bitCount;
-			bitCount -= 64 - AbsoluteBitIndex % 64;
-			uint ret = (uint)(_prefetch & ~(0xffffffffUL << firstShiftCount));
-			firstShiftCount -= Math.Max(bitCount, 0); // go at most up to the next ulong boundary
-			_prefetch >>= firstShiftCount;
-			AbsoluteBitIndex += firstShiftCount;
-			FetchIfAligned();
-			if (bitCount > 0) {
-				ret |= ((uint)_prefetch & ~(0xffffffff << bitCount)) << firstShiftCount;
-				_prefetch >>= bitCount;
-				AbsoluteBitIndex += bitCount;
-			}
-			return ret;
+		// sign extend, not necessary for primitive types
+		public int ReadSInt(int numBits) {
+			int res = (int)ReadULong(numBits);
+			if ((res & (1 << (numBits - 1))) != 0)
+				res |= int.MaxValue << numBits; // can use int here since the leftmost 0 will get shifted away anyway
+			return res;
 		}
 
 
-		public int ReadBitsAsSInt(uint bitCount) => ReadBitsAsSInt((int)bitCount);
-
-		public int ReadBitsAsSInt(int bitCount) {
-			int res = (int)ReadBitsAsUInt(bitCount);
-			if ((res & (1 << (bitCount - 1))) != 0) // sign extend, not necessary for primitive types
-				res |= int.MaxValue << bitCount; // can use int here since the leftmost 0 will get shifted away anyway
-			return res;
+		public unsafe ulong ReadULong(int numBits = 64) {
+			Debug.Assert(numBits >= 0 && numBits <= 64);
+			EnsureCapacity(numBits);
+			int firstNumBits = numBits;
+			ulong ret = firstNumBits == 64 ? _prefetch : _prefetch & ~(ulong.MaxValue << firstNumBits);
+			numBits -= 64 - AbsoluteBitIndex % 64;
+			firstNumBits -= Math.Max(numBits, 0);
+			AbsoluteBitIndex += firstNumBits;
+			if (AbsoluteBitIndex % 64 == 0) {
+				fixed (byte* pData = Data)
+					_prefetch = *(ulong*)(pData + AbsoluteBitIndex / 8);
+				if (numBits > 0) {
+					ret |= (_prefetch & ~(ulong.MaxValue << numBits)) << firstNumBits;
+					_prefetch >>= numBits;
+					AbsoluteBitIndex += numBits;
+				}
+			} else {
+				_prefetch >>= firstNumBits;
+			}
+			return ret;
 		}
 
 
@@ -202,40 +193,58 @@ namespace DemoParser.Utils.BitStreams {
 				SkipBytes(str.Length + 1);
 				return str;
 			}
-			sbyte* pStr = stackalloc sbyte[1024];
-			int i = 0;
-			do
-				pStr[i] = ReadSByte();
-			while (pStr[i++] != 0);
-			return new string(pStr);
+			// Demos have on the order of tens or hundreds of thousands of strings, this is a personal exercise to
+			// optimize reading them. Read a full ulong at a time and check each byte of it.
+			const int maxSize = 1024;
+			ulong* pStr = stackalloc ulong[maxSize / 8];
+			for (int i = 0; i < maxSize / 8; i++) {
+				int actualReadCount = Math.Min(BitsRemaining, 64);
+				ulong cur = pStr[i] = ReadULong(actualReadCount);
+				ulong mask = 0xFF;
+				for (int j = 1; j < 8; j++) {
+					if ((cur & mask) == 0) {
+						// we've read too many bytes, backtrack
+						AbsoluteBitIndex -= actualReadCount - 8 * j;
+						Fetch();
+						return new string((sbyte*)pStr);
+					}
+					mask <<= 8;
+				}
+				if ((cur & mask) == 0) // the last byte in cur is a '\0', no backtracking necessary
+					return new string((sbyte*)pStr);
+			}
+			throw new IndexOutOfRangeException($"{nameof(BitStreamReader)}.{nameof(ReadNullTerminatedString)} " +
+											   $"tried to read a string that's more than {maxSize} bytes long");
+		}
+
+		public unsafe string ReadStringOfLength(int strLen) {
+			Debug.Assert(strLen >= 0);
+			if (strLen == 0)
+				return string.Empty;
+
+			Span<byte> bytes = AbsoluteBitIndex % 8 == 0
+				? Data.AsSpan(AbsoluteBitIndex / 8, strLen)
+				: stackalloc byte[strLen]; // this stackalloc only works inside this ternary operator for some reason
+
+			if (AbsoluteBitIndex % 8 == 0)
+				SkipBytes(strLen);
+			else
+				ReadToSpan(bytes);
+
+			int terminator = bytes.IndexOf((byte)0);
+			fixed (byte* strPtr = bytes)
+				return new string((sbyte*)strPtr, 0, terminator == -1 ? strLen : terminator);
 		}
 
 
-		public string ReadStringOfLength(uint strLength) => ReadStringOfLength((int)strLength);
-
-		public unsafe string ReadStringOfLength(int strLength) {
-			if (strLength < 0)
-				throw new ArgumentException("bro that's not supposed to be negative", nameof(strLength));
-
-			Span<byte> bytes = strLength < 10000
-				? stackalloc byte[strLength + 1]
-				: new byte[strLength + 1];
-
-			ReadBytesToSpan(bytes[..strLength]);
-			bytes[strLength] = 0; // I would assume that in this case the string might not be null-terminated.
-			fixed(byte* strPtr = bytes)
-				return new string((sbyte*)strPtr);
-		}
-
-
-		public ulong ReadULong() => ((ulong)ReadUInt() << 32) | ReadUInt();
-		public uint ReadUInt() => ReadBitsAsUInt(32);
-		public int ReadSInt() => (int)ReadUInt();
-		public ushort ReadUShort() => (ushort)ReadBitsAsUInt(16);
-		public short ReadSShort() => (short)ReadUShort();
+		public uint ReadUInt(int numBits) => (uint)ReadULong(numBits);
+		public uint ReadUInt() => (uint)ReadULong(32);
+		public int ReadSInt() => (int)ReadULong(32);
+		public ushort ReadUShort() => (ushort)ReadULong(16);
+		public short ReadSShort() => (short)ReadULong(16);
 		public EHandle ReadEHandle() => (EHandle)ReadUInt();
-		public byte ReadByte() => (byte)ReadBitsAsUInt(8);
-		public sbyte ReadSByte() => (sbyte)ReadByte();
+		public byte ReadByte() => (byte)ReadULong(8);
+		public sbyte ReadSByte() => (sbyte)ReadULong(8);
 
 
 		public unsafe float ReadFloat() {
@@ -257,16 +266,16 @@ namespace DemoParser.Utils.BitStreams {
 		public uint? ReadUIntIfExists() => ReadBool() ? ReadUInt() : (uint?)null;
 		public ushort? ReadUShortIfExists() => ReadBool() ? ReadUShort() : (ushort?)null;
 		public float? ReadFloatIfExists() => ReadBool() ? ReadFloat() : (float?)null;
-		public uint? ReadBitsAsUIntIfExists(int bitCount) => ReadBool() ? ReadBitsAsUInt(bitCount) : (uint?)null;
-		public int? ReadBitsAsSIntIfExists(int bitCount) => ReadBool() ? ReadBitsAsSInt(bitCount) : (int?)null;
+		public uint? ReadUIntIfExists(int numBits) => ReadBool() ? ReadUInt(numBits) : (uint?)null;
+		public int? ReadSIntIfExists(int numBits) => ReadBool() ? ReadSInt(numBits) : (int?)null;
 
 
 		public readonly string ToBinaryString() {
-			(byte[] bytes, int bitCount) = Split().ReadRemainingBits();
-			if ((bitCount & 0x07) == 0)
+			(byte[] bytes, int numBits) = Split().ReadRemainingBits();
+			if ((numBits & 0x07) == 0)
 				return ParserTextUtils.BytesToBinaryString(bytes);
 			else
-				return $"{ParserTextUtils.BytesToBinaryString(bytes.Take(bytes.Length - 1))} {ParserTextUtils.ByteToBinaryString(bytes[^1], bitCount % 8)}".Trim();
+				return $"{ParserTextUtils.BytesToBinaryString(bytes.Take(bytes.Length - 1))} {ParserTextUtils.ByteToBinaryString(bytes[^1], numBits % 8)}".Trim();
 		}
 
 
