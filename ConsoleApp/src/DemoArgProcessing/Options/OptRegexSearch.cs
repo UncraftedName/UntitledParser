@@ -25,7 +25,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public OptRegexSearch() : base(
 			DefaultAliases,
 			Arity.ZeroOrOne,
-			"Find commands that match the given regex (case insensitive), the default pattern will match every command",
+			"Find commands that match the given regex (case insensitive), the default pattern will match every command. Does not match against key codes.",
 			"pattern",
 			 RegexValidator,
 			new Regex(".*")) {}
@@ -42,7 +42,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				bool any = false;
 				foreach ((ConsoleCmd cmd, MatchCollection _) in infoObj.CurrentDemo.CmdRegexMatches(r)) {
 					any = true;
-					Console.WriteLine($"[{cmd.Tick}] {cmd.Command}");
+					Console.WriteLine($"[{cmd.Tick}] {cmd.ToString()}");
 				}
 				if (!any)
 					Console.WriteLine("no matches found");
