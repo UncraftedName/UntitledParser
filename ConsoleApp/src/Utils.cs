@@ -147,13 +147,15 @@ namespace ConsoleApp {
 			var newArgs = new List<string>();
 			bool fixing = false;
 			foreach (string arg in args) {
-				if (!fixing && arg.Length > 2 && arg.Substring(0, 2) == @".\" && arg.Contains('"')) {
+				if (!fixing && arg.Contains('"') &&
+					((arg.Length > 2 && arg[..2] == @".\") || (arg.Length > 3 && arg[1..3] == @":\"))) // does this look like the start of a directory?
+				{
 					// this is a directory that breaks future args
 					int off = arg.IndexOf('"');
-					newArgs.Add(arg.Substring(0, off));
+					newArgs.Add(arg[..off]);
 					if (off < arg.Length - 1) {
 						// split the string by spaces, these should be separate args
-						newArgs.AddRange(arg.Substring(off + 2).Split(' '));
+						newArgs.AddRange(arg[(off + 2)..].Split(' '));
 						fixing = true;
 					}
 				} else if (fixing) {
@@ -161,7 +163,7 @@ namespace ConsoleApp {
 					newArgs[^1] += " ";
 					if (arg.Last() == '"') {
 						// this is the end of the current arg
-						newArgs[^1] += arg.Substring(0, arg.Length - 1);
+						newArgs[^1] += arg[..^1];
 						fixing = false;
 					} else if (arg.Contains(' ')) {
 						// this is the end of the current arg and the beginning of the next one(s)
