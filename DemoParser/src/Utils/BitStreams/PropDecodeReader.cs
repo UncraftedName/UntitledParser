@@ -241,6 +241,18 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
+		public uint ReadVarUInt32() {
+			uint result = 0;
+			for (int i = 0; i < MaxVarInt32Bytes; i++) {
+				uint b = ReadByte();
+				result |= (b & 0x7F) << (7 * i);
+				if ((b & 0x80) == 0)
+					break;
+			}
+			return result;
+		}
+
+
 #pragma warning disable 8509
 
 		public uint ReadUBitVar() {
@@ -316,6 +328,7 @@ namespace DemoParser.Utils.BitStreams {
 		public const int   NormDenom         = (1 << NormFracBits) - 1;
 		public const float NormRes           = 1.0f / NormDenom;
 		public const int   DtMaxStringBits   = 9; // read this many bits to get the length of a string prop
+		public const int   MaxVarInt32Bytes = 5;
 	}
 
 
