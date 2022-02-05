@@ -54,7 +54,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		private readonly int _numUpdatedEntries;
 		private readonly string _tableName;
-		private readonly bool _isSvcCreate;
+		private readonly bool _canCompress;
 		private bool _exceptionWhileParsing;
 		public readonly List<TableUpdate?> TableUpdates;
 
@@ -62,10 +62,10 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 
-		public StringTableUpdates(SourceDemo? demoRef, string tableName, int numUpdatedEntries, bool isSvcCreate) : base(demoRef) {
+		public StringTableUpdates(SourceDemo? demoRef, string tableName, int numUpdatedEntries, bool canCompress) : base(demoRef) {
 			_tableName = tableName;
 			_numUpdatedEntries = numUpdatedEntries;
-			_isSvcCreate = isSvcCreate;
+			_canCompress = canCompress;
 			TableUpdates = new List<TableUpdate?>(_numUpdatedEntries);
 		}
 
@@ -91,7 +91,7 @@ namespace DemoParser.Parser.Components.Messages {
 				MutableStringTable tableToUpdate = manager.Tables[_tableName];
 
 				int? decompressedIndex = null;
-				if (tableToUpdate.Flags.HasValue && (tableToUpdate.Flags & StringTableFlags.DataCompressed) != 0 && _isSvcCreate) {
+				if (tableToUpdate.Flags.HasValue && (tableToUpdate.Flags & StringTableFlags.DataCompressed) != 0 && _canCompress) {
 					// decompress the data - engine/baseclientstate.cpp (hl2_src) line 1364
 					int uncompressedSize = bsr.ReadSInt();
 					int compressedSize = bsr.ReadSInt();
@@ -156,7 +156,7 @@ namespace DemoParser.Parser.Components.Messages {
 					history.Push(entryName);
 				}
 			} catch (Exception e) {
-				// there was an update I couldn't parse, assume this C_table contain irrelevant data from here
+				// there was an update I couldn't parse, assume this mutable table contain irrelevant data from here
 				DemoRef.LogError($"error while parsing {GetType().Name} for table {_tableName}: {e.Message}");
 				_exceptionWhileParsing = true;
 				manager.TableReadable[_tableName] = false;
@@ -180,8 +180,8 @@ namespace DemoParser.Parser.Components.Messages {
 			} else {
 				int padCount = TableUpdates
 					.Select(update => (Name: update.TableEntry.EntryName, Data: update.TableEntry.EntryData))
-					.Where(t => !(t.Data?.ContentsKnown ?? true))
-					.Select(t => t.Name.Length + 2)
+					.Where(t => !(t.Data?.ContentsKnown ?? true) || (t.Data?.InlineToString ?? true))
+					.Select(t => t.Name.Length + 3)
 					.DefaultIfEmpty(2)
 					.Max();
 
@@ -189,6 +189,7 @@ namespace DemoParser.Parser.Components.Messages {
 					if (i != 0)
 						pw.AppendLine();
 					TableUpdates[i].PadCount = padCount;
+					TableUpdates[i].EntryCount = TableUpdates.Count;
 					TableUpdates[i].PrettyWrite(pw);
 				}
 			}
@@ -198,7 +199,10 @@ namespace DemoParser.Parser.Components.Messages {
 
 	public class TableUpdate : PrettyClass {
 
-		internal int PadCount; // just for toString()
+		// just for toString()
+		internal int PadCount;
+		internal int EntryCount;
+
 		public readonly MutableStringTableEntry? TableEntry;
 		public readonly int Index;
 		public readonly TableUpdateType UpdateType;
@@ -214,12 +218,12 @@ namespace DemoParser.Parser.Components.Messages {
 		public override void PrettyWrite(IPrettyWriter pw) { // similar logic to that in string tables
 			pw.Append($"[{Index}] {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
 			if (TableEntry?.EntryData != null) {
-				if (TableEntry.EntryData.InlineToString) {
+				if (TableEntry.EntryData.InlineToString && EntryCount == 1) {
 					pw.Append("; ");
 					TableEntry.EntryData.PrettyWrite(pw);
 				} else {
 					pw.FutureIndent++;
-					if (TableEntry.EntryData.ContentsKnown)
+					if (TableEntry.EntryData.ContentsKnown && !TableEntry.EntryData.InlineToString)
 						pw.AppendLine();
 					else
 						pw.PadLastLine(PadCount + 15, '.');

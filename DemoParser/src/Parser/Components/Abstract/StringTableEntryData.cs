@@ -38,6 +38,10 @@ namespace DemoParser.Parser.Components.Abstract {
 				TableNames.InstanceBaseLine  => new InstanceBaseline(demoRef, decompressedIndex, entryName),
 				TableNames.GameRulesCreation => new GameRulesCreation(demoRef, decompressedIndex),
 				TableNames.LightStyles       => new LightStyle(demoRef, decompressedIndex),
+				TableNames.ModelPreCache     => new PrecacheData(demoRef, decompressedIndex),
+				TableNames.GenericPreCache   => new PrecacheData(demoRef, decompressedIndex),
+				TableNames.SoundPreCache     => new PrecacheData(demoRef, decompressedIndex),
+				TableNames.DecalPreCache     => new PrecacheData(demoRef, decompressedIndex),
 				_ => new UnknownStringTableEntryData(demoRef, decompressedIndex)
 			};
 		}

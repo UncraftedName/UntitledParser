@@ -43,7 +43,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		}
 
 
-		// since we're reading a struct, alignment needs to be taken into account
+		// we're reading a player_info_t, so take alignment into account
 		protected override void Parse(ref BitStreamReader bsr) {
             if (DemoInfo.NewDemoProtocol && !DemoInfo.IsLeft4Dead1())
                 SteamId = (CSteamId)bsr.ReadULong();

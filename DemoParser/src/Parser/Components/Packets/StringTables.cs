@@ -168,7 +168,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 		public override void PrettyWrite(IPrettyWriter pw) {
 			if (EntryData != null) {
-				if (EntryData.ContentsKnown) {
+				if ((EntryData.ContentsKnown && !EntryData.InlineToString) || (EntryData.InlineToString && TableRef.TableEntries.Count == 1)) {
 					pw.Append(Name);
 					if (EntryData.InlineToString) {
 						pw.Append(": ");
