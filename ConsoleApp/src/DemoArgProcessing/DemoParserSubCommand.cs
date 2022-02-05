@@ -64,7 +64,7 @@ namespace ConsoleApp.DemoArgProcessing {
 			// check the values in setupInfo
 
 			// enable --time implicitly if there are no other options
-			if (TotalEnabledOptions == 0) {
+			if (setupInfo.ExecutableOptions == 0) {
 				if (TryGetOption(OptTime.DefaultAliases[0], out var option)) {
 					option.Enable(null);
 					option.AfterParse(setupInfo);
@@ -72,8 +72,6 @@ namespace ConsoleApp.DemoArgProcessing {
 					throw new ArgProcessProgrammerException("listdemo option not passed to demo sub-command.");
 				}
 			}
-			if (setupInfo.ExecutableOptions == 0)
-				throw new ArgProcessUserException("no executable options given!");
 			// if (setupInfo.OverWriteDemos && !setupInfo.WritesNewDemos) <- I could add a check for this, is it necessary?
 			if (setupInfo.OverWriteDemos && setupInfo.EditsDemos && setupInfo.OverwritePrompt) {
 				Utils.Warning("Warning:");
