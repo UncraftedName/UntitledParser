@@ -78,9 +78,9 @@ namespace ConsoleApp.DemoArgProcessing {
 				Console.WriteLine($" '{OptOverwrite.DefaultAliases[0]}' enabled, this will edit demos and may cause corruption!");
 				Console.Write("Are you sure you want to continue? ");
 				string? inp = null;
-				while (inp != "Y") {
-					Console.Write("[Y/n]");
-					inp = Console.ReadLine()?.Trim();
+				while (inp != "y") {
+					Console.Write("[y/n]");
+					inp = Console.ReadLine()?.Trim().ToLower();
 					if (inp == "n")
 						return;
 				}
