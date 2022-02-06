@@ -28,12 +28,13 @@ namespace DemoParser.Parser {
 		public readonly int MaxSplitscreenPlayers;
 		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		public readonly int SendPropFlagBits;
-		public readonly int SoundFlagBits;
-		public readonly bool NewDemoProtocol; // "new engine" in nekz' parser
+		public readonly int SoundFlagBitsEncode;
+		public readonly bool NewDemoProtocol; // "new engine" in nekz' parser, possibly relating to a specific branch
 		public readonly int NetMsgTypeBits;
 		public readonly int UserMessageLengthBits;
 		public readonly int SendPropNumBitsToGetNumBits;
 		public readonly int NumNetFileFlagBits;
+		public readonly int MaxSndIndexBits;
 		public float TickInterval; // I set the tick interval here just in case but it should get set from SvcServerInfo
 		public bool HasParsedTickInterval = false;
 
@@ -132,7 +133,6 @@ namespace DemoParser.Parser {
 				case 4 when IsLeft4Dead1():
 					NewDemoProtocol = IsLeft4Dead1();
 					SendPropFlagBits = Game == HL2_OE ? 13 : 16;
-					SoundFlagBits = 9;
 					PropFlagChecker = new SendPropEnums.DemoProtocol3FlagChecker();
 					PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsOldDemoProtocol();
 					CollisionsGroupList = PropEnums.CollisionGroupListOldDemoProtocol;
@@ -152,7 +152,6 @@ namespace DemoParser.Parser {
 				case 4:
 					NewDemoProtocol = true;
 					SendPropFlagBits = 19;
-					SoundFlagBits = 13; // 9?
 					UserMessageLengthBits = IsLeft4Dead() ? 11 : 12;
 					PropFlagChecker = new SendPropEnums.DemoProtocol4FlagChecker();
 					if (Game == PORTAL_2) {
@@ -169,6 +168,14 @@ namespace DemoParser.Parser {
 					throw new ArgumentException($"What the heck is demo protocol version {h.DemoProtocol}?");
 			}
 			MessageTypesReverseLookup = MessageTypes.CreateReverseLookupDict(MessageType.Invalid);
+
+			if (NewDemoProtocol) {
+				MaxSndIndexBits = 13;
+				SoundFlagBitsEncode = 13; // 9?
+			} else {
+				MaxSndIndexBits = h.NetworkProtocol > 22 ? 14 : 13;
+				SoundFlagBitsEncode = h.NetworkProtocol > 18 ? 11 : 9;
+			}
 
 			TimeAdjustmentTypes = TimingAdjustment.AdjustmentTypeFromMap(h.MapName, Game);
 		}

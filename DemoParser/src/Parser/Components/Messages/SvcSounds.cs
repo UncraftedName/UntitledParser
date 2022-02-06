@@ -16,7 +16,6 @@ namespace DemoParser.Parser.Components.Messages {
 		internal const int MaxSndLvlBits = 9;
 		internal const int MaxSndDelayMSecEncodeBits = 13;
 		internal const float SndDelayOffset = 0.1f;
-		internal const int MaxSndIndexBits = 13;
 
 		public bool Reliable;
 		public SoundInfo[]? Sounds;
@@ -102,7 +101,8 @@ namespace DemoParser.Parser.Components.Messages {
 		public float Volume;
 		public uint SoundLevel;
 		public uint Pitch;
-		public int? RandomSeed; // demo protocol 4 only
+		public int? SpecialDspCount; // old protocol
+		public int? RandomSeed;      // new protocol
 		public float Delay;
 		public Vector3 Origin;
 		public int SpeakerEntity;
@@ -138,6 +138,7 @@ namespace DemoParser.Parser.Components.Messages {
 			Volume = 1.0f;
 			SoundLevel = 75;
 			Pitch = 100;
+			SpecialDspCount = DemoInfo.NewDemoProtocol ? (int?)null : 0;
 			RandomSeed = DemoInfo.NewDemoProtocol ? 0 : (int?)null;
 			EntityIndex = 0;
 			SpeakerEntity = -1;
@@ -181,14 +182,14 @@ namespace DemoParser.Parser.Components.Messages {
 
 #pragma warning disable 8629
 			if (DemoInfo.NewDemoProtocol) {
-				Flags = (SoundFlags?)bsr.ReadUIntIfExists(DemoInfo.SoundFlagBits) ?? _deltaTmp.Flags;
+				Flags = (SoundFlags?)bsr.ReadUIntIfExists(DemoInfo.SoundFlagBitsEncode) ?? _deltaTmp.Flags;
 				if ((Flags & SoundFlags.IsScriptHandle) != 0)
 					ScriptHash = bsr.ReadUInt();
 				else
-					SoundNum = (int?)bsr.ReadUIntIfExists(MaxSndIndexBits) ?? _deltaTmp.SoundNum;
+					SoundNum = (int?)bsr.ReadUIntIfExists(DemoInfo.MaxSndIndexBits) ?? _deltaTmp.SoundNum;
 			} else {
-				SoundNum = (int?)bsr.ReadUIntIfExists(MaxSndIndexBits) ?? _deltaTmp.SoundNum;
-				Flags = (SoundFlags?)bsr.ReadUIntIfExists(DemoInfo.SoundFlagBits) ?? _deltaTmp.Flags;
+				SoundNum = (int?)bsr.ReadUIntIfExists(DemoInfo.MaxSndIndexBits) ?? _deltaTmp.SoundNum;
+				Flags = (SoundFlags?)bsr.ReadUIntIfExists(DemoInfo.SoundFlagBitsEncode) ?? _deltaTmp.Flags;
 			}
 			Chan = (Channel?)bsr.ReadUIntIfExists(3) ?? _deltaTmp.Chan;
 #pragma warning restore 8629
@@ -224,6 +225,8 @@ namespace DemoParser.Parser.Components.Messages {
 				Volume = bsr.ReadUIntIfExists(7) / 127.0f ?? _deltaTmp.Volume;
 				SoundLevel = bsr.ReadUIntIfExists(MaxSndLvlBits) ?? _deltaTmp.SoundLevel;
 				Pitch = bsr.ReadUIntIfExists(8) ?? _deltaTmp.Pitch;
+				if (!DemoInfo.NewDemoProtocol && DemoRef.Header.NetworkProtocol > 21)
+					SpecialDspCount = bsr.ReadByteIfExists() ?? _deltaTmp.SpecialDspCount;
 
 				if (DemoInfo.NewDemoProtocol) {
 					RandomSeed = bsr.ReadSIntIfExists(6) ?? _deltaTmp.RandomSeed; // 6, 18, or 29
@@ -278,6 +281,8 @@ namespace DemoParser.Parser.Components.Messages {
 			pw.AppendLine($"volume: {Volume}");
 			pw.AppendLine($"sound level: {SoundLevel}");
 			pw.AppendLine($"pitch: {Pitch}");
+			if (SpecialDspCount.HasValue)
+				pw.AppendLine($"nSpecialDSP: {SpecialDspCount.Value}");
 			if (DemoInfo.NewDemoProtocol)
 				pw.AppendLine($"random seed: {RandomSeed}");
 			pw.AppendLine($"origin: {Origin}");
