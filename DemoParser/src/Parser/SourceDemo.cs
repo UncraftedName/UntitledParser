@@ -8,7 +8,6 @@ using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.HelperClasses;
-using DemoParser.Parser.HelperClasses.EntityStuff;
 using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -175,7 +174,8 @@ namespace DemoParser.Parser {
 	public enum DemoParseResult {
 		Success           = 1,
 		EntParsingEnabled = 1 << 1,
-		UnknownGame       = 1 << 2,
-		DataTooLong       = 1 << 3,
+		EntParsingFailed  = 1 << 2,
+		UnknownGame       = 1 << 3,
+		DataTooLong       = 1 << 4,
 	}
 }

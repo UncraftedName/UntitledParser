@@ -40,7 +40,8 @@ namespace DemoParser.Parser.Components.Messages {
 			_entBsr = bsr.SplitAndSkip(dataLen);
 
 #if !FORCE_PROCESS_ENTS
-			if ((DemoRef.DemoParseResult & DemoParseResult.EntParsingEnabled) == 0)
+			if ((DemoRef.DemoParseResult & DemoParseResult.EntParsingEnabled) == 0 ||
+				(DemoRef.DemoParseResult & DemoParseResult.EntParsingFailed) != 0)
 				return;
 #endif
 			// now, we do some setup for ent parsing
@@ -53,7 +54,7 @@ namespace DemoParser.Parser.Components.Messages {
 				DemoRef.LogError(
 					$"{GetType().Name} failed to process entity delta, " +
 					$"attempted to retrieve non existent snapshot on engine tick: {DeltaFrom}");
-				DemoRef.DemoParseResult &= ~DemoParseResult.EntParsingEnabled;
+				DemoRef.DemoParseResult |= DemoParseResult.EntParsingFailed;
 				return;
 			}
 
@@ -63,7 +64,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 			if (tableParser?.FlattenedProps == null) {
 				DemoRef.LogError("ent parsing cannot continue because data tables have not been parsed");
-				DemoRef.DemoParseResult &= ~DemoParseResult.EntParsingEnabled;
+				DemoRef.DemoParseResult |= DemoParseResult.EntParsingFailed;
 				return;
 			}
 
@@ -126,7 +127,7 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 			} catch (Exception e) {
 				Updates = null;
-				DemoRef.DemoParseResult &= ~DemoParseResult.EntParsingEnabled;
+				DemoRef.DemoParseResult |= DemoParseResult.EntParsingFailed;
 				DemoRef.LogError($"Exception while parsing entity info in {GetType().Name}: {e.Message}");
 			}
 		}

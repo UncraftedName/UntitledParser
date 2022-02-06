@@ -2,7 +2,6 @@
 using System;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses;
 using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;

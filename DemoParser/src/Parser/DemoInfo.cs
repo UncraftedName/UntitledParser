@@ -101,7 +101,7 @@ namespace DemoParser.Parser {
 			if (IsPortal1() || IsHL2() || (Game == UNKNOWN && h.DemoProtocol == 3)) {
 				TickInterval = 0.015f;
 				MaxSplitscreenPlayers = 1;
-				if (h.NetworkProtocol <= 15)
+				if (h.NetworkProtocol <= 15 && Game != HL2_OE)
 					demo.DemoParseResult |= DemoParseResult.EntParsingEnabled;
 				PacketTypes = h.NetworkProtocol <= 14 ? DemoPacket.Portal3420Table : DemoPacket.Portal15135Table;
 				if (h.NetworkProtocol <= 7)
