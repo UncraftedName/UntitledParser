@@ -15,29 +15,12 @@ namespace DemoParser.Parser {
 	/// </summary>
 	public class DemoInfo {
 
-		// these seem to be constant in all games
+		// hopefully constant in all games
 		public const int MaxEdictBits = 11;
 		public const int MaxEdicts = 1 << MaxEdictBits;
 		public const int NetworkedEHandleSerialNumBits = 10;
 		public const int NetworkedEHandleBits = MaxEdictBits + NetworkedEHandleSerialNumBits;
 		public const uint NullEHandle = (1 << NetworkedEHandleBits) - 1; // INVALID_NETWORKED_EHANDLE_VALUE
-		public const int SubStringBits = 5;
-		public const int MaxUserDataBits = 14;
-		public const uint HandleSerialNumberBits = 10;
-		public const int MaxPortal2CoopBranches = 6;
-		public const int MaxPortal2CoopLevelsPerBranch = 16;
-		public const int MaxNetMessage = 6;
-		public const int AreaBitsNumBits = 8;
-
-		public const int MaxSndIndexBits = 13;
-		public const int SndSeqNumberBits = 10;
-		public const int MaxSndLvlBits = 9;
-		public const int MaxSndDelayMSecEncodeBits = 13;
-		public const float SndDelayOffset = 0.1f;
-		public const int SndSeqNumMask = (1 << SndSeqNumberBits) - 1;
-
-		public const int MaxPlayerNameLength = 32;
-		public const int SignedGuidLen = 32;
 
 
 		// initialized from the header

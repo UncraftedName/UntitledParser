@@ -12,6 +12,9 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 	// table entry in the "userinfo" string table
 	public class PlayerInfo : StringTableEntryData {
 
+		private const int SignedGuidLen = 32;
+		private const int MaxPlayerNameLength = 32;
+
 		public CSteamId? SteamId; // new
 		public string Name;       // scoreboard information
 		public int UserId;        // local server user ID, unique while server is running
@@ -47,12 +50,12 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		protected override void Parse(ref BitStreamReader bsr) {
             if (DemoInfo.NewDemoProtocol && !DemoInfo.IsLeft4Dead1())
                 SteamId = (CSteamId)bsr.ReadULong();
-			Name = bsr.ReadStringOfLength(DemoInfo.MaxPlayerNameLength);
+			Name = bsr.ReadStringOfLength(MaxPlayerNameLength);
 			UserId = bsr.ReadSInt();
-			Guid = bsr.ReadStringOfLength(DemoInfo.SignedGuidLen + 1);
+			Guid = bsr.ReadStringOfLength(SignedGuidLen + 1);
 			bsr.SkipBytes(3);
 			FriendsId = bsr.ReadUInt();
-			FriendsName = bsr.ReadStringOfLength(DemoInfo.MaxPlayerNameLength);
+			FriendsName = bsr.ReadStringOfLength(MaxPlayerNameLength);
 			FakePlayer = bsr.ReadByte() != 0;
 			IsHlTv = bsr.ReadByte() != 0;
 			bsr.SkipBytes(2);

@@ -52,6 +52,9 @@ namespace DemoParser.Parser.Components.Messages {
 
 	public class StringTableUpdates : DemoComponent {
 
+		private const int SubStringBits = 5;
+		private const int MaxUserDataBits = 14;
+
 		private readonly int _numUpdatedEntries;
 		private readonly string _tableName;
 		private readonly bool _canCompress;
@@ -115,7 +118,7 @@ namespace DemoParser.Parser.Components.Messages {
 					if (bsr.ReadBool()) {
 						if (bsr.ReadBool()) { // the first part of the string may be the same as for other entries
 							int index = (int)bsr.ReadUInt(5);
-							int subStrLen = (int)bsr.ReadUInt(DemoInfo.SubStringBits);
+							int subStrLen = (int)bsr.ReadUInt(SubStringBits);
 							entryName = history[index][..subStrLen];
 							entryName += bsr.ReadNullTerminatedString();
 						} else {
@@ -128,7 +131,7 @@ namespace DemoParser.Parser.Components.Messages {
 					if (bsr.ReadBool()) {
 						int streamLen = tableToUpdate.UserDataFixedSize
 							? tableToUpdate.UserDataSizeBits
-							: (int)bsr.ReadUInt(DemoInfo.MaxUserDataBits) * 8;
+							: (int)bsr.ReadUInt(MaxUserDataBits) * 8;
 
 						entryStream = bsr.SplitAndSkip(streamLen);
 					}

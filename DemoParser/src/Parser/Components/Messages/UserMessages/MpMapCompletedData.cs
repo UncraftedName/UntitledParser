@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
-using static DemoParser.Parser.DemoInfo;
 
 namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 	// portal 2 specific
 	public class MpMapCompletedData : UserMessage {
+
+		public const int MaxPortal2CoopBranches = 6;
+		public const int MaxPortal2CoopLevelsPerBranch = 16;
 
 		public List<MapCompletedInfo> Info;
 

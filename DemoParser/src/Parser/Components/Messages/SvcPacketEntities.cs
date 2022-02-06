@@ -11,6 +11,8 @@ namespace DemoParser.Parser.Components.Messages {
 
 	public class SvcPacketEntities : DemoMessage {
 
+		private const int HandleSerialNumberBits = 10;
+
 		public ushort MaxEntries;
 		public bool IsDelta;
 		public int DeltaFrom;
@@ -106,7 +108,7 @@ namespace DemoParser.Parser.Components.Messages {
 							break;
 						case 2: // enter PVS
 							iClass = (int)_entBsr.ReadUInt(tableParser.ServerClassBits);
-							uint iSerial = (uint)_entBsr.ReadULong((int)DemoInfo.HandleSerialNumberBits);
+							uint iSerial = (uint)_entBsr.ReadULong(HandleSerialNumberBits);
 							(entClass, fProps) = tableParser.FlattenedProps[iClass];
 							bool bNew = ents[newI] == null || ents[newI].Serial != iSerial;
 							update = new EnterPvs(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);

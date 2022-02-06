@@ -11,6 +11,8 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 	internal static class EntPropToStringHelper {
 
+		private const int AreaBitsNumBits = 8;
+
 		internal static readonly Exception E =
 			new ArgumentException("bro a property doesn't have an implemented display type wtf");
 
@@ -98,7 +100,7 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 				case DisplayType.Bool:
 					return (val != 0).ToString();
 				case DisplayType.AreaBits:
-					return Convert.ToString(val, 2).PadLeft(DemoInfo.AreaBitsNumBits, '0');
+					return Convert.ToString(val, 2).PadLeft(AreaBitsNumBits, '0');
 				case DisplayType.Color: // pretty sure this is rgba
 					return $"0x{val:X8}";
 				case DisplayType.Handle:

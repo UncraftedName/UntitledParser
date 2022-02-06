@@ -5,11 +5,18 @@ using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
-using static DemoParser.Parser.DemoInfo;
+using static DemoParser.Parser.Components.Messages.SvcSounds;
 
 namespace DemoParser.Parser.Components.Messages {
 
 	public class SvcSounds : DemoMessage {
+
+		internal const int SndSeqNumberBits = 10;
+		internal const int SndSeqNumMask = (1 << SndSeqNumberBits) - 1;
+		internal const int MaxSndLvlBits = 9;
+		internal const int MaxSndDelayMSecEncodeBits = 13;
+		internal const float SndDelayOffset = 0.1f;
+		internal const int MaxSndIndexBits = 13;
 
 		public bool Reliable;
 		public SoundInfo[]? Sounds;
@@ -170,7 +177,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			EntityIndex = bsr.ReadBool() ? bsr.ReadUInt(bsr.ReadBool() ? 5 : MaxEdictBits) : _deltaTmp.EntityIndex;
+			EntityIndex = bsr.ReadBool() ? bsr.ReadUInt(bsr.ReadBool() ? 5 : DemoInfo.MaxEdictBits) : _deltaTmp.EntityIndex;
 
 #pragma warning disable 8629
 			if (DemoInfo.NewDemoProtocol) {
@@ -238,7 +245,7 @@ namespace DemoParser.Parser.Components.Messages {
 					Y = bsr.ReadSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? _deltaTmp.Origin.Y,
 					Z = bsr.ReadSIntIfExists(PropDecodeConsts.CoordIntBits - 2) * 8 ?? _deltaTmp.Origin.Z
 				};
-				SpeakerEntity = bsr.ReadSIntIfExists(MaxEdictBits + 1) ?? _deltaTmp.SpeakerEntity;
+				SpeakerEntity = bsr.ReadSIntIfExists(DemoInfo.MaxEdictBits + 1) ?? _deltaTmp.SpeakerEntity;
 			} else {
 				ClearStopFields();
 			}
