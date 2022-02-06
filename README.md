@@ -9,8 +9,8 @@ Here is a (mostly accurate) list of all supported games/versions and what featur
 | Game | Basic<br/>Timing | Timing<br/>adjustment | Net-Message<br/>Parsing | Entity<br/>Parsing | Sound<br/>Parsing | 
 | ------------------- | :-: | :-: | :-: | :-: | :-: |
 | HL2 OE              | ✅ | ❌ | 🔶 | ❌ | ❌ |
-| Portal 1 3420, 5135 | ✅ | ✅ | ✅ | ✅ | 🔶 |
-| Portal 1 steampipe  | ✅ | ✅ | 🔶 | ❌ | 🔶 |
+| Portal 1 3420, 5135 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Portal 1 steampipe  | ✅ | ✅ | 🔶 | ❌ | ✅ |
 | Portal 2            | ✅ | ✅ | 🔶 | 🔶 | 🔶 |
 | L4D1 1005,1040      | ✅ | ❌ | 🔶 | ❌ | ❌ |
 | L4D2 2000-2220      | ✅ | ❌ | 🔶 | ❌ | ❌ |
