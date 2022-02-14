@@ -70,7 +70,7 @@ namespace Tests {
 			var demo = GetDemo(fileName);
 			if ((demo.DemoParseResult & DemoParseResult.EntParsingEnabled) == 0)
 				Assert.Ignore("entity parsing is not enabled for this game");
-			Assert.That((GetDemo(fileName).DemoParseResult & DemoParseResult.EntParsingFailed) == 0, "entity parsing enabled, but failed");
+			Assert.That((demo.DemoParseResult & DemoParseResult.EntParsingFailed) == 0, "entity parsing enabled, but failed");
 		}
 	}
 }

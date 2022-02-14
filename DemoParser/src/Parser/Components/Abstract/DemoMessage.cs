@@ -236,9 +236,4 @@ namespace DemoParser.Parser.Components.Abstract {
 		SvcPaintmapData,
 		SvcTerrainMod
 	}
-
-
-	public interface IContainsMessageStream {
-		MessageStream MessageStream {get;set;}
-	}
 }

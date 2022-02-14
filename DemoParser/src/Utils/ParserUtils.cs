@@ -43,26 +43,14 @@ namespace DemoParser.Utils {
 
 
 		/// <summary>
-		/// Filters for a specific type of message from a SignOn packet.
-		/// </summary>
-		public static IEnumerable<T> FilterForMessage<T>(this SignOn signOn) where T : DemoMessage {
-			return signOn
-				.MessageStream
-				.Select(tuple => tuple.message)
-				.Where(message => message != null)
-				.OfType<T>();
-		}
-
-
-		/// <summary>
 		/// Gets all message in the demo stored in the Packet packet or the SignOn packet,
 		/// as well as the tick on which each message occured on.
 		/// </summary>
 		public static IEnumerable<(MessageType messageType, DemoMessage message, int tick)> FilterForMessages(this SourceDemo demo) {
 			return demo.Frames.Select(frame => frame.Packet)
-				.OfType<IContainsMessageStream>()
+				.OfType<Packet>()
 				.SelectMany(p => p.MessageStream,
-					(p, msgs) => (msgs.messageType, msgs.message, ((DemoPacket)p).Tick));
+					(p, msgs) => (msgs.messageType, msgs.message, p.Tick));
 		}
 
 
