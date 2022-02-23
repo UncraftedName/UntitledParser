@@ -20,51 +20,52 @@ namespace DemoParser.Utils.BitStreams {
 				Fetch();
 			}
 		}
-		public readonly int BitsRemaining => BitLength - CurrentBitIndex;
+		public readonly int BitsRemaining => HasOverflowed ? 0 : BitLength - CurrentBitIndex;
+
+		// Used for informative messages, better (and faster) than exceptions. If we're overflowed we just return
+		// default values. It's the responsibility of callers to check the overflow flag.
+		public bool HasOverflowed {get;private set;}
 
 
 		public BitStreamReader(byte[] data) : this(data, data.Length * 8, 0) {}
 
 
-		public BitStreamReader(byte[] data, int bitLength, int start) {
+		public BitStreamReader(byte[] data, int bitLength, int start) : this(data, bitLength, start, false) {}
+
+
+		private BitStreamReader(byte[] data, int bitLength, int start, bool hasOverflowed) {
 			if (data.Length > MaxDataSize)
-				throw new ArgumentException("input array is too long", nameof(data));
+				throw new IndexOutOfRangeException($"input array is longer than {MaxDataSize} bytes");
 			Data = data;
 			BitLength = bitLength;
 			AbsoluteBitIndex = AbsoluteStart = start;
 			_prefetch = 0;
-			if (Data.Length > 0)
-				Fetch();
+			HasOverflowed = hasOverflowed;
+			if (!HasOverflowed) {
+				if (start < 0 || bitLength < 0 || (start + bitLength) / 8 > Data.Length)
+					HasOverflowed = true;
+				else if (Data.Length > 0)
+					Fetch();
+			}
 		}
 
 
-		// splits this stream, and returns a stream which starts at the (same) next readable bit
-		public readonly BitStreamReader Split() => Split(CurrentBitIndex, BitsRemaining);
+		public void SetOverflow() => HasOverflowed = true;
 
 
-		public readonly BitStreamReader Split(uint bitLength) => Split((int)bitLength);
-
+		public readonly BitStreamReader Split() => Split(BitsRemaining);
 
 		public readonly BitStreamReader Split(int bitLength) => Split(CurrentBitIndex, bitLength);
 
 
-		// uses relative bit index (not absolute)
-		public readonly BitStreamReader Split(int fromBitIndex, int numBits) {
-			if (numBits < 0)
-				throw new ArgumentOutOfRangeException(nameof(numBits), $"{nameof(numBits)} cannot be less than 0");
-			if (fromBitIndex + numBits > CurrentBitIndex + BitsRemaining)
-				throw new ArgumentOutOfRangeException(nameof(numBits),
-					$"{BitsRemaining} bits remaining, attempted to create a substream with {fromBitIndex + numBits - BitsRemaining} too many bits");
-			return new BitStreamReader(Data, numBits, AbsoluteStart + fromBitIndex);
-		}
+		// Splits this stream, and returns a stream which starts at the (same) next readable bit.
+		// Uses the current (relative) bit index, not the absolute one.
+		public readonly BitStreamReader Split(int fromBitIndex, int numBits)
+			=> new BitStreamReader(Data, numBits, AbsoluteStart + fromBitIndex, HasOverflowed);
 
 
-		public readonly BitStreamReader FromBeginning() {
-			return new BitStreamReader(Data, BitLength, AbsoluteStart);
-		}
-
-
-		public BitStreamReader SplitAndSkip(uint bits) => SplitAndSkip((int)bits);
+		public readonly BitStreamReader FromBeginning()
+			=> new BitStreamReader(Data, BitLength, AbsoluteStart);
 
 
 		public BitStreamReader SplitAndSkip(int bits) {
@@ -82,28 +83,24 @@ namespace DemoParser.Utils.BitStreams {
 		}
 
 
-		// to suppress debug warnings that I didn't finish reading a component
-		internal void SkipToEnd() => SkipBits(BitsRemaining);
-
-
 		public void SkipBytes(int byteCount) => SkipBits(byteCount * 8);
 
 		public void SkipBits(int numBits) {
-			EnsureCapacity(numBits);
+			if (numBits > BitsRemaining || numBits < 0) // never 'skip' backwards
+				HasOverflowed = true;
+			if (HasOverflowed)
+				return;
 			AbsoluteBitIndex += numBits;
 			Fetch();
 		}
 
 
-		private readonly void EnsureCapacity(int numBits) {
-			if (numBits > BitsRemaining)
-				throw new ArgumentOutOfRangeException(nameof(numBits),
-					$"{nameof(EnsureCapacity)} failed - {numBits} bits were needed but only {BitsRemaining} were left");
-		}
-
-
 		public unsafe bool ReadBool() {
-			EnsureCapacity(1);
+			if (BitsRemaining < 1)
+				HasOverflowed = true;
+			if (HasOverflowed)
+				return false;
+
 			bool ret = (_prefetch & 1) != 0;
 			if (++AbsoluteBitIndex % 64 == 0) { // fetch if we're on an 8-byte boundary
 				fixed (byte* pData = Data)
@@ -116,7 +113,10 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public byte[] ReadBytes(int byteCount) {
-			Debug.Assert(byteCount >= 0);
+			if (byteCount < 0)
+				HasOverflowed = true;
+			if (HasOverflowed)
+				return Array.Empty<byte>();
 			byte[] result = new byte[byteCount];
 			ReadToSpan(result);
 			return result;
@@ -124,7 +124,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public void ReadToSpan(Span<byte> span) {
-			if (span.Length == 0)
+			if (span.Length == 0 || HasOverflowed)
 				return;
 			if (AbsoluteBitIndex % 8 == 0) {
 				// we're byte-aligned
@@ -163,7 +163,11 @@ namespace DemoParser.Utils.BitStreams {
 
 		public unsafe ulong ReadULong(int numBits = 64) {
 			Debug.Assert(numBits >= 0 && numBits <= 64);
-			EnsureCapacity(numBits);
+			if (numBits > BitsRemaining)
+				HasOverflowed = true;
+			if (HasOverflowed)
+				return 0;
+
 			int firstNumBits = numBits;
 			ulong ret = firstNumBits == 64 ? _prefetch : _prefetch & ~(ulong.MaxValue << firstNumBits);
 			numBits -= 64 - AbsoluteBitIndex % 64;
@@ -185,6 +189,9 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public unsafe string ReadNullTerminatedString() {
+			if (HasOverflowed)
+				return string.Empty;
+
 			if (AbsoluteBitIndex % 8 == 0) {
 				// we're aligned
 				string str;
@@ -193,6 +200,7 @@ namespace DemoParser.Utils.BitStreams {
 				SkipBytes(str.Length + 1);
 				return str;
 			}
+
 			// Demos have on the order of tens or hundreds of thousands of strings, this is a personal exercise to
 			// optimize reading them. Read a full ulong at a time and check each byte of it.
 			const int maxSize = 1024;
@@ -213,13 +221,15 @@ namespace DemoParser.Utils.BitStreams {
 				if ((cur & mask) == 0) // the last byte in cur is a '\0', no backtracking necessary
 					return new string((sbyte*)pStr);
 			}
-			throw new IndexOutOfRangeException($"{nameof(BitStreamReader)}.{nameof(ReadNullTerminatedString)} " +
-											   $"tried to read a string that's more than {maxSize} bytes long");
+			HasOverflowed = true;
+			return string.Empty;
 		}
 
+
 		public unsafe string ReadStringOfLength(int strLen) {
-			Debug.Assert(strLen >= 0);
-			if (strLen == 0)
+			if (strLen < 0)
+				HasOverflowed = true;
+			if (strLen == 0 || HasOverflowed)
 				return string.Empty;
 
 			Span<byte> bytes = AbsoluteBitIndex % 8 == 0
@@ -286,6 +296,8 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public override string ToString() {
+			if (HasOverflowed)
+				return "overflowed";
 			return $"index: {CurrentBitIndex}, remaining: {BitsRemaining}";
 		}
 	}

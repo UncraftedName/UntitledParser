@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -15,7 +14,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public string? MapName;
 
 
-		public NetSignOnState(SourceDemo? demoRef) : base(demoRef) {}
+		public NetSignOnState(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -31,12 +30,7 @@ namespace DemoParser.Parser.Components.Messages {
 					MapName = bsr.ReadStringOfLength(length).Split(new char[]{'\0'}, 2)[0];
 			}
 			if (SignOnState == SignOnState.PreSpawn)
-				DemoRef.ClientSoundSequence = 1; // reset sound sequence number after receiving SignOn sounds
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+				GameState.ClientSoundSequence = 1; // reset sound sequence number after receiving SignOn sounds
 		}
 
 

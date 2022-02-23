@@ -1,8 +1,6 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -32,11 +30,6 @@ namespace DemoParser.Parser.Components.Packets {
 				if (val >= 0 && val < (int)Packets.ButtonCode.LAST)
 					ButtonCode = (ButtonCode)val;
 			}
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

@@ -7,8 +7,8 @@ using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
-using DemoParser.Parser.HelperClasses.EntityStuff;
-using DemoParser.Parser.HelperClasses.GameState;
+using DemoParser.Parser.EntityStuff;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 
 namespace ConsoleApp.DemoArgProcessing.Options.Hidden {

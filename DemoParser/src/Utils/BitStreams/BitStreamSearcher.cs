@@ -13,7 +13,7 @@ namespace DemoParser.Utils.BitStreams {
     public partial struct BitStreamReader {
 
 
-		public int FindUInt(uint val) => FindUInt(val, BitUtils.HighestBitIndex(val) + 1);
+		public int FindUInt(uint val) => FindUInt(val, ParserUtils.HighestBitIndex(val) + 1);
 
 
 		public int FindUInt(uint val, int bitCount) {

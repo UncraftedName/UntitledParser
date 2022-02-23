@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -11,19 +10,14 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public string KeyString;
 
 
-		public KeyHintText(SourceDemo? demoRef) : base(demoRef) {}
+		public KeyHintText(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Count = bsr.ReadByte();
 			if (Count != 1)
-				DemoRef.LogError($"{GetType()} is borking, there should only be one string but count is {Count}");
+				DemoRef.LogError($"{GetType().Name}: expected 1 string but got {Count}");
 			KeyString = bsr.ReadNullTerminatedString();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

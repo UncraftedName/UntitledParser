@@ -1,8 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.Components.Messages;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 using static DemoParser.Parser.Components.Abstract.MessageType;
@@ -12,11 +13,14 @@ namespace DemoParser.Parser.Components {
 	/// <summary>
 	/// A special class to handle parsing an arbitrary amount of consecutive net/svc messages.
 	/// </summary>
-	public class MessageStream : DemoComponent, IEnumerable<(MessageType messageType, DemoMessage message)> {
+	public class MessageStream : DemoComponent, IEnumerable<DemoMessage> {
 
-		public List<(MessageType messageType, DemoMessage? message)> Messages;
+		public List<DemoMessage> Messages;
 
-		public static implicit operator List<(MessageType messageType, DemoMessage? message)>(MessageStream m) => m.Messages;
+		public bool ParseSuccess;
+		private MessageType _lastMsgType;
+
+		public static implicit operator List<DemoMessage>(MessageStream m) => m.Messages;
 
 
 		public MessageStream(SourceDemo? demoRef) : base(demoRef) {}
@@ -24,96 +28,65 @@ namespace DemoParser.Parser.Components {
 
 		// this starts on the int before the messages which says the size of the message stream in bytes
 		protected override void Parse(ref BitStreamReader bsr) {
-			uint messagesByteLength = bsr.ReadUInt();
-			BitStreamReader messageBsr = bsr.SplitAndSkip(messagesByteLength << 3);
-			Messages = new List<(MessageType, DemoMessage?)>();
-			byte messageValue = 0;
-			MessageType messageType = Unknown;
-			Exception? e = null;
-			try {
-				do {
-					messageValue = (byte)messageBsr.ReadUInt(DemoInfo.NetMsgTypeBits);
-					messageType = DemoMessage.ByteToSvcMessageType(messageValue, DemoInfo);
-					DemoMessage? demoMessage = MessageFactory.CreateMessage(DemoRef,messageType);
-					demoMessage?.ParseStream(ref messageBsr);
-					Messages.Add((messageType, demoMessage));
-				} while (Messages[^1].message != null && messageBsr.BitsRemaining >= DemoInfo.NetMsgTypeBits);
-			} catch (Exception ex) {
-				e = ex;
-				Debug.WriteLine(e);
-				// if the stream goes out of bounds, that's not a big deal since the messages are skipped over at the end anyway
-				(MessageType, DemoMessage?) pair = (messageType, null);
-				Messages.Add(pair);
-			}
+			BitStreamReader mBsr = bsr.SplitAndSkip((int)(bsr.ReadUInt() * 8));
+			Messages = new List<DemoMessage>();
+			byte messageValue;
+			DemoMessage? demoMessage;
+			do {
+				messageValue = (byte)mBsr.ReadUInt(DemoInfo.NetMsgTypeBits);
+				_lastMsgType = DemoMessage.ByteToSvcMessageType(messageValue, DemoInfo);
+				demoMessage = MessageFactory.CreateMessage(DemoRef, _lastMsgType, messageValue);
+				if (demoMessage == null)
+					break;
+				demoMessage.ParseStream(ref mBsr);
+				if (mBsr.HasOverflowed)
+					break;
+				Messages.Add(demoMessage);
+			} while (mBsr.BitsRemaining >= DemoInfo.NetMsgTypeBits);
 
 			#region error logging
 
-			MessageType lastType = Messages[^1].messageType;
-			DemoMessage? lastMessage = Messages[^1].message;
+			if (demoMessage == null || mBsr.HasOverflowed) {
+				DemoMessage? nonNopMsg = Messages.LastOrDefault(message => message.GetType() != typeof(NetNop));
+				string errorStr = $"{GetType().Name}: {(nonNopMsg == null ? "first message," : $"last non-nop message is {nonNopMsg.GetType().Name},")} ";
 
-			if (e != null
-				|| !Enum.IsDefined(typeof(MessageType), lastType)
-				|| lastType == Unknown
-				|| lastType == Invalid
-				|| lastMessage == null)
-			{
-				var lastNonNopMessage = Messages.FindLast(tuple => tuple.messageType != NetNop && tuple.message != null).messageType;
-				lastNonNopMessage = lastNonNopMessage == NetNop ? Unknown : lastNonNopMessage;
-				string errorStr = "error while parsing message stream, " +
-								  $"{(Messages.Count > 1 ? $"last non-nop message: {lastNonNopMessage}," : "first message,")} ";
-				errorStr += $"{messageBsr.BitsRemaining} bit{(messageBsr.BitsRemaining == 1 ? "" : "s")} left to read, ";
-				if (e != null) {
-					errorStr += $"exception when parsing {lastType}";
-					errorStr += $"\n\texception: {e.Message}";
-				} else if (!Enum.IsDefined(typeof(MessageType), lastType) || lastType == Unknown || lastType == Invalid) {
-					errorStr += $"unknown message value: {messageValue}";
-				} else {
-					errorStr += $"unimplemented message type - {Messages[^1].messageType}";
-				}
+				if (mBsr.HasOverflowed)
+					errorStr += $"reader overflowed while parsing {_lastMsgType}";
+				else if (!Enum.IsDefined(typeof(MessageType), _lastMsgType) || _lastMsgType == Unknown || _lastMsgType == Invalid)
+					errorStr += $"got an unknown message value {messageValue}";
+				else
+					errorStr += $"got an unimplemented message type '{_lastMsgType}'";
 
 				DemoRef.LogError(errorStr);
+			} else {
+				ParseSuccess = true;
 			}
 
 			#endregion
 		}
 
 
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
-		}
-
-
 		public override void PrettyWrite(IPrettyWriter pw) {
-			int i = 0;
-			while (i < Messages?.Count && Messages[i].message != null) {
-				pw.Append($"message: {Messages[i].messageType} " +
-						  $"({DemoMessage.MessageTypeToByte(Messages[i].messageType, DemoInfo)})");
-				if (Messages[i].message.MayContainData) {
+			for (int i = 0; i < Messages.Count; i++) {
+				var message = Messages[i];
+				pw.Append($"message: {message.GetType().Name} ({message.Value})");
+				if (message.MayContainData) {
 					pw.FutureIndent++;
 					pw.AppendLine();
-					Messages[i].message.PrettyWrite(pw);
+					message.PrettyWrite(pw);
 					pw.FutureIndent--;
 				}
 				if (i != Messages.Count - 1)
 					pw.AppendLine();
 				i++;
 			}
-			if (i < Messages?.Count) {
-				pw.Append("more messages remaining... ");
-				pw.Append(Enum.IsDefined(typeof(MessageType), Messages[i].messageType)
-					? $"type: {Messages[i].messageType}"
-					: $"unknown type: {Messages[i].messageType}");
-			}
+			if (!ParseSuccess)
+				pw.Append($"\nmore messages remaining... type: {_lastMsgType}");
 		}
 
 
-		public IEnumerator<(MessageType, DemoMessage)> GetEnumerator() {
-			return Messages.GetEnumerator();
-		}
+		public IEnumerator<DemoMessage> GetEnumerator() => Messages.GetEnumerator();
 
-
-		IEnumerator IEnumerable.GetEnumerator() {
-			return ((IEnumerable)Messages).GetEnumerator();
-		}
+		IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Messages).GetEnumerator();
 	}
 }

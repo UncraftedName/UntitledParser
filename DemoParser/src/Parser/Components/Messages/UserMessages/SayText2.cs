@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -11,7 +10,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public bool WantsToChat;
 
 
-		public SayText2(SourceDemo? demoRef) : base(demoRef) {}
+		public SayText2(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -19,11 +18,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			WantsToChat = bsr.ReadBool();
 			// TODO: fill out the rest of the UserMessage (don't know what SayText2
 			// is even but I guess it doesn't happen often at all since it hasn't broken a demo parse yet)
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

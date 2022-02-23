@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
-using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Parser.Components.Packets;
@@ -46,7 +45,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 			Packet[] closeCaptionPackets = demo.FilterForPacket<Packet>()
 				.Where(packet => packet.FilterForMessage<SvcUserMessage>()
-					.Any(frame => frame.MessageType == UserMessageType.CloseCaption)).ToArray();
+					.Any(frame => frame.UserMessage is CloseCaption)).ToArray();
 
 			if (closeCaptionPackets.Length == 0) {
 				Write(demo.Reader.Data);
@@ -62,7 +61,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				} else {
 					Packet p = (Packet)frame.Packet;
 					BitStreamWriter bsw = new BitStreamWriter(frame.Reader.BitLength / 8);
-					var last = p.MessageStream.Last().message;
+					var last = p.MessageStream.Last();
 					int len = last.Reader.AbsoluteStart - frame.Reader.AbsoluteStart + last.Reader.BitLength;
 					bsw.WriteBits(frame.Reader.ReadBits(len), len);
 					int msgSizeOffset = p.MessageStream.Reader.AbsoluteStart - frame.Reader.AbsoluteStart;

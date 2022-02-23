@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -11,16 +10,11 @@ namespace DemoParser.Parser.Components.Messages {
 		public byte[] Arr; // todo
 
 
-		public SvcCmdKeyValues(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcCmdKeyValues(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Arr = bsr.ReadBytes((int)bsr.ReadUInt());
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

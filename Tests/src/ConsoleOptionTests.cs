@@ -4,7 +4,6 @@ using System.Linq;
 using ConsoleApp;
 using ConsoleApp.DemoArgProcessing.Options;
 using DemoParser.Parser;
-using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Utils;
@@ -82,11 +81,11 @@ namespace Tests {
 				after.Frames.Select(frame => frame.Type));
 			// check that all the non-caption and non-nop messages are unchanged
 			CollectionAssert.AreEqual(
-				before.FilterForMessages().Where(tuple => tuple.messageType != MessageType.NetNop)
-					.Where(tuple => (tuple.message as SvcUserMessage)?.MessageType != UserMessageType.CloseCaption)
-					.Select(tuple => tuple.messageType),
-				after.FilterForMessages().Where(tuple => tuple.messageType != MessageType.NetNop)
-					.Select(tuple => tuple.messageType)
+				before.FilterForMessages().Where(tuple => !(tuple.message is NetNop))
+					.Where(tuple => !((tuple.message as SvcUserMessage)?.UserMessage is CloseCaption))
+					.Select(tuple => tuple.message.GetType()),
+				after.FilterForMessages().Where(tuple => tuple.message.GetType() != typeof(NetNop))
+					.Select(tuple => tuple.message.GetType())
 			);
 		}
 
@@ -110,8 +109,8 @@ namespace Tests {
 				after.Frames.Select(frame => frame.Type));
 			// check that all messages are unchanged
 			CollectionAssert.AreEqual(
-				before.FilterForMessages().Select(t => t.messageType),
-				after.FilterForMessages().Select(t => t.messageType));
+				before.FilterForMessages().Select(t => t.message.GetType()),
+				after.FilterForMessages().Select(t => t.message.GetType()));
 			// check that the new demo has the new dir in header and SvcServerInfo messages
 			Assert.AreEqual(after.Header.GameDirectory, newDir);
 			Assert.That(after.FilterForMessage<SvcServerInfo>().Select(t => t.message.GameDir), Is.All.EqualTo(newDir));

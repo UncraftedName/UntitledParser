@@ -9,18 +9,13 @@ namespace DemoParser.Parser.Components.Messages.UserMessages.Haptic {
 		public float F1, F2, F3;
 
 
-		public HapPunch(SourceDemo? demoRef) : base(demoRef) {}
+		public HapPunch(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			F1 = bsr.ReadFloat();
 			F2 = bsr.ReadFloat();
 			F3 = bsr.ReadFloat();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
 		}
 
 

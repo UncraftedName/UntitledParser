@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Linq;
 using C5;
 using DemoParser.Parser.Components.Messages;
-using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.EntityStuff;
 
-namespace DemoParser.Parser.HelperClasses.GameState {
+namespace DemoParser.Parser.GameState {
 
 	/// <summary>
 	/// Represents the entity state, updated as the demo is parsed.
@@ -25,19 +25,6 @@ namespace DemoParser.Parser.HelperClasses.GameState {
 		}
 
 
-		private EntitySnapshot(SourceDemo demoRef, Entity?[] entities, uint engineTick) {
-			_demoRef = demoRef;
-			Entities = entities;
-			_nonNullEnts = new TreeSet<int>();
-			_nonNullEnts.AddSorted(entities.Select((e,  i) => (e, i)).Where(t => t.e != null).Select(t => t.i));
-			EngineTick = engineTick;
-		}
-
-
-		public EntitySnapshot DeepCopy() =>
-			new EntitySnapshot(_demoRef, Entities.Select(entity => entity?.DeepCopy()).ToArray(), EngineTick);
-
-
 		internal void ClearEntityState() {
 			Array.Clear(Entities, 0, Entities.Length);
 			_nonNullEnts.Clear();
@@ -45,19 +32,19 @@ namespace DemoParser.Parser.HelperClasses.GameState {
 
 
 		internal void ProcessEnterPvs(SvcPacketEntities msg, EnterPvs u) {
-			Debug.Assert(_demoRef.EntBaseLines != null, "baselines are null");
+			Debug.Assert(_demoRef.State.EntBaseLines != null, "baselines are null");
 			if (u.New) {
 				// create the ent
-				Entities[u.EntIndex] = _demoRef.EntBaseLines.EntFromBaseLine(u.ServerClass, u.Serial);
+				Entities[u.EntIndex] = _demoRef.State.EntBaseLines.EntFromBaseLine(u.ServerClass, u.Serial);
 				_nonNullEnts.UpdateOrAdd(u.EntIndex);
 			}
 			Entity e = Entities[u.EntIndex] ?? throw new InvalidOperationException($"entity {u.EntIndex} should not be null by now");
 			e.InPvs = true;
 			ProcessDelta(u);
 			if (msg.UpdateBaseline) { // if update baseline then set the current baseline to the ent props, wacky
-				_demoRef.EntBaseLines.UpdateBaseLine(
+				_demoRef.State.EntBaseLines.UpdateBaseLine(
 					u.ServerClass,
-					e.Props.Select((property, i) => (i, property)).Where(tuple => tuple.property != null),
+					e.Props.Select((property, i) => (i, property)).Where(tuple => tuple.property != null)!,
 					e.Props.Length);
 			}
 		}
@@ -76,10 +63,14 @@ namespace DemoParser.Parser.HelperClasses.GameState {
 		internal void ProcessDelta(Delta u) {
 			foreach ((int propIndex, EntityProperty prop) in u.Props) {
 				ref EntityProperty? old = ref Entities[u.EntIndex].Props[propIndex];
-				if (old == null)
-					old = prop.CopyProperty();
-				else
-					prop.CopyPropertyTo(old);
+				if (prop is ArrEntProp newArr) {
+					if (old == null)
+						old = newArr.CopyArrayProp();
+					else
+						newArr.UpdateArrayProp((ArrEntProp)old);
+				} else {
+					old = prop;
+				}
 			}
 		}
 

@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses.EntityStuff;
-using DemoParser.Parser.HelperClasses.GameState;
+using DemoParser.Parser.EntityStuff;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -26,7 +26,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public List<EntityUpdate>? Updates;
 
 
-		public SvcPacketEntities(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcPacketEntities(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -39,7 +39,7 @@ namespace DemoParser.Parser.Components.Messages {
 			UpdatedEntries = (ushort)bsr.ReadUInt(11);
 			uint dataLen = bsr.ReadUInt(20);
 			UpdateBaseline = bsr.ReadBool();
-			_entBsr = bsr.SplitAndSkip(dataLen);
+			_entBsr = bsr.SplitAndSkip((int)dataLen);
 
 #if !FORCE_PROCESS_ENTS
 			if ((DemoRef.DemoParseResult & DemoParseResult.EntParsingEnabled) == 0 ||
@@ -47,96 +47,85 @@ namespace DemoParser.Parser.Components.Messages {
 				return;
 #endif
 			// now, we do some setup for ent parsing
-			ref EntitySnapshot? snapshot = ref DemoRef.EntitySnapshot;
+			ref EntitySnapshot? snapshot = ref GameState.EntitySnapshot;
 			snapshot ??= new EntitySnapshot(DemoRef);
 
 			if (IsDelta && snapshot.EngineTick != DeltaFrom) {
 				// If the messages ever arrive in a different order I should queue them,
 				// but for now just exit if we're updating from a non-existent snapshot.
-				DemoRef.LogError(
-					$"{GetType().Name} failed to process entity delta, " +
-					$"attempted to retrieve non existent snapshot on engine tick: {DeltaFrom}");
+				DemoRef.LogError($"{GetType().Name}: attempted to retrieve non existent snapshot on engine tick {DeltaFrom}");
 				DemoRef.DemoParseResult |= DemoParseResult.EntParsingFailed;
 				return;
 			}
 
 			Updates = new List<EntityUpdate>(UpdatedEntries);
-			DataTableParser? tableParser = DemoRef.DataTableParser;
+			DataTableParser? tableParser = GameState.DataTableParser;
 			Entity?[] ents = snapshot.Entities; // current entity state
 
 			if (tableParser?.FlattenedProps == null) {
-				DemoRef.LogError("ent parsing cannot continue because data tables have not been parsed");
+				DemoRef.LogError($"{GetType().Name}: ent parsing cannot continue because data tables have not been parsed");
 				DemoRef.DemoParseResult |= DemoParseResult.EntParsingFailed;
 				return;
 			}
 
-			try { // the journey begins in src_main\engine\servermsghandler.cpp line 663, warning: it goes 8 layers deep
-				if (!IsDelta)
-					snapshot.ClearEntityState();
+			// the journey begins in src_main\engine\servermsghandler.cpp line 663, warning: it goes 8 layers deep
 
-				// game uses different entity frames, so "oldI = old ent index = from" & "newI = new ent index = to"
-				int oldI = -1, newI = -1;
-				snapshot.GetNextNonNullEntIndex(ref oldI);
+			if (!IsDelta)
+				snapshot.ClearEntityState();
 
-				for (int _ = 0; _ < UpdatedEntries; _++) {
+			// game uses different entity frames, so "oldI = old ent index = from" & "newI = new ent index = to"
+			int oldI = -1, newI = -1;
+			snapshot.GetNextNonNullEntIndex(ref oldI);
 
-					newI += 1 + (DemoInfo.NewDemoProtocol
-						? (int)_entBsr.ReadUBitInt()
-						: (int)_entBsr.ReadUBitVar());
+			for (int _ = 0; _ < UpdatedEntries; _++) {
 
-					// get the old ent index up to at least the new one
-					if (newI > oldI) {
-						oldI = newI - 1;
-						snapshot.GetNextNonNullEntIndex(ref oldI);
-					}
+				newI += 1 + (DemoInfo.NewDemoProtocol
+					? (int)_entBsr.ReadUBitInt()
+					: (int)_entBsr.ReadUBitVar());
 
-					EntityUpdate update;
-					// vars used in enter pvs & delta
-					ServerClass entClass;
-					List<FlattenedProp> fProps;
-					int iClass;
-					uint updateType = _entBsr.ReadUInt(2);
-					switch (updateType) {
-						case 0: // delta
-							if (oldI != newI)
-								throw new ArgumentException("oldEntSlot != newEntSlot");
-							iClass = snapshot.Entities[newI].ServerClass.DataTableId;
-							(entClass, fProps) = tableParser.FlattenedProps[iClass];
-							update = new Delta(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef));
-							snapshot.ProcessDelta((Delta)update);
-							snapshot.GetNextNonNullEntIndex(ref oldI);
-							break;
-						case 2: // enter PVS
-							iClass = (int)_entBsr.ReadUInt(tableParser.ServerClassBits);
-							uint iSerial = (uint)_entBsr.ReadULong(HandleSerialNumberBits);
-							(entClass, fProps) = tableParser.FlattenedProps[iClass];
-							bool bNew = ents[newI] == null || ents[newI].Serial != iSerial;
-							update = new EnterPvs(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);
-							snapshot.ProcessEnterPvs(this, (EnterPvs)update); // update baseline check in here
-							if (oldI == newI)
-								snapshot.GetNextNonNullEntIndex(ref oldI);
-							break;
-						case 1: // leave PVS
-						case 3: // delete
-							update = new LeavePvs(oldI, ents[oldI].ServerClass, updateType == 3);
-							snapshot.ProcessLeavePvs((LeavePvs)update);
-							snapshot.GetNextNonNullEntIndex(ref oldI);
-							break;
-						default:
-							throw new ArgumentException($"unknown ent update type: {updateType}");
-					}
-					Updates.Add(update);
+				// get the old ent index up to at least the new one
+				if (newI > oldI) {
+					oldI = newI - 1;
+					snapshot.GetNextNonNullEntIndex(ref oldI);
 				}
-			} catch (Exception e) {
-				Updates = null;
-				DemoRef.DemoParseResult |= DemoParseResult.EntParsingFailed;
-				DemoRef.LogError($"Exception while parsing entity info in {GetType().Name}: {e.Message}");
+
+				EntityUpdate update;
+				// vars used in enter pvs & delta
+				ServerClass entClass;
+				List<FlattenedProp> fProps;
+				int iClass;
+				uint updateType = _entBsr.ReadUInt(2);
+				switch (updateType) {
+					case 0: // delta
+						if (oldI != newI)
+							throw new ArgumentException("oldEntSlot != newEntSlot");
+						iClass = snapshot.Entities[newI].ServerClass.DataTableId;
+						(entClass, fProps) = tableParser.FlattenedProps[iClass];
+						update = new Delta(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef));
+						snapshot.ProcessDelta((Delta)update);
+						snapshot.GetNextNonNullEntIndex(ref oldI);
+						break;
+					case 2: // enter PVS
+						iClass = (int)_entBsr.ReadUInt(tableParser.ServerClassBits);
+						uint iSerial = (uint)_entBsr.ReadULong(HandleSerialNumberBits);
+						(entClass, fProps) = tableParser.FlattenedProps[iClass];
+						bool bNew = ents[newI] == null || ents[newI].Serial != iSerial;
+						update = new EnterPvs(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);
+						snapshot.ProcessEnterPvs(this, (EnterPvs)update); // update baseline check in here
+						if (oldI == newI)
+							snapshot.GetNextNonNullEntIndex(ref oldI);
+						break;
+					case 1: // leave PVS
+					case 3: // delete
+						update = new LeavePvs(oldI, ents[oldI].ServerClass, updateType == 3);
+						snapshot.ProcessLeavePvs((LeavePvs)update);
+						snapshot.GetNextNonNullEntIndex(ref oldI);
+						break;
+					default:
+						throw new ArgumentException($"unknown ent update type: {updateType}");
+				}
+				Updates.Add(update);
 			}
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

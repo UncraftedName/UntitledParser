@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -10,16 +9,11 @@ namespace DemoParser.Parser.Components.Messages {
 		public uint EntityIndex;
 
 
-		public SvcSetView(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcSetView(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			EntityIndex = bsr.ReadUInt(DemoInfo.MaxEdictBits);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -13,7 +12,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		//public bool? Unknown; // this is either "chat" or "text all chat"
 
 
-		public SayText(SourceDemo? demoRef) : base(demoRef) {}
+		public SayText(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -22,11 +21,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			WantsToChat = bsr.ReadByte() != 0;
 			/*if (DemoInfo.NewDemoProtocol)
 				Unknown = bsr.ReadByte() != 0;*/
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

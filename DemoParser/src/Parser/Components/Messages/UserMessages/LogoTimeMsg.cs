@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -10,16 +9,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public float Time;
 
 
-		public LogoTimeMsg(SourceDemo? demoRef) : base(demoRef) {}
+		public LogoTimeMsg(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Time = bsr.ReadFloat();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

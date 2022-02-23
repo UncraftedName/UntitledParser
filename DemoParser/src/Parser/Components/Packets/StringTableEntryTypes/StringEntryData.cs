@@ -4,22 +4,21 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
-	public class QueryPort : StringTableEntryData {
+	// just a string :)
+	public class StringEntryData : StringTableEntryData {
 
 		internal override bool InlineToString => true;
-		public uint Port;
+		public string Str;
 
-
-		public QueryPort(SourceDemo? demoRef, int? decompressedIndex = null) : base(demoRef, decompressedIndex) {}
+		public StringEntryData(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef, decompressedIndex) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			Port = bsr.ReadUInt();
+			Str = bsr.ReadNullTerminatedString();
 		}
 
-
 		public override void PrettyWrite(IPrettyWriter pw) {
-			pw.Append(Port.ToString());
+			pw.Append(Str.ToLiteral());
 		}
 	}
 }

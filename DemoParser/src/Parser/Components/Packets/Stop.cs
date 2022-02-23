@@ -15,8 +15,5 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {}
 	}
 }

@@ -32,6 +32,7 @@ namespace Tests {
 			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bools[i], bsr.ReadBool(), $"index: {i}");
+			Assert.IsFalse(bsr.HasOverflowed);
 		}
 
 
@@ -50,6 +51,7 @@ namespace Tests {
 			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bits[i].val, bsr.ReadUInt(bits[i].size), $"index: {i}");
+			Assert.IsFalse(bsr.HasOverflowed);
 		}
 
 
@@ -70,6 +72,7 @@ namespace Tests {
 			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bits[i].val, bsr.ReadSInt(bits[i].size), $"index: {i}");
+			Assert.IsFalse(bsr.HasOverflowed);
 		}
 
 
@@ -89,6 +92,7 @@ namespace Tests {
 			BitStreamReader bsr = new BitStreamReader(bsw);
 			for (int i = 0; i < Iterations; i++)
 				Assert.AreEqual(bits[i].val, bsr.ReadUIntIfExists(bits[i].size), $"index: {i}");
+			Assert.IsFalse(bsr.HasOverflowed);
 		}
 
 
@@ -110,6 +114,7 @@ namespace Tests {
 				bsr.SkipBits(data[i].skipCount);
 				Assert.AreEqual(data[i].val, bsr.ReadUInt(), $"index: {i}");
 			}
+			Assert.IsFalse(bsr.HasOverflowed);
 		}
 
 
@@ -133,6 +138,7 @@ namespace Tests {
 				bsr = new BitStreamReader(bsw);
 				bsr.SkipBits(skip);
 				Assert.AreEqual(f, bsr.ReadBitCoord(), $"index: {i}");
+				Assert.IsFalse(bsr.HasOverflowed);
 			}
 		}
 
@@ -153,6 +159,7 @@ namespace Tests {
 				BitStreamReader bsr = new BitStreamReader(bsw);
 				bsr.SkipBits(skip);
 				CollectionAssert.AreEqual(rand, bsr.ReadBits(bitLen), $"index: {i}, bitlen: {bitLen}");
+				Assert.IsFalse(bsr.HasOverflowed);
 			}
 		}
 
@@ -179,6 +186,7 @@ namespace Tests {
 				BitStreamReader bsr = new BitStreamReader(bsw);
 				bsr.SkipBits(skipBefore);
 				CollectionAssert.AreEqual(rand, bsr.ReadBits(bitLen), $"index: {i}, bitlen: {bitLen}");
+				Assert.IsFalse(bsr.HasOverflowed);
 			}
 		}
 
@@ -201,6 +209,7 @@ namespace Tests {
 				BitStreamReader bsr = new BitStreamReader(bsw);
 				bsr.SkipBits(skip);
 				Assert.AreEqual(testInt, bsr.ReadSInt(testIntBits), $"index: {i}");
+				Assert.IsFalse(bsr.HasOverflowed);
 			}
 		}
 
@@ -223,6 +232,7 @@ namespace Tests {
 				bsr.SkipBits(data[i].skip);
 				Assert.AreEqual(data[i].str, bsr.ReadNullTerminatedString(), $"index: {i}");
 			}
+			Assert.IsFalse(bsr.HasOverflowed);
 
 			// ReadNullTerminatedString fetches 8 bytes at a time when it's not aligned, this is a special check to make
 			// sure that it keeps track of the index correctly (which the above code may have missed).
@@ -238,6 +248,7 @@ namespace Tests {
 			Assert.AreEqual(test1, bsr.ReadBool());
 			Assert.AreEqual(test2, bsr.ReadNullTerminatedString());
 			Assert.AreEqual(test3, bsr.ReadByte());
+			Assert.IsFalse(bsr.HasOverflowed);
 		}
 
 
@@ -264,6 +275,30 @@ namespace Tests {
 				string actual = terminator == -1 ? data[i].str : data[i].str[..terminator];
 				Assert.AreEqual(actual, bsr.ReadStringOfLength(data[i].str.Length), $"index: {i}");
 			}
+			Assert.IsFalse(bsr.HasOverflowed);
+		}
+
+
+		[Test, Parallelizable(ParallelScope.Self)]
+		public void CheckReaderOverflow() {
+			BitStreamReader bsr = new BitStreamReader(new byte[] {2});
+			for (int i = 0; i < 2; i++) {
+				bsr.ReadULong(20);
+				// best thing I can think of is that none of these should throw exceptions
+				bsr.ReadNullTerminatedString();
+				bsr.ReadStringOfLength(6);
+				bsr.ReadULong();
+				bsr.ReadBits(1);
+				bsr.ReadBool();
+				bsr.ReadFloat();
+				bsr.ReadBitAngle(20);
+				bsr.ReadToSpan(new byte[5]);
+				bsr.ReadVarUInt32();
+				bsr.ReadBitCoord();
+				bsr.ReadBytes(5);
+				bsr.ReadBytes(-1);
+			}
+			Assert.That(bsr.HasOverflowed);
 		}
 	}
 }

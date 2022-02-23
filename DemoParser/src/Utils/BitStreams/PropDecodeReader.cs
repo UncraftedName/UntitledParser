@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
-using DemoParser.Parser.HelperClasses.EntityStuff;
-using DemoParser.Parser.HelperClasses.GameState;
-using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
+using DemoParser.Parser;
+using DemoParser.Parser.EntityStuff;
+using DemoParser.Parser.GameState;
+using static DemoParser.Parser.EntityStuff.SendPropEnums;
 using static DemoParser.Utils.BitStreams.PropDecodeConsts;
 
 // I want to access NumBits from props without my IDE screaming at me
@@ -13,7 +14,7 @@ using static DemoParser.Utils.BitStreams.PropDecodeConsts;
 namespace DemoParser.Utils.BitStreams {
 
 	// mostly just an extra class to keep this nasty unusual stuff separate
-	public partial struct BitStreamReader  {
+	public partial struct BitStreamReader {
 
 		public void DecodeVector3(SendTableProp propInfo, out Vector3 vec3) { // src_main\engine\dt_encode.cpp line 158
 			vec3.X = DecodeFloat(propInfo);
@@ -193,7 +194,9 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public List<int> DecodeIntArr(FlattenedProp propInfo) {
-			int count = (int)ReadUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			int count = (int)ReadUInt(ParserUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			if (HasOverflowed)
+				count = 0;
 			List<int> result = new List<int>(count);
 			for (int i = 0; i < count; i++)
 				result.Add(DecodeInt(propInfo.ArrayElementPropInfo!));
@@ -202,7 +205,9 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public List<float> DecodeFloatArr(FlattenedProp propInfo) {
-			int count = (int)ReadUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			int count = (int)ReadUInt(ParserUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			if (HasOverflowed)
+				count = 0;
 			List<float> result = new List<float>(count);
 			for (int i = 0; i < count; i++)
 				result.Add(DecodeFloat(propInfo.ArrayElementPropInfo!));
@@ -211,7 +216,9 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public List<string> DecodeStringArr(FlattenedProp propInfo) {
-			int count = (int)ReadUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			int count = (int)ReadUInt(ParserUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			if (HasOverflowed)
+				count = 0;
 			List<string> result = new List<string>(count);
 			for (int i = 0; i < count; i++)
 				result.Add(DecodeString());
@@ -220,7 +227,9 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public List<Vector3> DecodeVector3Arr(FlattenedProp propInfo) {
-			int count = (int)ReadUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			int count = (int)ReadUInt(ParserUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			if (HasOverflowed)
+				count = 0;
 			List<Vector3> result = new List<Vector3>(count);
 			for (int i = 0; i < count; i++) {
 				DecodeVector3(propInfo.ArrayElementPropInfo!, out Vector3 v3);
@@ -231,7 +240,9 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public List<Vector2> DecodeVector2Arr(FlattenedProp propInfo) {
-			int count = (int)ReadUInt(BitUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			int count = (int)ReadUInt(ParserUtils.HighestBitIndex(propInfo.PropInfo.NumElements!.Value) + 1);
+			if (HasOverflowed)
+				count = 0;
 			List<Vector2> result = new List<Vector2>(count);
 			for (int i = 0; i < count; i++) {
 				DecodeVector2(propInfo.ArrayElementPropInfo!, out Vector2 v2);
@@ -310,6 +321,73 @@ namespace DemoParser.Utils.BitStreams {
 			vec3.Y = exists.y ? ReadBitCoord() : 0;
 			vec3.Z = exists.z ? ReadBitCoord() : 0;
 		}
+
+
+		// these two functions below have the real irresistible juice
+
+
+		public List<(int propIndex, EntityProperty prop)> ReadEntProps(
+			IReadOnlyList<FlattenedProp> fProps,
+			SourceDemo? demoRef)
+		{
+			var props = new List<(int propIndex, EntityProperty prop)>();
+
+			int i = -1;
+			if (demoRef.DemoInfo.NewDemoProtocol) {
+				bool newWay = ReadBool();
+				while ((i = ReadFieldIndex(i, newWay)) != -1 && !HasOverflowed) {
+					if (i < 0 || i >= fProps.Count) {
+						HasOverflowed = true;
+						return props;
+					}
+					props.Add((i, CreateAndReadProp(fProps[i])));
+				}
+			} else {
+				while (ReadBool() && !HasOverflowed) {
+					i += (int)ReadUBitVar() + 1;
+					if (i < 0 || i >= fProps.Count) {
+						HasOverflowed = true;
+						return props;
+					}
+					props.Add((i, CreateAndReadProp(fProps[i])));
+				}
+			}
+			return props;
+		}
+
+
+		// all of this fun jazz can be found in src_main/engine/dt_encode.cpp, a summary with comments is at the very end
+		private EntityProperty CreateAndReadProp(FlattenedProp fProp) {
+			const string exceptionMsg = "an impossible entity type has appeared while creating/reading props ";
+			int offset = AbsoluteBitIndex;
+			switch (fProp.PropInfo.SendPropType) {
+				case SendPropType.Int:
+					int i = DecodeInt(fProp.PropInfo);
+					return new SingleEntProp<int>(fProp, i, offset, AbsoluteBitIndex - offset);
+				case SendPropType.Float:
+					float f = DecodeFloat(fProp.PropInfo);
+					return new SingleEntProp<float>(fProp, f, offset, AbsoluteBitIndex - offset);
+				case SendPropType.Vector3:
+					DecodeVector3(fProp.PropInfo, out Vector3 v3);
+					return new SingleEntProp<Vector3>(fProp, v3, offset, AbsoluteBitIndex - offset);
+				case SendPropType.Vector2:
+					DecodeVector2(fProp.PropInfo, out Vector2 v2);
+					return new SingleEntProp<Vector2>(fProp, v2, offset, AbsoluteBitIndex - offset);
+				case SendPropType.String:
+					string s = DecodeString();
+					return new SingleEntProp<string>(fProp, s, offset, AbsoluteBitIndex - offset);
+				case SendPropType.Array:
+					return fProp.ArrayElementPropInfo!.SendPropType switch {
+						SendPropType.Int => new ArrEntProp<int>(fProp, DecodeIntArr(fProp), offset, AbsoluteBitIndex - offset),
+						SendPropType.Float => new ArrEntProp<float>(fProp, DecodeFloatArr(fProp), offset, AbsoluteBitIndex - offset),
+						SendPropType.Vector3 => new ArrEntProp<Vector3>(fProp, DecodeVector3Arr(fProp), offset, AbsoluteBitIndex - offset),
+						SendPropType.Vector2 => new ArrEntProp<Vector2>(fProp, DecodeVector2Arr(fProp), offset, AbsoluteBitIndex - offset),
+						SendPropType.String => new ArrEntProp<string>(fProp, DecodeStringArr(fProp), offset, AbsoluteBitIndex - offset),
+						_ => throw new ArgumentException(exceptionMsg, nameof(fProp.PropInfo.SendPropType))
+					};
+				}
+			throw new ArgumentException(exceptionMsg, nameof(fProp.PropInfo.SendPropType));
+		}
 	}
 
 
@@ -328,7 +406,7 @@ namespace DemoParser.Utils.BitStreams {
 		public const int   NormDenom         = (1 << NormFracBits) - 1;
 		public const float NormRes           = 1.0f / NormDenom;
 		public const int   DtMaxStringBits   = 9; // read this many bits to get the length of a string prop
-		public const int   MaxVarInt32Bytes = 5;
+		public const int   MaxVarInt32Bytes  = 5;
 	}
 
 

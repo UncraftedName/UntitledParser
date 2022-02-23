@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Utils;
@@ -6,84 +5,52 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Messages {
 
-	// similar to a packet frame, contains the type of user message
+	// a frame for user messages
 	public sealed class SvcUserMessage : DemoMessage {
 
 		public UserMessageType MessageType;
 		public UserMessage UserMessage;
-		private bool _unimplemented = false;
+		private bool _unimplemented;
 
 
-		public SvcUserMessage(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcUserMessage(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
-		/* Okay, this is pretty wacky. First I read a byte, and based off of that I try to determine the type of
-		 * user message. If I don't have a lookup list for whatever game this is or the type seems bogus, I log an
-		 * error. Otherwise, create the message instance, and if it's not empty, try to parse it. If parsing fails,
-		 * log an error. Finally, if not all bits of the message are parsed, then it's likely that I did something
-		 * wrong, (since it seems like the user messages use up all the bits in the message) so log an error.
-		 */
+		// In case of an error, we log the hex string and so does the "unknown" type. This speeds up implementations.
 		protected override void Parse(ref BitStreamReader bsr) {
-			byte typeVal = bsr.ReadByte();
-			MessageType = UserMessage.ByteToUserMessageType(DemoInfo, typeVal);
-			uint messageLength = bsr.ReadUInt(DemoInfo.UserMessageLengthBits);
+			byte b = bsr.ReadByte();
+			MessageType = UserMessage.ByteToUserMessageType(DemoInfo, b);
+			var uBsr = bsr.SplitAndSkip((int)bsr.ReadUInt(DemoInfo.UserMessageLengthBits));
 			string? errorStr = null;
-
-			var uMessageReader = bsr.SplitAndSkip(messageLength);
 
 			switch (MessageType) {
 				case UserMessageType.Unknown:
-					errorStr = $"There is no SvcUserMessage list for this game, type {typeVal} was found";
+					errorStr = $"{GetType().Name}: no lookup list for this game";
 					break;
 				case UserMessageType.Invalid:
-					errorStr = $"SvcUserMessage with value {typeVal} is invalid";
+					errorStr = $"{GetType().Name}: bad message type {b}";
 					break;
 				default:
-					UserMessage = SvcUserMessageFactory.CreateUserMessage(DemoRef, MessageType)!;
-					if (UserMessage == null) {
-						errorStr = $"Unimplemented SvcUserMessage: {MessageType}";
+					if ((UserMessage = SvcUserMessageFactory.CreateUserMessage(DemoRef, MessageType, b)!) == null) {
+						errorStr = $"{GetType().Name}: unimplemented message type '{MessageType}'";
 						_unimplemented = true;
-					} else {
-						try { // empty messages might still have 1-2 bytes, might need to do something 'bout that
-							if (UserMessage.ParseStream(uMessageReader) != 0)
-								errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) didn't parse all bits";
-						} catch (Exception e) {
-							errorStr = $"{GetType().Name} - {MessageType} ({typeVal}) " +
-									   $"threw exception during parsing, message: {e.Message}";
-						}
+					} else if (UserMessage.ParseStream(uBsr) != 0) {
+						errorStr = $"{GetType().Name}: {MessageType} probably didn't parse correctly";
 					}
 					break;
 			}
-
-			#region error logging
-
-			// if parsing fails, just convert to an unknown type - the byte array that it will print is still useful
 			if (errorStr != null) {
-				int rem = uMessageReader.BitsRemaining;
-				DemoRef.LogError($"{errorStr}, ({rem} bit{(rem == 1 ? "" : "s")}) - " +
-								 $"{uMessageReader.FromBeginning().ToHexString()}");
-				UserMessage = new UnknownUserMessage(DemoRef);
-				UserMessage.ParseStream(uMessageReader);
+				DemoRef.LogError($"{errorStr}; {uBsr.FromBeginning().ToHexString()}");
+				UserMessage = new UnknownUserMessage(DemoRef, b); // this'll just print the hex string
+				UserMessage.ParseStream(uBsr.FromBeginning());
 			}
-
-			#endregion
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
-			if (MessageType == UserMessageType.Unknown || MessageType == UserMessageType.Invalid) {
-				pw.Append("Unknown type");
-			} else {
-				if (UserMessage is UnknownUserMessage)
-					pw.Append(_unimplemented ?  "(unimplemented) " : "(not parsed properly) ");
-				pw.Append(MessageType.ToString());
-				pw.Append($" ({UserMessage.UserMessageTypeToByte(DemoInfo, MessageType)})");
-			}
+			if (UserMessage is UnknownUserMessage)
+				pw.Append(_unimplemented ? "(unimplemented) " : "(not parsed correctly) ");
+			pw.Append($"{MessageType} ({UserMessage.Value})");
 			if (UserMessage.MayContainData) {
 				pw.FutureIndent++;
 				pw.AppendLine();

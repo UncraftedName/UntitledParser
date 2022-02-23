@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -14,7 +13,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public float? HostFrameTimeStdDev;
 
 
-		public NetTick(SourceDemo? demoRef) : base(demoRef) {}
+		public NetTick(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -23,11 +22,6 @@ namespace DemoParser.Parser.Components.Messages {
 				HostFrameTime = bsr.ReadUShort() / NetTickScaleUp;
 				HostFrameTimeStdDev = bsr.ReadUShort() / NetTickScaleUp;
 			}
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

@@ -9,16 +9,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages.Haptic {
 		public float Unk;
 
 
-		public HapSetDrag(SourceDemo? demoRef) : base(demoRef) {}
+		public HapSetDrag(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Unk = bsr.ReadFloat();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
 		}
 
 

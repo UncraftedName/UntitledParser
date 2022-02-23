@@ -9,16 +9,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages.Haptic {
 		public int Unk;
 
 
-		public SpHapWeaponEvent(SourceDemo? demoRef) : base(demoRef) {}
+		public SpHapWeaponEvent(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Unk = bsr.ReadSInt();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
 		}
 
 

@@ -49,11 +49,6 @@ namespace DemoParser.Parser.Components {
 		}
 
 
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
-		}
-
-
 		public override void PrettyWrite(IPrettyWriter pw) {
 			if (Packet != null) {
 				pw.Append($"[{Tick}] {Type.ToString().ToUpper()} ({DemoPacket.PacketTypeToByte(DemoInfo, Type)})");

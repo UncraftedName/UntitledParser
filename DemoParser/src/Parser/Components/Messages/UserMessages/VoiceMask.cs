@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -12,7 +11,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public bool PlayerModEnable;
 
 
-		public VoiceMask(SourceDemo? demoRef) : base(demoRef) {}
+		public VoiceMask(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -20,11 +19,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			for (int i = 0; i < VoiceMaxPlayers; i++)
 				PlayerMasks[i] = new PlayerMask {GameRulesMask = bsr.ReadSInt(), BanMask = bsr.ReadSInt()};
 			PlayerModEnable = bsr.ReadByte() != 0;
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

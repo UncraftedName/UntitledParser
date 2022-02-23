@@ -1,6 +1,6 @@
 using System;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses.GameState;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -32,7 +32,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public int GameDirBitIndex; // used for game directory changing
 
-		public SvcServerInfo(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcServerInfo(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		// src_main/common/netmessages.cpp  SVC_ServerInfo::WriteToBuffer
@@ -78,15 +78,10 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 			// this packet always(?) appears before the creation of any tables
 
-			DemoRef.StringTablesManager.ClearCurrentTables();
+			GameState.StringTablesManager.Clear();
 
 			// init baselines here
-			DemoRef.EntBaseLines = new EntityBaseLines(DemoRef, MaxServerClasses);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			GameState.EntBaseLines = new EntityBaseLines(DemoRef!, MaxServerClasses);
 		}
 
 

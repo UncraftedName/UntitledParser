@@ -13,7 +13,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public List<(string name, object descriptor)> EventDescriptors;
 
 
-		public SvcGameEvent(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcGameEvent(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -21,7 +21,11 @@ namespace DemoParser.Parser.Components.Messages {
 			int indexBeforeData = bsr.CurrentBitIndex;
 
 			EventId = bsr.ReadUInt(9);
-			EventDescription = DemoRef.GameEventManager.EventDescriptions[EventId];
+			if (!GameState.GameEventManager.EventDescriptions.TryGetValue(EventId, out EventDescription)) {
+				DemoRef.LogError($"{GetType().Name}: got invalid event ID '{EventId}'");
+				bsr.SetOverflow();
+				return;
+			}
 			EventDescriptors = new List<(string, object)>();
 
 			foreach ((string Name, EventDescriptorType type) descriptor in EventDescription.Keys) {
@@ -39,11 +43,6 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 
 			bsr.CurrentBitIndex = (int)dataBitLen + indexBeforeData;
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

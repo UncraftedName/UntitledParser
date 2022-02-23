@@ -1,6 +1,5 @@
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
-using DemoParser.Parser.HelperClasses.GameState;
-using DemoParser.Utils.BitStreams;
+using DemoParser.Parser.GameState;
 
 namespace DemoParser.Parser.Components.Abstract {
 
@@ -9,38 +8,29 @@ namespace DemoParser.Parser.Components.Abstract {
 	/// </summary>
 	public abstract class StringTableEntryData : DemoComponent {
 
-		// store the index to the decompressed data in the lookup table if we access the reader later, might make a special class for this
-		protected readonly int? DecompressedIndex;
-
-		public override BitStreamReader Reader =>
-			DecompressedIndex.HasValue
-				? new BitStreamReader(DemoRef.DecompressedLookup[DecompressedIndex.Value], AbsoluteBitEnd - AbsoluteBitStart, AbsoluteBitStart)
-				: base.Reader;
-
-		internal virtual bool ContentsKnown => true; // for pretty printing
+		// for pretty printing
+		internal virtual bool ContentsKnown => true;
 		internal virtual bool InlineToString => false;
 
-		protected StringTableEntryData(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef) {
-			DecompressedIndex = decompressedIndex;
-		}
-
-		internal abstract StringTableEntryData CreateCopy();
+		protected StringTableEntryData(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef, decompressedIndex) {}
 	}
 
 
 	public static class StringTableEntryDataFactory {
-		public static StringTableEntryData CreateEntryData(SourceDemo? demoRef, int? decompressedIndex, string tableName, string entryName) {
+		// entry data may come from a compressed stream, so provide an index into the decompressed lookup table
+		public static StringTableEntryData CreateEntryData(SourceDemo? dRef, int? decompressedIndex, string tableName, string entryName) {
 			return tableName switch {
-				TableNames.UserInfo          => new PlayerInfo(demoRef, decompressedIndex),
-				TableNames.ServerQueryInfo   => new QueryPort(demoRef, decompressedIndex),
-				TableNames.InstanceBaseLine  => new InstanceBaseline(demoRef, decompressedIndex, entryName),
-				TableNames.GameRulesCreation => new GameRulesCreation(demoRef, decompressedIndex),
-				TableNames.LightStyles       => new LightStyle(demoRef, decompressedIndex),
-				TableNames.ModelPreCache     => new PrecacheData(demoRef, decompressedIndex),
-				TableNames.GenericPreCache   => new PrecacheData(demoRef, decompressedIndex),
-				TableNames.SoundPreCache     => new PrecacheData(demoRef, decompressedIndex),
-				TableNames.DecalPreCache     => new PrecacheData(demoRef, decompressedIndex),
-				_ => new UnknownStringTableEntryData(demoRef, decompressedIndex)
+				TableNames.UserInfo          => new PlayerInfo      (dRef, decompressedIndex),
+				TableNames.ServerQueryInfo   => new QueryPort       (dRef, decompressedIndex),
+				TableNames.InstanceBaseLine  => new InstanceBaseline(dRef, entryName, decompressedIndex),
+				TableNames.GameRulesCreation => new StringEntryData (dRef, decompressedIndex),
+				TableNames.InfoPanel         => new StringEntryData (dRef, decompressedIndex),
+				TableNames.LightStyles       => new LightStyle      (dRef, decompressedIndex),
+				TableNames.ModelPreCache     => new PrecacheData    (dRef, decompressedIndex),
+				TableNames.GenericPreCache   => new PrecacheData    (dRef, decompressedIndex),
+				TableNames.SoundPreCache     => new PrecacheData    (dRef, decompressedIndex),
+				TableNames.DecalPreCache     => new PrecacheData    (dRef, decompressedIndex),
+				_                 => new UnknownStringTableEntryData(dRef, decompressedIndex)
 			};
 		}
 	}

@@ -1,12 +1,11 @@
 #nullable enable
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
-using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
+using static DemoParser.Parser.EntityStuff.SendPropEnums;
 
-namespace DemoParser.Parser.HelperClasses.EntityStuff {
+namespace DemoParser.Parser.EntityStuff {
 
 	public class SendTableProp : DemoComponent {
 
@@ -31,7 +30,12 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			SendPropType = DemoInfo.SendPropTypes[(int)bsr.ReadUInt(5)];
+			int type = (int)bsr.ReadUInt(5);
+			if (type >= DemoInfo.SendPropTypes.Count) {
+				bsr.SetOverflow();
+				return;
+			}
+			SendPropType = DemoInfo.SendPropTypes[type];
 			Name = bsr.ReadNullTerminatedString();
 			Flags = (int)bsr.ReadUInt(DemoInfo.SendPropFlagBits);
 			if (DemoInfo.NewDemoProtocol && !DemoInfo.IsLeft4Dead1())
@@ -53,15 +57,10 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 						NumElements = bsr.ReadUInt(10);
 						break;
 					default:
-						throw new ArgumentOutOfRangeException(nameof(SendPropType),
-							$"Invalid prop type: {SendPropType}");
+						bsr.SetOverflow();
+						return;
 				}
 			}
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

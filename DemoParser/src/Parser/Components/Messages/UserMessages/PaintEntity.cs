@@ -12,18 +12,13 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public Vector3 Pos;
 
 
-		public PaintEntity(SourceDemo? demoRef) : base(demoRef) {}
+		public PaintEntity(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Ent = bsr.ReadEHandle();
 			PaintType = (PaintType)bsr.ReadByte();
 			bsr.ReadVector3(out Pos);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
 		}
 
 

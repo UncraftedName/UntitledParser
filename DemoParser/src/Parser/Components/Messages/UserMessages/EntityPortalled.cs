@@ -1,4 +1,3 @@
-using System;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
@@ -14,7 +13,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public Vector3 NewAngles;
 
 
-		public EntityPortalled(SourceDemo? demoRef) : base(demoRef) {}
+		public EntityPortalled(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -22,11 +21,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			Portalled = bsr.ReadEHandle();
 			bsr.ReadVector3(out NewPosition);
 			bsr.ReadVector3(out NewAngles);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

@@ -17,13 +17,13 @@ namespace DemoParser.Parser.Components.Messages {
 		public StringTableUpdates? TableUpdates;
 
 
-		public SvcCreateStringTable(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcCreateStringTable(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			TableName = bsr.ReadNullTerminatedString();
 			MaxEntries = (short)bsr.ReadUShort();
-			NumEntries = (int)bsr.ReadUInt(BitUtils.HighestBitIndex(MaxEntries) + 1);
+			NumEntries = (int)bsr.ReadUInt(ParserUtils.HighestBitIndex((uint)MaxEntries) + 1);
 			uint dataLen = bsr.ReadUInt(DemoInfo.IsLeft4Dead2() ? 21 : 20);
 			UserDataFixedSize = bsr.ReadBool();
 			UserDataSize = (int)(UserDataFixedSize ? bsr.ReadUInt(12) : 0);
@@ -31,14 +31,9 @@ namespace DemoParser.Parser.Components.Messages {
 			if (DemoRef.Header.NetworkProtocol >= 15)
 				Flags = (StringTableFlags)bsr.ReadUInt(DemoInfo.NewDemoProtocol ? 2 : 1);
 
-			DemoRef.StringTablesManager.CreateStringTable(this);
+			GameState.StringTablesManager.AddNewTableInfo(this);
 			TableUpdates = new StringTableUpdates(DemoRef, TableName, NumEntries, true);
-			TableUpdates.ParseStream(bsr.SplitAndSkip(dataLen));
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			TableUpdates.ParseStream(bsr.SplitAndSkip((int)dataLen));
 		}
 
 
@@ -65,10 +60,10 @@ namespace DemoParser.Parser.Components.Messages {
 
 	[Flags]
 	public enum StringTableFlags : uint { // hl2sdk-portal2  public/networkstringtabledefs.h   line 60
-		None           = 0,
-		DataCompressed = 1,
-		Unknown        = 1 << 1,
+		None                   = 0,
+		DataCompressed         = 1,
+		DictionaryMaybeEnabled = 1 << 1, // merely a suggestion
 
-		Fake           = 1 << 30 // I created this SvcCreateStringTable object myself and it's fake
+		Fake                   = 1 << 30 // I created this SvcCreateStringTable object myself and it's fake
 	}
 }

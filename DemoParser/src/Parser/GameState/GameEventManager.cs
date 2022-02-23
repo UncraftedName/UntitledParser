@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DemoParser.Parser.Components.Messages;
 
-namespace DemoParser.Parser.HelperClasses {
+namespace DemoParser.Parser.GameState {
 
 	// for parsing SvcGameEvent, initialized from SvcGameEventList
 	public class GameEventManager {

@@ -77,17 +77,17 @@ namespace DemoParser.Parser.Components.Abstract {
 
 	public static class PacketFactory {
 
-		public static DemoPacket CreatePacket(SourceDemo demoRef, PacketFrame frameRef, PacketType packetType) {
+		public static DemoPacket CreatePacket(SourceDemo dRef, PacketFrame fRef, PacketType packetType) {
 			return packetType switch {
-				PacketType.SignOn       => new SignOn(demoRef, frameRef),
-				PacketType.Packet       => new Packet(demoRef, frameRef),
-				PacketType.SyncTick     => new SyncTick(demoRef, frameRef),
-				PacketType.ConsoleCmd   => new ConsoleCmd(demoRef, frameRef),
-				PacketType.UserCmd      => new UserCmd(demoRef, frameRef),
-				PacketType.DataTables   => new DataTables(demoRef, frameRef),
-				PacketType.Stop         => new Stop(demoRef, frameRef),
-				PacketType.StringTables => new StringTables(demoRef, frameRef),
-				PacketType.CustomData   => new CustomData(demoRef, frameRef),
+				PacketType.SignOn       => new SignOn      (dRef, fRef),
+				PacketType.Packet       => new Packet      (dRef, fRef),
+				PacketType.SyncTick     => new SyncTick    (dRef, fRef),
+				PacketType.ConsoleCmd   => new ConsoleCmd  (dRef, fRef),
+				PacketType.UserCmd      => new UserCmd     (dRef, fRef),
+				PacketType.DataTables   => new DataTables  (dRef, fRef),
+				PacketType.Stop         => new Stop        (dRef, fRef),
+				PacketType.StringTables => new StringTables(dRef, fRef),
+				PacketType.CustomData   => new CustomData  (dRef, fRef),
 				_ => throw new NotSupportedException($"unknown or unsupported packet type: {packetType}")
 			};
 		}

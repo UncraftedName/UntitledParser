@@ -1,9 +1,10 @@
 #nullable enable
-using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses.GameState;
+using DemoParser.Parser.Components.Packets;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -17,22 +18,23 @@ namespace DemoParser.Parser.Components.Messages {
 		public StringTableUpdates TableUpdates;
 
 
-		public SvcUpdateStringTable(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcUpdateStringTable(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			TableId = (byte)bsr.ReadUInt(5);
-			TableName = DemoRef.StringTablesManager.TableById(TableId).Name;
+			var table = GameState.StringTablesManager.TableFromId(TableId);
+			if (table == null) {
+				bsr.SetOverflow();
+				DemoRef.LogError($"{GetType().Name}: invalid table ID {TableId}");
+				return;
+			}
+			TableName = table.Name;
 			ChangedEntriesCount = bsr.ReadUShortIfExists() ?? 1;
 			uint dataLen = bsr.ReadUInt(20);
 
 			TableUpdates = new StringTableUpdates(DemoRef, TableName, ChangedEntriesCount, false);
-			TableUpdates.ParseStream(bsr.SplitAndSkip(dataLen));
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			TableUpdates.ParseStream(bsr.SplitAndSkip((int)dataLen));
 		}
 
 
@@ -55,11 +57,13 @@ namespace DemoParser.Parser.Components.Messages {
 		private const int SubStringBits = 5;
 		private const int MaxUserDataBits = 14;
 
+		public bool? DictionaryActuallyEnabled;
+		public readonly List<TableUpdate?> TableUpdates;
+
 		private readonly int _numUpdatedEntries;
 		private readonly string _tableName;
 		private readonly bool _canCompress;
-		private bool _exceptionWhileParsing;
-		public readonly List<TableUpdate?> TableUpdates;
+		private bool _failedParse;
 
 		public static implicit operator List<TableUpdate?>(StringTableUpdates u) => u.TableUpdates;
 
@@ -73,117 +77,139 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
+		// CNetworkStringTable::ParseUpdate
 		protected override void Parse(ref BitStreamReader bsr) {
 
-			StringTablesManager manager = DemoRef.StringTablesManager;
-			if (!manager.TableReadable.GetValueOrDefault(_tableName)) {
-				DemoRef.LogError($"{_tableName} table is marked as non-readable, can't update :/");
-				_exceptionWhileParsing = true;
-				bsr.SkipToEnd();
+			StringTablesManager manager = GameState.StringTablesManager;
+			Debug.Assert(manager.CreationLookup.Single(table => table.TableName == _tableName).Flags != StringTableFlags.Fake);
+
+			if (!manager.IsTableStateValid(_tableName)) {
+				FailedTableUpdate($"{GetType().Name}: can't update string table '{_tableName}' (probably because a previous update failed)");
 				return;
 			}
 
-			if (manager.CreationLookup.Single(table => table.TableName == _tableName).Flags == StringTableFlags.Fake) {
-				DemoRef.LogError($"{_tableName} table was created manually - not parsed in SvcServerInfo");
-				_exceptionWhileParsing = true;
-				bsr.SkipToEnd();
-				return;
+			MutableStringTable mTable = manager.Tables[_tableName];
+
+			// sometimes the updates are compressed (but only in SvcCreateStringTable)
+
+			int? entryDecompIdx = null;
+			if (mTable.Flags.HasValue && (mTable.Flags & StringTableFlags.DataCompressed) != 0 && _canCompress) {
+				// decompress the data - engine/baseclientstate.cpp (hl2_src) line 1364
+				int uncompressedSize = bsr.ReadSInt();
+				int compressedSize = bsr.ReadSInt();
+				// -8 to ignore the last 8 header bytes
+				if (!Compression.Decompress(DemoRef!, ref bsr, compressedSize - 8, out byte[] data) || data.Length != uncompressedSize) {
+					FailedTableUpdate($"{GetType().Name}: failed to decompress update");
+					return;
+				}
+				entryDecompIdx = GameState.DecompressedLookup.Count;
+				GameState.DecompressedLookup.Add(data);
+				bsr = new BitStreamReader(data);
 			}
 
-			try { // se2007/engine/networkstringtable.cpp  line 595
-				MutableStringTable tableToUpdate = manager.Tables[_tableName];
-
-				int? decompressedIndex = null;
-				if (tableToUpdate.Flags.HasValue && (tableToUpdate.Flags & StringTableFlags.DataCompressed) != 0 && _canCompress) {
-					// decompress the data - engine/baseclientstate.cpp (hl2_src) line 1364
-					int uncompressedSize = bsr.ReadSInt();
-					int compressedSize = bsr.ReadSInt();
-					byte[] data = Compression.Decompress(ref bsr, compressedSize - 8); // -8 to ignore header
-					decompressedIndex = DemoRef.DecompressedLookup.Count;
-					DemoRef.DecompressedLookup.Add(data); // so that we can access the reader for the entries later
-					if (data.Length != uncompressedSize)
-						throw new Exception("could not decompress data in string table update");
-					bsr = new BitStreamReader(data);
+			if (DemoInfo.NewDemoProtocol) {
+				if ((DictionaryActuallyEnabled = bsr.ReadBool()) == true) {
+					FailedTableUpdate($"{GetType().Name}: {_tableName} table encoded with dictionary");
+					return;
 				}
-
-				int entryIndex = -1;
-				var history = new C5.CircularQueue<string>(32);
-
-				for (int i = 0; i < _numUpdatedEntries; i++) {
-					entryIndex++;
-					if (!bsr.ReadBool())
-						entryIndex = (int)bsr.ReadUInt(BitUtils.HighestBitIndex(tableToUpdate.MaxEntries));
-
-					string? entryName = null;
-					if (bsr.ReadBool()) {
-						if (bsr.ReadBool()) { // the first part of the string may be the same as for other entries
-							int index = (int)bsr.ReadUInt(5);
-							int subStrLen = (int)bsr.ReadUInt(SubStringBits);
-							entryName = history[index][..subStrLen];
-							entryName += bsr.ReadNullTerminatedString();
-						} else {
-							entryName = bsr.ReadNullTerminatedString();
-						}
-					}
-
-					BitStreamReader? entryStream = null;
-
-					if (bsr.ReadBool()) {
-						int streamLen = tableToUpdate.UserDataFixedSize
-							? tableToUpdate.UserDataSizeBits
-							: (int)bsr.ReadUInt(MaxUserDataBits) * 8;
-
-						entryStream = bsr.SplitAndSkip(streamLen);
-					}
-
-					// are we are updating an old entry or adding a new one
-					if (entryIndex < tableToUpdate.Entries.Count) {
-						// if client-side then negative index, otherwise positive
-						entryName = tableToUpdate.Entries[Math.Abs(entryIndex)].EntryName;
-					} else { // Grow the table (entryIndex must be the next empty slot)
-						entryName ??= ""; // avoid crash because of NULL strings
-						if (tableToUpdate.EntryToIndex.TryGetValue(entryName, out int j)) {
-							TableUpdates.Add(new TableUpdate(
-								manager.SetEntryData(tableToUpdate, tableToUpdate.Entries[j]),
-								TableUpdateType.ChangeEntryData,
-								j));
-						} else {
-							TableUpdates.Add(new TableUpdate(
-								manager.AddTableEntry(tableToUpdate, ref entryStream, decompressedIndex, entryName),
-								TableUpdateType.NewEntry,
-								tableToUpdate.Entries.Count - 1)); // sub 1 since we update the table 2 lines up
-						}
-					}
-					if (history.Count == 32)
-						history.Dequeue();
-					history.Push(entryName);
-				}
-			} catch (Exception e) {
-				// there was an update I couldn't parse, assume this mutable table contain irrelevant data from here
-				DemoRef.LogError($"error while parsing {GetType().Name} for table {_tableName}: {e.Message}");
-				_exceptionWhileParsing = true;
-				manager.TableReadable[_tableName] = false;
 			}
-			bsr.SkipToEnd(); // in case of an exception I don't want this to be logged, otherwise assume the data parsed fine
+
+			// Loop over all updates. The game keeps the last 32 entries as a basic way to (further) compress the entry
+			// names (since consecutive entries often have the same prefix).
+
+			int entryIndex = -1;
+			var history = new C5.CircularQueue<string>(32);
+
+			for (int i = 0; i < _numUpdatedEntries; i++) {
+
+				entryIndex++;
+
+				if (!bsr.ReadBool())
+					entryIndex = (int)bsr.ReadUInt(ParserUtils.HighestBitIndex((uint)mTable.MaxEntries));
+
+				if (entryIndex > mTable.Entries.Count) {
+					// I think we fail here for non-p1/hl2 games which implies the bool above doesn't mean what I think it does.
+					FailedTableUpdate($"{GetType().Name}: entry index {entryIndex} out of bounds for table {_tableName}, only {mTable.Entries.Count} entries");
+					return;
+				}
+
+				string entryName = "";
+				if (bsr.ReadBool()) {
+					if (bsr.ReadBool()) { // the first part of the string may be the same as previous entries
+						int index = (int)bsr.ReadUInt(5);
+						if (index >= history.Count) {
+							FailedTableUpdate($"{GetType().Name}: attempted to access a non-existent entry from the history");
+							return;
+						}
+						int subStrLen = (int)bsr.ReadUInt(SubStringBits);
+						if (subStrLen > history[index].Length) {
+							FailedTableUpdate($"{GetType().Name}: tried to create a substring with {subStrLen - history[index].Length} too many characters from history");
+							return;
+						}
+						entryName = history[index][..subStrLen];
+						entryName += bsr.ReadNullTerminatedString();
+					} else {
+						entryName = bsr.ReadNullTerminatedString();
+					}
+				}
+
+				BitStreamReader? entryStream = null;
+
+				if (bsr.ReadBool()) {
+					int entryLen = mTable.UserDataFixedSize
+						? mTable.UserDataSizeBits
+						: (int)bsr.ReadUInt(MaxUserDataBits) * 8;
+
+					entryStream = bsr.SplitAndSkip(entryLen);
+				}
+
+				if (bsr.HasOverflowed) {
+					FailedTableUpdate($"{GetType().Name}: reader overflowed");
+					return;
+				}
+
+				// it might technically be invalid to have duplicate entry names, but uhhhhhh whatever
+
+				StringTableEntry entry = new StringTableEntry(DemoRef, _tableName, _numUpdatedEntries, entryName);
+				if (entryStream.HasValue)
+					entry.ParseEntryData(entryStream.Value, entryDecompIdx);
+
+				bool replace = entryIndex < mTable.Entries.Count;
+
+				TableUpdates.Add(new TableUpdate(entry, replace ? TableUpdateType.ReplacementEntry : TableUpdateType.NewEntry, entryIndex));
+
+				if (replace)
+					mTable.Entries[entryIndex] = entry;
+				else
+					mTable.Entries.Add(entry);
+
+				if (history.Count == 32)
+					history.Dequeue();
+				history.Push(entryName);
+			}
 		}
 
 
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+		private void FailedTableUpdate(string reason) {
+			_failedParse = true;
+			GameState.StringTablesManager.SetTableStateInvalid(_tableName); // prevent future updates
+			DemoRef.LogError(reason);
 		}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
-			if (_exceptionWhileParsing) {
-				pw.Append("error while parsing");
+			if (DictionaryActuallyEnabled.HasValue)
+				pw.AppendLine($"dictionary enabled: {DictionaryActuallyEnabled}");
+			if (_failedParse) {
+				pw.Append("failed to parse");
 				return;
 			}
 			if (TableUpdates.Count == 0) {
 				pw.Append("no entries");
 			} else {
 				int padCount = TableUpdates
-					.Select(update => (Name: update.TableEntry.EntryName, Data: update.TableEntry.EntryData))
-					.Where(t => !(t.Data?.ContentsKnown ?? true) || (t.Data?.InlineToString ?? true))
+					.Select(update => (update.Entry.Name, update.Entry.EntryData))
+					.Where(t => !(t.EntryData?.ContentsKnown ?? true) || (t.EntryData?.InlineToString ?? true))
 					.Select(t => t.Name.Length + 3)
 					.DefaultIfEmpty(2)
 					.Max();
@@ -202,35 +228,35 @@ namespace DemoParser.Parser.Components.Messages {
 
 	public class TableUpdate : PrettyClass {
 
-		// just for toString()
+		// for pretty printing
 		internal int PadCount;
 		internal int EntryCount;
 
-		public readonly MutableStringTableEntry? TableEntry;
+		public readonly StringTableEntry? Entry;
 		public readonly int Index;
 		public readonly TableUpdateType UpdateType;
 
 
-		public TableUpdate(MutableStringTableEntry? tableEntry, TableUpdateType updateType, int index) {
-			TableEntry = tableEntry;
+		public TableUpdate(StringTableEntry? entry, TableUpdateType updateType, int index) {
+			Entry = entry;
 			UpdateType = updateType;
 			Index = index;
 		}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) { // similar logic to that in string tables
-			pw.Append($"[{Index}] {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {TableEntry.EntryName}");
-			if (TableEntry?.EntryData != null) {
-				if (TableEntry.EntryData.InlineToString && EntryCount == 1) {
+			pw.Append($"[{Index}] {ParserTextUtils.CamelCaseToUnderscore(UpdateType.ToString())}: {Entry.Name}");
+			if (Entry?.EntryData != null) {
+				if (Entry.EntryData.InlineToString && EntryCount == 1) {
 					pw.Append("; ");
-					TableEntry.EntryData.PrettyWrite(pw);
+					Entry.EntryData.PrettyWrite(pw);
 				} else {
 					pw.FutureIndent++;
-					if (TableEntry.EntryData.ContentsKnown && !TableEntry.EntryData.InlineToString)
+					if (Entry.EntryData.ContentsKnown && !Entry.EntryData.InlineToString)
 						pw.AppendLine();
 					else
 						pw.PadLastLine(PadCount + 15, '.');
-					TableEntry.EntryData.PrettyWrite(pw);
+					Entry.EntryData.PrettyWrite(pw);
 					pw.FutureIndent--;
 				}
 			}
@@ -240,6 +266,6 @@ namespace DemoParser.Parser.Components.Messages {
 
 	public enum TableUpdateType {
 		NewEntry,
-		ChangeEntryData
+		ReplacementEntry
 	}
 }

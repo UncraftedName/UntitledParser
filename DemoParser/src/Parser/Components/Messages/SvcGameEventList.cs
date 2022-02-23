@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -14,7 +13,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public List<GameEventDescription> Descriptors;
 
 
-		public SvcGameEventList(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcGameEventList(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -31,12 +30,7 @@ namespace DemoParser.Parser.Components.Messages {
 			bsr.CurrentBitIndex = dataLen + indexBeforeData;
 
 			// used for parsing SvcGameEvent
-			DemoRef.GameEventManager = new GameEventManager(Descriptors);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			GameState.GameEventManager = new GameEventManager(Descriptors);
 		}
 
 
@@ -69,11 +63,6 @@ namespace DemoParser.Parser.Components.Messages {
 			uint type;
 			while ((type = bsr.ReadUInt(3)) != 0)
 				Keys.Add((bsr.ReadNullTerminatedString(), (EventDescriptorType)type));
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

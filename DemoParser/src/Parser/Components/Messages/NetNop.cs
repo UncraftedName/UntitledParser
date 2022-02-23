@@ -10,13 +10,10 @@ namespace DemoParser.Parser.Components.Messages {
 		public override bool MayContainData => false;
 
 
-		public NetNop(SourceDemo? demoRef) : base(demoRef) {}
+		public NetNop(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {

@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses;
-using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.EntityStuff;
 using DemoParser.Utils;
 using static DemoParser.Parser.SourceGame;
 
@@ -128,7 +126,7 @@ namespace DemoParser.Parser {
 				case 2:
 					NewDemoProtocol = false;
 					SendPropFlagBits = 11;
-					goto default; // I don't know any other constants for demo protocol 2 so just cry
+					goto default; // I don't know anything else about protocol 2 :/
 				case 3:
 				case 4 when IsLeft4Dead1():
 					NewDemoProtocol = IsLeft4Dead1();
@@ -165,7 +163,12 @@ namespace DemoParser.Parser {
 					MessageTypes = DemoMessage.NewProtocolMessageList;
 					break;
 				default:
-					throw new ArgumentException($"What the heck is demo protocol version {h.DemoProtocol}?");
+					demo.LogError($"unknown protocol version {h.DemoProtocol}");
+					// just guess, copied from protocol 3
+					MessageTypes = DemoMessage.OeMessageList;
+					UserMessageLengthBits = 11;
+					NumNetFileFlagBits = 1;
+					break;
 			}
 			MessageTypesReverseLookup = MessageTypes.CreateReverseLookupDict(MessageType.Invalid);
 

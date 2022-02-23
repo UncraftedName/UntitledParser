@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
@@ -13,7 +12,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public List<KeyValuePair<string, string>> KeyValues;
 
 
-		public VguiMenu(SourceDemo? demoRef) : base(demoRef) {}
+		public VguiMenu(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -26,11 +25,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 					bsr.ReadNullTerminatedString(),
 					bsr.ReadNullTerminatedString()));
 			}
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

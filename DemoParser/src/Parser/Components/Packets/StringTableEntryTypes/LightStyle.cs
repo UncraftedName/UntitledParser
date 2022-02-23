@@ -11,23 +11,13 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public byte[]? Values;
 
 
-		public LightStyle(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef, decompressedIndex) {}
-
-
-		internal override StringTableEntryData CreateCopy() {
-			return new LightStyle(DemoRef, DecompressedIndex) {Values = Values};
-		}
+		public LightStyle(SourceDemo? demoRef, int? decompressedIndex = null) : base(demoRef, decompressedIndex) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			string str = bsr.ReadNullTerminatedString(); // yes
 			if (str.Length != 0)
 				Values = str.ToCharArray().Select(c => (byte)((c - 'a') * 22)).ToArray();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
 		}
 
 

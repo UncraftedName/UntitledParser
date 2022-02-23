@@ -8,7 +8,7 @@ using DemoParser.Parser;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
-using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.EntityStuff;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 

@@ -10,16 +10,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public int AchievementId; // https://nekzor.github.io/portal2/achievements
 
 
-		public AchievementEvent(SourceDemo? demoRef) : base(demoRef) {}
+		public AchievementEvent(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			throw new NotImplementedException(); // todo, and figure out the achievements
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

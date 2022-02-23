@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -15,11 +14,6 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 		protected override void Parse(ref BitStreamReader bsr) {
 			X = bsr.ReadUInt();
 			Y = bsr.ReadUInt();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

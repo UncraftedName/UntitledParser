@@ -25,30 +25,26 @@ namespace DemoParser.Parser.Components.Packets {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Cmd = bsr.ReadUInt();
-			uint byteSize = bsr.ReadUInt();
-			int indexBeforeData = bsr.CurrentBitIndex;
-			CommandNumber = bsr.ReadUIntIfExists();
-			TickCount = bsr.ReadUIntIfExists();
-			ViewAngleX = bsr.ReadFloatIfExists();
-			ViewAngleY = bsr.ReadFloatIfExists();
-			ViewAngleZ = bsr.ReadFloatIfExists();
-			SidewaysMovement = bsr.ReadFloatIfExists();
-			ForwardMovement = bsr.ReadFloatIfExists();
-			VerticalMovement = bsr.ReadFloatIfExists();
-			Buttons = (Buttons?)bsr.ReadUIntIfExists();
-			Impulse = bsr.ReadByteIfExists();
-			if (bsr.ReadBool()) {
-				WeaponSelect = bsr.ReadUInt(11);
-				WeaponSubtype = bsr.ReadUIntIfExists(6);
+			int byteSize = bsr.ReadSInt();
+			BitStreamReader uBsr = bsr.SplitAndSkip(byteSize * 8);
+			CommandNumber = uBsr.ReadUIntIfExists();
+			TickCount = uBsr.ReadUIntIfExists();
+			ViewAngleX = uBsr.ReadFloatIfExists();
+			ViewAngleY = uBsr.ReadFloatIfExists();
+			ViewAngleZ = uBsr.ReadFloatIfExists();
+			SidewaysMovement = uBsr.ReadFloatIfExists();
+			ForwardMovement = uBsr.ReadFloatIfExists();
+			VerticalMovement = uBsr.ReadFloatIfExists();
+			Buttons = (Buttons?)uBsr.ReadUIntIfExists();
+			Impulse = uBsr.ReadByteIfExists();
+			if (uBsr.ReadBool()) {
+				WeaponSelect = uBsr.ReadUInt(11);
+				WeaponSubtype = uBsr.ReadUIntIfExists(6);
 			}
-			MouseDx = (short?)bsr.ReadUShortIfExists();
-			MouseDy = (short?)bsr.ReadUShortIfExists();
-			bsr.CurrentBitIndex = indexBeforeData + (int)(byteSize << 3);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			MouseDx = (short?)uBsr.ReadUShortIfExists();
+			MouseDy = (short?)uBsr.ReadUShortIfExists();
+			if (uBsr.HasOverflowed)
+				DemoRef.LogError($"{GetType().Name}: reader overflowed");
 		}
 
 

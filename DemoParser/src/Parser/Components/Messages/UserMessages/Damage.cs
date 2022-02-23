@@ -1,4 +1,3 @@
-using System;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
@@ -14,7 +13,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public Vector3 VecFrom;
 
 
-		public Damage(SourceDemo? demoRef) : base(demoRef) {}
+		public Damage(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -27,11 +26,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				Y = bsr.ReadCoord(),
 				Z = bsr.ReadCoord()
 			};*/
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

@@ -14,7 +14,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public Vector3[] Positions;
 
 
-		public PaintWorld(SourceDemo? demoRef) : base(demoRef) {}
+		public PaintWorld(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -31,11 +31,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			Positions = new Vector3[len];
 			for (int i = 0; i < len; i++)
 				Positions[i] = Center + new Vector3(bsr.ReadSShort(), bsr.ReadSShort(), bsr.ReadSShort());
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
 		}
 
 

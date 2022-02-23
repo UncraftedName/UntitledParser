@@ -1,4 +1,3 @@
-using System;
 using System.Text.RegularExpressions;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
@@ -11,7 +10,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public string Str;
 
 
-		public SvcPrint(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcPrint(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -33,11 +32,6 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 			}
 
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

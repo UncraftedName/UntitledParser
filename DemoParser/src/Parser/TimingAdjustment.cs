@@ -7,14 +7,14 @@ using System.Numerics;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Parser.Components.Packets;
-using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.EntityStuff;
 using DemoParser.Utils;
 using static DemoParser.Parser.DemoInfo;
-using static DemoParser.Parser.HelperClasses.EntityStuff.PropEnums.PlayerMfFlags_t;
-using static DemoParser.Parser.HelperClasses.TimingAdjustment.AdjustmentType;
+using static DemoParser.Parser.EntityStuff.PropEnums.PlayerMfFlags_t;
+using static DemoParser.Parser.TimingAdjustment.AdjustmentType;
 using static DemoParser.Parser.SourceGame;
 
-namespace DemoParser.Parser.HelperClasses {
+namespace DemoParser.Parser {
 
 
 	// credit to iVerb for the portal2 commands https://github.com/iVerb1/SourceLiveTimer/tree/master/Demo/GameHandler

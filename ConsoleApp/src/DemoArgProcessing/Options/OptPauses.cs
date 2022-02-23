@@ -46,9 +46,9 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public static IEnumerable<int> GetPauseTicks(SourceDemo demo) {
 			return
 				from packet in demo.FilterForPacket<Packet>()
-				from messageTup in packet.MessageStream
-				where messageTup.message?.GetType() == typeof(SvcSetPause)
-				where ((SvcSetPause)messageTup.message).IsPaused
+				from message in packet.MessageStream
+				where message?.GetType() == typeof(SvcSetPause)
+				where ((SvcSetPause)message).IsPaused
 				select packet.Tick;
 		}
 

@@ -1,12 +1,9 @@
 #nullable enable
-using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
-using DemoParser.Parser.HelperClasses.EntityStuff;
-using DemoParser.Parser.HelperClasses.GameState;
+using DemoParser.Parser.EntityStuff;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -28,59 +25,53 @@ namespace DemoParser.Parser.Components.Packets {
 
 		public List<SendTable> Tables;
 		public List<ServerClass>? ServerClasses;
+		public bool ParseSuccessful;
 
 
 		public DataTables(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			int byteSize = (int)bsr.ReadUInt();
-			int indexBeforeData = bsr.CurrentBitIndex;
-			try {
-				Tables = new List<SendTable>();
-				while (bsr.ReadBool()) {
-					var table = new SendTable(DemoRef);
-					Tables.Add(table);
-					table.ParseStream(ref bsr);
-				}
+			BitStreamReader dBsr = bsr.SplitAndSkip(bsr.ReadSInt() * 8);
 
-				ushort classCount = bsr.ReadUShort();
-				ServerClasses = new List<ServerClass>(classCount);
-				for (int i = 0; i < classCount; i++) {
-					var @class = new ServerClass(DemoRef, null);
-					ServerClasses.Add(@class);
-					@class.ParseStream(ref bsr);
-					// I assume in many places that the ID of the table matches its index
-					if (i != ServerClasses[i].DataTableId)
-						throw new ConstraintException("server class ID does not match its index in the list");
-				}
-
-				// in case SvcServerInfo parsing fails
-				DemoRef.EntBaseLines ??= new EntityBaseLines(DemoRef, ServerClasses.Count);
-
-				// re-init the baselines if the count doesn't match (maybe I should just init them from here?)
-				if (DemoRef.EntBaseLines!.Baselines.Length != classCount)
-					DemoRef.EntBaseLines.ClearBaseLineState(classCount);
-
-				// create the prop list for each class
-				DemoRef.DataTableParser = new DataTableParser(DemoRef, this);
-				DemoRef.DataTableParser.FlattenClasses(true);
-			} catch (Exception e) {
-				DemoRef.LogError($"exception while parsing datatables\n\texception: {e.Message}");
-				Debug.WriteLine(e);
+			Tables = new List<SendTable>();
+			while (dBsr.ReadBool()) {
+				var table = new SendTable(DemoRef);
+				Tables.Add(table);
+				table.ParseStream(ref dBsr);
+				if (dBsr.HasOverflowed)
+					return;
 			}
 
-			bsr.CurrentBitIndex = indexBeforeData + (byteSize << 3);
-		}
+			ushort classCount = dBsr.ReadUShort();
+			ServerClasses = new List<ServerClass>(classCount);
+			for (int i = 0; i < classCount; i++) {
+				var serverClass = new ServerClass(DemoRef, null);
+				ServerClasses.Add(serverClass);
+				serverClass.ParseStream(ref dBsr);
+				if (dBsr.HasOverflowed)
+					return;
+			}
+			ParseSuccessful = true;
 
+			// in case SvcServerInfo parsing fails
+			GameState.EntBaseLines ??= new EntityBaseLines(DemoRef!, ServerClasses.Count);
 
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			// re-init the baselines if the count doesn't match (maybe I should just init them from here?)
+			if (GameState.EntBaseLines.Baselines.Length != classCount)
+				GameState.EntBaseLines.ClearBaseLineState(classCount);
+
+			// create the prop list for each class
+			GameState.DataTableParser = new DataTableParser(DemoRef!, this);
+			GameState.DataTableParser.FlattenClasses(true);
 		}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
-			Debug.Assert(Tables.Count > 0, "there's no tables hmmmmmmmmmmmm");
+			if (!ParseSuccessful) {
+				pw.Append("failed to parse");
+				return;
+			}
 			pw.Append($"{Tables.Count} send table{(Tables.Count > 1 ? "s" : "")}:");
 			pw.FutureIndent++;
 			foreach (SendTable sendTable in Tables) {
@@ -119,17 +110,16 @@ namespace DemoParser.Parser.Components.Packets {
 			NeedsDecoder = bsr.ReadBool();
 			Name = bsr.ReadNullTerminatedString();
 			ExpectedPropCount = (int)bsr.ReadUInt(DemoInfo.Game == SourceGame.HL2_OE ? 9 : 10);
+			if (ExpectedPropCount < 0 || bsr.HasOverflowed)
+				return;
 			SendProps = new List<SendTableProp>(ExpectedPropCount);
 			for (int i = 0; i < ExpectedPropCount; i++) {
 				var sendProp = new SendTableProp(DemoRef, this);
 				SendProps.Add(sendProp);
 				sendProp.ParseStream(ref bsr);
+				if (bsr.HasOverflowed)
+					return;
 			}
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

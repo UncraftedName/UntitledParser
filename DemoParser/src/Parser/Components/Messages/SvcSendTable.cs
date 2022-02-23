@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -12,7 +11,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public BitStreamReader Props => _props.FromBeginning();
 
 
-		public SvcSendTable(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcSendTable(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		// I don't think I've seen this in demos yet, I'll just log it for now and deal with it later
@@ -20,12 +19,7 @@ namespace DemoParser.Parser.Components.Messages {
 			NeedsDecoder = bsr.ReadBool();
 			ushort len = bsr.ReadUShort();
 			_props = bsr.Split(len);
-			DemoRef.LogError($"unprocessed {GetType().Name} message"); // todo se2007/engine/dt_send_eng.cpp line 800
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			DemoRef.LogError($"{GetType().Name}: unimplemented"); // todo se2007/engine/dt_send_eng.cpp line 800
 		}
 
 

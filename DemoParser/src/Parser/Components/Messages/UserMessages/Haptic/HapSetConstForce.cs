@@ -9,18 +9,13 @@ namespace DemoParser.Parser.Components.Messages.UserMessages.Haptic {
 		public short S1, S2, S3;
 
 
-		public HapSetConstForce(SourceDemo? demoRef) : base(demoRef) {}
+		public HapSetConstForce(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			S1 = bsr.ReadSShort();
 			S2 = bsr.ReadSShort();
 			S3 = bsr.ReadSShort();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new System.NotImplementedException();
 		}
 
 

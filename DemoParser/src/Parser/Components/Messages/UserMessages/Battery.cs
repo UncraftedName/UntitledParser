@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -10,16 +9,11 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		// range: 0 - 100
 		public ushort BatteryVal;
 
-		public Battery(SourceDemo? demoRef) : base(demoRef) {}
+		public Battery(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			BatteryVal = bsr.ReadUShort();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

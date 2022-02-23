@@ -5,12 +5,12 @@ using System.Linq;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
-using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.EntityStuff;
 using DemoParser.Utils;
-using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
-using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums.PropFlag;
+using static DemoParser.Parser.EntityStuff.SendPropEnums;
+using static DemoParser.Parser.EntityStuff.SendPropEnums.PropFlag;
 
-namespace DemoParser.Parser.HelperClasses.GameState {
+namespace DemoParser.Parser.GameState {
 
 	// https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/DataTableParser.cs#L69
 
@@ -19,7 +19,7 @@ namespace DemoParser.Parser.HelperClasses.GameState {
 
 		private readonly SourceDemo _demoRef;
 		private readonly DataTables _dtRef;
-		public int ServerClassBits => BitUtils.HighestBitIndex((uint)_dtRef.ServerClasses.Count) + 1; // this might be off for powers of 2
+		public int ServerClassBits => ParserUtils.HighestBitIndex((uint)_dtRef.ServerClasses.Count) + 1; // this might be off for powers of 2
 		public PropLookup? FlattenedProps {get;private set;} // not initialized during the server class info
 
 
@@ -47,11 +47,11 @@ namespace DemoParser.Parser.HelperClasses.GameState {
 			// array and reparsed every time they're updated during demo playback. I just parse them once and store
 			// them in a more accessible format.
 
-			if (allowModifyDemo && _demoRef.StringTablesManager.TableReadable.GetValueOrDefault(TableNames.InstanceBaseLine)) {
-				_demoRef.StringTablesManager.Tables[TableNames.InstanceBaseLine]
+			if (allowModifyDemo && _demoRef.State.StringTablesManager.IsTableStateValid(TableNames.InstanceBaseLine)) {
+				_demoRef.State.StringTablesManager.Tables[TableNames.InstanceBaseLine]
 					.Entries
 					.Select(entry => entry.EntryData)
-					.Cast<InstanceBaseline>()
+					.OfType<InstanceBaseline>()
 					.ToList()
 					.ForEach(baseline => baseline.ParseStream(baseline.Reader));
 			}
@@ -137,8 +137,7 @@ namespace DemoParser.Parser.HelperClasses.GameState {
 							break;
 					}
 				}
-			}
-			else { // se2007/engine/dt.cpp line 443
+			} else { // se2007/engine/dt.cpp line 443
 				int start = 0;
 				while (true) {
 					int i;

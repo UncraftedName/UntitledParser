@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -12,16 +11,11 @@ namespace DemoParser.Parser.Components.Messages {
 		public BitStreamReader Data => _data.FromBeginning();
 
 
-		public SvcPaintMapData(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcPaintMapData(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			_data = bsr.Split(bsr.ReadUInt());
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			_data = bsr.Split((int)bsr.ReadUInt());
 		}
 
 

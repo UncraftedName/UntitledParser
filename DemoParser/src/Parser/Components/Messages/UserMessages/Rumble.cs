@@ -12,18 +12,13 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public RumbleFlags RumbleFlags;
 
 
-		public Rumble(SourceDemo? demoRef) : base(demoRef) {}
+		public Rumble(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			RumbleType = (RumbleLookup)bsr.ReadSByte();
 			Scale = bsr.ReadByte() / 100f;
 			RumbleFlags = (RumbleFlags)bsr.ReadByte();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

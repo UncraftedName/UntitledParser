@@ -1,4 +1,3 @@
-using System;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
@@ -17,7 +16,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public Vector3 Angles;
 
 
-		public PortalFxSurface(SourceDemo? demoRef) : base(demoRef) {}
+		public PortalFxSurface(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -28,11 +27,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			Effect = (PortalFizzleType)bsr.ReadByte();
 			bsr.ReadVectorCoord(out Origin);
 			bsr.ReadVectorCoord(out Angles);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

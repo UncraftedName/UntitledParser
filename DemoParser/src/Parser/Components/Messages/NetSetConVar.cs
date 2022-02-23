@@ -11,7 +11,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public List<(string, string)> ConVars;
 
 
-		public NetSetConVar(SourceDemo? demoRef) : base(demoRef) {}
+		public NetSetConVar(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -20,11 +20,6 @@ namespace DemoParser.Parser.Components.Messages {
 			ConVars = new List<(string, string)>(count);
 			for (int i = 0; i < count; i++)
 				ConVars.Add((bsr.ReadNullTerminatedString(), bsr.ReadNullTerminatedString()));
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

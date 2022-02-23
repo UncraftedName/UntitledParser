@@ -1,26 +1,34 @@
-using System.Diagnostics;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Abstract {
 
 	/// <summary>
-	/// Represents a well-defined 'chunk' of data in the demo.
+	/// Represents a well-defined 'chunk' of data in a demo. Optionally, this may come from a compressed stream, in
+	/// which case the stream must be decompressed and stored in lookup table which can be accessed after parsing via
+	/// the reader.
 	/// </summary>
 	public abstract class DemoComponent : PrettyClass {
 
-		protected int AbsoluteBitStart;
-		protected int AbsoluteBitEnd;
+		private int _absoluteBitStart;
+		private int _absoluteBitEnd;
 		public virtual BitStreamReader Reader =>
-			DemoRef!.ReaderFromOffset(AbsoluteBitStart, AbsoluteBitEnd - AbsoluteBitStart);
+			_decompressedIndex.HasValue
+				? new BitStreamReader(GameState.DecompressedLookup[_decompressedIndex.Value], _absoluteBitEnd - _absoluteBitStart, _absoluteBitStart)
+				: new BitStreamReader(DemoRef!.Reader.Data, _absoluteBitEnd - _absoluteBitStart, _absoluteBitStart);
+
+		// if set, this is the index to the decompressed data in the lookup table for accessing the reader later
+		private readonly int? _decompressedIndex;
 
 		internal readonly SourceDemo? DemoRef;
 		protected DemoInfo DemoInfo => DemoRef.DemoInfo;
+		protected GameState.GameState GameState => DemoRef.State;
 		public virtual bool MayContainData => true; // used in ToString() calls
 
 
-		protected DemoComponent(SourceDemo? demoRef) {
+		protected DemoComponent(SourceDemo? demoRef, int? decompressedIndex = null) {
 			DemoRef = demoRef;
+			_decompressedIndex = decompressedIndex;
 		}
 
 
@@ -28,24 +36,19 @@ namespace DemoParser.Parser.Components.Abstract {
 
 
 		public void ParseStream(ref BitStreamReader bsr) {
-			AbsoluteBitStart = bsr.AbsoluteBitIndex;
-			AbsoluteBitEnd = bsr.AbsoluteBitIndex + bsr.BitLength;
+			_absoluteBitStart = bsr.AbsoluteBitIndex;
+			_absoluteBitEnd = bsr.AbsoluteBitIndex + bsr.BitLength;
 			Parse(ref bsr);
-			AbsoluteBitEnd = bsr.AbsoluteBitIndex;
+			_absoluteBitEnd = bsr.AbsoluteBitIndex;
 		}
 
 
 		public int ParseStream(BitStreamReader bsr) {
-			AbsoluteBitStart = bsr.AbsoluteBitIndex;
-			AbsoluteBitEnd = bsr.AbsoluteBitIndex + bsr.BitLength;
+			_absoluteBitStart = bsr.AbsoluteBitIndex;
+			_absoluteBitEnd = bsr.AbsoluteBitIndex + bsr.BitLength;
 			Parse(ref bsr);
-			if (bsr.BitsRemaining > 0)
-				Debug.WriteLine($"{GetType().Name} didn't finish reading all bits! {bsr.BitsRemaining} left.");
-			return bsr.BitsRemaining;
+			return bsr.HasOverflowed ? -1 : bsr.BitsRemaining;
 		}
-
-
-		internal abstract void WriteToStreamWriter(BitStreamWriter bsw);
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {

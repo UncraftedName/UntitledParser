@@ -1,7 +1,6 @@
-using System;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses.GameState;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -16,7 +15,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool LowPriority;
 
 
-		public SvcBspDecal(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcBspDecal(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -30,17 +29,11 @@ namespace DemoParser.Parser.Components.Messages {
 		}
 
 
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
-		}
-
-
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.AppendLine($"position: {Pos:F4}");
 
-			var mgr = DemoRef.StringTablesManager;
-			pw.Append(mgr.TableReadable.GetValueOrDefault(TableNames.DecalPreCache)
-				? $"decal texture: {mgr.Tables[TableNames.DecalPreCache].Entries[DecalTextureIndex]}"
+			pw.Append(GameState.StringTablesManager.IsTableStateValid(TableNames.DecalPreCache)
+				? $"decal texture: {GameState.StringTablesManager.Tables[TableNames.DecalPreCache].Entries[DecalTextureIndex]}"
 				: "decal texture index:");
 			pw.AppendLine($" [{DecalTextureIndex}]");
 			if (EntityIndex.HasValue) {

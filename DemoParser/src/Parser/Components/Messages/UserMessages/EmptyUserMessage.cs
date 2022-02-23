@@ -7,10 +7,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 		public override bool MayContainData => false;
 
-		public EmptyUserMessage(SourceDemo? demoRef) : base(demoRef) {}
+		public EmptyUserMessage(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 		protected override void Parse(ref BitStreamReader bsr) {}
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {}
 	}
 }

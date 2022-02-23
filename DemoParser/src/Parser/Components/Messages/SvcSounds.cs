@@ -2,7 +2,7 @@
 using System;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses.GameState;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 using static DemoParser.Parser.Components.Messages.SvcSounds;
@@ -21,7 +21,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public SoundInfo[]? Sounds;
 
 
-		public SvcSounds(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcSounds(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -35,35 +35,31 @@ namespace DemoParser.Parser.Components.Messages {
 			SoundInfo delta = new SoundInfo(DemoRef);
 			delta.SetDefault();
 
-			Exception? e = null;
-			try {
-				Sounds = new SoundInfo[soundCount];
-				for (int i = 0; i < soundCount; i++) {
-					sound.ParseDelta(ref soundBsr, delta);
-					delta = sound;
-					if (Reliable) { // client is incrementing the reliable sequence numbers itself
-						DemoRef.ClientSoundSequence = ++DemoRef.ClientSoundSequence & SndSeqNumMask;
-						if (sound.SequenceNumber != 0)
-							throw new ArgumentException($"expected sequence number 0, got: {sound.SequenceNumber}");
-						sound.SequenceNumber = DemoRef.ClientSoundSequence;
+			Sounds = new SoundInfo[soundCount];
+			for (int i = 0; i < soundCount; i++) {
+				sound.ParseDelta(ref soundBsr, delta);
+				delta = sound;
+				if (Reliable) { // client is incrementing the reliable sequence numbers itself
+					GameState.ClientSoundSequence = ++GameState.ClientSoundSequence & SndSeqNumMask;
+					if (sound.SequenceNumber != 0) {
+						Sounds = null;
+						DemoRef.LogError($"{GetType().Name}: expected sequence number 0, got {sound.SequenceNumber}");
+						return;
 					}
-					Sounds[i] = new SoundInfo(sound);
+					sound.SequenceNumber = GameState.ClientSoundSequence;
 				}
-			} catch (Exception exp) {
-				e = exp;
-			}
-			if (e != null) {
-				Sounds = null;
-				DemoRef.LogError($"exception while parsing {nameof(SoundInfo)}: {e.Message}");
-			} else if (soundBsr.BitsRemaining != 0) {
-				Sounds = null;
-				DemoRef.LogError($"exception while parsing {nameof(SoundInfo)}: {soundBsr.BitsRemaining} bits left to read");
-			}
-		}
+				Sounds[i] = new SoundInfo(sound);
 
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+				if (soundBsr.HasOverflowed) {
+					Sounds = null;
+					DemoRef.LogError($"{GetType().Name}: reader overflowed at sound index {i}");
+					return;
+				}
+			}
+			if (soundBsr.BitsRemaining > 0) {
+				Sounds = null;
+				DemoRef.LogError($"{GetType().Name}: did not read all bits");
+			}
 		}
 
 
@@ -197,14 +193,14 @@ namespace DemoParser.Parser.Components.Messages {
 			#region get sound name
 
 			if (SoundNum.HasValue) {
-				var mgr = DemoRef.StringTablesManager;
+				var mgr = GameState.StringTablesManager;
 
-				if (mgr.TableReadable.GetValueOrDefault(TableNames.SoundPreCache)) {
+				if (mgr.IsTableStateValid(TableNames.SoundPreCache)) {
 					_soundTableReadable = true;
 					if (SoundNum >= mgr.Tables[TableNames.SoundPreCache].Entries.Count)
-						DemoRef.LogError($"{GetType().Name} - sound index out of range: {SoundNum}");
+						DemoRef.LogError($"{GetType().Name}: sound index {SoundNum} out of range");
 					else if (SoundNum != 0)
-						SoundName = mgr.Tables[TableNames.SoundPreCache].Entries[SoundNum.Value].EntryName;
+						SoundName = mgr.Tables[TableNames.SoundPreCache].Entries[SoundNum.Value].Name;
 				}
 			}
 
@@ -252,11 +248,6 @@ namespace DemoParser.Parser.Components.Messages {
 			} else {
 				ClearStopFields();
 			}
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

@@ -12,18 +12,13 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public CloseCaptionFlags Flags;
 
 
-		public CloseCaption(SourceDemo? demoRef) : base(demoRef) {}
+		public CloseCaption(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			TokenName = bsr.ReadNullTerminatedString();
 			Duration = bsr.ReadSShort() * 0.1f;
 			Flags = (CloseCaptionFlags)bsr.ReadByte();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -10,22 +9,10 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		internal override bool ContentsKnown => false;
 
 
-		public UnknownStringTableEntryData(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef, decompressedIndex) {}
+		public UnknownStringTableEntryData(SourceDemo? demoRef, int? decompressedIndex = null) : base(demoRef, decompressedIndex) {}
 
 
-		internal override StringTableEntryData CreateCopy() {
-			return new UnknownStringTableEntryData(DemoRef, DecompressedIndex);
-		}
-
-
-		protected override void Parse(ref BitStreamReader bsr) {
-			bsr.SkipToEnd();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
-		}
+		protected override void Parse(ref BitStreamReader bsr) {}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {

@@ -1,4 +1,3 @@
-using System;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
@@ -11,7 +10,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool Relative;
 		public Vector3 Angle;
 
-		public SvcFixAngle(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcFixAngle(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -21,11 +20,6 @@ namespace DemoParser.Parser.Components.Messages {
 				Y = bsr.ReadBitAngle(16),
 				Z = bsr.ReadBitAngle(16),
 			};
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

@@ -1,5 +1,5 @@
 using System;
-using System.Diagnostics;
+using DemoParser.Parser;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Utils {
@@ -10,28 +10,32 @@ namespace DemoParser.Utils {
 		public const uint SNAPPY_ID = 'S' | ('N' << 8) | ('A' << 16) | ('P' << 24);
 
 
-		public static unsafe byte[] Decompress(ref BitStreamReader bsr, int compSize) {
+		public static unsafe bool Decompress(SourceDemo dRef, ref BitStreamReader bsr, int compSize, out byte[] decompArr) {
+			decompArr = Array.Empty<byte>();
 			uint type = bsr.ReadUInt();
 			int decompSize = bsr.ReadSInt();
+			if (compSize < 0 || decompSize < 0 || compSize < bsr.BitsRemaining / 8 || bsr.HasOverflowed)
+				return false;
 			switch (type) {
 				case LZSS_ID:
 					Span<byte> dataIn = compSize < 100000 ? stackalloc byte[compSize] : new byte[compSize];
 					bsr.ReadToSpan(dataIn);
-					byte[] arrOut = new byte[decompSize];
+					decompArr = new byte[decompSize];
 					fixed (byte* pDataIn = dataIn)
-					fixed (byte* pDataOut = arrOut)
-						DecompressLZSS(pDataIn, pDataOut);
-					return arrOut;
+					fixed (byte* pDataOut = decompArr)
+						DecompressLzss(pDataIn, pDataOut);
+					return true;
 				case SNAPPY_ID:
-					Debug.Assert(false);
-					throw new NotImplementedException("snappy decompression not implemented");
+					dRef.LogError("snappy decompression not implemented");
+					return false;
 				default:
-					throw new InvalidOperationException("unknown compression method");
+					dRef.LogError("unknown compression method");
+					return false;
 			}
 		}
 
 
-		private static unsafe void DecompressLZSS(byte* pDataIn, byte* pDataOut) {
+		private static unsafe void DecompressLzss(byte* pDataIn, byte* pDataOut) {
 			int cmdByte = 0;
 			int getCmdByte = 0;
 			for (;;) {

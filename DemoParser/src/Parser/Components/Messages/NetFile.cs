@@ -12,18 +12,13 @@ namespace DemoParser.Parser.Components.Messages {
 		public NetFileFlags FileFlags;
 
 
-		public NetFile(SourceDemo? demoRef) : base(demoRef) {}
+		public NetFile(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			TransferId = bsr.ReadUInt();
 			FileName = bsr.ReadNullTerminatedString();
 			FileFlags = (NetFileFlags)bsr.ReadUInt(DemoInfo.NumNetFileFlagBits);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

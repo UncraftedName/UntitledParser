@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Utils;
 
-namespace DemoParser.Parser.HelperClasses.EntityStuff {
+namespace DemoParser.Parser.EntityStuff {
 
 	// base class
 	public abstract class EntityUpdate : PrettyClass {

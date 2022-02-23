@@ -1,5 +1,4 @@
 #nullable enable
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets.CustomDataTypes;
 using DemoParser.Utils;
@@ -8,7 +7,7 @@ using DemoParser.Utils.BitStreams;
 namespace DemoParser.Parser.Components.Packets {
 
 	/// <summary>
-	/// Contains a single custom game message.
+	/// Contains a single custom game message, only exists in Portal 2?
 	/// </summary>
 	public class CustomData : DemoPacket {
 
@@ -21,19 +20,11 @@ namespace DemoParser.Parser.Components.Packets {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			DataType = (CustomDataType)bsr.ReadSInt();
-			uint size = bsr.ReadUInt();
 			DataMessage = CustomDataFactory.CreateCustomDataMessage(DemoRef, DataType);
-			try {
-				DataMessage.ParseStream(bsr.SplitAndSkip(size * 8));
-			} catch (Exception e) {
-				DemoRef.LogError($"error while parsing custom data of type: {DataType}... {e.Message}");
-				DataMessage = new UnknownCustomDataMessage(DemoRef);
-			}
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			if (DataMessage.GetType() == typeof(UnknownCustomDataMessage))
+				DemoRef.LogError($"{GetType().Name}: unknown custom data type {DataType}");
+			var cBsr = bsr.SplitAndSkip(bsr.ReadSInt() * 8);
+			DataMessage.ParseStream(ref cBsr);
 		}
 
 

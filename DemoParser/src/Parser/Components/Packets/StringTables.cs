@@ -1,7 +1,5 @@
 #nullable enable
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
@@ -41,12 +39,7 @@ namespace DemoParser.Parser.Components.Packets {
 			bsr.CurrentBitIndex = indexBeforeTables + byteLen * 8;
 
 			// if this packet exists make sure to create the tables manager after we parse this
-			DemoRef.StringTablesManager.CreateTablesFromPacket(this);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			GameState.StringTablesManager.InitFromPacket(this);
 		}
 
 
@@ -77,7 +70,7 @@ namespace DemoParser.Parser.Components.Packets {
 			if (entryCount > 0) {
 				TableEntries = new List<StringTableEntry>(entryCount);
 				for (int i = 0; i < entryCount; i++) {
-					var entry = new StringTableEntry(DemoRef, this);
+					var entry = new StringTableEntry(DemoRef, Name, entryCount);
 					TableEntries.Add(entry);
 					entry.ParseStream(ref bsr);
 				}
@@ -91,11 +84,6 @@ namespace DemoParser.Parser.Components.Packets {
 					@class.ParseStream(ref bsr);
 				}
 			}
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 
@@ -136,39 +124,52 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 
+	// Haha yes. Demos may have StringTables packet(s) AND SvcCreateStringTable messages. This is used in both.
 	public class StringTableEntry : DemoComponent {
 
 		public string Name;
 		public StringTableEntryData? EntryData;
 
-		internal readonly StringTable TableRef; // so that i know the name of which table i'm in
-		internal int PadLength; // used to convert to string
+		private readonly string _tableName; // entry data encoding is determined by the table we're in
+
+		// for pretty printing
+		internal int PadLength;
+		private readonly int _newEntryCount; // this is used for SvcCreateStringTable & SvcUpdateStringTable
 
 
-		public StringTableEntry(SourceDemo? demoRef, StringTable tableRef) : base(demoRef) {
-			TableRef = tableRef;
+		public StringTableEntry(SourceDemo? demoRef, string tableName, int newEntryCount, string? name = null) : base(demoRef) {
+			Name = name!;
+			_tableName = tableName;
+			_newEntryCount = newEntryCount;
 		}
 
 
+		// This should only be called from the StringTables packet, in that case the name of this entry and the entry
+		// data is uncompressed and stored inline.
 		protected override void Parse(ref BitStreamReader bsr) {
 			Name = bsr.ReadNullTerminatedString();
 			if (bsr.ReadBool()) {
 				ushort byteLen = bsr.ReadUShort();
-				Debug.Assert(DemoRef.DataTableParser.FlattenedProps != null);
-				EntryData = StringTableEntryDataFactory.CreateEntryData(DemoRef, null, TableRef.Name, Name);
-				EntryData.ParseStream(bsr.SplitAndSkip(byteLen * 8));
+				if (bsr.HasOverflowed) {
+					DemoRef.LogError($"{GetType()}: reader overflowed");
+					return;
+				}
+				ParseEntryData(bsr.SplitAndSkip(byteLen * 8), null);
 			}
 		}
 
 
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+		// This may be called from SvcUpdate/Create StringTable - all of the entries may be compressed and the entry
+		// names are always compressed.
+		internal void ParseEntryData(BitStreamReader bsr, int? decompressedIndex) {
+			EntryData = StringTableEntryDataFactory.CreateEntryData(DemoRef, decompressedIndex, _tableName, Name);
+			EntryData.ParseStream(bsr);
 		}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
 			if (EntryData != null) {
-				if ((EntryData.ContentsKnown && !EntryData.InlineToString) || (EntryData.InlineToString && TableRef.TableEntries.Count == 1)) {
+				if ((EntryData.ContentsKnown && !EntryData.InlineToString) || (EntryData.InlineToString && _newEntryCount == 1)) {
 					pw.Append(Name);
 					if (EntryData.InlineToString) {
 						pw.Append(": ");
@@ -206,11 +207,6 @@ namespace DemoParser.Parser.Components.Packets {
 				ushort dataLen = bsr.ReadUShort();
 				Data = bsr.ReadStringOfLength(dataLen);
 			}
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -11,17 +10,12 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public byte Level;
 
 
-		public MpMapCompleted(SourceDemo? demoRef) : base(demoRef) {}
+		public MpMapCompleted(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Branch = bsr.ReadByte();
 			Level = bsr.ReadByte();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 
@@ -33,6 +27,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 
 	public class MpMapIncomplete : MpMapCompleted {
-		public MpMapIncomplete(SourceDemo? demoRef) : base(demoRef) {}
+		public MpMapIncomplete(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 	}
 }

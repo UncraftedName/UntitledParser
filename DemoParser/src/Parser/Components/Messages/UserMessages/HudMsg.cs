@@ -1,5 +1,4 @@
 #nullable enable
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -14,7 +13,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public HudMsgInfo? MsgInfo;
 
 
-		public HudMsg(SourceDemo? demoRef) : base(demoRef) {}
+		public HudMsg(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -26,12 +25,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				MsgInfo = new HudMsgInfo(DemoRef);
 				MsgInfo.ParseStream(ref bsr);
 			}
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			bsw.WriteByte((byte)Channel);
-			MsgInfo?.WriteToStreamWriter(bsw);
 		}
 
 
@@ -74,11 +67,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				HoldTime = bsr.ReadFloat();
 				FxTime = bsr.ReadFloat();
 				Message = bsr.ReadNullTerminatedString();
-			}
-
-
-			internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-				throw new NotImplementedException();
 			}
 
 

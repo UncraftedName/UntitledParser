@@ -1,10 +1,8 @@
 #nullable enable
 using System;
-using System.Data;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.HelperClasses.GameState;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -17,35 +15,22 @@ namespace DemoParser.Parser.Components.Messages {
 		public ushort ClassCount;
 
 
-		public SvcClassInfo(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcClassInfo(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			ClassCount = bsr.ReadUShort();
 			CreateOnClient = bsr.ReadBool();
 			if (!CreateOnClient) {
-
-				// if this ever gets used then it should update the mutable tables
-				string s = $"I haven't implemented {GetType().Name} to update the C_string tables.";
-				DemoRef.LogError(s);
-				Debug.WriteLine(s);
-
+				// TODO if this should update the mutable tables
 				ServerClasses = new ServerClass[ClassCount];
 				for (int i = 0; i < ServerClasses.Length; i++) {
 					ServerClasses[i] = new ServerClass(DemoRef, this);
 					ServerClasses[i].ParseStream(ref bsr);
-					// this is an assumption I make in the structure of all the entity stuff, very critical
-					if (i != ServerClasses[i].DataTableId)
-						throw new ConstraintException("server class ID does not match it's index in the list");
 				}
 			}
 
-			DemoRef.EntBaseLines ??= new EntityBaseLines(DemoRef, ClassCount);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			GameState.EntBaseLines ??= new EntityBaseLines(DemoRef!, ClassCount);
 		}
 
 
@@ -80,14 +65,9 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			DataTableId = _classInfoRef == null
 				? bsr.ReadUShort()
-				: (int)bsr.ReadUInt(DemoRef.DataTableParser.ServerClassBits);
+				: (int)bsr.ReadUInt(GameState.DataTableParser.ServerClassBits);
 			ClassName = bsr.ReadNullTerminatedString();
 			DataTableName = bsr.ReadNullTerminatedString();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

@@ -11,21 +11,11 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public PrecacheFlags Flags;
 
 
-		public PrecacheData(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef, decompressedIndex) {}
-
-
-		internal override StringTableEntryData CreateCopy() {
-			return new PrecacheData(DemoRef, DecompressedIndex) {Flags = Flags};
-		}
+		public PrecacheData(SourceDemo? demoRef, int? decompressedIndex = null) : base(demoRef, decompressedIndex) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Flags = (PrecacheFlags)bsr.ReadUInt(2);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

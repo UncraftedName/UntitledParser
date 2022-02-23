@@ -1,7 +1,6 @@
-using System.Linq;
 using DemoParser.Parser.Components.Messages;
 
-namespace DemoParser.Parser.HelperClasses.EntityStuff {
+namespace DemoParser.Parser.EntityStuff {
 
     public class Entity {
 
@@ -27,9 +26,5 @@ namespace DemoParser.Parser.HelperClasses.EntityStuff {
 		public override string ToString() {
 			return $"class: {ServerClass.ClassName} ({ServerClass.DataTableName}) [{ServerClass.DataTableId}], serial: {Serial}";
 		}
-
-
-		public Entity DeepCopy() =>
-			new Entity(ServerClass, Props.Select(property => property?.CopyProperty()).ToArray(), Serial, InPvs);
 	}
 }

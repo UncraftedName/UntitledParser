@@ -5,9 +5,9 @@ using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using DemoParser.Utils;
-using static DemoParser.Parser.HelperClasses.EntityStuff.SendPropEnums;
+using static DemoParser.Parser.EntityStuff.SendPropEnums;
 
-namespace DemoParser.Parser.HelperClasses.EntityStuff {
+namespace DemoParser.Parser.EntityStuff {
 
 	internal static class EntPropToStringHelper {
 

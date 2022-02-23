@@ -1,17 +1,12 @@
 #nullable enable
-// making the compiler happy
-#pragma warning disable 8604, 8625
-
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
-using DemoParser.Parser.HelperClasses.EntityStuff;
-using DemoParser.Parser.HelperClasses.GameState;
+using DemoParser.Parser.EntityStuff;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
+using static DemoParser.Parser.DemoParseResult;
 
 namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
@@ -24,56 +19,44 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public IReadOnlyList<(int propIndex, EntityProperty prop)>? Properties;
 
 
-		public InstanceBaseline(SourceDemo? demoRef, int? decompressedIndex, string entryName)
+		public InstanceBaseline(SourceDemo? demoRef, string entryName, int? decompressedIndex = null)
 			: base(demoRef, decompressedIndex)
 		{
 			_entryName = entryName;
 		}
 
 
-		internal override StringTableEntryData CreateCopy() {
-			return new InstanceBaseline(DemoRef, DecompressedIndex, _entryName) {ServerClassRef = ServerClassRef, Properties = Properties};
-		}
-
-
 		protected override void Parse(ref BitStreamReader bsr) {
-			_propLookup ??= DemoRef.DataTableParser?.FlattenedProps;
-			if (_propLookup == null) {
-				// we don't have data tables yet, come back later...
-				bsr.SkipToEnd();
+			if ((_propLookup ??= DemoRef.State.DataTableParser?.FlattenedProps) == null)
+				return; // we don't have data tables yet, come back later...
+
+			// we should only get to here once
+			if (!int.TryParse(_entryName, out int i) || i < 0 || i >= _propLookup.Count) {
+				DemoRef.LogError($"{GetType().Name}: could not convert string table entry name \"{_entryName}\" to a valid server class index");
+				DemoRef.DemoParseResult |= EntParsingFailed;
 				return;
 			}
-			// we should only get to here once
-			int id = int.Parse(_entryName);
-			ServerClassRef = _propLookup[id].serverClass;
 
-			// I assume in critical parts of the ent code that the server class ID matches the index it's on,
-			// this is where I actually verify this.
-			Debug.Assert(ReferenceEquals(ServerClassRef, _propLookup.Single(tuple => tuple.serverClass.DataTableId == id).serverClass),
-				"the server classes must be searched to match ID; cannot use ID as index");
+			List<FlattenedProp> fProps;
+			(ServerClassRef, fProps) = _propLookup[i];
 
-			List<FlattenedProp> fProps = _propLookup[id].flattenedProps;
+			// I can still usually parse the baselines even if entity parsing is disabled
+			Properties = bsr.ReadEntProps(fProps, DemoRef);
 
-			try {
-				Properties = bsr.ReadEntProps(fProps, DemoRef);
-				// once we're done, update the Cur baselines so I can actually use this for prop creation
-				if ((DemoRef.DemoParseResult & DemoParseResult.EntParsingEnabled) != 0)
-					DemoRef.EntBaseLines?.UpdateBaseLine(ServerClassRef, Properties!, fProps.Count);
-			} catch (Exception e) {
-				DemoRef.LogError($"error while parsing baseline for class {ServerClassRef.ClassName}: {e.Message}");
+			if (bsr.HasOverflowed) {
+				DemoRef.LogError($"{GetType().Name}: failed to parse entity baselines for class ({ServerClassRef.ToString()})");
+				DemoRef.DemoParseResult |= EntParsingFailed;
+				Properties = null;
 			}
-			if (bsr.BitsRemaining < 8) // suppress warnings
-				bsr.SkipToEnd();
-		}
 
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			// once we're done, update the baselines so I can actually use this for prop creation
+			if ((DemoRef.DemoParseResult & (EntParsingEnabled | EntParsingFailed)) == EntParsingEnabled)
+				DemoRef.State.EntBaseLines?.UpdateBaseLine(ServerClassRef, Properties!, fProps.Count);
 		}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
-			if (ServerClassRef != null) {
+			if (ServerClassRef! != null!) {
 				pw.AppendLine($"class: {ServerClassRef.ClassName} ({ServerClassRef.DataTableName})");
 				pw.Append("props:");
 				pw.FutureIndent++;

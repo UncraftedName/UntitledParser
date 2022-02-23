@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using DemoParser.Parser.Components.Abstract;
@@ -27,23 +26,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 		public byte FilesDownloaded; // this counter increases each time the server downloaded a new file
 
 
-		public PlayerInfo(SourceDemo? demoRef, int? decompressedIndex) : base(demoRef, decompressedIndex) {}
-
-
-		internal override StringTableEntryData CreateCopy() {
-			return new PlayerInfo(DemoRef, DecompressedIndex) {
-				SteamId = SteamId,
-				Name = Name,
-				UserId = UserId,
-				Guid = Guid,
-				FriendsId = FriendsId,
-				FriendsName = FriendsName,
-				FakePlayer = FakePlayer,
-				IsHlTv = IsHlTv,
-				CustomFiles = CustomFiles,
-				FilesDownloaded = FilesDownloaded
-			};
-		}
+		public PlayerInfo(SourceDemo? demoRef, int? decompressedIndex = null) : base(demoRef, decompressedIndex) {}
 
 
 		// we're reading a player_info_t, so take alignment into account
@@ -63,11 +46,6 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 			FilesDownloaded = bsr.ReadByte();
 			bsr.SkipBytes(3);
 			// for demo protocol 4 there's 4 additional bytes somewhere for some reason
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

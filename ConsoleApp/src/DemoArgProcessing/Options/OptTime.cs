@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
-using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using static System.Text.RegularExpressions.RegexOptions;
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using DemoParser.Parser;
 using DemoParser.Parser.Components.Abstract;
@@ -12,6 +11,13 @@ using DemoParser.Parser.Components.Packets;
 namespace DemoParser.Utils {
 
 	public static class ParserUtils {
+
+		public static int HighestBitIndex(uint i) {
+			int j;
+			for (j = 31; j >= 0 && (i & (1 << j)) == 0; j--);
+				return j;
+		}
+
 
 		public static IEnumerable<T> FilterForPacket<T>(this SourceDemo demo) where T : DemoPacket {
 			return demo.Frames
@@ -23,13 +29,8 @@ namespace DemoParser.Utils {
 		/// <summary>
 		/// Filters for a specific kind of message from a Packet packet.
 		/// </summary>
-		public static IEnumerable<T> FilterForMessage<T>(this Packet packet) where T : DemoMessage {
-			return packet
-				.MessageStream
-				.Select(tuple => tuple.message)
-				.Where(message => message != null)
-				.OfType<T>();
-		}
+		public static IEnumerable<T> FilterForMessage<T>(this Packet packet) where T : DemoMessage
+			=> packet.MessageStream.OfType<T>();
 
 
 		/// <summary>
@@ -46,11 +47,10 @@ namespace DemoParser.Utils {
 		/// Gets all message in the demo stored in the Packet packet or the SignOn packet,
 		/// as well as the tick on which each message occured on.
 		/// </summary>
-		public static IEnumerable<(MessageType messageType, DemoMessage message, int tick)> FilterForMessages(this SourceDemo demo) {
+		public static IEnumerable<(DemoMessage message, int tick)> FilterForMessages(this SourceDemo demo) {
 			return demo.Frames.Select(frame => frame.Packet)
 				.OfType<Packet>()
-				.SelectMany(p => p.MessageStream,
-					(p, msgs) => (msgs.messageType, msgs.message, p.Tick));
+				.SelectMany(p => p.MessageStream, (p, msgs) => (msgs, p.Tick));
 		}
 
 
@@ -144,7 +144,7 @@ namespace DemoParser.Utils {
 		}
 
 
-		public static TV GetValueOrDefault<TK, TV>(this IDictionary<TK, TV> dict, TK key, TV defVal = default) {
+		public static TV GetValueOrDefault<TK, TV>(this IDictionary<TK, TV> dict, TK key, TV defVal = default!) {
 			return dict.TryGetValue(key, out TV val) ? val : defVal;
 		}
 
@@ -154,12 +154,6 @@ namespace DemoParser.Utils {
 #pragma warning disable CS0436
 			public int GetHashCode(T obj) => RuntimeHelpers.GetHashCode(obj!);
 #pragma warning restore CS0436
-		}
-
-
-		public static unsafe T ByteSpanToStruct<T>(Span<byte> bytes) where T : struct {
-			fixed (byte* ptr = bytes)
-				return Marshal.PtrToStructure<T>((IntPtr)ptr)!;
 		}
 	}
 

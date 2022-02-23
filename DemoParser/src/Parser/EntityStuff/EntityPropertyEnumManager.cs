@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Utils;
-using static DemoParser.Parser.HelperClasses.EntityStuff.DisplayType;
-using static DemoParser.Parser.HelperClasses.EntityStuff.PropEnums;
-using static DemoParser.Parser.HelperClasses.EntityStuff.PropEnums.Collision_Group_t;
-using static DemoParser.Parser.HelperClasses.EntityStuff.PropEnums.PlayerMfFlags_t;
+using static DemoParser.Parser.EntityStuff.DisplayType;
+using static DemoParser.Parser.EntityStuff.PropEnums;
+using static DemoParser.Parser.EntityStuff.PropEnums.Collision_Group_t;
+using static DemoParser.Parser.EntityStuff.PropEnums.PlayerMfFlags_t;
 
 // yes i know everything is gonna have terrible names
 
@@ -15,7 +15,7 @@ using static DemoParser.Parser.HelperClasses.EntityStuff.PropEnums.PlayerMfFlags
 // ReSharper disable InconsistentNaming
 
 // basically another toString() helper for ent props, aimed specifically at special cases with ints and enums/flags
-namespace DemoParser.Parser.HelperClasses.EntityStuff {
+namespace DemoParser.Parser.EntityStuff {
 
 	internal static class EntityPropertyEnumManager {
 

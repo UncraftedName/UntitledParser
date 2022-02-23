@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -12,7 +11,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 		public string[] Messages;
 
 
-		public TextMsg(SourceDemo? demoRef) : base(demoRef) {}
+		public TextMsg(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
@@ -20,11 +19,6 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			Messages = new string[MessageCount];
 			for (int i = 0; i < MessageCount; i++)
 				Messages[i] = bsr.ReadNullTerminatedString();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

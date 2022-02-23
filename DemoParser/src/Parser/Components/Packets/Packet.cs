@@ -3,7 +3,6 @@ using System.Linq;
 using System.Numerics;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
-using DemoParser.Parser.HelperClasses;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -37,21 +36,13 @@ namespace DemoParser.Parser.Components.Packets {
 			// After we're doing with the packet, we can process all the messages.
 			// Most things should be processed during parsing, but any additional checks should be done here.
 
-			var netTickMessages = MessageStream.Where(tuple => tuple.messageType == MessageType.NetTick).ToList();
-			if (netTickMessages.Count > 1)
-				DemoRef.LogError("there's more than 2 net tick messages in this packet");
-			NetTick? tickInfo = (NetTick?)netTickMessages.FirstOrDefault().message;
+			NetTick? tickInfo = MessageStream.OfType<NetTick>().FirstOrDefault();
 			if (tickInfo != null) {
-				if (DemoRef.EntitySnapshot != null)
-					DemoRef.EntitySnapshot.EngineTick = tickInfo.EngineTick;
+				if (GameState.EntitySnapshot != null)
+					GameState.EntitySnapshot.EngineTick = tickInfo.EngineTick;
 			}
 			// todo fill prop handles with data here
 			TimingAdjustment.AdjustFromPacket(this);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 
@@ -88,11 +79,6 @@ namespace DemoParser.Parser.Components.Packets {
 			_floats = new Vector3[6];
 			for (int i = 0; i < _floats.Length; i++)
 				bsr.ReadVector3(out _floats[i]);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

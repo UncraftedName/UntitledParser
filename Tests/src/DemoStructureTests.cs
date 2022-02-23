@@ -1,8 +1,10 @@
 using System.IO;
+using System.Linq;
 using System.Text;
 using DemoParser.Parser;
+using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
-using DemoParser.Parser.HelperClasses.EntityStuff;
+using DemoParser.Parser.EntityStuff;
 using DemoParser.Utils;
 using NUnit.Framework;
 
@@ -71,6 +73,24 @@ namespace Tests {
 			if ((demo.DemoParseResult & DemoParseResult.EntParsingEnabled) == 0)
 				Assert.Ignore("entity parsing is not enabled for this game");
 			Assert.That((demo.DemoParseResult & DemoParseResult.EntParsingFailed) == 0, "entity parsing enabled, but failed");
+		}
+
+
+		// This is a critical assumption I make for entity parsing stuff. If this fails, you're either doing something
+		// wrong or you're completely screwed.
+		[TestCaseSource(nameof(DemoList)), Parallelizable(ParallelScope.All)]
+		public void AssertServerClassIndices(string fileName) {
+			foreach (DataTables dataTables in GetDemo(fileName).FilterForPacket<DataTables>())
+				for (int i = 0; i < dataTables.ServerClasses!.Count; i++)
+					Assert.AreEqual(i, dataTables.ServerClasses![i].DataTableId, "server class ID does not match its index");
+		}
+
+
+		// we use net tick to check that ents are being parsed goodly
+		[TestCaseSource(nameof(DemoList)), Parallelizable(ParallelScope.All)]
+		public void AssertSingleNetTickMessage(string fileName) {
+			foreach (Packet packet in GetDemo(fileName).FilterForPacket<Packet>())
+				Assert.LessOrEqual(packet.FilterForMessage<NetTick>().Count(), 1, $"there exists a packet with more than one {nameof(NetTick)} message");
 		}
 	}
 }

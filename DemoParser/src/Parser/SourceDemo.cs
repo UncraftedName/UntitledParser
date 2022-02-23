@@ -7,8 +7,6 @@ using System.Linq;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Packets;
-using DemoParser.Parser.HelperClasses;
-using DemoParser.Parser.HelperClasses.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -26,25 +24,12 @@ namespace DemoParser.Parser {
 		public new DemoInfo DemoInfo;
 		public DemoHeader Header;
 		public List<PacketFrame> Frames;
-		private bool _exceptionDuringParsing;
-		// initialized to null, these are set in the packet packet and from console commands
 		public int? StartTick, EndTick, StartAdjustmentTick, EndAdjustmentTick;
-		internal uint ClientSoundSequence; // increases with each reliable sound
-
-		// Helper classes, these are used by the demo components, are temporary and might be created/destroyed whenever.
-		// Any classes that require the use of any lookup tables e.g. string tables, game event list, etc. should store
-		// a local copy of any objects from those tables.
+		public GameState.GameState State;
 		public List<string> ErrorList;
-		internal GameEventManager GameEventManager;
-		public DataTableParser? DataTableParser;
-		internal StringTablesManager StringTablesManager;
-		internal EntitySnapshot? EntitySnapshot;
-		internal EntityBaseLines? EntBaseLines;
-		private readonly IProgress<double>? _parseProgress;
 
-		// We want access to the bit reader of each component after parsing,
-		// but some data must be decompressed first so we'll store that data here.
-		internal List<byte[]> DecompressedLookup;
+		private readonly IProgress<double>? _parseProgress;
+		private PacketFrame _lastFrame;
 
 		// a way to tell what info did/didn't get parsed
 		public DemoParseResult DemoParseResult;
@@ -79,56 +64,56 @@ namespace DemoParser.Parser {
 		}
 
 
+		private void Reset() {
+			Frames = new List<PacketFrame>();
+			_lastFrame = null!;
+			DemoParseResult = default;
+			StartTick = EndTick = StartAdjustmentTick = EndAdjustmentTick = null;
+			Header = null!;
+			DemoInfo = null!;
+			ErrorList = new List<string>();
+		}
+
+
 		protected override void Parse(ref BitStreamReader bsr) {
 			if ((DemoParseResult & DemoParseResult.DataTooLong) != 0)
-				throw new InvalidDataException("data too long");
-			// make sure we set the demo settings first
+				return;
+			Reset();
 			Header = new DemoHeader(this);
 			Header.ParseStream(ref bsr);
+			if (bsr.HasOverflowed)
+				return;
 			DemoInfo = new DemoInfo(this);
-			// it might be worth it to implement updating helper classes with listeners, but it's not a huge deal atm
-			StringTablesManager = new StringTablesManager(this);
-			ErrorList = new List<string>();
-			DecompressedLookup = new List<byte[]>();
-			Frames = new List<PacketFrame>();
+			State = new GameState.GameState(this);
 			StartTick = 0;
-			try {
-				PacketFrame frame;
-				do {
-					frame = new PacketFrame(this);
-					Frames.Add(frame);
-					frame.ParseStream(ref bsr);
-					_parseProgress?.Report((double)bsr.CurrentBitIndex / bsr.BitLength);
-				} while (frame.Type != PacketType.Stop && bsr.BitsRemaining >= 24); // would be 32 but the last byte is often cut off
-				StartAdjustmentTick ??= 0;
-				EndTick = this.FilterForPacket<Packet>().Select(packet => packet.Tick).Where(i => i >= 0).Max();
-			}
-			catch (Exception e) {
-				_exceptionDuringParsing = true;
-				Debug.WriteLine($"Exception after parsing {Frames.Count - 1} packets");
-				LogError($"Exception after parsing {Frames.Count - 1} packets: {e.Message}");
-				throw;
-			}
+
+			do {
+				_lastFrame = new PacketFrame(this);
+				_lastFrame.ParseStream(ref bsr);
+				if (bsr.HasOverflowed)
+					return;
+				Frames.Add(_lastFrame);
+				_parseProgress?.Report((double)bsr.CurrentBitIndex / bsr.BitLength);
+			} while (_lastFrame.Type != PacketType.Stop && bsr.BitsRemaining >= 24); // would be 32 but the last byte is often cut off
+
+			StartAdjustmentTick ??= 0;
+			EndTick = this.FilterForPacket<Packet>().Select(packet => packet.Tick).Where(i => i >= 0).Max();
 			EndAdjustmentTick ??= EndTick;
 			DemoParseResult |= DemoParseResult.Success;
 		}
 
 
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
-		}
-
-
 		internal void LogError(string e) {
-			string s = Frames[^1].Packet == null ? "[unknown]" : $"[{Frames[^1].Tick}] {e}";
+			string s = $"[{_lastFrame.Tick}] {e}";
 			ErrorList.Add(s);
 			Debug.WriteLine(s);
 		}
 
 
-		public void Parse() {
+		public bool Parse() {
 			_privateReader.CurrentBitIndex = 0;
 			Parse(ref _privateReader);
+			return (DemoParseResult & DemoParseResult.Success) != 0;
 		}
 
 
@@ -143,8 +128,8 @@ namespace DemoParser.Parser {
 				pw.Append("\n\n");
 				frame.PrettyWrite(pw);
 			}
-			if (_exceptionDuringParsing)
-				pw.AppendLine("\n\nAn unhandled exception occured while parsing this demo, the rest could not be parsed...");
+			if ((DemoParseResult & DemoParseResult.Success) == 0)
+				pw.AppendLine("\n\nMore data remaining, parsing failed...");
 			if (ErrorList.Count > 0) {
 				pw.AppendLine("\n\nList of errors while parsing: ");
 				foreach (string s in ErrorList)
@@ -158,14 +143,6 @@ namespace DemoParser.Parser {
 		public override string ToString() {
 			return $"{FileName}, {Reader.BitLength / 8} bytes long";
 		}
-
-
-		internal BitStreamReader ReaderFromOffset(int offset, int bitLength) {
-			return new BitStreamReader(_privateReader.Data, bitLength, offset);
-		}
-
-
-		// todo iterate over ent snapshots
 	}
 
 

@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -11,16 +10,11 @@ namespace DemoParser.Parser.Components.Messages {
 		public string Reason;
 
 
-		public NetDisconnect(SourceDemo? demoRef) : base(demoRef) {}
+		public NetDisconnect(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Reason = bsr.ReadNullTerminatedString();
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
 		}
 
 

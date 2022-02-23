@@ -21,6 +21,8 @@ namespace DemoParser.Parser.Components.Abstract {
 	/// </summary>
 	public abstract class UserMessage : DemoComponent {
 
+		public byte Value; // for debugging
+
 		#region user message lookup tables for different versions
 
 		public static readonly IReadOnlyList<UserMessageType> Hl2OeTable = new[] {
@@ -392,7 +394,9 @@ namespace DemoParser.Parser.Components.Abstract {
 
 		#endregion
 
-		protected UserMessage(SourceDemo? demoRef) : base(demoRef) {}
+		protected UserMessage(SourceDemo? demoRef, byte value) : base(demoRef) {
+			Value = value;
+		}
 
 
 		public static UserMessageType ByteToUserMessageType(DemoInfo demoInfo, byte b) {
@@ -434,48 +438,45 @@ namespace DemoParser.Parser.Components.Abstract {
 		}.ToImmutableHashSet();
 
 
-		public static UserMessage? CreateUserMessage(
-			SourceDemo? demoRef,
-			UserMessageType messageType)
-		{
+		public static UserMessage? CreateUserMessage(SourceDemo? dRef, UserMessageType messageType, byte val) {
 
 			if (EmptyMessages.Contains(messageType))
-				return new EmptyUserMessage(demoRef);
+				return new EmptyUserMessage(dRef, val);
 
 			return messageType switch {
-				UserMessageType.CloseCaption       => new CloseCaption(demoRef),
-				UserMessageType.AchievementEvent   => new AchievementEvent(demoRef),
-				UserMessageType.SayText2           => new SayText2(demoRef),
-				UserMessageType.Shake              => new Shake(demoRef),
-				UserMessageType.Fade               => new Fade(demoRef),
-				UserMessageType.Damage             => new Damage(demoRef),
-				UserMessageType.Rumble             => new Rumble(demoRef),
-				UserMessageType.ResetHUD           => new ResetHUD(demoRef),
-				UserMessageType.LogoTimeMsg        => new LogoTimeMsg(demoRef),
-				UserMessageType.Battery            => new Battery(demoRef),
-				UserMessageType.Geiger             => new Geiger(demoRef),
-				UserMessageType.KillCam            => new KillCam(demoRef),
-				UserMessageType.EntityPortalled    => new EntityPortalled(demoRef),
-				UserMessageType.HUDMsg             => new HudMsg(demoRef),
-				UserMessageType.KeyHintText        => new KeyHintText(demoRef),
-				UserMessageType.Train              => new Train(demoRef),
-				UserMessageType.VGUIMenu           => new VguiMenu(demoRef),
-				UserMessageType.TextMsg            => new TextMsg(demoRef),
-				UserMessageType.PortalFX_Surface   => new PortalFxSurface(demoRef),
-				UserMessageType.VoiceMask          => new VoiceMask(demoRef),
-				UserMessageType.SayText            => new SayText(demoRef),
-				UserMessageType.MPMapCompleted     => new MpMapCompleted(demoRef),
-				UserMessageType.MPMapIncomplete    => new MpMapIncomplete(demoRef),
-				UserMessageType.MPMapCompletedData => new MpMapCompletedData(demoRef),
-				UserMessageType.MPTauntEarned      => new MpTauntEarned(demoRef),
-				UserMessageType.MPTauntLocked      => new MpTauntLocked(demoRef),
-				UserMessageType.HudText            => new HudText(demoRef),
-				UserMessageType.PaintWorld         => new PaintWorld(demoRef),
-				UserMessageType.PaintEntity        => new PaintEntity(demoRef),
-				UserMessageType.HapSetConst        => new HapSetConstForce(demoRef),
-				UserMessageType.HapSetDrag         => new HapSetDrag(demoRef),
-				UserMessageType.HapPunch           => new HapPunch(demoRef),
-				UserMessageType.SPHapWeapEvent     => new SpHapWeaponEvent(demoRef),
+				UserMessageType.CloseCaption       => new CloseCaption      (dRef, val),
+				UserMessageType.AchievementEvent   => new AchievementEvent  (dRef, val),
+				UserMessageType.SayText2           => new SayText2          (dRef, val),
+				UserMessageType.Shake              => new Shake             (dRef, val),
+				UserMessageType.Fade               => new Fade              (dRef, val),
+				UserMessageType.Damage             => new Damage            (dRef, val),
+				UserMessageType.Rumble             => new Rumble            (dRef, val),
+				UserMessageType.ResetHUD           => new ResetHUD          (dRef, val),
+				UserMessageType.LogoTimeMsg        => new LogoTimeMsg       (dRef, val),
+				UserMessageType.Battery            => new Battery           (dRef, val),
+				UserMessageType.Geiger             => new Geiger            (dRef, val),
+				UserMessageType.KillCam            => new KillCam           (dRef, val),
+				UserMessageType.EntityPortalled    => new EntityPortalled   (dRef, val),
+				UserMessageType.HUDMsg             => new HudMsg            (dRef, val),
+				UserMessageType.KeyHintText        => new KeyHintText       (dRef, val),
+				UserMessageType.Train              => new Train             (dRef, val),
+				UserMessageType.VGUIMenu           => new VguiMenu          (dRef, val),
+				UserMessageType.TextMsg            => new TextMsg           (dRef, val),
+				UserMessageType.PortalFX_Surface   => new PortalFxSurface   (dRef, val),
+				UserMessageType.VoiceMask          => new VoiceMask         (dRef, val),
+				UserMessageType.SayText            => new SayText           (dRef, val),
+				UserMessageType.MPMapCompleted     => new MpMapCompleted    (dRef, val),
+				UserMessageType.MPMapIncomplete    => new MpMapIncomplete   (dRef, val),
+				UserMessageType.MPMapCompletedData => new MpMapCompletedData(dRef, val),
+				UserMessageType.MPTauntEarned      => new MpTauntEarned     (dRef, val),
+				UserMessageType.MPTauntLocked      => new MpTauntLocked     (dRef, val),
+				UserMessageType.HudText            => new HudText           (dRef, val),
+				UserMessageType.PaintWorld         => new PaintWorld        (dRef, val),
+				UserMessageType.PaintEntity        => new PaintEntity       (dRef, val),
+				UserMessageType.HapSetConst        => new HapSetConstForce  (dRef, val),
+				UserMessageType.HapSetDrag         => new HapSetDrag        (dRef, val),
+				UserMessageType.HapPunch           => new HapPunch          (dRef, val),
+				UserMessageType.SPHapWeapEvent     => new SpHapWeaponEvent  (dRef, val),
 				_ => null // I do a check for this so that I don't have to allocate the unknown type twice
 			};
 		}

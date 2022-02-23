@@ -1,4 +1,3 @@
-using System;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
@@ -12,18 +11,13 @@ namespace DemoParser.Parser.Components.Messages {
 		public BitStreamReader Data => _data.FromBeginning(); // todo
 
 
-		public SvcMenu(SourceDemo? demoRef) : base(demoRef) {}
+		public SvcMenu(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			MenuType = bsr.ReadUShort();
 			uint dataLen = bsr.ReadUInt();
-			_data = bsr.SplitAndSkip(dataLen);
-		}
-
-
-		internal override void WriteToStreamWriter(BitStreamWriter bsw) {
-			throw new NotImplementedException();
+			_data = bsr.SplitAndSkip((int)dataLen);
 		}
 
 
