@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -143,7 +144,14 @@ namespace ConsoleApp.GenericArgProcessing {
 		/// </summary>
 		/// <param name="showHiddenOptions">If disabled, only shows options that don't have the "Hidden" property.</param>
 		public void PrintHelp(bool showHiddenOptions = false) {
-			int width = Console.WindowWidth;
+
+			int width;
+			try {
+				width = Console.WindowWidth;
+			} catch (Exception ex) when (ex is ArgumentOutOfRangeException || ex is IOException) {
+				width = 80;
+			}
+
 			Utils.WriteColor($"Usage: {UsageString}\n", ConsoleColor.DarkYellow);
 			const string indentStr = "  ";
 			bool any = false;
