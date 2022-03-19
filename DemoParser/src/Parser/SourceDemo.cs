@@ -101,7 +101,7 @@ namespace DemoParser.Parser {
 					_parseProgress?.Report((double)bsr.CurrentBitIndex / bsr.BitLength);
 				} while (frame.Type != PacketType.Stop && bsr.BitsRemaining >= 24); // would be 32 but the last byte is often cut off
 				StartAdjustmentTick ??= 0;
-				EndTick = this.FilterForPacket<Packet>().Select(packet => packet.Tick).Where(i => i >= 0).Max();
+				EndTick = this.FilterForPacket<Packet>().Where(packet => packet.GetType() == typeof(Packet)).Select(packet => packet.Tick).Where(i => i >= 0).Max();
 			}
 			catch (Exception e) {
 				_exceptionDuringParsing = true;
