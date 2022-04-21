@@ -30,7 +30,7 @@ namespace DemoParser.Parser.Components.Messages {
 			bsr.CurrentBitIndex = dataLen + indexBeforeData;
 
 			// used for parsing SvcGameEvent
-			GameState.GameEventManager = new GameEventManager(Descriptors);
+			GameState.GameEventLookup = Descriptors.ToDictionary(d => d.EventId, d => d);
 		}
 
 

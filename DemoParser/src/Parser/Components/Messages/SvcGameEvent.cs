@@ -21,7 +21,7 @@ namespace DemoParser.Parser.Components.Messages {
 			int indexBeforeData = bsr.CurrentBitIndex;
 
 			EventId = bsr.ReadUInt(9);
-			if (!GameState.GameEventManager.EventDescriptions.TryGetValue(EventId, out EventDescription)) {
+			if (!GameState.GameEventLookup.TryGetValue(EventId, out EventDescription)) {
 				DemoRef.LogError($"{GetType().Name}: got invalid event ID '{EventId}'");
 				bsr.SetOverflow();
 				return;
@@ -48,7 +48,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.Append($"{EventDescription.Name} ({EventId})");
-			if (EventDescriptors != null && EventDescriptors.Count > 0) {
+			if (EventDescriptors != null! && EventDescriptors.Count > 0) {
 				pw.FutureIndent++;
 				foreach ((string name, object descriptor) in EventDescriptors) {
 					pw.AppendLine();

@@ -1,6 +1,7 @@
 #nullable enable
+using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
-using DemoParser.Parser.Components.Packets.CustomDataTypes;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -11,29 +12,54 @@ namespace DemoParser.Parser.Components.Packets {
 	/// </summary>
 	public class CustomData : DemoPacket {
 
-		public CustomDataType DataType;
-		public CustomDataMessage DataMessage;
+		public int TypeVal;
+
+		public List<string>? NewEntries;
+
+		public string? TypeName;
+		public CustomDataMessage? Data;
 
 
 		public CustomData(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			DataType = (CustomDataType)bsr.ReadSInt();
-			DataMessage = CustomDataFactory.CreateCustomDataMessage(DemoRef, DataType);
-			if (DataMessage.GetType() == typeof(UnknownCustomDataMessage))
-				DemoRef.LogError($"{GetType().Name}: unknown custom data type {DataType}");
-			var cBsr = bsr.SplitAndSkip(bsr.ReadSInt() * 8);
-			DataMessage.ParseStream(ref cBsr);
+			TypeVal = bsr.ReadSInt();
+			int byteLen = bsr.ReadSInt() * 8;
+			if (TypeVal == -1) {
+				int numEntries = bsr.ReadSInt();
+				NewEntries = new List<string>();
+				for (int i = 0; i < numEntries; i++)
+					NewEntries.Add(bsr.ReadNullTerminatedString());
+				DemoRef.State.CustomDataManager ??= new CustomDataManager(DemoRef, NewEntries);
+			} else {
+				TypeName = DemoRef.State.CustomDataManager.GetDataType(TypeVal);
+				Data = DemoRef.State.CustomDataManager.CreateCustomDataMessage(TypeName);
+				Data.ParseStream(bsr.SplitAndSkip(byteLen));
+			}
 		}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
-			pw.Append($"type: {DataType}");
-			pw.FutureIndent++;
-			pw.AppendLine();
-			DataMessage.PrettyWrite(pw);
-			pw.FutureIndent--;
+			if (NewEntries != null) {
+				pw.Append($"{NewEntries.Count} new {(NewEntries.Count == 1 ? "entry" : "entries")}:");
+				pw.FutureIndent++;
+				foreach (string entry in NewEntries) {
+					pw.AppendLine();
+					pw.Append(entry);
+				}
+				pw.FutureIndent--;
+			} else {
+				if (Data == null) {
+					pw.Append($"unknown type ({TypeVal})");
+				} else {
+					pw.Append($"[{TypeVal}] {TypeName}");
+					pw.FutureIndent++;
+					pw.AppendLine();
+					Data.PrettyWrite(pw);
+					pw.FutureIndent--;
+				}
+			}
 		}
 	}
 }

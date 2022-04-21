@@ -36,6 +36,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 				pw.FutureIndent++;
 				foreach (var kv in KeyValues)
 					pw.Append($"\n{{{kv.Key}, {kv.Value}}}");
+				pw.FutureIndent--;
 			} else {
 				pw.Append("no key value pairs");
 			}

@@ -52,7 +52,7 @@ namespace DemoParser.Parser {
 		public readonly IReadOnlyDictionary<UserMessageType, int>? UserMessageTypesReverseLookup;
 
 
-		private static readonly IDictionary<(uint demoProtocol, uint networkProtocol), SourceGame> GameLookup
+		private static readonly IReadOnlyDictionary<(uint demoProtocol, uint networkProtocol), SourceGame> GameLookup
 			= new Dictionary<(uint, uint), SourceGame>
 			{
 				[(3, 7)]    = HL2_OE,

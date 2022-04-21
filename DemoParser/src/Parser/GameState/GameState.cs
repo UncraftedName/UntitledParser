@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DemoParser.Parser.Components.Messages;
 
 namespace DemoParser.Parser.GameState {
 
@@ -7,10 +8,11 @@ namespace DemoParser.Parser.GameState {
 	public class GameState {
 
 		public DataTableParser? DataTableParser;
-		internal GameEventManager? GameEventManager;
+		internal Dictionary<uint, GameEventDescription>? GameEventLookup;
 		internal readonly StringTablesManager StringTablesManager;
 		internal EntitySnapshot? EntitySnapshot;
 		internal EntityBaseLines? EntBaseLines;
+		internal CustomDataManager? CustomDataManager;
 		internal uint ClientSoundSequence; // increases with each reliable sound
 		// We want access to the bit reader of each component after parsing, but some data must be decompressed so store
 		// the bytes here. Any component that accesses this must know which index its data is at.

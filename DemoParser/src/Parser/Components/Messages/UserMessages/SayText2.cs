@@ -8,6 +8,8 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 		public byte Client;
 		public bool WantsToChat;
+		public string MsgName;
+		public string[] Msgs;
 
 
 		public SayText2(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
@@ -15,15 +17,22 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			Client = bsr.ReadByte();
-			WantsToChat = bsr.ReadBool();
-			// TODO: fill out the rest of the UserMessage (don't know what SayText2
-			// is even but I guess it doesn't happen often at all since it hasn't broken a demo parse yet)
+			WantsToChat = bsr.ReadByte() != 0;
+			MsgName = bsr.ReadNullTerminatedString();
+			Msgs = new string[4];
+			for (int i = 0; i < Msgs.Length; i++)
+				Msgs[i] = bsr.ReadNullTerminatedString();
 		}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.AppendLine($"client: {Client}");
-			pw.Append($"wants to chat: {WantsToChat}");
+			pw.AppendLine($"wants to chat: {WantsToChat}");
+			pw.Append($"name: {MsgName}");
+			pw.FutureIndent++;
+			for (var i = 0; i < Msgs.Length; i++)
+				pw.Append($"\nmessage {i + 1}: {Msgs[i]}");
+			pw.FutureIndent--;
 		}
 	}
 }

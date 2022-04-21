@@ -19,7 +19,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public uint? MapCrc;
 		public byte PlayerCount;
 		public byte MaxClients;
-		public uint? Unknown;
+		public uint? StringTableCrc;
 		public float TickInterval;
 		public char Platform;
 		public string GameDir;
@@ -44,8 +44,8 @@ namespace DemoParser.Parser.Components.Messages {
 			if (DemoInfo.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2147)
 				UnknownBit = bsr.ReadBool();
 			ClientCrc = bsr.ReadSInt();
-			if (DemoInfo.NewDemoProtocol) // unknown field, could be before ClientCrc
-				Unknown = bsr.ReadUInt();
+			if (DemoInfo.NewDemoProtocol)
+				StringTableCrc = bsr.ReadUInt();
 			MaxServerClasses = bsr.ReadUShort();
 			if (NetworkProtocol == 24)
 				MapMD5 = bsr.ReadBytes(16);
@@ -93,8 +93,8 @@ namespace DemoParser.Parser.Components.Messages {
 			if (UnknownBit != null)
 				pw.AppendLine($"unknown bit: {UnknownBit}");
 			pw.AppendLine($"server client CRC: {ClientCrc}"); // change to hex?
-			if (Unknown != null)
-				pw.AppendLine($"unknown byte: {Unknown}");
+			if (StringTableCrc != null)
+				pw.AppendLine($"string table CRC: {StringTableCrc}");
 			pw.AppendLine($"max server classes: {MaxServerClasses}");
 			pw.AppendLine(MapMD5 != null
 				? $"server map MD5: 0x{BitConverter.ToString(MapMD5).Replace("-", "")}"

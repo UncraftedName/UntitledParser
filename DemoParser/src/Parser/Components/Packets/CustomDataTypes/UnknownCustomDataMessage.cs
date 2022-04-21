@@ -1,4 +1,4 @@
-using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -13,7 +13,7 @@ namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
-			pw.Append($"unknown data: {Reader.ToHexString()}");
+			pw.Append($"unknown custom data of {Reader.BitLength / 8} bytes: {Reader.ToHexString()}");
 		}
 	}
 }

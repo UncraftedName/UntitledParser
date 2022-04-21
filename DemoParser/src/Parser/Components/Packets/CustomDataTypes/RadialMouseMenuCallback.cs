@@ -1,14 +1,14 @@
-using DemoParser.Parser.Components.Abstract;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets.CustomDataTypes {
 
-	public class Ping : CustomDataMessage {
+	public class RadialMouseMenuCallback : CustomDataMessage {
 
 		public uint X, Y;
 
-		public Ping(SourceDemo? demoRef) : base(demoRef) {}
+		public RadialMouseMenuCallback(SourceDemo? demoRef) : base(demoRef) {}
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
