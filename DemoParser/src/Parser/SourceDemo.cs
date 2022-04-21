@@ -97,7 +97,8 @@ namespace DemoParser.Parser {
 			} while (_lastFrame.Type != PacketType.Stop && bsr.BitsRemaining >= 24); // would be 32 but the last byte is often cut off
 
 			StartAdjustmentTick ??= 0;
-			EndTick = this.FilterForPacket<Packet>().Select(packet => packet.Tick).Where(i => i >= 0).Max();
+			// filter for packet explicitly to ignore SignOn packets
+			EndTick = this.FilterForPacket<Packet>().Where(p => p.GetType() == typeof(Packet)).Select(p => p.Tick).Where(i => i >= 0).Max();
 			EndAdjustmentTick ??= EndTick;
 			DemoParseResult |= DemoParseResult.Success;
 		}
