@@ -134,11 +134,8 @@ namespace DemoParser.Parser.GameState {
 	}
 
 
-	/*
-	 * A StringTable that can be updated and changed as a demo is parsed. Specifically, new entries and classes can be
-	 * added. According to game code, entries may be modified as well, but I haven't seen that. All entries/classes here
-	 * should be treated as const since they are simply references to data that was parsed in the packet.
-	 */
+	// A StringTable that can be updated and changed as a demo is parsed. Specifically, new entries and classes can be
+	// added and modified. I'm not sure if entries can be removed (citation needed).
 	public class MutableStringTable {
 
 		// flattened fields from SvcCreateStringTable

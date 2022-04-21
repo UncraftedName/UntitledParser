@@ -25,8 +25,9 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 			byte len = bsr.ReadByte();
 			bsr.ReadVector3(out Center);
 			if (bsr.BitsRemaining % 48 != 0) {
-				throw new ParseException($"{GetType().Name} doesn't have the right number of bits left, " +
-										 $"expected a multiple of 48 but got {bsr.BitsRemaining}");
+				DemoRef.LogError($"{GetType().Name}: wrong number of bits left, expected a multiple of 48 but got {bsr.BitsRemaining}");
+				bsr.SetOverflow();
+				return;
 			}
 			Positions = new Vector3[len];
 			for (int i = 0; i < len; i++)
