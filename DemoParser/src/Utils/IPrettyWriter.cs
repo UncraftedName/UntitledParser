@@ -1,8 +1,6 @@
 #nullable enable
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace DemoParser.Utils {
@@ -22,37 +20,34 @@ namespace DemoParser.Utils {
 
 	public class PrettyToStringWriter : IPrettyWriter {
 
-		private readonly List<string> _lines;
-		private readonly List<int> _indentCount;
-		private int _maxIndent;
-		private int _futureIndent;
+		private readonly StringBuilder _sb;
+		public int FutureIndent {get;set;}
+		public int LastLineLength {get;private set;}
+		private bool _pendingNewLineIndent;
 		private readonly string _indentStr;
-
-		public int FutureIndent {
-			get => _futureIndent;
-			set {
-				_futureIndent = Math.Max(value, 0);
-				_maxIndent = Math.Max(_maxIndent, _futureIndent);
-			}
-		}
-		public int LastLineLength => _lines[^1].Length;
 
 
 		public PrettyToStringWriter(string indentStr = "\t") {
 			_indentStr = indentStr;
-			_lines = new List<string> {""};
-			_indentCount = new List<int>{0};
+			_sb = new StringBuilder();
 		}
 
 
-		public void Append(string s) {
-			string[] newLines = s.Split('\n');
-			for (int i = 0; i < newLines.Length; i++) {
-				if (i == 0) {
-					_lines[^1] += newLines[0];
-				} else {
-					_lines.Add(newLines[i]);
-					_indentCount.Add(FutureIndent);
+		public unsafe void Append(string s) {
+			if (s.Length == 0)
+				return;
+			CheckForIndent();
+			fixed (char* ptr = s) { // bypass bound checks in StringBuilder
+				int idx = 0;
+				int nIdx;
+				while (idx < s.Length && (nIdx = s.IndexOf('\n', idx)) != -1) {
+					_sb.Append(ptr + idx, nIdx - idx);
+					idx = nIdx + 1;
+					AppendLine();
+				}
+				if (idx < s.Length) {
+					_sb.Append(ptr + idx, s.Length - idx);
+					LastLineLength += s.Length - idx;
 				}
 			}
 		}
@@ -65,52 +60,28 @@ namespace DemoParser.Utils {
 
 
 		public void AppendLine() {
-			_lines.Add("");
-			_indentCount.Add(FutureIndent);
+			CheckForIndent();
+			_sb.AppendLine();
+			_pendingNewLineIndent = true;
+			LastLineLength = 0;
 		}
 
 
-		public void AppendFormat(string format, params object?[] args) => Append(string.Format(format, args));
+		private void CheckForIndent() {
+			if (_pendingNewLineIndent)
+				for (int i = 0; i < FutureIndent; i++)
+					_sb.Append(_indentStr);
+			_pendingNewLineIndent = false;
+		}
 
 
-		public void PadLastLine(int count, char c) => _lines[^1] = _lines[^1].PadRight(count, c);
+		public void AppendFormat(string format, params object?[] args) => _sb.AppendFormat(format, args);
 
+		public void PadLastLine(int count, char c) => _sb.Append(c, count);
 
 		public void Dispose() {}
 
-
-		public override string ToString() => ToString(_indentStr);
-
-
-		public string ToString(string indentStr) {
-			// calculate the total length of the string
-			int outLen = (_lines.Count - 1) * Environment.NewLine.Length;
-			int indentLen = indentStr.Length;
-			for (int i = 0; i < _lines.Count; i++) {
-				outLen += _lines[i].Length;
-				outLen += _indentCount[i] * indentLen;
-			}
-
-			Span<char> buf = new char[outLen].AsSpan();
-			ReadOnlySpan<char> indent = new ReadOnlySpan<char>(string.Concat(Enumerable.Repeat(indentStr, _maxIndent)).ToCharArray());
-			ReadOnlySpan<char> newLine = Environment.NewLine.AsSpan();
-
-			int index = 0; // index in entire string
-			for (int i = 0; i < _lines.Count; i++) {
-				// copy indent
-				indent.Slice(0, _indentCount[i] * indentLen).CopyTo(buf.Slice(index));
-				index += _indentCount[i] * indentStr.Length;
-				// copy line
-				_lines[i].AsSpan().CopyTo(buf.Slice(index));
-				index += _lines[i].Length;
-				// copy new line (unless on last line)
-				if (i != _lines.Count - 1) {
-					newLine.CopyTo(buf.Slice(index));
-					index += newLine.Length;
-				}
-			}
-			return buf.ToString();
-		}
+		public override string ToString() => _sb.ToString();
 	}
 
 
@@ -235,12 +206,6 @@ namespace DemoParser.Utils {
 		// a struct that inherits from IPretty may also override ToString() in the same way
 		public new virtual string ToString() {
 			return PrettyToStringHelper(this);
-		}
-
-		public string ToString(string indentStr) {
-			PrettyToStringWriter iw = new PrettyToStringWriter();
-			PrettyWrite(iw);
-			return iw.ToString(indentStr);
 		}
 
 		public static string PrettyToStringHelper(IPretty ia) {
