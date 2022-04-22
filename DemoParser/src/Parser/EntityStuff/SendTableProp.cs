@@ -66,46 +66,46 @@ namespace DemoParser.Parser.EntityStuff {
 
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.Append($"{SendPropType.ToString().ToLower(),-10}");
-			AppendToWriterWithoutType(pw);
+			PrettyWriteWithoutType(pw);
 		}
 
 
-		private void AppendToWriterWithoutType(IPrettyWriter iw) {
+		private void PrettyWriteWithoutType(IPrettyWriter pw) {
 			if (ExcludeDtName != null) {
-				iw.Append($"{Name}{(ExcludeDtName == null ? "" : $" : {ExcludeDtName}")}".PadRight(50));
+				pw.Append($"{Name}{(ExcludeDtName == null ? "" : $" : {ExcludeDtName}")}".PadRight(50));
 			} else {
-				iw.Append($"{Name}".PadRight(60, '.'));
+				pw.Append($"{Name}".PadRight(60, '.'));
 				switch (SendPropType) {
 					case SendPropType.String:
 					case SendPropType.Int:
 					case SendPropType.Float:
 					case SendPropType.Vector3:
 					case SendPropType.Vector2:
-						iw.Append($"low: {LowValue,-12} high: {HighValue,-12} {NumBits,3} bit{(NumBits == 1 ? "" : "s")}");
+						pw.Append($"low: {LowValue,-12} high: {HighValue,-12} {NumBits,3} bit{(NumBits == 1 ? "" : "s")}");
 						break;
 					case SendPropType.Array:
-						iw.Append($"elements: {NumElements}");
+						pw.Append($"elements: {NumElements}");
 						break;
 					default:
-						iw.Append($"unknown prop type: {SendPropType}");
+						pw.Append($"unknown prop type: {SendPropType}");
 						break;
 				}
-				iw.PadLastLine(120, ' ');
+				pw.PadLastLine(120, ' ');
 			}
-			iw.Append($" flags: {DemoInfo.PropFlagChecker.ToFlagString(Flags)}");
-			iw.FutureIndent++;
+			pw.Append($" flags: {DemoInfo.PropFlagChecker.ToFlagString(Flags)}");
+			pw.FutureIndent++;
 			if (DemoInfo.NewDemoProtocol) {
-				iw.PadLastLine(155, ' ');
-				iw.Append($" priority: {Priority}");
+				pw.PadLastLine(155, ' ');
+				pw.Append($" priority: {Priority}");
 			}
-			iw.FutureIndent--;
+			pw.FutureIndent--;
 		}
 
 
 		public string ToStringNoType() { // just for pretty toString() from the console app
-			var iw = new PrettyToStringWriter();
-			AppendToWriterWithoutType(iw);
-			return iw.ToString();
+			var pw = new PrettyToStringWriter();
+			PrettyWriteWithoutType(pw);
+			return pw.Contents;
 		}
 	}
 

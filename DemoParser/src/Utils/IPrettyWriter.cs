@@ -5,7 +5,8 @@ using System.Text;
 
 namespace DemoParser.Utils {
 
-	// allows writing in indented sections, so you can increase the indent and all future lines will start with spaces or whatever
+	// Allows writing in indented sections, so you can increase the indent and all future lines will start with spaces or whatever.
+	// Any new characters will get converted to the OS-specific version (only \n is replaced, \r is still written).
 	public interface IPrettyWriter : IDisposable {
 		int FutureIndent {get;set;}
 		int LastLineLength {get;}
@@ -20,8 +21,13 @@ namespace DemoParser.Utils {
 
 	public class PrettyToStringWriter : IPrettyWriter {
 
+		private int _futureIndent;
+
+		public int FutureIndent {
+			get => _futureIndent;
+			set => _futureIndent = Math.Max(value, 0);
+		}
 		private readonly StringBuilder _sb;
-		public int FutureIndent {get;set;}
 		public int LastLineLength {get;private set;}
 		private bool _pendingNewLineIndent;
 		private readonly string _indentStr;
@@ -41,11 +47,13 @@ namespace DemoParser.Utils {
 				int idx = 0;
 				int nIdx;
 				while (idx < s.Length && (nIdx = s.IndexOf('\n', idx)) != -1) {
+					CheckForIndent();
 					_sb.Append(ptr + idx, nIdx - idx);
 					idx = nIdx + 1;
 					AppendLine();
 				}
 				if (idx < s.Length) {
+					CheckForIndent();
 					_sb.Append(ptr + idx, s.Length - idx);
 					LastLineLength += s.Length - idx;
 				}
@@ -81,7 +89,7 @@ namespace DemoParser.Utils {
 
 		public void Dispose() {}
 
-		public override string ToString() => _sb.ToString();
+		public string Contents => _sb.ToString(); // I want to keep the default ToString()
 	}
 
 
@@ -122,35 +130,26 @@ namespace DemoParser.Utils {
 			if (s.Length == 0)
 				return;
 			CheckForIndent();
-			if (_futureIndent == 0) {
-				Write(s);
-				int nlIndex = s.LastIndexOf('\n');
-				if (nlIndex == -1)
-					LastLineLength += s.Length;
-				else
-					LastLineLength = s.Length - nlIndex - 1;
-			} else {
-				int count;
-				for (int i = 0; i < s.Length; i += count + 1) {
-					int nlIndex = s.IndexOf('\n', i);
-					if (i == 0) {
-						if (nlIndex == -1) {
-							Write(s);
-							LastLineLength += s.Length;
-							return;
-						}
-					} else {
-						CheckForIndent();
+			int count;
+			for (int i = 0; i < s.Length; i += count + 1) {
+				int nlIndex = s.IndexOf('\n', i);
+				if (i == 0) {
+					if (nlIndex == -1) {
+						Write(s);
+						LastLineLength += s.Length;
+						return;
 					}
-					count = (nlIndex == -1 ? s.Length : nlIndex) - i;
-					if (count > _tmpBuf.Length)
-						_tmpBuf = new char[count];
-					s.CopyTo(i, _tmpBuf, 0, count);
-					Write(_tmpBuf, 0, count);
-					LastLineLength += count;
-					if (nlIndex != -1)
-						AppendLine();
+				} else {
+					CheckForIndent();
 				}
+				count = (nlIndex == -1 ? s.Length : nlIndex) - i;
+				if (count > _tmpBuf.Length)
+					_tmpBuf = new char[count];
+				s.AsSpan(i, count).CopyTo(_tmpBuf);
+				Write(_tmpBuf, 0, count);
+				LastLineLength += count;
+				if (nlIndex != -1)
+					AppendLine();
 			}
 		}
 
@@ -192,6 +191,7 @@ namespace DemoParser.Utils {
 
 
 
+	// only use this in case of structs or possibly multiple inheritance, just override ToString() like below
 	public interface IPretty {
 		void PrettyWrite(IPrettyWriter pw);
 	}
@@ -208,10 +208,10 @@ namespace DemoParser.Utils {
 			return PrettyToStringHelper(this);
 		}
 
-		public static string PrettyToStringHelper(IPretty ia) {
-			IPrettyWriter iw = new PrettyToStringWriter();
-			ia.PrettyWrite(iw);
-			return iw.ToString();
+		public static string PrettyToStringHelper(IPretty ip) {
+			var psw = new PrettyToStringWriter();
+			ip.PrettyWrite(psw);
+			return psw.Contents;
 		}
 	}
 }

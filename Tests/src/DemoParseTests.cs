@@ -7,6 +7,7 @@ using NUnit.Framework;
 
 namespace Tests {
 
+	// To test demo structure and things of the like, inherit from this class and use GetDemo().
 	public abstract class DemoParseTests {
 
 		public static IReadOnlyList<TestCaseData> DemoList = new [] {
@@ -52,6 +53,7 @@ namespace Tests {
 			lock (RawDemoDataLookup) {
 				if (_loaded)
 					return;
+				// load each demo file, but don't parse anything
 				foreach (TestCaseData testCase in DemoList) {
 					var file = testCase.Arguments[0].ToString();
 					RawDemoDataLookup[file] = File.ReadAllBytes($"{ProjectDir}/sample demos/{file}");
@@ -61,7 +63,10 @@ namespace Tests {
 		}
 
 
+		// copy the demo file and parse it to ensure that tests are self contained
 		protected static SourceDemo GetDemo(string fileName) {
+			if (!_loaded)
+				Assert.Fail($"call {nameof(Init)} before calling {nameof(GetDemo)}");
 			if (RawDemoDataLookup.TryGetValue(fileName, out byte[] data)) {
 				byte[] copy = new byte[data.Length];
 				Array.Copy(data, copy, data.Length);
