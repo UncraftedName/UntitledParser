@@ -29,7 +29,7 @@ namespace DemoParser.Parser.Components.Messages {
 			int soundCount = Reliable ? 1 : bsr.ReadByte();
 			int dataBitLen = (int)bsr.ReadUInt(Reliable ? 8 : 16);
 
-			BitStreamReader soundBsr = bsr.SplitAndSkip(dataBitLen);
+			BitStreamReader soundBsr = bsr.ForkAndSkip(dataBitLen);
 
 			SoundInfo sound = new SoundInfo(DemoRef);
 			SoundInfo delta = new SoundInfo(DemoRef);

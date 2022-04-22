@@ -48,7 +48,7 @@ namespace DemoParser.Utils.BitStreams {
 			byte[] resized = new byte[((bitCount - 1) >> 3) + 1]; // ensure that resized is the minimum length
 			Array.Copy(arr, resized, resized.Length);
 			while (BitsRemaining >= bitCount) {
-				if (Split().ReadBits(bitCount).SequenceEqual(resized))
+				if (Fork().ReadBits(bitCount).SequenceEqual(resized))
 					return CurrentBitIndex;
 				AbsoluteBitIndex++;
 			}
@@ -66,7 +66,7 @@ namespace DemoParser.Utils.BitStreams {
 			byte[] resized = new byte[((bitCount - 1) >> 3) + 1]; // ensure that resized is the minimum length
 			Array.Copy(arr, resized, resized.Length);
 			while (BitsRemaining >= bitCount) {
-				if (Split().ReadBits(bitCount).SequenceEqual(resized))
+				if (Fork().ReadBits(bitCount).SequenceEqual(resized))
 					yield return CurrentBitIndex;
 				AbsoluteBitIndex++;
 			}

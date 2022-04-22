@@ -32,7 +32,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			BitStreamReader dBsr = bsr.SplitAndSkip(bsr.ReadSInt() * 8);
+			BitStreamReader dBsr = bsr.ForkAndSkip(bsr.ReadSInt() * 8);
 
 			Tables = new List<SendTable>();
 			while (dBsr.ReadBool()) {

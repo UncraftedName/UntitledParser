@@ -33,7 +33,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 			GameState.StringTablesManager.AddNewTableInfo(this);
 			TableUpdates = new StringTableUpdates(DemoRef, TableName, NumEntries, true);
-			TableUpdates.ParseStream(bsr.SplitAndSkip((int)dataLen));
+			TableUpdates.ParseStream(bsr.ForkAndSkip((int)dataLen));
 		}
 
 

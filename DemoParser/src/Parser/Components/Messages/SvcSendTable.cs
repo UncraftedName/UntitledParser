@@ -18,7 +18,7 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			NeedsDecoder = bsr.ReadBool();
 			ushort len = bsr.ReadUShort();
-			_props = bsr.Split(len);
+			_props = bsr.Fork(len);
 			DemoRef.LogError($"{GetType().Name}: unimplemented"); // todo se2007/engine/dt_send_eng.cpp line 800
 		}
 

@@ -154,7 +154,7 @@ namespace DemoParser.Parser.Components.Packets {
 					DemoRef.LogError($"{GetType()}: reader overflowed");
 					return;
 				}
-				ParseEntryData(bsr.SplitAndSkip(byteLen * 8), null);
+				ParseEntryData(bsr.ForkAndSkip(byteLen * 8), null);
 			}
 		}
 

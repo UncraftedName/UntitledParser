@@ -35,7 +35,7 @@ namespace DemoParser.Parser.Components.Packets {
 			} else {
 				TypeName = DemoRef.State.CustomDataManager.GetDataType(TypeVal);
 				Data = DemoRef.State.CustomDataManager.CreateCustomDataMessage(TypeName);
-				Data.ParseStream(bsr.SplitAndSkip(byteLen));
+				Data.ParseStream(bsr.ForkAndSkip(byteLen));
 			}
 		}
 

@@ -34,7 +34,7 @@ namespace DemoParser.Parser.Components.Messages {
 			uint dataLen = bsr.ReadUInt(20);
 
 			TableUpdates = new StringTableUpdates(DemoRef, TableName, ChangedEntriesCount, false);
-			TableUpdates.ParseStream(bsr.SplitAndSkip((int)dataLen));
+			TableUpdates.ParseStream(bsr.ForkAndSkip((int)dataLen));
 		}
 
 
@@ -160,7 +160,7 @@ namespace DemoParser.Parser.Components.Messages {
 						? mTable.UserDataSizeBits
 						: (int)bsr.ReadUInt(MaxUserDataBits) * 8;
 
-					entryStream = bsr.SplitAndSkip(entryLen);
+					entryStream = bsr.ForkAndSkip(entryLen);
 				}
 
 				if (bsr.HasOverflowed) {

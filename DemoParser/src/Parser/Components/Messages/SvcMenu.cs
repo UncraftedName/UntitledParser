@@ -17,7 +17,7 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			MenuType = bsr.ReadUShort();
 			uint dataLen = bsr.ReadUInt();
-			_data = bsr.SplitAndSkip((int)dataLen);
+			_data = bsr.ForkAndSkip((int)dataLen);
 		}
 
 

@@ -26,7 +26,7 @@ namespace DemoParser.Parser.Components.Packets {
 		protected override void Parse(ref BitStreamReader bsr) {
 			Cmd = bsr.ReadUInt();
 			int byteSize = bsr.ReadSInt();
-			BitStreamReader uBsr = bsr.SplitAndSkip(byteSize * 8);
+			BitStreamReader uBsr = bsr.ForkAndSkip(byteSize * 8);
 			CommandNumber = uBsr.ReadUIntIfExists();
 			TickCount = uBsr.ReadUIntIfExists();
 			ViewAngleX = uBsr.ReadFloatIfExists();

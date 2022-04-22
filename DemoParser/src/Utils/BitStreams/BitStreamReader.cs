@@ -53,14 +53,14 @@ namespace DemoParser.Utils.BitStreams {
 		public void SetOverflow() => HasOverflowed = true;
 
 
-		public readonly BitStreamReader Split() => Split(BitsRemaining);
+		public readonly BitStreamReader Fork() => Fork(BitsRemaining);
 
-		public readonly BitStreamReader Split(int bitLength) => Split(CurrentBitIndex, bitLength);
+		public readonly BitStreamReader Fork(int bitLength) => Fork(CurrentBitIndex, bitLength);
 
 
 		// Splits this stream, and returns a stream which starts at the (same) next readable bit.
 		// Uses the current (relative) bit index, not the absolute one.
-		public readonly BitStreamReader Split(int fromBitIndex, int numBits)
+		public readonly BitStreamReader Fork(int fromBitIndex, int numBits)
 			=> new BitStreamReader(Data, numBits, AbsoluteStart + fromBitIndex, HasOverflowed);
 
 
@@ -68,8 +68,8 @@ namespace DemoParser.Utils.BitStreams {
 			=> new BitStreamReader(Data, BitLength, AbsoluteStart);
 
 
-		public BitStreamReader SplitAndSkip(int bits) {
-			BitStreamReader ret = Split(bits);
+		public BitStreamReader ForkAndSkip(int bits) {
+			BitStreamReader ret = Fork(bits);
 			SkipBits(bits);
 			return ret;
 		}
@@ -281,7 +281,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public readonly string ToBinaryString() {
-			(byte[] bytes, int numBits) = Split().ReadRemainingBits();
+			(byte[] bytes, int numBits) = Fork().ReadRemainingBits();
 			if ((numBits & 0x07) == 0)
 				return ParserTextUtils.BytesToBinaryString(bytes);
 			else
@@ -290,7 +290,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public readonly string ToHexString(string separator = " ") {
-			(byte[] bytes, int _) = Split().ReadRemainingBits();
+			(byte[] bytes, int _) = Fork().ReadRemainingBits();
 			return ParserTextUtils.BytesToHexString(bytes, separator);
 		}
 

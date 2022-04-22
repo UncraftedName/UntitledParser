@@ -39,7 +39,7 @@ namespace DemoParser.Parser.Components.Messages {
 			UpdatedEntries = (ushort)bsr.ReadUInt(11);
 			uint dataLen = bsr.ReadUInt(20);
 			UpdateBaseline = bsr.ReadBool();
-			_entBsr = bsr.SplitAndSkip((int)dataLen);
+			_entBsr = bsr.ForkAndSkip((int)dataLen);
 
 #if !FORCE_PROCESS_ENTS
 			if ((DemoRef.DemoParseResult & DemoParseResult.EntParsingEnabled) == 0 ||

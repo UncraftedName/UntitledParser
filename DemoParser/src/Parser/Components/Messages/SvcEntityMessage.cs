@@ -18,7 +18,7 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			EntityIndex = bsr.ReadUInt(DemoInfo.MaxEdictBits);
 			ClassId = bsr.ReadUInt(9);
-			_data = bsr.Split((int)bsr.ReadUInt(11));
+			_data = bsr.Fork((int)bsr.ReadUInt(11));
 		}
 
 

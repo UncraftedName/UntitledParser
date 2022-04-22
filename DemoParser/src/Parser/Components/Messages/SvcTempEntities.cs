@@ -18,7 +18,7 @@ namespace DemoParser.Parser.Components.Messages {
 			uint bitLen = DemoInfo.Game == SourceGame.PORTAL_1_1910503
 				? bsr.ReadVarUInt32()
 				: bsr.ReadUInt(DemoInfo.IsLeft4Dead2() ? 18 : 17);
-			_data = bsr.SplitAndSkip((int)bitLen);
+			_data = bsr.ForkAndSkip((int)bitLen);
 
 			// todo
 		}

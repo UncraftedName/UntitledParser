@@ -28,7 +28,7 @@ namespace DemoParser.Parser.Components {
 
 		// this starts on the int before the messages which says the size of the message stream in bytes
 		protected override void Parse(ref BitStreamReader bsr) {
-			BitStreamReader mBsr = bsr.SplitAndSkip((int)(bsr.ReadUInt() * 8));
+			BitStreamReader mBsr = bsr.ForkAndSkip((int)(bsr.ReadUInt() * 8));
 			Messages = new List<DemoMessage>();
 			byte messageValue;
 			DemoMessage? demoMessage;
