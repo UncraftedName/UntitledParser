@@ -18,6 +18,9 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 		private const int FmtIdt = -25;
 
+		// a hack to allow only p1 & l4d to time w/ first tick
+		private ISet<SourceGame> _forceFirstTickTiming = null!;
+
 
 		[Flags]
 		public enum TimeFlags {
@@ -34,6 +37,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			DefaultAliases,
 			Arity.ZeroOrOne,
 			"Print demo header and time info, enabled automatically if no other options are set." +
+			"\nBy default, 1 tick is added for Portal 1 and L4D games." +
 			$"\nNote that flags can be combined, e.g. \"{TimeFlags.NoHeader | TimeFlags.AlwaysShowTotalTime}\" or \"5\".",
 			"flags",
 			Utils.ParseEnum<TimeFlags>,
@@ -46,6 +50,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public override void Reset() {
 			base.Reset();
 			_sdt = null!;
+			_forceFirstTickTiming = new HashSet<SourceGame>();
 		}
 
 
@@ -62,7 +67,11 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					WriteHeader(infoObj.CurrentDemo, Console.Out, infoObj.SetupInfo.ExecutableOptions != 1);
 				_sdt.Consume(infoObj.CurrentDemo);
 				if (!infoObj.FailedLastParse) {
-					WriteAdjustedTime(infoObj.CurrentDemo, Console.Out, (arg & TimeFlags.TimeFirstTick) != 0);
+					WriteAdjustedTime(
+						infoObj.CurrentDemo,
+						Console.Out,
+						(arg & TimeFlags.TimeFirstTick) != 0 || _forceFirstTickTiming.Contains(infoObj.CurrentDemo.DemoInfo.Game)
+					);
 					Console.WriteLine();
 				}
 			} catch (Exception) {
@@ -197,6 +206,14 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			}
 			Utils.PopForegroundColor();
 		}
+
+
+		// a hack to allow only p1 & l4d to time w/ first tick
+		internal void SetForceFirstTickTiming(IEnumerable<SourceGame> games) {
+			var gameSet = games.ToImmutableHashSet();
+			_forceFirstTickTiming = gameSet;
+			_sdt.SetForceFirstTickTiming(gameSet);
+		}
 	}
 
 
@@ -209,14 +226,20 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public double TotalTime {get;private set;}
 		public int AdjustedTicks {get;private set;}
 		public double AdjustedTime {get;private set;}
-		public bool TimeFirstTick {get;}
+		private readonly bool _timeFirstTick;
 		public Flags ValidFlags {get;private set;}
 		private int? _firstHash;
 
+		// a hack to allow only p1 & l4d to time w/ first tick
+		private SourceDemo _curDemo = null!;
+		private ISet<SourceGame> _forceFirstTickTiming;
+		public bool TimeFirstTick => _timeFirstTick || _forceFirstTickTiming.Contains(_curDemo.DemoInfo.Game);
+
 
 		public SimpleDemoTimer(bool timeFirstTick) {
-			TimeFirstTick = timeFirstTick;
+			_timeFirstTick = timeFirstTick;
 			ValidFlags = Flags.TotalTimeValid | Flags.AdjustedTimeValid;
+			_forceFirstTickTiming = new HashSet<SourceGame>();
 		}
 
 
@@ -226,10 +249,14 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		}
 
 
+		internal void SetForceFirstTickTiming(IEnumerable<SourceGame> games) => _forceFirstTickTiming = games.ToImmutableHashSet();
+
+
 		/// <summary>
 		/// Calculates the total time of the given demo and adds it to the total time. Sets ValidFlags if necessary.
 		/// </summary>
 		public void Consume(SourceDemo demo) {
+			_curDemo = demo;
 			try {
 				_firstHash ??= QuickHash(demo);
 				// consider this demo to be part of a different run if the hash doesn't match

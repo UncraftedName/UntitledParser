@@ -50,9 +50,11 @@ namespace ConsoleApp.DemoArgProcessing {
 	}
 
 
-	/// <summary>
-	/// A class that holds information used during option processing.
-	/// </summary>
+	/*
+	 * The interactions between all the different options and default behaviors is pretty complicated, and it used to
+	 * be spread out all over the place which lead to lots of dragons. Luckily that isn't really the case anymore,
+	 * because most of the dragons chill here now!
+	 */
 	public class DemoParsingInfo : IProcessObject, IDisposable {
 
 		public DemoParsingSetupInfo SetupInfo {get;}
@@ -63,8 +65,8 @@ namespace ConsoleApp.DemoArgProcessing {
 
 		private readonly List<SourceDemo> _demos;
 		private readonly IParallelDemoParser _pdp;
-		private TextWriter? _textWriter;
-		private Stream? _binaryStream;
+		private TextWriter? _textWriter; // options that write text output use this
+		private Stream? _binaryStream; // options that write non-text output use this
 
 		// keep track of the overwritten demo in memory, don't write it to disk until we're doing with the current process loop
 		private SourceDemo _overwriteProgress = null!;
@@ -125,6 +127,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		}
 
 
+		// advance to the next demo, show the progress bar if it's still being parsed
 		[SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
 		public void Advance() {
 			CheckDemoOverwrite();
@@ -145,7 +148,7 @@ namespace ConsoleApp.DemoArgProcessing {
 			_overwriteCount = 0;
 			_curOptionOverwriting = false;
 			CancelOverwrite = false;
-			FailedLastParse = exception != null;
+			FailedLastParse = exception != null || (demo.DemoParseResult & DemoParseResult.ReaderOverflowed) != 0;
 			if (!FailedLastParse) {
 				Utils.WriteColor("done.\n", ConsoleColor.Green);
 			} else {
@@ -155,6 +158,8 @@ namespace ConsoleApp.DemoArgProcessing {
 				// so that's partially what the parse result flags are for.
 				if (demo == null)
 					Console.WriteLine(" Could not read file.");
+				else if ((demo.DemoParseResult & DemoParseResult.ReaderOverflowed) != 0)
+					Console.WriteLine(" Reader overflowed.");
 				else if ((demo.DemoParseResult & DemoParseResult.DataTooLong) != 0)
 					Console.WriteLine(" File too long.");
 				else if (demo.Header == null || demo.DemoInfo == null)
@@ -208,7 +213,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		/// </summary>
 		public Stream StartWritingBytes(string fileSuffix, string extension) {
 			DisposeWriters();
-			// if we're overwriting, write to a memory stream and don't overwrite the file we're done with the current process loop
+			// if we're overwriting, write to a memory stream and don't overwrite the file until we're done with the current process loop
 			if (SetupInfo.OverWriteDemos && extension == ".dem") {
 				_curOptionOverwriting = true;
 				return _binaryStream = new MemoryStream(_overwriteProgress.Reader.BitLength / 8);
