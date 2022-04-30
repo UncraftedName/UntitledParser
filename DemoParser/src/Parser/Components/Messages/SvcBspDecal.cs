@@ -33,7 +33,7 @@ namespace DemoParser.Parser.Components.Messages {
 			pw.AppendLine($"position: {Pos:F4}");
 
 			pw.Append(GameState.StringTablesManager.IsTableStateValid(TableNames.DecalPreCache)
-				? $"decal texture: {GameState.StringTablesManager.Tables[TableNames.DecalPreCache].Entries[DecalTextureIndex]}"
+				? $"decal texture: {GameState.StringTablesManager.Tables[TableNames.DecalPreCache].Entries[DecalTextureIndex].Name}"
 				: "decal texture index:");
 			pw.AppendLine($" [{DecalTextureIndex}]");
 			if (EntityIndex.HasValue) {

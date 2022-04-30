@@ -334,7 +334,7 @@ namespace DemoParser.Utils.BitStreams {
 
 			int i = -1;
 			if (demoRef.DemoInfo.NewDemoProtocol) {
-				bool newWay = ReadBool();
+				bool newWay = !demoRef.DemoInfo.IsLeft4Dead1() && ReadBool();
 				while ((i = ReadFieldIndex(i, newWay)) != -1 && !HasOverflowed) {
 					if (i < 0 || i >= fProps.Count) {
 						HasOverflowed = true;

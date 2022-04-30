@@ -21,7 +21,7 @@ namespace DemoParser.Parser {
 		public BitStreamReader Reader => _bsr.FromBeginning();
 
 		public readonly string? FileName;
-		public new DemoInfo DemoInfo;
+		public DemoInfo DemoInfo;
 		public DemoHeader Header;
 		public List<PacketFrame> Frames;
 		public int? StartTick, EndTick, StartAdjustmentTick, EndAdjustmentTick;
