@@ -67,7 +67,7 @@ namespace ConsoleApp {
 			}
 			Console.ResetColor();
 			if (Utils.WillBeDestroyedOnExit())
-				Console.ReadKey();
+				Console.ReadLine();
 		}
 	}
 }
