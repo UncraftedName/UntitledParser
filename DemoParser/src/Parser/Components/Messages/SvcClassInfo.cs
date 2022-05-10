@@ -22,7 +22,7 @@ namespace DemoParser.Parser.Components.Messages {
 			ClassCount = bsr.ReadUShort();
 			CreateOnClient = bsr.ReadBool();
 			if (!CreateOnClient) {
-				// TODO if this should update the mutable tables
+				// TODO should this update the manager?
 				ServerClasses = new ServerClass[ClassCount];
 				for (int i = 0; i < ServerClasses.Length; i++) {
 					ServerClasses[i] = new ServerClass(DemoRef, this);
@@ -49,7 +49,7 @@ namespace DemoParser.Parser.Components.Messages {
 	}
 
 
-	// a very important part of the demo - corresponds to an entity class. used extensively in data tables and ent parsing
+	// DataTableName <-> ClassName lookup, I use this as an identifier in data tables and ent parsing
 	public class ServerClass : DemoComponent, IEquatable<ServerClass> {
 
 		private readonly SvcClassInfo? _classInfoRef; // needed to get the length of the array for toString()
@@ -65,7 +65,7 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			DataTableId = _classInfoRef == null
 				? bsr.ReadUShort()
-				: (int)bsr.ReadUInt(GameState.DataTableParser.ServerClassBits);
+				: (int)bsr.ReadUInt(GameState.DataTablesManager.ServerClassBits);
 			ClassName = bsr.ReadNullTerminatedString();
 			DataTableName = bsr.ReadNullTerminatedString();
 		}

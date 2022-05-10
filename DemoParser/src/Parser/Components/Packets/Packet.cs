@@ -8,8 +8,35 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser.Components.Packets {
 
+	/*
+	 * This is a packet called "packet" - it is the packet packet. The packet packet has an easy to get
+	 * table of position/angles for all local players (e.g. both players playing portal 2 splitscreen).
+	 * This packet also contains an arbitrary amount of SVC/NET messages which make up most of the demo
+	 * data. The messages may have sound info, entity info, StringTable update info, etc.
+	 *
+	 *                              CmdInfo[]
+	 *                     ┌─────────────────────────┐
+	 *                   ┌─┤Local Player 1 ViewOrigin│
+	 *                   │ │Local Player 1 ViewAngles│
+	 *   Packet          │ │            .            │
+	 * ┌─────────┐       │ │            .            │
+	 * │CmdInfo[]├──────►│ │            .            │
+	 * ├─────────┤       │ ├─────────────────────────┤
+	 * │Message 1│       │ │Local Player 2 ViewOrigin│
+	 * ├─────────┤       │ │Local Player 2 ViewAngles│
+	 * │Message 2│       │ │            .            │
+	 * ├─────────┤       │ │            .            │
+	 * │Message 3│       │ │            .            │
+	 * ├─────────┤       │ ├─────────────────────────┤
+	 * │    .    │       │ │            .            │
+	 * │    .    │       │ │            .            │
+	 * │    .    │       └─┤            .            │
+	 * └─────────┘         └─────────────────────────┘
+	 */
+
+
 	/// <summary>
-	/// Contains client player location and server-side messages.
+	/// A packet that contains client player location and server-side messages.
 	/// </summary>
 	public class Packet : DemoPacket {
 

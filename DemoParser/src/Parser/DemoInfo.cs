@@ -8,9 +8,13 @@ using static DemoParser.Parser.SourceGame;
 
 namespace DemoParser.Parser {
 
-	/// <summary>
-	/// A class containing many useful constants used while parsing the demo.
-	/// </summary>
+	/*
+	 * The purpose of this class is to figure out specific constants that depend on game/version as soon
+	 * as possible. Most of these are inferred from the header, but the header doesn't actually have
+	 * enough information to know exactly what version of what game we're parsing (partially because
+	 * sometimes Valve forget to bump the version number). So some values are figured out a bit later.
+	 */
+
 	public class DemoInfo {
 
 		// hopefully constant in all games
@@ -27,7 +31,7 @@ namespace DemoParser.Parser {
 		public readonly IReadOnlyList<TimingAdjustment.AdjustmentType> TimeAdjustmentTypes;
 		public readonly int SendPropFlagBits;
 		public readonly int SoundFlagBitsEncode;
-		public readonly bool NewDemoProtocol; // "new engine" in nekz' parser, possibly relating to a specific branch
+		public readonly bool NewDemoProtocol; // "new engine" in nekz' parser, usually just meaning protocol 4
 		public readonly int NetMsgTypeBits;
 		public readonly int UserMessageLengthBits;
 		public readonly int SendPropNumBitsToGetNumBits;
@@ -129,6 +133,7 @@ namespace DemoParser.Parser {
 					goto default; // I don't know anything else about protocol 2 :/
 				case 3:
 				case 4 when IsLeft4Dead1():
+					// l4d1 behaves mostly like version 3 except for places where "NewDemoProtocol" is used
 					NewDemoProtocol = IsLeft4Dead1();
 					SendPropFlagBits = Game == HL2_OE ? 13 : 16;
 					PropFlagChecker = new SendPropEnums.DemoProtocol3FlagChecker();

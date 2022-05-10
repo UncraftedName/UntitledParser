@@ -59,10 +59,10 @@ namespace DemoParser.Parser.Components.Messages {
 			}
 
 			Updates = new List<EntityUpdate>(UpdatedEntries);
-			DataTableParser? tableParser = GameState.DataTableParser;
+			DataTablesManager? dtMgr = GameState.DataTablesManager;
 			Entity?[] ents = snapshot.Entities; // current entity state
 
-			if (tableParser?.FlattenedProps == null) {
+			if (dtMgr?.FlattenedProps == null) {
 				DemoRef.LogError($"{GetType().Name}: ent parsing cannot continue because data tables have not been parsed");
 				DemoRef.DemoParseResult |= DemoParseResult.EntParsingFailed;
 				return;
@@ -100,15 +100,15 @@ namespace DemoParser.Parser.Components.Messages {
 						if (oldI != newI)
 							throw new ArgumentException("oldEntSlot != newEntSlot");
 						iClass = snapshot.Entities[newI].ServerClass.DataTableId;
-						(entClass, fProps) = tableParser.FlattenedProps[iClass];
+						(entClass, fProps) = dtMgr.FlattenedProps[iClass];
 						update = new Delta(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef));
 						snapshot.ProcessDelta((Delta)update);
 						snapshot.GetNextNonNullEntIndex(ref oldI);
 						break;
 					case 2: // enter PVS
-						iClass = (int)_entBsr.ReadUInt(tableParser.ServerClassBits);
+						iClass = (int)_entBsr.ReadUInt(dtMgr.ServerClassBits);
 						uint iSerial = (uint)_entBsr.ReadULong(HandleSerialNumberBits);
-						(entClass, fProps) = tableParser.FlattenedProps[iClass];
+						(entClass, fProps) = dtMgr.FlattenedProps[iClass];
 						bool bNew = ents[newI] == null || ents[newI].Serial != iSerial;
 						update = new EnterPvs(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);
 						snapshot.ProcessEnterPvs(this, (EnterPvs)update); // update baseline check in here

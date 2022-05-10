@@ -8,15 +8,48 @@ using DemoParser.Utils.BitStreams;
 namespace DemoParser.Parser.Components.Packets {
 
 	/*
-	 * This packet consists of a bunch of various tables most of which are used by other messages. This includes decals,
-	 * default entity states, player info, etc. Since my main goal is to create a valid toString() representation
-	 * of the entire demo, once I parse this packet I do not change it. However, the tables can be changed by
-	 * special messages, so I keep a copy of the tables in the string tables manager which are mutable and contain
-	 * minimal parsing code.
+	 * The StringTables packet contains lookup tables which can be used by other messages. This includes decals,
+	 * models, sounds, and default entity states. For example:
+	 * - SvcSounds references the soundprecache table
+	 * - SvcBspDecal references the decalprecache table
+	 * - The instancebaseline table contains the initial entity state when the level was loaded
+	 * - Entities reference the modelprecache table
+	 *
+	 * The structure of this packet is pretty simple. Note that the entry data can range from nothing to something
+	 * arbitrarily complicated depending on what table it's in.
+	 *
+	 *   StringTables             StringTable             StringTableEntry
+	 * ┌─────────────┐        ┌──────────────────┐        ┌─────────────┐
+	 * │StringTable 1│       ┌┤StringTableEntry 1│       ┌┤     Name    │
+	 * ├─────────────┤       │├──────────────────┤   ┌──►│├─────────────┤
+	 * │StringTable 2├──────►││StringTableEntry 2├───┘   └┤Optional Data│
+	 * ├─────────────┤       │├──────────────────┤        └─────────────┘
+	 * │StringTable 3│       ││StringTableEntry 3│
+	 * ├─────────────┤       │├──────────────────┤
+	 * │      .      │       ││        .         │
+	 * │      .      │       ││        .         │
+	 * │      .      │       ││        .         │
+	 * └─────────────┘       │├──────────────────┤           StringTableClass
+	 *                       ││StringTableClass 1│        ┌────────────────────┐
+	 *                       │├──────────────────┤       ┌┤        Name        │
+	 *                       ││StringTableClass 2├──────►│├────────────────────┤
+	 *                       │├──────────────────┤       └┤Optional string data│
+	 *                       ││StringTableClass 3│        └────────────────────┘
+	 *                       │├──────────────────┤
+	 *                       ││        .         │
+	 *                       ││        .         │
+	 *                       └┤        .         │
+	 *                        └──────────────────┘
+	 *
+	 * These tables can be modified as we parse the demo (e.g. new entries may be added), but I want to provide an accurate
+	 * representation of what *this* packet looks like for demo-dumping purposes. To achieve this, any data that's parsed
+	 * here is treated as read-only, and a copy of these tables are stored in the StringTablesManager which can be updated
+	 * with SvcUpdateStringTable messages.
 	 */
 
+
 	/// <summary>
-	/// Contains lookup tables for messages such as sounds and models.
+	/// Contains lookup tables for various things such as sounds and models to be referenced from other packets/messages.
 	/// </summary>
 	public class StringTables : DemoPacket {
 

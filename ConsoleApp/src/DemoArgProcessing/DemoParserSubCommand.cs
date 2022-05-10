@@ -56,31 +56,25 @@ namespace ConsoleApp.DemoArgProcessing {
 		}
 
 
-		public override void Execute(params string[] args) {
-			if (CheckHelpAndVersion(args))
-				return;
-			DemoParsingSetupInfo setupInfo = new DemoParsingSetupInfo();
-			ParseArgs(args, setupInfo);
-
-			// check the values in setupInfo
-
-			// enable --time implicitly if there are no other options
-			if (setupInfo.ExecutableOptions == 0) {
-				if (TryGetOption(OptTime.DefaultAliases[0], out var option)) {
-					option.Enable(null);
-					option.AfterParse(setupInfo);
-					// Due to the portal community's love for hundreds of saveloads, the time option will time w/ first tick by default
-					// for p1 and l4d (because hindsight or something). This is a hack for now and will hopefully by improved with a
-					// more advanced timing system in the utopian future.
-					((OptTime)option).SetForceFirstTickTiming(new [] {
-						SourceGame.L4D1_1005, SourceGame.L4D1_1040, SourceGame.L4D2_2000, SourceGame.L4D2_2012,
-						SourceGame.L4D2_2027, SourceGame.L4D2_2042, SourceGame.L4D2_2091, SourceGame.L4D2_2147,
-						SourceGame.L4D2_2203, SourceGame.PORTAL_1_3420, SourceGame.PORTAL_1_5135, SourceGame.PORTAL_1_1910503
-					});
-				} else {
-					throw new ArgProcessProgrammerException("listdemo option not passed to demo sub-command.");
-				}
+		private void EnableTimeOptionDefault(DemoParsingSetupInfo setupInfo) {
+			if (TryGetOption(OptTime.DefaultAliases[0], out var option)) {
+				option.Enable(null);
+				option.AfterParse(setupInfo);
+				// Due to the portal community's love for hundreds of saveloads, the time option will time w/ first tick by default
+				// for p1 and l4d (because hindsight or something). This is a hack for now and will hopefully by improved with a
+				// more advanced timing system in the utopian future.
+				((OptTime)option).SetForceFirstTickTiming(new[] {
+					SourceGame.L4D1_1005, SourceGame.L4D1_1040, SourceGame.L4D2_2000, SourceGame.L4D2_2012,
+					SourceGame.L4D2_2027, SourceGame.L4D2_2042, SourceGame.L4D2_2091, SourceGame.L4D2_2147,
+					SourceGame.L4D2_2203, SourceGame.PORTAL_1_3420, SourceGame.PORTAL_1_5135, SourceGame.PORTAL_1_1910503
+				});
+			} else {
+				throw new ArgProcessProgrammerException("listdemo option not passed to demo sub-command.");
 			}
+		}
+
+
+		private static void PromptOverwrite(DemoParsingSetupInfo setupInfo) {
 			// if (setupInfo.OverWriteDemos && !setupInfo.WritesNewDemos) <- I could add a check for this, is it necessary?
 			if (setupInfo.OverWriteDemos && setupInfo.EditsDemos && setupInfo.OverwritePrompt) {
 				Utils.Warning("Warning:");
@@ -94,7 +88,10 @@ namespace ConsoleApp.DemoArgProcessing {
 						return;
 				}
 			}
+		}
 
+
+		private void FlattenDirectories(DemoParsingSetupInfo setupInfo) {
 			// flatten directories/files into just files
 			foreach (FileSystemInfo fileSystemInfo in _argPaths) {
 				switch (fileSystemInfo) {
@@ -103,7 +100,7 @@ namespace ConsoleApp.DemoArgProcessing {
 						break;
 					case DirectoryInfo di:
 						_demoPaths.UnionWith(Directory.GetFiles(di.FullName, "*.dem",
-							setupInfo.ShouldSearchForDemosRecursively ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
+								setupInfo.ShouldSearchForDemosRecursively ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
 							.Select(s => new FileInfo(s)));
 						break;
 					default:
@@ -115,18 +112,35 @@ namespace ConsoleApp.DemoArgProcessing {
 					throw new ArgProcessUserException($"no demos found, maybe try searching subfolders using '{OptRecursive.DefaultAliases[0]}'.");
 				throw new ArgProcessUserException("no demos found!");
 			}
+		}
 
+
+		private IEnumerable<(FileInfo demoPath, string displayName)> CreateDisplayStrings() {
 			// Shorten the paths of the demos if possible, the shared path between the first and last paths will give
 			// the overall shared path of everything. If it's empty then we know the demos span multiple drives.
 			string commonParent = Utils.SharedPathSubstring(_demoPaths.Min.FullName, _demoPaths.Max.FullName);
-			IEnumerable<(FileInfo demoPath, string displayName)> paths =
-				_demoPaths.Select(demoPath => (
-					demoPath,
-					commonParent == ""
-						? demoPath.FullName
-						: PathExt.GetRelativePath(commonParent, demoPath.FullName)
+			return _demoPaths.Select(demoPath => (
+				demoPath,
+				commonParent == ""
+					? demoPath.FullName
+					: PathExt.GetRelativePath(commonParent, demoPath.FullName)
 				));
-			using DemoParsingInfo parsingInfo = new DemoParsingInfo(setupInfo, paths.ToImmutableList());
+		}
+
+
+		public override void Execute(params string[] args) {
+			if (CheckHelpAndVersion(args))
+				return;
+			DemoParsingSetupInfo setupInfo = new DemoParsingSetupInfo();
+			ParseArgs(args, setupInfo);
+
+			// enable --time implicitly if there are no other options
+			if (setupInfo.ExecutableOptions == 0)
+				EnableTimeOptionDefault(setupInfo);
+
+			PromptOverwrite(setupInfo);
+			FlattenDirectories(setupInfo);
+			using DemoParsingInfo parsingInfo = new DemoParsingInfo(setupInfo, CreateDisplayStrings().ToImmutableList());
 			Process(parsingInfo);
 		}
 	}

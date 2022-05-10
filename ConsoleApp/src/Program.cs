@@ -7,6 +7,79 @@ using ConsoleApp.GenericArgProcessing;
 
 namespace ConsoleApp {
 
+	/*
+	 * This is the best place I can think of describing the argument parsing and option processing. Welcome
+	 * to this mess of a codebase, please enjoy your stay.
+	 *
+	 * Third party libraries didn't give as much control as I wanted over the order of option processing.
+	 * I went through many different iterations of arg processing before I settled on what I'm using now.
+	 * This system was specifically designed for behaving like how I imagine listdemo+ would look like if
+	 * it had more options, but there is an abstraction over the whole thing because abstraction is cool.
+	 * This is a diagram of both the abstract interface and the implementation that's used:
+	 *
+	 *
+	 *         BaseSubCommand      │                    DemoParserSubCommand
+	 *           (Abstract)        │                      (Implementation)
+	 *                             │
+	 *      ┌──────────────────┐   │   ┌───────────────────┐
+	 *      │Check Help/Version│   │   │Check Help/Version │       ┌──────────────────────────┐
+	 *      │    Arguments     │   │   │     Arguments     │      ┌┤OptRemoveCaptions.Enable()│
+	 *      └────────┬─────────┘   │   └─────────┬─────────┘      │├──────────────────────────┤
+	 *               │             │             │                ││    OptPauses.Enable()    │
+	 *               ▼             │             ▼                │├──────────────────────────┤
+	 *      ┌──────────────────┐   │   ┌───────────────────┐      ││     OptTime.Enable()     │
+	 *      │   ParseArgs()    │   │   │    ParseArgs()    ├─────►│├──────────────────────────┤
+	 *      └────────┬─────────┘   │   └─────────┬─────────┘      ││            .             │
+	 *               │             │             │                ││            .             │
+	 *               ▼             │             ▼                └┤            .             │
+	 *      ┌──────────────────┐   │   ┌───────────────────┐       └────────────┬─────────────┘
+	 *      │    Process()     │   │   │ Enable OptTime if │                    │
+	 *      └────────┬─────────┘   │   │ no other options  ├──────────┐         │
+	 *               │             │   │    are enabled    │          ▼         ▼
+	 *               │             │   └─────────┬─────────┘         ┌──────────────────────┐
+	 *               │             │             │                   │  Set properties of   │
+	 *               │             │             ▼                   │ DemoParsingSetupInfo │
+	 *               │             │   ┌───────────────────┐         └──────────┬───────────┘
+	 *               │             │   │Find all demo files├──────────┐         │
+	 *               │             │   └─────────┬─────────┘          ▼         ▼
+	 *               │             │             │                   ┌──────────────────────┐
+	 *               │             │             │        ┌──────────┤Create DemoParsingInfo│
+	 *               │             │             │        │          └──────────┬───────────┘
+	 *               │             │             │        │                     │
+	 *               │             │             ▼        ▼                     ▼
+	 *               │             │   ┌───────────────────┐         ┌──────────────────────┐
+	 *               │             │   │     Process()     │         │  Queue demo parsing  │
+	 *               │             │   └─────────┬─────────┘         │(IParallelDemoParser) │
+	 *               │             │             │                   └───────────────┬──────┘
+	 *               │             │             │                                   │
+	 *               │             │             │                                   │
+	 * ┌─────────────┴──────────┐  │     ┌───────┴──────────────────────────────┐    │
+	 * │┌──────────────────────┐│  │     │┌────────────────────────────────────┐│    │
+	 * ││while (MoreThingsToDo)││  │     ││while (MoreDemosLeft())             ││    │
+	 * │└─┬────────────────────┤│  │     │└─┬──────────────────────────────────┤│    │
+	 * │  │option1.Process()   ││  │     │  │OptRemoveCaptions.RemoveCaptions()││    │
+	 * │  ├────────────────────┤│  │     │  ├──────────────────────────────────┤│    │
+	 * │  │option2.Process()   ││  │     │  │OptPauses.GetPauseTicks()         ││    │
+	 * │  ├────────────────────┤│  │     │  ├──────────────────────────────────┤│    │
+	 * │  │         .          ││  │     │  │                .                 ││    │
+	 * │  │         .          ││  │     │  │                .                 ││    │
+	 * │  │         .          ││  │     │  │                .                 ││    │
+	 * │  ├────────────────────┤│  │     │  ├──────────────────────────────────┤│    │
+	 * │  │GetNextThingToDo()  ││  │     │  │GetNextDemo()                     │◄────┘
+	 * │┌─┴────────────────────┤│  │     │┌─┴──────────────────────────────────┤│
+	 * ││DoneProcessing()      ││  │     ││DoneProcessing()                    ││
+	 * │├──────────────────────┤│  │     │├────────────────────────────────────┤│
+	 * ││option1.PostProcess() ││  │     ││OptTime.ShowTotalTime()             ││
+	 * │├──────────────────────┤│  │     │├────────────────────────────────────┤│
+	 * ││option2.PostProcess() ││  │     ││                 .                  ││
+	 * │├──────────────────────┤│  │     ││                 .                  ││
+	 * ││          .           ││  │     ││                 .                  ││
+	 * ││          .           ││  │     │└────────────────────────────────────┘│
+	 * ││          .           ││  │     └──────────────────────────────────────┘
+	 * │└──────────────────────┘│  │
+	 * └────────────────────────┘  │
+	 */
+
 	public static class Program {
 
 		public static void Main(string[] args) {

@@ -63,7 +63,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 							dataTables.PrettyWrite(pw);
 							break;
 						case DataTableDumpMode.Flattened:
-							var tableParser = new DataTableParser(demo, dataTables);
+							var tableParser = new DataTablesManager(demo, dataTables);
 							tableParser.FlattenClasses(false);
 							foreach ((ServerClass sClass, List<FlattenedProp> fProps) in tableParser.FlattenedProps!) {
 								pw.AppendLine($"{sClass.ClassName} ({sClass.DataTableName}) ({fProps.Count} props):");

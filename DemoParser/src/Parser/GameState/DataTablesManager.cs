@@ -15,7 +15,7 @@ namespace DemoParser.Parser.GameState {
 	// https://github.com/StatsHelix/demoinfo/blob/ac3e820d68a5a76b1c4c86bf3951e9799f669a56/DemoInfo/DT/DataTableParser.cs#L69
 
 	// expands the DataTables packet into a list of entity properties for each server class
-	public class DataTableParser {
+	public class DataTablesManager {
 
 		private readonly SourceDemo _demoRef;
 		private readonly DataTables _dtRef;
@@ -24,7 +24,7 @@ namespace DemoParser.Parser.GameState {
 
 
 
-		public DataTableParser(SourceDemo demoRef, DataTables dtRef) {
+		public DataTablesManager(SourceDemo demoRef, DataTables dtRef) {
 			_demoRef = demoRef;
 			_dtRef = dtRef;
 		}

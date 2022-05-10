@@ -7,7 +7,7 @@ namespace DemoParser.Parser.GameState {
 	// updated, etc. This is just a little class to hold that clutter in one spot (it used to all be in the demo class).
 	public class GameState {
 
-		public DataTableParser? DataTableParser;
+		public DataTablesManager? DataTablesManager;
 		internal Dictionary<uint, GameEventDescription>? GameEventLookup;
 		internal readonly StringTablesManager StringTablesManager;
 		internal EntitySnapshot? EntitySnapshot;

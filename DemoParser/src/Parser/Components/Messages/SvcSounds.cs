@@ -9,6 +9,8 @@ using static DemoParser.Parser.Components.Messages.SvcSounds;
 
 namespace DemoParser.Parser.Components.Messages {
 
+	// this message makes me cry
+
 	public class SvcSounds : DemoMessage {
 
 		internal const int SndSeqNumberBits = 10;

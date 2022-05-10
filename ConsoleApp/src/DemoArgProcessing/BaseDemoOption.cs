@@ -91,6 +91,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		public bool CanAdvance() => _pdp.HasNext();
 
 
+		// overwrite the demo into _overwriteProgress if the last option does demo writing
 		public void DoneWithOption() {
 			if (SetupInfo.OverWriteDemos && _binaryStream != null) {
 				// try parsing the edited version, if it succeeds then it'll get passed to any other edit options
@@ -109,6 +110,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		}
 
 
+		// overwrite the real demo if god wills us so
 		private void CheckDemoOverwrite() {
 			if (SetupInfo.OverWriteDemos && _overwriteCount > 0) {
 				if (CancelOverwrite) {

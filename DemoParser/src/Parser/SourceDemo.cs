@@ -12,6 +12,28 @@ using DemoParser.Utils.BitStreams;
 
 namespace DemoParser.Parser {
 
+	/*
+	 * Basic demo structure:
+	 *
+	 *   SourceDemo         PacketFrame
+	 * ┌─────────────┐        ┌────┐
+	 * │ DemoHeader  │       ┌┤Tick│
+	 * ├─────────────┤       │├────┤
+	 * │PacketFrame 1│   ┌──►││Type│
+	 * ├─────────────┤   │   │├────┤
+	 * │PacketFrame 2├───┘   └┤Data│
+	 * ├─────────────┤        └────┘
+	 * │PacketFrame 3│
+	 * ├─────────────┤
+	 * │      .      │
+	 * │      .      │
+	 * │      .      │
+	 * ├─────────────┤
+	 * │ PacketFrame │
+	 * │     STOP    │
+	 * └─────────────┘
+	 */
+
 	/// <summary>
 	/// Once parsed, contains an in-memory representation of a demo file.
 	/// </summary>

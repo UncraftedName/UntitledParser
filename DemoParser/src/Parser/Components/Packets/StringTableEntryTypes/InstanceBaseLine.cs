@@ -27,7 +27,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			if ((_propLookup ??= DemoRef.State.DataTableParser?.FlattenedProps) == null)
+			if ((_propLookup ??= DemoRef.State.DataTablesManager?.FlattenedProps) == null)
 				return; // we don't have data tables yet, come back later...
 
 			// we should only get to here once

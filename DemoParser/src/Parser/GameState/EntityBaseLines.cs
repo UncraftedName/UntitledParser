@@ -64,7 +64,7 @@ namespace DemoParser.Parser.GameState {
 			// In most versions I can't parse all string table updates which contain baselines, so create a blank baseline
 			if (props == null) {
 				_demoRef.LogError($"{GetType().Name}: creating new empty baseline for class ({serverClass.ToString()})");
-				List<FlattenedProp> fProps = _demoRef.State.DataTableParser.FlattenedProps[classIndex].flattenedProps;
+				List<FlattenedProp> fProps = _demoRef.State.DataTablesManager.FlattenedProps[classIndex].flattenedProps;
 				props = new EntityProperty[fProps.Count];
 				Baselines[classIndex].serverClass = serverClass;
 			}
