@@ -78,7 +78,6 @@ namespace DemoParser.Parser.Components {
 				}
 				if (i != Messages.Count - 1)
 					pw.AppendLine();
-				i++;
 			}
 			if (!ParseSuccess)
 				pw.Append($"\nmore messages remaining... type: {_lastMsgType}");
