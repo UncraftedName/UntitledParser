@@ -39,6 +39,7 @@ namespace DemoParser.Parser {
 		public readonly int MaxSndIndexBits;
 		public float TickInterval; // I set the tick interval here just in case but it should get set from SvcServerInfo
 		public bool HasParsedTickInterval = false;
+		public int SpModelIndexBits;
 
 
 		// game specific enum lists
@@ -176,6 +177,11 @@ namespace DemoParser.Parser {
 					break;
 			}
 			MessageTypesReverseLookup = MessageTypes.CreateReverseLookupDict(MessageType.Invalid);
+
+			if (IsLeft4Dead2() && Game >= L4D2_2203)
+				SpModelIndexBits = 12;
+			else
+				SpModelIndexBits = 11;
 
 			if (NewDemoProtocol) {
 				MaxSndIndexBits = 13;

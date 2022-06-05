@@ -23,7 +23,7 @@ namespace DemoParser.Parser.Components.Messages {
 			DecalTextureIndex = (int)bsr.ReadUInt(9);
 			if (bsr.ReadBool()) {
 				EntityIndex = bsr.ReadUInt(DemoInfo.MaxEdictBits);
-				ModelIndex = bsr.ReadUInt(DemoInfo.MaxEdictBits);
+				ModelIndex = bsr.ReadUInt(DemoInfo.SpModelIndexBits);
 			}
 			LowPriority = bsr.ReadBool();
 		}
