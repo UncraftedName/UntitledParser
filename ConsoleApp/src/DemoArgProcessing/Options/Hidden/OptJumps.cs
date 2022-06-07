@@ -27,9 +27,9 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 			infoObj.PrintOptionMessage("searching for jumps");
 			try {
 				bool any = false;
-				foreach ((ConsoleCmd cmd, MatchCollection matches) in infoObj.CurrentDemo.CmdRegexMatches("[+-]jump")) {
+				foreach ((ConsoleCmd cmd, MatchCollection _) in infoObj.CurrentDemo.CmdRegexMatches("[+-]jump")) {
 					any = true;
-					Console.WriteLine($"[{cmd.Tick}] {cmd.Command}");
+					Console.WriteLine($"[{cmd.Tick}] {cmd.ToString()}");
 				}
 				if (!any)
 					Console.WriteLine("no jumps found");
