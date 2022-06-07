@@ -106,6 +106,7 @@ namespace ConsoleApp {
 						new OptRemoveCaptions(),
 						new OptChangeDemoDir(),
 						new OptSmoothGlessHops(),
+						new OptRemovePauses(),
 						new OptPositionDump(),
 						new OptGladosShots(),
 						new OptTeleports(),
