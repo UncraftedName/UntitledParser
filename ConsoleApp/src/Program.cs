@@ -117,6 +117,7 @@ namespace ConsoleApp {
 						new OptRemovePauses(),
 						new OptPositionDump(),
 						new OptGladosShots(),
+						new OptDemToTas(),
 						new OptTeleports(),
 						new OptPortals(),
 						new OptInputs(),

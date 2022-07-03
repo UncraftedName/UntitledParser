@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
-using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
 
