@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Immutable;
+using System.Globalization;
+using System.Threading;
 using ConsoleApp.DemoArgProcessing;
 using ConsoleApp.DemoArgProcessing.Options;
 using ConsoleApp.DemoArgProcessing.Options.Hidden;
@@ -86,6 +88,12 @@ namespace ConsoleApp {
 			// It would be nice if the console color was reset if ctrl+c is used, but I haven't gotten that to work yet.
 			// This line of code just eats ctrl+c and delays it by way too much.
 			// Console.CancelKeyPress += (sender,eventArgs) => Console.ResetColor();
+
+			// I want exceptions to be in english :)
+			Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+			CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+			CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 			Console.WriteLine("UntitledParser by UncraftedName");
 			// write everything with color since we have no idea what/when could have triggered any exceptions
