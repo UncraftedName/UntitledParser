@@ -58,7 +58,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 				"_y_spt_afterframes_reset_on_server_activate 0\n" +
 				"y_spt_pause 0\n\n"
 			);
-			Regex quoteRe = new Regex("\"(.+?)\"", RegexOptions.Compiled);
+			Regex quoteRe = new Regex("\"([^ \"]+)\"", RegexOptions.Compiled);
 			int lastCmdTick = int.MinValue;
 			int lastUCmdTick = int.MinValue;
 			string lastCmd = null!;
