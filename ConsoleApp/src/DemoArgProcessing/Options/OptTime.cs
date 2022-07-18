@@ -26,7 +26,6 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public enum TimeFlags {
 			NoHeader = 1,
 			TimeFirstTick = 2,
-			AlwaysShowTotalTime = 4,
 		}
 
 
@@ -38,7 +37,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			Arity.ZeroOrOne,
 			"Print demo header and time info, enabled automatically if no other options are set." +
 			"\nBy default, 1 tick is added for Portal 1 and L4D games." +
-			$"\nNote that flags can be combined, e.g. \"{TimeFlags.NoHeader | TimeFlags.AlwaysShowTotalTime}\" or \"5\".",
+			$"\nNote that flags can be combined, e.g. \"{TimeFlags.NoHeader | TimeFlags.TimeFirstTick}\" or \"3\".",
 			"flags",
 			Utils.ParseEnum<TimeFlags>,
 			default)
@@ -81,36 +80,32 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		protected override void PostProcess(DemoParsingInfo infoObj, TimeFlags arg, bool isDefault) {
-			bool showTotal = _sdt.ValidFlags.HasFlag(SimpleDemoTimer.Flags.TotalTimeValid);
-			bool showAdjusted = _sdt.ValidFlags.HasFlag(SimpleDemoTimer.Flags.AdjustedTimeValid);
-			bool overwrite = (arg & TimeFlags.AlwaysShowTotalTime) != 0;
-			if (!overwrite && infoObj.NumDemos == 1)
+			if (infoObj.NumDemos == 1)
 				return;
+			bool totalValid = _sdt.ValidFlags.HasFlag(SimpleDemoTimer.Flags.TotalTimeValid);
+			bool adjustedValid = _sdt.ValidFlags.HasFlag(SimpleDemoTimer.Flags.AdjustedTimeValid);
 
-			// show message if only one is invalid, or if we're overwriting and either is invalid
-			if ((showTotal ^ showAdjusted) || (overwrite && (!showTotal || !showAdjusted))) {
+			if (!totalValid || !adjustedValid) {
 				string which;
-				if (!showTotal && !showAdjusted)
+				if (!totalValid && !adjustedValid)
 					which = "Total and adjusted";
-				else if (!showTotal)
+				else if (!totalValid)
 					which = "Total";
 				else
 					which = "Adjusted";
-				Utils.Warning($"{which} time may not be valid.\n\n");
+				Utils.Warning($"{which} time may not be valid.\n");
+				if (_sdt.SimpleDemoDifferences.Any())
+					Utils.Warning($"The following don't match between demos: {_sdt.SimpleDemoDifferences.SequenceToString()}.");
+				Console.Write("\n\n");
 			}
 			Utils.PushForegroundColor(ConsoleColor.Green);
-			if (showTotal || overwrite) {
-				Console.WriteLine($"{"Total measured time", FmtIdt}: {Utils.FormatTime(_sdt.TotalTime)}");
-				Console.WriteLine($"{"Total measured ticks", FmtIdt}: {_sdt.TotalTicks}");
-				showAdjusted &= _sdt.TotalTicks != _sdt.AdjustedTicks;
-			}
-			if (showAdjusted || overwrite) {
-				Console.WriteLine($"{"Total adjusted time", FmtIdt}: {Utils.FormatTime(_sdt.AdjustedTime)}");
-				Console.WriteLine($"{"Total adjusted ticks", FmtIdt}: {_sdt.AdjustedTicks}");
+			Console.WriteLine($"{"Total measured time", FmtIdt}: {Utils.FormatTime(_sdt.TotalTime)}");
+			Console.WriteLine($"{"Total measured ticks", FmtIdt}: {_sdt.TotalTicks}");
+			if (_sdt.TotalTicks != _sdt.AdjustedTicks) {
+				Console.WriteLine($"{"Total adjusted time",FmtIdt}: {Utils.FormatTime(_sdt.AdjustedTime)}");
+				Console.WriteLine($"{"Total adjusted ticks",FmtIdt}: {_sdt.AdjustedTicks}");
 			}
 			Utils.PopForegroundColor();
-			if (!showTotal && !showAdjusted && !overwrite)
-				Console.WriteLine($"Not showing total time from {DefaultAliases[0]} since it may not be valid. Use '{DefaultAliases[0]} {TimeFlags.AlwaysShowTotalTime}' to show it regardless.");
 		}
 
 
@@ -222,13 +217,27 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 	/// </summary>
 	public class SimpleDemoTimer {
 
+		// A dictionary that can be used to check if two demos *should* be timed together.
+		// If these don't match between demos, a warning is shown using these keys.
+		private class SimpleDemoInfo : Dictionary<string, object> {
+			public SimpleDemoInfo(SourceDemo demo) {
+				Add("Demo Protocol", demo.Header.DemoProtocol);
+				Add("Network Protocol", demo.Header.NetworkProtocol);
+				Add("Tick Interval", demo.DemoInfo.TickInterval);
+				Add("Mod Directory", demo.Header.GameDirectory);
+			}
+		}
+
 		public int TotalTicks {get;private set;}
 		public double TotalTime {get;private set;}
 		public int AdjustedTicks {get;private set;}
 		public double AdjustedTime {get;private set;}
 		private readonly bool _timeFirstTick;
 		public Flags ValidFlags {get;private set;}
-		private int? _firstHash;
+		private readonly HashSet<string> _simpleDemoDifferences;
+		public IEnumerable<string> SimpleDemoDifferences => _simpleDemoDifferences;
+
+		private SimpleDemoInfo? _firstSimpleInfo;
 
 		// a hack to allow only p1 & l4d to time w/ first tick
 		private SourceDemo _curDemo = null!;
@@ -240,6 +249,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			_timeFirstTick = timeFirstTick;
 			ValidFlags = Flags.TotalTimeValid | Flags.AdjustedTimeValid;
 			_forceFirstTickTiming = new HashSet<SourceGame>();
+			_simpleDemoDifferences = new HashSet<string>();
 		}
 
 
@@ -258,10 +268,17 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public void Consume(SourceDemo demo) {
 			_curDemo = demo;
 			try {
-				_firstHash ??= QuickHash(demo);
-				// consider this demo to be part of a different run if the hash doesn't match
-				if (_firstHash.Value != QuickHash(demo))
-					ValidFlags &= ~(Flags.TotalTimeValid | Flags.AdjustedTimeValid);
+				if (_firstSimpleInfo == null) {
+					_firstSimpleInfo = new SimpleDemoInfo(demo);
+				} else {
+					// consider this demo to be part of a different run if the simple info doesn't match
+					foreach (var pair in new SimpleDemoInfo(demo)) {
+						if (!_firstSimpleInfo[pair.Key].Equals(pair.Value)) {
+							ValidFlags &= ~(Flags.TotalTimeValid | Flags.AdjustedTimeValid);
+							_simpleDemoDifferences.Add(pair.Key);
+						}
+					}
+				}
 
 				if (TimingAdjustment.ExcludedMaps.Contains((demo.DemoInfo.Game, demo.Header.MapName)))
 					return;
