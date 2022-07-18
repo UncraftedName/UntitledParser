@@ -27,7 +27,10 @@ namespace DemoParser.Parser {
 		public static readonly ICollection<(SourceGame game, string mapName)> ExcludedMaps = new [] {
 			(PORTAL_1_5135, "gex03"),      // gamma energy last map
 			(PORTAL_1_5135, "rex_menu"),   // rexaura menu (why tf does this even have a demo???)
-			(PORTAL_1_1910503, "rex_menu")
+			(PORTAL_1_1910503, "rex_menu"),
+			(PORTAL_1_3420, "ricky_credits"),
+			(PORTAL_1_5135, "ricky_credits"),
+			(PORTAL_1_1910503, "ricky_credits"),
 		}.ToImmutableHashSet();
 
 
