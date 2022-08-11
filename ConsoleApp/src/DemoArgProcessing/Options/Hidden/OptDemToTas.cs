@@ -62,19 +62,23 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 			int lastCmdTick = int.MinValue;
 			int lastUCmdTick = int.MinValue;
 			string lastCmd = null!;
-			foreach (PacketFrame frame in demo.Frames.Where(frame => frame.Tick >= 0)) {
+			foreach (PacketFrame frame in demo.Frames) {
+				// offset client tick by 1, this seems to be more accurate with cycled mechanics e.g. CheckStuck
+				int tick = frame.Tick - 1;
+				if (tick < 0)
+					continue;
 				switch (frame.Packet) {
-					case ConsoleCmd cmd when lastCmdTick != cmd.Tick || lastCmd != cmd.Command:
+					case ConsoleCmd cmd when lastCmdTick != tick || lastCmd != cmd.Command:
 						lastCmd = cmd.Command;
 						string cmdNoQuotes = quoteRe.Replace(cmd.Command, match => match.Groups[1].Value);
 						if (cmdNoQuotes.Contains('"'))
-							Utils.Warning($"Could not remove quotes from command '{cmd.Command}' on tick {cmd.Tick}\n");
-						lastCmdTick = cmd.Tick;
-						tw.WriteLine($"_y_spt_afterframes {cmd.Tick} \"{cmdNoQuotes}\"");
+							Utils.Warning($"Could not remove quotes from command '{cmd.Command}' on tick {tick}\n");
+						lastCmdTick = tick;
+						tw.WriteLine($"_y_spt_afterframes {tick} \"{cmdNoQuotes}\"");
 						break;
-					case UserCmd uCmd when lastUCmdTick != uCmd.Tick:
-						lastUCmdTick = uCmd.Tick;
-						tw.WriteLine($"_y_spt_afterframes {uCmd.Tick} \"_y_spt_setangles {uCmd.ViewAngleX:R} {uCmd.ViewAngleY:R}\"");
+					case UserCmd uCmd when lastUCmdTick != tick:
+						lastUCmdTick = tick;
+						tw.WriteLine($"_y_spt_afterframes {tick} \"_y_spt_setangles {uCmd.ViewAngleX:R} {uCmd.ViewAngleY:R}\"");
 						break;
 				}
 			}
