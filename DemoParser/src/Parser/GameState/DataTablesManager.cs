@@ -120,38 +120,25 @@ namespace DemoParser.Parser.GameState {
 				int start = 0;
 				var priorities = fProps.Select(entry => entry.PropInfo.Priority!.Value).Concat(new[] { 64 }).Distinct();
 				foreach (int priority in priorities.OrderBy(i => i)) {
-					while (true) {
-						int i = start;
-						while (i < fProps.Count) {
-							SendTableProp p = fProps[i].PropInfo;
-							// ChangesOften gets the same priority as 64
-							if (p.Priority == priority || (_demoRef.DemoInfo.PropFlagChecker.HasFlag(p.Flags, ChangesOften) && priority == 64)) {
-								if (start != i)
-									(fProps[start], fProps[i]) = (fProps[i], fProps[start]);
-								start++;
-								break;
-							}
-							i++;
+					for (int i = start; i < fProps.Count; i++) {
+						SendTableProp p = fProps[i].PropInfo;
+						// ChangesOften gets the same priority as 64
+						if (p.Priority == priority || (_demoRef.DemoInfo.PropFlagChecker.HasFlag(p.Flags, ChangesOften) && priority == 64)) {
+							if (start != i)
+								(fProps[start], fProps[i]) = (fProps[i], fProps[start]);
+							start++;
 						}
-						if (i == fProps.Count)
-							break;
 					}
 				}
 			} else { // se2007/engine/dt.cpp line 443
 				int start = 0;
-				while (true) {
-					int i;
-					for (i = start; i < fProps.Count; i++) {
-						FlattenedProp p = fProps[i];
-						if (_demoRef.DemoInfo.PropFlagChecker.HasFlag(p.PropInfo.Flags, ChangesOften)) {
-							fProps[i] = fProps[start];
-							fProps[start] = p;
-							start++;
-							break;
-						}
+				for (int i = start; i < fProps.Count; i++) {
+					FlattenedProp p = fProps[i];
+					if (_demoRef.DemoInfo.PropFlagChecker.HasFlag(p.PropInfo.Flags, ChangesOften)) {
+						fProps[i] = fProps[start];
+						fProps[start] = p;
+						start++;
 					}
-					if (i == fProps.Count)
-						break;
 				}
 			}
 		}
