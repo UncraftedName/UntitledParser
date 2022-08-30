@@ -95,7 +95,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 			var jumpTicks =
 				(from msgTup in demo.FilterForMessage<SvcPacketEntities>()
 					from update in msgTup.message.Updates
-					where update.ServerClass.ClassName == "CPortal_Player" && update is Delta
+					where update.ServerClass!.ClassName == "CPortal_Player" && update is Delta
 					from deltaProp in ((Delta)update).Props
 					where deltaProp.prop.Name == "m_Local.m_flJumpTime" &&
 						  ((SingleEntProp<float>)deltaProp.prop).Value == 510.0
@@ -174,7 +174,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 					var viewOffsetProp = (SingleEntProp<float>?)(
 							(Delta?)packet.FilterForMessage<SvcPacketEntities>().Single().Updates!
-								.SingleOrDefault(update => update.ServerClass.ClassName == "CPortal_Player"))
+								.SingleOrDefault(update => update.ServerClass!.ClassName == "CPortal_Player"))
 						?.Props.SingleOrDefault(tuple => tuple.prop.Name == "m_vecViewOffset[2]").prop;
 
 					if (viewOffsetProp != null) {
