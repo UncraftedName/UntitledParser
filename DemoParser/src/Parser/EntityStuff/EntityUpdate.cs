@@ -7,9 +7,9 @@ namespace DemoParser.Parser.EntityStuff {
 	// base class
 	public abstract class EntityUpdate : PrettyClass {
 
-		public readonly ServerClass ServerClass;
+		public readonly ServerClass? ServerClass; // may be null for explicit deletes
 
-		protected EntityUpdate(ServerClass serverClass) {
+		protected EntityUpdate(ServerClass? serverClass) {
 			ServerClass = serverClass;
 		}
 	}
@@ -93,15 +93,19 @@ namespace DemoParser.Parser.EntityStuff {
 		public readonly bool Delete;
 
 
-		public LeavePvs(int index, ServerClass serverClass, bool delete) : base(serverClass) {
+		public LeavePvs(int index, ServerClass? serverClass, bool delete) : base(serverClass) {
 			Index = index;
 			Delete = delete;
 		}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
-			pw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - ");
-			ServerClass.PrettyWrite(pw);
+			if (ServerClass is null) {
+				pw.Append($"({Index}) DELETION OF NULL ENT");
+			} else {
+				pw.Append($"({Index}) {(Delete ? "DELETE" : "LEAVE_PVS")} - ");
+				ServerClass.PrettyWrite(pw);
+			}
 		}
 	}
 }

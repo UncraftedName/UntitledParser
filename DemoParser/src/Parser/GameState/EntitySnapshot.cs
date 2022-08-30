@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using C5;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.EntityStuff;
 
@@ -14,20 +13,17 @@ namespace DemoParser.Parser.GameState {
 
 		private readonly SourceDemo _demoRef;
 		public readonly Entity?[] Entities;
-		private readonly TreeSet<int> _nonNullEnts;
 		public uint EngineTick; // set from the packet packet
 
 
 		public EntitySnapshot(SourceDemo demoRef) {
 			_demoRef = demoRef;
 			Entities = new Entity?[DemoInfo.MaxEdicts];
-			_nonNullEnts = new TreeSet<int>();
 		}
 
 
 		internal void ClearEntityState() {
 			Array.Clear(Entities, 0, Entities.Length);
-			_nonNullEnts.Clear();
 		}
 
 
@@ -35,15 +31,14 @@ namespace DemoParser.Parser.GameState {
 			Debug.Assert(_demoRef.State.EntBaseLines != null, "baselines are null");
 			if (u.New) {
 				// create the ent
-				Entities[u.EntIndex] = _demoRef.State.EntBaseLines.EntFromBaseLine(u.ServerClass, u.Serial);
-				_nonNullEnts.UpdateOrAdd(u.EntIndex);
+				Entities[u.EntIndex] = _demoRef.State.EntBaseLines.EntFromBaseLine(u.ServerClass!, u.Serial);
 			}
 			Entity e = Entities[u.EntIndex] ?? throw new InvalidOperationException($"entity {u.EntIndex} should not be null by now");
 			e.InPvs = true;
 			ProcessDelta(u);
 			if (msg.UpdateBaseline) { // if update baseline then set the current baseline to the ent props, wacky
 				_demoRef.State.EntBaseLines.UpdateBaseLine(
-					u.ServerClass,
+					u.ServerClass!,
 					e.Props.Select((property, i) => (i, property)).Where(tuple => tuple.property != null)!,
 					e.Props.Length);
 			}
@@ -51,12 +46,10 @@ namespace DemoParser.Parser.GameState {
 
 
 		internal void ProcessLeavePvs(LeavePvs u) {
-			if (u.Delete) {
+			if (u.Delete)
 				Entities[u.Index] = null;
-				_nonNullEnts.Remove(u.Index);
-			} else {
+			else
 				Entities[u.Index].InPvs = false;
-			}
 		}
 
 
@@ -72,14 +65,6 @@ namespace DemoParser.Parser.GameState {
 					old = prop;
 				}
 			}
-		}
-
-
-		internal void GetNextNonNullEntIndex(ref int index) {
-			if (index >= Entities.Length)
-				return;
-			if (!_nonNullEnts.TrySuccessor(index, out index))
-				index = int.MaxValue; // something bigger than the max number of ents
 		}
 	}
 }

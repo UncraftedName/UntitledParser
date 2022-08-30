@@ -21,8 +21,6 @@ namespace DemoParser.Parser.Components.Messages {
 		// Server requested to use this snapshot as baseline update.
 		// Any time this happens, the game swaps the baseline to read from starting on the next packet (hopefully).
 		public bool UpdateBaseline;
-		private BitStreamReader _entBsr;
-		public BitStreamReader EntStream => _entBsr.FromBeginning();
 		public List<EntityUpdate>? Updates;
 
 
@@ -39,7 +37,7 @@ namespace DemoParser.Parser.Components.Messages {
 			UpdatedEntries = (ushort)bsr.ReadUInt(11);
 			uint dataLen = bsr.ReadUInt(20);
 			UpdateBaseline = bsr.ReadBool();
-			_entBsr = bsr.ForkAndSkip((int)dataLen);
+			BitStreamReader entBsr = bsr.ForkAndSkip((int)dataLen);
 
 #if !FORCE_PROCESS_ENTS
 			if ((DemoRef.DemoParseResult & DemoParseResult.EntParsingEnabled) == 0 ||
@@ -73,59 +71,62 @@ namespace DemoParser.Parser.Components.Messages {
 			if (!IsDelta)
 				snapshot.ClearEntityState();
 
-			// game uses different entity frames, so "oldI = old ent index = from" & "newI = new ent index = to"
-			int oldI = -1, newI = -1;
-			snapshot.GetNextNonNullEntIndex(ref oldI);
+			int idx = -1;
 
 			for (int _ = 0; _ < UpdatedEntries; _++) {
 
-				newI += 1 + (DemoInfo.NewDemoProtocol
-					? (int)_entBsr.ReadUBitInt()
-					: (int)_entBsr.ReadUBitVar());
-
-				// get the old ent index up to at least the new one
-				if (newI > oldI) {
-					oldI = newI - 1;
-					snapshot.GetNextNonNullEntIndex(ref oldI);
-				}
+				idx += 1 + (DemoInfo.NewDemoProtocol
+					? (int)entBsr.ReadUBitInt()
+					: (int)entBsr.ReadUBitVar());
 
 				EntityUpdate update;
 				// vars used in enter pvs & delta
 				ServerClass entClass;
 				List<FlattenedProp> fProps;
 				int iClass;
-				uint updateType = _entBsr.ReadUInt(2);
+				uint updateType = entBsr.ReadUInt(2);
 				switch (updateType) {
 					case 0: // delta
-						if (oldI != newI)
-							throw new ArgumentException("oldEntSlot != newEntSlot");
-						iClass = snapshot.Entities[newI].ServerClass.DataTableId;
+						if (snapshot.Entities[idx] == null)
+							throw new ArgumentException("attempt to delta null entity");
+						iClass = snapshot.Entities[idx].ServerClass.DataTableId;
 						(entClass, fProps) = dtMgr.FlattenedProps[iClass];
-						update = new Delta(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef));
+						update = new Delta(idx, entClass, entBsr.ReadEntProps(fProps, DemoRef));
 						snapshot.ProcessDelta((Delta)update);
-						snapshot.GetNextNonNullEntIndex(ref oldI);
 						break;
 					case 2: // enter PVS
-						iClass = (int)_entBsr.ReadUInt(dtMgr.ServerClassBits);
-						uint iSerial = (uint)_entBsr.ReadULong(HandleSerialNumberBits);
+						iClass = (int)entBsr.ReadUInt(dtMgr.ServerClassBits);
+						uint iSerial = (uint)entBsr.ReadULong(HandleSerialNumberBits);
 						(entClass, fProps) = dtMgr.FlattenedProps[iClass];
-						bool bNew = ents[newI] == null || ents[newI].Serial != iSerial;
-						update = new EnterPvs(newI, entClass, _entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);
+						bool bNew = ents[idx] == null || ents[idx].Serial != iSerial;
+						update = new EnterPvs(idx, entClass, entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);
 						snapshot.ProcessEnterPvs(this, (EnterPvs)update); // update baseline check in here
-						if (oldI == newI)
-							snapshot.GetNextNonNullEntIndex(ref oldI);
 						break;
 					case 1: // leave PVS
 					case 3: // delete
-						update = new LeavePvs(oldI, ents[oldI].ServerClass, updateType == 3);
+						if (snapshot.Entities[idx] == null)
+							throw new ArgumentException("attempt to delete null entity");
+						update = new LeavePvs(idx, ents[idx].ServerClass, updateType == 3);
 						snapshot.ProcessLeavePvs((LeavePvs)update);
-						snapshot.GetNextNonNullEntIndex(ref oldI);
 						break;
 					default:
 						throw new ArgumentException($"unknown ent update type: {updateType}");
 				}
 				Updates.Add(update);
 			}
+
+			// process explicit deletes
+			if (IsDelta) {
+				while (entBsr.ReadBool()) {
+					// idx may be a null entity for some reason ¯\_(ツ)_/¯
+					idx = (int)entBsr.ReadUInt(DemoInfo.MaxEdictBits);
+					LeavePvs update = new LeavePvs(idx, ents[idx]?.ServerClass, true);
+					snapshot.ProcessLeavePvs(update);
+					Updates.Add(update);
+				}
+			}
+			if (entBsr.BitsRemaining != 0 || entBsr.HasOverflowed)
+				bsr.SetOverflow();
 		}
 
 
@@ -136,7 +137,6 @@ namespace DemoParser.Parser.Components.Messages {
 				pw.AppendLine($"delta from: {DeltaFrom}");
 			pw.AppendLine($"baseline: {BaseLine}");
 			pw.AppendLine($"updated baseline: {UpdateBaseline}");
-			pw.AppendLine($"length in bits: {_entBsr.BitLength}");
 			pw.Append($"{UpdatedEntries} updated entries");
 			if ((DemoRef.DemoParseResult & DemoParseResult.EntParsingEnabled) != 0) {
 				pw.Append(":");
