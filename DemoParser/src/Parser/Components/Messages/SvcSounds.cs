@@ -87,7 +87,7 @@ namespace DemoParser.Parser.Components.Messages {
 	public class SoundInfo : DemoComponent {
 
 		public uint EntityIndex;
-		public int? SoundNum;
+		public uint? SoundNum;
 		public uint? ScriptHash;
 		public string? SoundName;
 		private bool _soundTableReadable;
@@ -182,11 +182,11 @@ namespace DemoParser.Parser.Components.Messages {
 			if (DemoInfo.NewDemoProtocol) {
 				Flags = (SoundFlags?)bsr.ReadUIntIfExists(DemoInfo.SoundFlagBitsEncode) ?? _deltaTmp.Flags;
 				if ((Flags & SoundFlags.IsScriptHandle) != 0)
-					ScriptHash = bsr.ReadUInt();
+					ScriptHash = bsr.ReadUIntIfExists();
 				else
-					SoundNum = (int?)bsr.ReadUIntIfExists(DemoInfo.MaxSndIndexBits) ?? _deltaTmp.SoundNum;
+					SoundNum = bsr.ReadUIntIfExists(DemoInfo.MaxSndIndexBits) ?? _deltaTmp.SoundNum;
 			} else {
-				SoundNum = (int?)bsr.ReadUIntIfExists(DemoInfo.MaxSndIndexBits) ?? _deltaTmp.SoundNum;
+				SoundNum = bsr.ReadUIntIfExists(DemoInfo.MaxSndIndexBits) ?? _deltaTmp.SoundNum;
 				Flags = (SoundFlags?)bsr.ReadUIntIfExists(DemoInfo.SoundFlagBitsEncode) ?? _deltaTmp.Flags;
 			}
 			Chan = (Channel?)bsr.ReadUIntIfExists(3) ?? _deltaTmp.Chan;
@@ -202,7 +202,7 @@ namespace DemoParser.Parser.Components.Messages {
 					if (SoundNum >= mgr.Tables[TableNames.SoundPreCache].Entries.Count)
 						DemoRef.LogError($"{GetType().Name}: sound index {SoundNum} out of range");
 					else if (SoundNum != 0)
-						SoundName = mgr.Tables[TableNames.SoundPreCache].Entries[SoundNum.Value].Name;
+						SoundName = mgr.Tables[TableNames.SoundPreCache].Entries[(int)SoundNum.Value].Name;
 				}
 			}
 
