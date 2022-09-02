@@ -49,8 +49,8 @@ namespace DemoParser.Parser {
 
 		public readonly IReadOnlyList<SendPropEnums.SendPropType> SendPropTypes;
 		public readonly IReadOnlyDictionary<SendPropEnums.SendPropType, int> SendPropTypesReverseLookup;
-		public readonly IReadOnlyList<PacketType>? PacketTypes;
-		public readonly IReadOnlyDictionary<PacketType, int>? PacketTypesReverseLookup;
+		public IReadOnlyList<PacketType>? PacketTypes;
+		public IReadOnlyDictionary<PacketType, int>? PacketTypesReverseLookup;
 		public readonly IReadOnlyList<MessageType>? MessageTypes;
 		public readonly IReadOnlyDictionary<MessageType, int>? MessageTypesReverseLookup;
 		public readonly IReadOnlyList<UserMessageType>? UserMessageTypes;
@@ -213,6 +213,7 @@ namespace DemoParser.Parser {
 		HL2_OE, // todo add regular hl2
 
 		PORTAL_1_3420,
+		PORTAL_1_3740,
 		PORTAL_1_5135,
 		PORTAL_1_1910503, // latest steam version
 

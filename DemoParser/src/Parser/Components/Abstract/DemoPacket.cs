@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Packets;
+using DemoParser.Utils;
 
 namespace DemoParser.Parser.Components.Abstract {
 
@@ -57,12 +58,21 @@ namespace DemoParser.Parser.Components.Abstract {
 		// gets the packet type associated with this byte value
 		public static PacketType ByteToPacketType(DemoInfo demoInfo, byte b) {
 			var tab = demoInfo.PacketTypes;
-			if (tab == null)
+			if (tab == null) {
 				return PacketType.Unknown;
-			else if (b >= tab.Count)
+			} else if (b >= tab.Count) {
+				// HACK for 3740. Of course valve didn't change the net protocol, so this
+				// is the first place I could think of to differentiate the versions.
+				if (demoInfo.Game == SourceGame.PORTAL_1_3420 && b == 8) {
+					demoInfo.Game = SourceGame.PORTAL_1_3740;
+					demoInfo.PacketTypes = Portal15135Table;
+					demoInfo.PacketTypesReverseLookup = Portal15135Table.CreateReverseLookupDict(PacketType.Invalid);
+					return ByteToPacketType(demoInfo, b);
+				}
 				return PacketType.Invalid;
-			else
+			} else {
 				return tab[b];
+			}
 		}
 
 

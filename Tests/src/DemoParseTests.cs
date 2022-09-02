@@ -15,6 +15,7 @@ namespace Tests {
 
 			new TestCaseData("portal 1 leak.dem").SetName("Portal 1 (Leak)"),
 			new TestCaseData("portal 1 3420.dem").SetName("Portal 1 (3420)"),
+			new TestCaseData("portal 1 3740.dem").SetName("Portal 1 (3740)"),
 			new TestCaseData("portal 1 5135 captions.dem").SetName("Portal 1 (5135) with captions"),
 			new TestCaseData("portal 1 5135 hltv client.dem").SetName("Portal 1 (5135 HLTV Client)"),
 			new TestCaseData("portal 1 5135 hltv server.dem").SetName("Portal 1 (5135 HLTV Server)"),
