@@ -113,7 +113,7 @@ namespace DemoParser.Utils.BitStreams {
 
 
 		public byte[] ReadBytes(int byteCount) {
-			if (byteCount < 0)
+			if (byteCount < 0 || byteCount * 8 > BitsRemaining)
 				HasOverflowed = true;
 			if (HasOverflowed)
 				return Array.Empty<byte>();
