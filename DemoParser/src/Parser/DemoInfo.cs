@@ -178,7 +178,9 @@ namespace DemoParser.Parser {
 			}
 			MessageTypesReverseLookup = MessageTypes.CreateReverseLookupDict(MessageType.Invalid);
 
-			if (IsLeft4Dead2() && Game >= L4D2_2203)
+			if (IsPortal1() && Game >= PORTAL_1_1910503)
+				SpModelIndexBits = 13;
+			else if (IsLeft4Dead2() && Game >= L4D2_2203)
 				SpModelIndexBits = 12;
 			else
 				SpModelIndexBits = 11;
