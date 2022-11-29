@@ -121,6 +121,7 @@ namespace ConsoleApp {
 						new OptTeleports(),
 						new OptPortals(),
 						new OptInputs(),
+						new OptPgunColorPatch(),
 						new OptDemoDump(),
 						new OptTime() // this option should always be here and probably be last, it's sort of a default
 					}.ToImmutableArray()

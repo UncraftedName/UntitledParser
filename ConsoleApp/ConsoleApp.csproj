@@ -66,8 +66,8 @@
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 	  <!--Make sure to update Utils.GetVersionString() if you edit this!-->
-	  <Exec Command="git rev-list --count HEAD > version.txt"/>
-	  <Exec Command="git branch --show-current >> version.txt"/>
-	  <Exec Command="git describe --always --dirty --exclude=* >> version.txt"/>
+	  <Exec Command="git rev-list --count HEAD &gt; version.txt" />
+	  <Exec Command="git branch --show-current &gt;&gt; version.txt" />
+	  <Exec Command="git describe --always --dirty --exclude=* &gt;&gt; version.txt" />
 	</Target>
 </Project>
