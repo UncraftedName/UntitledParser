@@ -7,8 +7,8 @@ namespace DemoParser.Parser.Components.Messages {
 	public class SvcVoiceInit : DemoMessage {
 
 		public string Codec;
-		public byte Quality;
-		public float? Unknown;
+		public byte Quality; // if 255, this a new version of this message (from hl2_src)
+		public int? SampleRate;
 
 		public SvcVoiceInit(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
@@ -17,15 +17,16 @@ namespace DemoParser.Parser.Components.Messages {
 			Codec = bsr.ReadNullTerminatedString();
 			Quality = bsr.ReadByte();
 			if (Quality == 255)
-				Unknown = bsr.ReadFloat();
+				SampleRate = bsr.ReadSInt();
 		}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.AppendLine($"codec: {Codec}");
-			pw.Append($"quality: {Quality}");
-			if (Quality == 255)
-				pw.Append($"\nunknown: {Unknown}");
+			if (SampleRate.HasValue)
+				pw.Append($"sample rate: {SampleRate}");
+			else
+				pw.Append($"quality: {Quality}");
 		}
 	}
 }
