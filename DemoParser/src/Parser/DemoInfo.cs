@@ -66,6 +66,7 @@ namespace DemoParser.Parser {
 				[(3, 24)]   = PORTAL_1_1910503,
 				[(4, 37)]   = L4D1_1005,
 				[(4, 1040)] = L4D1_1040,
+				[(4, 1041)] = L4D1_1040,
 				[(4, 2000)] = L4D2_2000,
 				[(4, 2001)] = PORTAL_2,
 				[(4, 2012)] = L4D2_2012,
@@ -75,13 +76,19 @@ namespace DemoParser.Parser {
 			};
 
 
+		// here we try to figure out as many demo specific constants just from the header as we can
 		public DemoInfo(SourceDemo demo) {
 			DemoHeader h = demo.Header;
 
 			if (!GameLookup.TryGetValue((h.DemoProtocol, h.NetworkProtocol), out Game)) {
-				Game = UNKNOWN;
-				demo.LogError($"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n");
-				demo.DemoParseResult |= DemoParseResult.UnknownGame;
+				// multiple L4D1 network protocols parse the same way, so keep support for them
+				if (h.DemoProtocol == 4 && h.NetworkProtocol >= 1030 && h.NetworkProtocol <= 1050) {
+					Game = L4D1_1040;
+				} else {
+					Game = UNKNOWN;
+					demo.LogError($"\nUnknown game, demo might not parse correctly. Update in {GetType().FullName}.\n");
+					demo.DemoParseResult |= DemoParseResult.UnknownGame;
+				}
 			}
 
 			// provide default values in case of unknown game
@@ -109,7 +116,11 @@ namespace DemoParser.Parser {
 			} else if (IsLeft4Dead()) {
 				TickInterval = 1f / 30;
 				MaxSplitscreenPlayers = 4;
-				UserMessageTypes = IsLeft4Dead1() ? UserMessage.L4D1OldTable : UserMessage.L4D2SteamTable;
+				if (IsLeft4Dead1()) {
+					UserMessageTypes = Game >= L4D1_1040 ? UserMessage.L4D1SteamTable : UserMessage.L4D1OldTable;
+				} else {
+					UserMessageTypes = UserMessage.L4D2SteamTable;
+				}
 				PacketTypes = DemoPacket.DemoProtocol4Table;
 			}
 
@@ -222,7 +233,7 @@ namespace DemoParser.Parser {
 		PORTAL_2,
 
 		L4D1_1005,
-		L4D1_1040, // latest steam version
+		L4D1_1040, // 1032/1040/1041 version
 
 		L4D2_2000,
 		L4D2_2012,

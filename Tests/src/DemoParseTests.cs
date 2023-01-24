@@ -27,6 +27,7 @@ namespace Tests {
 
 			new TestCaseData("l4d1 37 v1005.dem").SetName("Left 4 Dead 1 (version 1.0.0.5)"),
 			new TestCaseData("l4d1 1040.dem").SetName("Left 4 Dead 1 (version 1.0.4.0)"),
+			new TestCaseData("l4d1 1041.dem").SetName("Left 4 Dead 1 (version 1.0.4.1)"),
 			new TestCaseData("l4d2 2000.dem").SetName("Left 4 Dead 2 (version 2.0.0.0)"),
 			new TestCaseData("l4d2 2012.dem").SetName("Left 4 Dead 2 (version 2.0.1.2)"),
 			new TestCaseData("l4d2 2027.dem").SetName("Left 4 Dead 2 (version 2.0.2.7)"),

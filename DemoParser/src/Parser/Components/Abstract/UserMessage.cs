@@ -392,6 +392,67 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.CallVoteFailed
 		};
 
+		public static readonly IReadOnlyList<UserMessageType> L4D1SteamTable = new[]
+		{
+			UserMessageType.Geiger,
+			UserMessageType.Train,
+			UserMessageType.HudText,
+			UserMessageType.SayText,
+			UserMessageType.SayText2,
+			UserMessageType.TextMsg,
+			UserMessageType.HUDMsg,
+			UserMessageType.ResetHUD,
+			UserMessageType.GameTitle,
+			UserMessageType.ItemPickup,
+			UserMessageType.ShowMenu,
+			UserMessageType.Shake,
+			UserMessageType.Fade,
+			UserMessageType.VGUIMenu,
+			UserMessageType.Rumble,
+			UserMessageType.CloseCaption,
+			UserMessageType.CloseCaptionDirect,
+			UserMessageType.SendAudio,
+			UserMessageType.RawAudio,
+			UserMessageType.VoiceMask,
+			UserMessageType.RequestState,
+			UserMessageType.BarTime,
+			UserMessageType.Damage,
+			UserMessageType.RadioText,
+			UserMessageType.HintText,
+			UserMessageType.KeyHintText,
+			UserMessageType.ReloadEffect,
+			UserMessageType.PlayerAnimEvent,
+			UserMessageType.AmmoDenied,
+			UserMessageType.UpdateRadar,
+			UserMessageType.KillCam,
+			UserMessageType.MarkAchievement,
+			UserMessageType.Splatter,
+			UserMessageType.SplatterClear,
+			UserMessageType.MessageText,
+			UserMessageType.TransitionRestore,
+			UserMessageType.Spawn,
+			UserMessageType.CreditsLine,
+			UserMessageType.CreditsMsg,
+			UserMessageType.StatsCrawlMsg,
+			UserMessageType.StatsSkipState,
+			UserMessageType.ShowStats,
+			UserMessageType.MusicCmd,
+			UserMessageType.WitchBloodSplatter,
+			UserMessageType.AchievementEvent,
+			UserMessageType.PZDmgMsg,
+			UserMessageType.AllPlayersConnectedGameStarting,
+			UserMessageType.VoteRegistered,
+			UserMessageType.DisconnectToLobby,
+			UserMessageType.CallVoteFailed,
+			UserMessageType.SteamWeaponStatData,
+			UserMessageType.SPHapWeapEvent,
+			UserMessageType.HapDmg,
+			UserMessageType.HapPunch,
+			UserMessageType.HapSetDrag,
+			UserMessageType.HapSetConst,
+			UserMessageType.HapMeleeContact,
+		};
+
 		#endregion
 
 		protected UserMessage(SourceDemo? demoRef, byte value) : base(demoRef) {
@@ -477,6 +538,7 @@ namespace DemoParser.Parser.Components.Abstract {
 				UserMessageType.HapSetDrag         => new HapSetDrag        (dRef, val),
 				UserMessageType.HapPunch           => new HapPunch          (dRef, val),
 				UserMessageType.SPHapWeapEvent     => new SpHapWeaponEvent  (dRef, val),
+				UserMessageType.WitchBloodSplatter => new WitchBloodSplatter(dRef, val),
 				_ => null // I do a check for this so that I don't have to allocate the unknown type twice
 			};
 		}
