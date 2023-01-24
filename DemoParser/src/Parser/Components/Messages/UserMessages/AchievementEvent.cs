@@ -14,7 +14,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			throw new NotImplementedException(); // todo, and figure out the achievements
+			AchievementId = bsr.ReadSInt();
 		}
 
 
