@@ -36,7 +36,7 @@ namespace DemoParser.Parser.GameState {
 
 			FlattenedProps = new PropLookup(_dtRef.ServerClasses.Count);
 
-			foreach (ServerClass serverClass in _dtRef.ServerClasses) {
+			foreach (ServerClass serverClass in _dtRef.ServerClasses.Values) {
 				SendTable table = _dtRef.Tables[serverClass.DataTableId];
 				GatherProps(tableLookup, GatherExcludes(tableLookup, table), table, serverClass, "");
 				SortProps(FlattenedProps[serverClass.DataTableId].flattenedProps);
@@ -79,8 +79,12 @@ namespace DemoParser.Parser.GameState {
 		{
 			List<FlattenedProp> fProps = new List<FlattenedProp>(table.SendProps.Count);
 			IterateProps(tableLookup, excludes, table, serverClass, fProps, prefix);
-			if (serverClass.DataTableId == FlattenedProps.Count)
-				FlattenedProps.Add((serverClass, new List<FlattenedProp>()));
+			while (FlattenedProps.Count <= serverClass.DataTableId) {
+				if (FlattenedProps.Count == serverClass.DataTableId)
+					FlattenedProps.Add((serverClass, new List<FlattenedProp>()));
+				else
+					FlattenedProps.Add((null!, null!));
+			}
 			FlattenedProps[serverClass.DataTableId].flattenedProps.AddRange(fProps);
 		}
 

@@ -1,11 +1,17 @@
 using System;
 using System.Collections.Immutable;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using ConsoleApp.DemoArgProcessing;
 using ConsoleApp.DemoArgProcessing.Options;
 using ConsoleApp.DemoArgProcessing.Options.Hidden;
 using ConsoleApp.GenericArgProcessing;
+using DemoParser.Parser;
+using DemoParser.Parser.Components.Packets;
+using DemoParser.Utils;
+using DemoParser.Utils.BitStreams;
 
 namespace ConsoleApp {
 
@@ -88,6 +94,59 @@ namespace ConsoleApp {
 			// It would be nice if the console color was reset if ctrl+c is used, but I haven't gotten that to work yet.
 			// This line of code just eats ctrl+c and delays it by way too much.
 			// Console.CancelKeyPress += (sender,eventArgs) => Console.ResetColor();
+
+
+			SourceDemo d2 = new SourceDemo(@"D:\Games\Portal Source\portal\fullgame_29_2.dem");
+			d2.Parse();
+			// File.WriteAllText();
+
+			SourceDemo d = new SourceDemo(@"D:\Games\Portal Source\portal\fullgame_29.dem");
+			d.Parse();
+
+			DataTables dataTables = d.FilterForPacket<DataTables>().Single();
+			BitStreamReader bsr = d.Reader;
+			BitStreamReader brTables = dataTables.Reader;
+			var brSendTable = dataTables.Tables.Single(table => table.Name == "DT_PointSurvey").Reader;
+			var brClass = dataTables.ServerClasses!.Values.Single(sc => sc.DataTableName == "DT_PointSurvey").Reader;
+
+			var brClass2 = dataTables.ServerClasses!.Values.Single(sc => sc.DataTableName == "DT_PointCamera").Reader;
+
+			// up to packet
+			BitStreamWriter bsw = new BitStreamWriter();
+			int readCount = brTables.AbsoluteStart;
+			bsw.WriteBits(d.Reader.Data, readCount);
+			bsr.SkipBits(readCount + brTables.BitLength);
+			// up to table
+			readCount = brSendTable.AbsoluteStart - brTables.AbsoluteStart;
+			bsw.WriteBits(brTables.ReadBits(readCount), readCount);
+			brTables.SkipBits(brSendTable.BitLength + 1);
+
+			// up to start of server classes, write num server classes
+			readCount = dataTables.ClassCountOff - brTables.AbsoluteBitIndex;
+			bsw.WriteBits(brTables.ReadBits(readCount), readCount);
+			bsw.WriteBitsFromUInt((uint)dataTables.ServerClasses.Count - 1, 16);
+			brTables.SkipBits(16);
+			// up to class
+			readCount = brClass.AbsoluteStart - brTables.AbsoluteBitIndex;
+			bsw.WriteBits(brTables.ReadBits(readCount), readCount);
+
+			bsw.WriteBitsFromUInt(106, 16);
+			brClass2.SkipBits(16);
+			bsw.WriteBits(brClass2.ReadRemainingBits());
+
+			brTables.SkipBits(brClass.BitLength);
+			// after class
+			bsw.WriteBits(brTables.ReadRemainingBits());
+
+			int numBlankBits = dataTables.Reader.BitLength - (bsw.BitLength - brTables.AbsoluteStart);
+			byte[] padBytes = new byte[numBlankBits / 8 + 1];
+			bsw.WriteBits(padBytes, numBlankBits);
+			// rest of the demo
+
+			bsw.WriteBits(bsr.ReadRemainingBits());
+
+			File.WriteAllBytes(@"D:\Games\Portal Source\portal\fullgame_29_2.dem", bsw);
+			return;
 
 			// I want exceptions to be in english :)
 			Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;

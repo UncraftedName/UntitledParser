@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
@@ -89,8 +90,11 @@ namespace DemoParser.Parser.Components.Packets {
 	public class DataTables : DemoPacket {
 
 		public List<SendTable> Tables;
-		public List<ServerClass>? ServerClasses;
+		// public List<ServerClass>? ServerClasses;
+		public SortedDictionary<int, ServerClass>? ServerClasses;
 		public bool ParseSuccessful;
+
+		public int ClassCountOff;
 
 
 		public DataTables(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
@@ -108,12 +112,16 @@ namespace DemoParser.Parser.Components.Packets {
 					return;
 			}
 
+			ClassCountOff = dBsr.AbsoluteBitIndex;
+
 			ushort classCount = dBsr.ReadUShort();
-			ServerClasses = new List<ServerClass>(classCount);
+			// ServerClasses = new List<ServerClass>(classCount);
+			ServerClasses = new SortedDictionary<int, ServerClass>();
 			for (int i = 0; i < classCount; i++) {
 				var serverClass = new ServerClass(DemoRef, null);
-				ServerClasses.Add(serverClass);
+				// ServerClasses.Add(serverClass);
 				serverClass.ParseStream(ref dBsr);
+				ServerClasses[serverClass.DataTableId] = serverClass;
 				if (dBsr.HasOverflowed)
 					return;
 			}
@@ -148,7 +156,7 @@ namespace DemoParser.Parser.Components.Packets {
 			if ((ServerClasses?.Count ?? 0) > 0) {
 				pw.Append($"{ServerClasses!.Count} class{(ServerClasses.Count > 1 ? "es" : "")}:");
 				pw.FutureIndent++;
-				foreach (ServerClass classInfo in ServerClasses) {
+				foreach (ServerClass classInfo in ServerClasses.Values) {
 					pw.AppendLine();
 					classInfo.PrettyWrite(pw);
 				}
