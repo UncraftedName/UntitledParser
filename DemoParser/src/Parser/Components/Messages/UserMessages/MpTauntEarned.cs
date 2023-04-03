@@ -15,7 +15,7 @@ namespace DemoParser.Parser.Components.Messages.UserMessages {
 
 		protected override void Parse(ref BitStreamReader bsr) {
 			TauntName = bsr.ReadNullTerminatedString();
-			AwardSilently = bsr.ReadByte() != 0;
+			AwardSilently = bsr.ReadBool();
 		}
 
 

@@ -51,7 +51,7 @@ namespace DemoParser.Parser {
 		public List<string> ErrorList;
 
 		private readonly IProgress<double>? _parseProgress;
-		private PacketFrame _lastFrame;
+		private PacketFrame? _lastFrame;
 
 		// a way to tell what info did/didn't get parsed
 		public DemoParseResult DemoParseResult;
@@ -128,7 +128,8 @@ namespace DemoParser.Parser {
 
 
 		internal void LogError(string e) {
-			string s = $"[{_lastFrame.Tick}] {e}";
+			int tick = _lastFrame?.Tick ?? -666;
+			string s = $"[{tick}] {e}";
 			ErrorList.Add(s);
 			Debug.WriteLine(s);
 		}
