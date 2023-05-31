@@ -11,7 +11,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public ushort NetworkProtocol;
 		public uint ServerCount;
 		public bool IsHltv;
-		public bool? UnknownBit;
+		public bool? RestrictWorkshopAddons;
 		public bool IsDedicated;
 		public int ClientCrc;
 		public ushort MaxServerClasses;
@@ -36,13 +36,14 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		// src_main/common/netmessages.cpp  SVC_ServerInfo::WriteToBuffer
+		// some name(s) are known from mac binaries
 		protected override void Parse(ref BitStreamReader bsr) {
 			NetworkProtocol = bsr.ReadUShort();
 			ServerCount = bsr.ReadUInt();
 			IsHltv = bsr.ReadBool();
 			IsDedicated = bsr.ReadBool();
 			if (DemoInfo.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2147)
-				UnknownBit = bsr.ReadBool();
+				RestrictWorkshopAddons = bsr.ReadBool();
 			ClientCrc = bsr.ReadSInt();
 			if (DemoInfo.NewDemoProtocol)
 				StringTableCrc = bsr.ReadUInt();
@@ -90,8 +91,8 @@ namespace DemoParser.Parser.Components.Messages {
 			pw.AppendLine($"server count: {ServerCount}");
 			pw.AppendLine($"is hltv: {IsHltv}");
 			pw.AppendLine($"is dedicated: {IsDedicated}");
-			if (UnknownBit != null)
-				pw.AppendLine($"unknown bit: {UnknownBit}");
+			if (RestrictWorkshopAddons != null)
+				pw.AppendLine($"restrict workshop addons: {RestrictWorkshopAddons}");
 			pw.AppendLine($"server client CRC: {ClientCrc}"); // change to hex?
 			if (StringTableCrc != null)
 				pw.AppendLine($"string table CRC: {StringTableCrc}");
