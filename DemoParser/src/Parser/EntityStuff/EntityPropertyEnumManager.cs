@@ -343,7 +343,7 @@ namespace DemoParser.Parser.EntityStuff {
 			COLLISION_GROUP_NPC_SCRIPTED
 		};
 
-		public static readonly IReadOnlyList<Collision_Group_t> CollisionGroupListNewDemoProcol = new[] {
+		public static readonly IReadOnlyList<Collision_Group_t> CollisionGroupListNewDemoProtocol = new[] {
 			COLLISION_GROUP_NONE,
 			COLLISION_GROUP_DEBRIS,
 			COLLISION_GROUP_DEBRIS_TRIGGER,

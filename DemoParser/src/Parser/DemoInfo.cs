@@ -174,7 +174,7 @@ namespace DemoParser.Parser {
 						CollisionsGroupList = PropEnums.CollisionGroupListPortal2;
 					} else {
 						PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsNewDemoProtocol();
-						CollisionsGroupList = PropEnums.CollisionGroupListNewDemoProcol;
+						CollisionsGroupList = PropEnums.CollisionGroupListNewDemoProtocol;
 					}
 					NumNetFileFlagBits = 2;
 					MessageTypes = DemoMessage.NewProtocolMessageList;
