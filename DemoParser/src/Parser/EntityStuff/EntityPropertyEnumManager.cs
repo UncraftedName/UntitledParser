@@ -729,7 +729,7 @@ namespace DemoParser.Parser.EntityStuff {
 					FL_DISSOLVING            => CheckBit(val, 28),
 					FL_TRANSRAGDOLL          => CheckBit(val, 29),
 					FL_UNBLOCKABLE_BY_PLAYER => CheckBit(val, 30),
-					FL_FREEZING              => CheckBit(val, 31),
+					FL_UNPAINTABLE           => CheckBit(val, 31),
 					_ => false
 				};
 			}
