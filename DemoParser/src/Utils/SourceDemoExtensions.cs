@@ -76,7 +76,7 @@ namespace DemoParser.Utils {
 				from tables in demo.FilterForPacket<StringTables>()
 				from table in tables.Tables
 				where table.TableEntries != null
-				from entry in table.TableEntries
+				from entry in table.TableEntries!
 				where entry?.EntryData is T
 				select ((T)entry.EntryData!, tables.Tick);
 		}
@@ -88,7 +88,7 @@ namespace DemoParser.Utils {
 				from tables in demo.FilterForPacket<StringTables>()
 				from table in tables.Tables
 				where table.TableEntries != null && table.Name == stringTableName
-				from entry in table.TableEntries
+				from entry in table.TableEntries!
 				select (entry.EntryData, tables.Tick);
 		}
 

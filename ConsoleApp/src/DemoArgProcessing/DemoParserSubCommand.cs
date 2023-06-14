@@ -118,7 +118,7 @@ namespace ConsoleApp.DemoArgProcessing {
 		private IEnumerable<(FileInfo demoPath, string displayName)> CreateDisplayStrings() {
 			// Shorten the paths of the demos if possible, the shared path between the first and last paths will give
 			// the overall shared path of everything. If it's empty then we know the demos span multiple drives.
-			string commonParent = Utils.SharedPathSubstring(_demoPaths.Min.FullName, _demoPaths.Max.FullName);
+			string commonParent = Utils.SharedPathSubstring(_demoPaths.Min!.FullName, _demoPaths.Max!.FullName);
 			return _demoPaths.Select(demoPath => (
 				demoPath,
 				commonParent == ""

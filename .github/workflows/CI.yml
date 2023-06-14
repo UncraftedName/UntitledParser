@@ -17,9 +17,9 @@ jobs:
     - name: Checkout Project
       uses: actions/checkout@v3
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1
 
@@ -27,5 +27,7 @@ jobs:
       run: msbuild ConsoleApp\ConsoleApp.csproj -target:Rebuild -property:Configuration=Debug -restore
     - name: Build Release
       run: msbuild ConsoleApp\ConsoleApp.csproj -target:Rebuild -property:Configuration=Release -restore
+    - name: Publish to single executable
+      run: msbuild ConsoleApp\ConsoleApp.csproj -target:Rebuild /p:DeployOnBuild=true /p:PublishProfile=publish-single-file -restore
     - name: Test
-      run: dotnet test --logger "console;verbosity=detailed"
+      run: dotnet test --logger "console;verbosity=detailed" --configuration Release

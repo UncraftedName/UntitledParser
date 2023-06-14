@@ -25,9 +25,9 @@ Note that many of these more advanced features are only supported for some games
 
 ## Building and Coding
 
-This project uses .NET 4.6.1. To build the project, just build the solution with Visual Studio or MSBuild. If you build a release build, all the assemblies get merged into one .exe which is easy to just send people or whatever (thanks mike). There is a pre-build step which runs some git commands to save the info used for the `--version` option, so as long as the repo has been cloned and you have a recent version of git that should work alright.
+This project uses .NET 7.0. To build the project, just build the solution with Visual Studio or MSBuild. If you build a release build, all the assemblies get merged into one .exe which is easy to just send people or whatever (thanks mike). There is a pre-build step which runs some git commands to save the info used for the `--version` option, so as long as the repo has been cloned and you have a recent version of git that should work alright.
 
-There isn't an API or even any extensive documention, and demos can be pretty darn complicated sometimes. If you want to get some information from them your best bet is to start digging through the code, or feel free to get in touch with me. The `--demo-dump` option will create a text file which contains a human readable representation of everything I know how to parse in the given demo, this is a good way to start digging for stuff.
+There isn't an API or even any extensive documentation, and demos can be pretty darn complicated sometimes. If you want to get some information from them your best bet is to start digging through the code, or feel free to get in touch with me. The `--demo-dump` option will create a text file which contains a human readable representation of everything I know how to parse in the given demo, this is a good way to start digging for stuff.
 
 Here's an example to get the player position on every tick:
 
@@ -121,7 +121,7 @@ demo.FilterForMessage<SvcPacketEntities>()
     .Where(tuple => tuple.delta.EntIndex == 1) // filter for player
     .SelectMany(tuple => tuple.delta.Props, (tuple, propInfo) => new {tuple.tick, propInfo})
     .Where(tuple => tuple.propInfo.prop.Name == "m_iDefaultFOV")
-    .Select(tuple => new {Tick = tuple.tick, FovValue = ((IntEntProp)tuple.propInfo.prop).Value})
+    .Select(tuple => new {Tick = tuple.tick, FovValue = ((SingleEntProp<int>)tuple.propInfo.prop).Value})
     .ToList()
     .ForEach(Console.WriteLine);
 ```
@@ -134,7 +134,7 @@ var fovValues =
     where delta.EntIndex == 1
     from propInfo in delta.Props
     where propInfo.prop is IntEntProp intProp && intProp.Name == "m_iDefaultFOV"
-    select new {Tick = messageTup.tick, FovValue = ((IntEntProp)propInfo.prop).Value};
+    select new {Tick = messageTup.tick, FovValue = ((SingleEntProp<int>)propInfo.prop).Value};
 
 foreach (var value in fovValues)
     Console.WriteLine(value);
@@ -148,7 +148,7 @@ foreach ((SvcPacketEntities message, int tick) in demo.FilterForMessage<SvcPacke
         if (entityUpdate is Delta delta && delta.EntIndex == 1) {
             foreach ((_, EntityProperty entityProperty) in delta.Props) {
                 // check if the prop is an int, then check the name (can be found in the DataTables packet)
-                if (entityProperty is IntEntProp intProp && intProp.Name == "m_iDefaultFOV") {
+                if (entityProperty is SingleEntProp<int> intProp && intProp.Name == "m_iDefaultFOV") {
                     Console.WriteLine(new {tick, intProp.Value});
                     goto end;
                 }

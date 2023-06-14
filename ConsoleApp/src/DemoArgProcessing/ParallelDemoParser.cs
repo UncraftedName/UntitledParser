@@ -54,7 +54,7 @@ namespace ConsoleApp.DemoArgProcessing {
 			_parseInfos = new ParseInfo[paths.Count];
 			for (int i = 0; i < paths.Count; i++) {
 				ThreadPool.QueueUserWorkItem(state => {
-					ParseInfo info = (ParseInfo)state;
+					ParseInfo info = (ParseInfo)state!;
 					if (!_disposed) {
 						try {
 							info.Demo = new SourceDemo(info.FileInfo, info.ProgressBar);

@@ -247,7 +247,7 @@ namespace DemoParser.Parser {
 
 		private static bool Portal2PortalOnMoon(Packet packet) {
 			var portalVecDeltas = packet.FilterForMessage<SvcPacketEntities>()
-				.SelectMany(entityMsg => entityMsg.Updates)
+				.SelectMany(entityMsg => entityMsg.Updates!)
 				.OfType<Delta>()
 				.Where(delta => delta.ServerClass.ClassName == "CProp_Portal")
 				.SelectMany(delta => delta.Props)

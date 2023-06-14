@@ -47,7 +47,7 @@ using System.Text;
 namespace ConsoleApp {
 
 	public class AlphanumComparatorFileInfo : AlphanumComparator, IComparer<FileInfo> {
-		public int Compare(FileInfo x, FileInfo y) => base.Compare(x.FullName, y.FullName);
+		public int Compare(FileInfo? x, FileInfo? y) => base.Compare(x?.FullName, y?.FullName);
 	}
 
 	public class AlphanumComparator : IComparer<string> {
@@ -69,7 +69,7 @@ namespace ConsoleApp {
 		}
 
 
-		public int Compare(string s1, string s2) {
+		public int Compare(string? s1, string? s2) {
 			if (s1 == null || s2 == null)
 				return 0;
 

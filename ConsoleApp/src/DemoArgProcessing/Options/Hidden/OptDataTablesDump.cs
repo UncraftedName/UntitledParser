@@ -100,7 +100,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 	public class DataTableTree : PrettyClass {
 
 		private class TableNodeComparer : AlphanumComparator, IComparer<TableNode> {
-			public int Compare(TableNode x, TableNode y) => base.Compare(x.Name, y.Name);
+			public int Compare(TableNode? x, TableNode? y) => base.Compare(x?.Name, y?.Name);
 		}
 
 
@@ -111,7 +111,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
 			_roots = sort
 				? new SortedSet<TableNode>(new TableNodeComparer())
-				: (ICollection<TableNode>)new List<TableNode>();
+				: new List<TableNode>();
 
 			var namesToAdd = new List<(string name, string? baseName)>(
 				dTables.Tables.Select(table => {
@@ -164,7 +164,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 				_sort = sort;
 				_children = sort
 					? new SortedSet<TableNode>(new TableNodeComparer())
-					: (ICollection<TableNode>)new List<TableNode>();
+					: new List<TableNode>();
 			}
 
 

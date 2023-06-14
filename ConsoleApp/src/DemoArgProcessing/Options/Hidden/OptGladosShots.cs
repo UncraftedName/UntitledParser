@@ -45,7 +45,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 			// no filtering for specific sounds, idk of anything else in the game that changes sound pitch
 			return from msgTup in demo.FilterForMessage<SvcSounds>()
 				where msgTup.message.Sounds != null
-				from sound in msgTup.message.Sounds
+				from sound in msgTup.message.Sounds!
 				where (sound.Flags & (ChangePitch | Delay)) == ChangePitch && sound.Pitch == 250 // remove the delay check if some ticks are skipped
 				select msgTup.tick;
 		}

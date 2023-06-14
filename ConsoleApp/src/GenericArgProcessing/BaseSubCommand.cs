@@ -41,7 +41,7 @@ namespace ConsoleApp.GenericArgProcessing {
 
 
 		public bool TryGetOption(string alias, out BaseOption<TSetup, TInfo> option)
-			=> _optionLookup.TryGetValue(alias, out option);
+			=> _optionLookup.TryGetValue(alias, out option!);
 
 
 		public int TotalEnabledOptions => _options.Count(o => o.Enabled);
@@ -63,7 +63,7 @@ namespace ConsoleApp.GenericArgProcessing {
 			string? argParseFailReason = null; // a bit of spaghetti so we can print a more informative message
 			while (argIdx < args.Length) {
 				string arg = args[argIdx];
-				if (_optionLookup.TryGetValue(arg, out BaseOption<TSetup, TInfo> option)) {
+				if (_optionLookup.TryGetValue(arg, out BaseOption<TSetup, TInfo>? option)) {
 					argParseFailReason = null;
 					switch (option.Arity) {
 						case Arity.Zero:

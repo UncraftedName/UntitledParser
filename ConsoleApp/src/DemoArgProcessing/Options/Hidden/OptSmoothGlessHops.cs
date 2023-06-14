@@ -94,7 +94,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 			// ReSharper disable once CompareOfFloatsByEqualityOperator
 			var jumpTicks =
 				(from msgTup in demo.FilterForMessage<SvcPacketEntities>()
-					from update in msgTup.message.Updates
+					from update in msgTup.message.Updates!
 					where update.ServerClass!.ClassName == "CPortal_Player" && update is Delta
 					from deltaProp in ((Delta)update).Props
 					where deltaProp.prop.Name == "m_Local.m_flJumpTime" &&

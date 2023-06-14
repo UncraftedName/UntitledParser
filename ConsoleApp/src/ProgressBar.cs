@@ -57,7 +57,7 @@ namespace ConsoleApp {
 		}
 
 
-		private void TimerHandler(object state) {
+		private void TimerHandler(object? _) {
 			lock (_timer!) {
 				if (_disposed || !_displayProgress)
 					return;
