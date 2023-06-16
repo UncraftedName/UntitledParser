@@ -300,5 +300,38 @@ namespace Tests {
 			}
 			Assert.That(bsr.HasOverflowed);
 		}
+
+
+		// turns out I didn't test the old implementation well enough, so we need a second set of tests
+		[Test, Parallelizable(ParallelScope.Self)]
+		public void WriteNullTerminatedStrings2() {
+			for (int off = 0; off < 32; off++) {
+				const string str = "my credit card number is 4561-8882-6919-1335";
+				BitStreamWriter bsw = new BitStreamWriter();
+				bsw.WriteBitsFromUInt(0, off);
+				bsw.WriteString(str);
+
+				// skips the initial offset
+				BitStreamReader bsr = new BitStreamReader(bsw, bsw.BitLength - off, off);
+
+				// just has the string data
+				BitStreamReader bsrString = bsr.Fork();
+				Assert.AreEqual(str, bsrString.ReadNullTerminatedString());
+
+				for (int i = 1; i < 8; i++) {
+					// ReadNullTerminatedString() reads up to 8 bytes and backtracks if it read too much,
+					// here we check a funny screw up where it backtracked backwards
+					BitStreamReader bsrCutOff = bsr.Fork(bsr.BitsRemaining - 1);
+					string _ = bsrCutOff.ReadNullTerminatedString();
+					Assert.That(bsrCutOff.HasOverflowed);
+				}
+
+				// testing a case where the reader would go oob if data after the string was short and not aligned
+				bsw.WriteBool(true);
+				bsr = new BitStreamReader(bsw, bsw.BitLength - off, off);
+				Assert.AreEqual(str, bsr.ReadNullTerminatedString());
+				Assert.That(!bsr.HasOverflowed);
+			}
+		}
 	}
 }

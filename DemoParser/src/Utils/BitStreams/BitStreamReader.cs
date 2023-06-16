@@ -205,21 +205,21 @@ namespace DemoParser.Utils.BitStreams {
 			// optimize reading them. Read a full ulong at a time and check each byte of it.
 			const int maxSize = 1024;
 			ulong* pStr = stackalloc ulong[maxSize / 8];
-			for (int i = 0; i < maxSize / 8; i++) {
-				int actualReadCount = Math.Min(BitsRemaining, 64);
-				ulong cur = pStr[i] = ReadULong(actualReadCount);
+			for (int i = 0; i < maxSize / 8 && BitsRemaining > 0; i++) {
+				int readByteCount = Math.Min(BitsRemaining / 8, 8);
+				ulong cur = pStr[i] = ReadULong(readByteCount * 8);
 				ulong mask = 0xFF;
-				for (int j = 1; j < 8; j++) {
+				for (int j = 0; j < readByteCount; j++) {
 					if ((cur & mask) == 0) {
-						// we've read too many bytes, backtrack
-						AbsoluteBitIndex -= actualReadCount - 8 * j;
-						Fetch();
+						if (j < readByteCount - 1) {
+							// we've read too many bytes, backtrack
+							AbsoluteBitIndex -= 8 * (readByteCount - j - 1);
+							Fetch();
+						}
 						return new string((sbyte*)pStr);
 					}
 					mask <<= 8;
 				}
-				if ((cur & mask) == 0) // the last byte in cur is a '\0', no backtracking necessary
-					return new string((sbyte*)pStr);
 			}
 			HasOverflowed = true;
 			return string.Empty;
