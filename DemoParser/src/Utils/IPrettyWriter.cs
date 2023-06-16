@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -199,7 +200,11 @@ namespace DemoParser.Utils {
 
 	// This lets me see the toString() representation by just using the append function that I implemented for every
 	// demo component anyway. Use this over the interface version for convenience.
+	[DebuggerDisplay("{DebuggerString}")]
 	public abstract class PrettyClass : IPretty {
+
+		// writing out the full pretty string can make the debugger crash
+		private string DebuggerString => GetType().ToString();
 
 		public abstract void PrettyWrite(IPrettyWriter pw);
 

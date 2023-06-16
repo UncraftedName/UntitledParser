@@ -143,7 +143,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			var tab = demoInfo.MessageTypes;
 			if (tab == null)
 				return MessageType.Unknown;
-			else if (b > tab.Count)
+			else if (b >= tab.Count)
 				return MessageType.Invalid;
 			else
 				return tab[b];

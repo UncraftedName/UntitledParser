@@ -94,23 +94,27 @@ namespace DemoParser.Parser.EntityStuff {
 
 
 		internal static string CreateIntPropStr(int val, DisplayType displayType, DemoInfo demoInfo) {
-			switch (displayType) {
-				case DisplayType.Int:
-					return val.ToString();
-				case DisplayType.Bool:
-					return (val != 0).ToString();
-				case DisplayType.AreaBits:
-					return Convert.ToString(val, 2).PadLeft(AreaBitsNumBits, '0');
-				case DisplayType.Color: // pretty sure this is rgba
-					return $"0x{val:X8}";
-				case DisplayType.Handle:
-					return ((EHandle)val).ToString();
-				case DisplayType.DT_BaseEntity__m_CollisionGroup:
-					return demoInfo.CollisionsGroupList[val].ToString();
-				case DisplayType.DT_BasePlayer__m_fFlags:
-					return $"({demoInfo.PlayerMfFlagChecker.ToFlagString(val)})";
-				default:
-					return EntityPropertyEnumManager.CreateEnumPropStr(val, displayType); // must be last
+			try {
+				switch (displayType) {
+					case DisplayType.Int:
+						return val.ToString();
+					case DisplayType.Bool:
+						return (val != 0).ToString();
+					case DisplayType.AreaBits:
+						return Convert.ToString(val, 2).PadLeft(AreaBitsNumBits, '0');
+					case DisplayType.Color: // pretty sure this is rgba
+						return $"0x{val:X8}";
+					case DisplayType.Handle:
+						return ((EHandle)val).ToString();
+					case DisplayType.DT_BaseEntity__m_CollisionGroup:
+						return demoInfo.CollisionsGroupList[val].ToString();
+					case DisplayType.DT_BasePlayer__m_fFlags:
+						return $"({demoInfo.PlayerMfFlagChecker.ToFlagString(val)})";
+					default:
+						return EntityPropertyEnumManager.CreateEnumPropStr(val, displayType); // must be last
+				}
+			} catch (ArgumentOutOfRangeException) {
+				return $"ERROR (OUT OF RANGE), value: {val}";
 			}
 		}
 

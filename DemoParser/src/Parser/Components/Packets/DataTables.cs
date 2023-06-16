@@ -100,22 +100,18 @@ namespace DemoParser.Parser.Components.Packets {
 			BitStreamReader dBsr = bsr.ForkAndSkip(bsr.ReadSInt() * 8);
 
 			Tables = new List<SendTable>();
-			while (dBsr.ReadBool()) {
+			while (dBsr.ReadBool() && !dBsr.HasOverflowed) {
 				var table = new SendTable(DemoRef);
 				Tables.Add(table);
 				table.ParseStream(ref dBsr);
-				if (dBsr.HasOverflowed)
-					return;
 			}
 
 			ushort classCount = dBsr.ReadUShort();
 			ServerClasses = new List<ServerClass>(classCount);
-			for (int i = 0; i < classCount; i++) {
+			for (int i = 0; i < classCount && !dBsr.HasOverflowed; i++) {
 				var serverClass = new ServerClass(DemoRef, null);
 				ServerClasses.Add(serverClass);
 				serverClass.ParseStream(ref dBsr);
-				if (dBsr.HasOverflowed)
-					return;
 			}
 			ParseSuccessful = true;
 

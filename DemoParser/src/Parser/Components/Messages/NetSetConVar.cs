@@ -18,7 +18,7 @@ namespace DemoParser.Parser.Components.Messages {
 			//ConVars = new List<(CharArray, CharArray)>();
 			byte count = bsr.ReadByte();
 			ConVars = new List<(string, string)>(count);
-			for (int i = 0; i < count; i++)
+			for (int i = 0; i < count && !bsr.HasOverflowed; i++)
 				ConVars.Add((bsr.ReadNullTerminatedString(), bsr.ReadNullTerminatedString()));
 		}
 

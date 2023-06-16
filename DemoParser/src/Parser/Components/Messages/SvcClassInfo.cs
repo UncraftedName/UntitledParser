@@ -24,7 +24,7 @@ namespace DemoParser.Parser.Components.Messages {
 			if (!CreateOnClient) {
 				// TODO should this update the manager?
 				ServerClasses = new ServerClass[ClassCount];
-				for (int i = 0; i < ServerClasses.Length; i++) {
+				for (int i = 0; i < ServerClasses.Length && !bsr.HasOverflowed; i++) {
 					ServerClasses[i] = new ServerClass(DemoRef, this);
 					ServerClasses[i].ParseStream(ref bsr);
 				}
@@ -63,9 +63,16 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			DataTableId = _classInfoRef == null
-				? bsr.ReadUShort()
-				: (int)bsr.ReadUInt(GameState.DataTablesManager.ServerClassBits);
+			if (_classInfoRef == null) {
+				DataTableId = bsr.ReadUShort();
+			} else {
+				if (GameState.DataTablesManager == null) {
+					bsr.SetOverflow();
+					DemoRef.LogError($"{GetType().Name}: we haven't parsed the datatables yet");
+					return;
+				}
+				DataTableId = (int)bsr.ReadUInt(GameState.DataTablesManager.ServerClassBits);
+			}
 			ClassName = bsr.ReadNullTerminatedString();
 			DataTableName = bsr.ReadNullTerminatedString();
 		}
