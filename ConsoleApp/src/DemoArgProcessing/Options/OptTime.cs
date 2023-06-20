@@ -7,6 +7,8 @@ using System.Text.RegularExpressions;
 using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
+using DemoParser.Parser.Components.Messages;
+using DemoParser.Parser.EntityStuff;
 using DemoParser.Utils;
 using static System.Text.RegularExpressions.RegexOptions;
 
@@ -193,6 +195,27 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			Utils.PushForegroundColor(ConsoleColor.Cyan);
 			tw.WriteLine($"{"Measured time ",FmtIdt}: {Utils.FormatTime(demo.TickCount(tfs) * tickInterval)}");
 			tw.WriteLine($"{"Measured ticks ",FmtIdt}: {demo.TickCount(tfs)}");
+
+			if ((demo.DemoParseResult & DemoParseResult.EntParsingFailed) != 0) {
+				Utils.PushForegroundColor(ConsoleColor.Red);
+				tw.Write($"{"CM time ",FmtIdt}: INVALID");
+				Utils.PopForegroundColor();
+			} else {
+				var cmTimes = demo.FilterForMessage<SvcPacketEntities>()
+					.SelectMany(tuple => tuple.message.Updates!)
+					.OfType<Delta>()
+					.Where(delta => delta.EntIndex == 1)
+					.SelectMany(delta => delta.Props)
+					.Select(tuple => tuple.prop)
+					.OfType<SingleEntProp<float>>()
+					.Where(prop => prop.Name == "m_StatsThisLevel.fNumSecondsTaken")
+					.Select(prop => prop.Value);
+
+				float cmTime = cmTimes.LastOrDefault(-666);
+
+				if (Math.Abs(cmTime - demo.TickCount(false) * tickInterval) < 2)
+					tw.Write($"{"CM time ",FmtIdt}: {Utils.FormatTime(cmTime)}");
+			}
 
 			if (demo.TickCount(tfs) != demo.AdjustedTickCount(tfs)) {
 				tw.WriteLine($"{"Adjusted time ",FmtIdt}: {Utils.FormatTime(demo.AdjustedTickCount(tfs) * tickInterval)}");
