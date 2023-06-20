@@ -84,7 +84,7 @@ namespace DemoParser.Parser.Components.Messages {
 			Debug.Assert(manager.CreationLookup.Single(table => table.TableName == _tableName).Flags != StringTableFlags.Fake);
 
 			if (!manager.IsTableStateValid(_tableName)) {
-				FailedTableUpdate($"{GetType().Name}: can't update string table '{_tableName}' (probably because a previous update failed)");
+				FailedTableUpdate("can't update table (probably because a previous update failed)");
 				return;
 			}
 
@@ -99,7 +99,7 @@ namespace DemoParser.Parser.Components.Messages {
 				int compressedSize = bsr.ReadSInt();
 				// -8 to ignore the last 8 header bytes
 				if (!Compression.Decompress(DemoRef!, ref bsr, compressedSize - 8, out byte[] data) || data.Length != uncompressedSize) {
-					FailedTableUpdate($"{GetType().Name}: failed to decompress update");
+					FailedTableUpdate("failed to decompress update");
 					return;
 				}
 				entryDecompIdx = GameState.DecompressedLookup.Count;
@@ -109,7 +109,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 			if (DemoInfo.NewDemoProtocol) {
 				if ((DictionaryActuallyEnabled = bsr.ReadBool()) == true) {
-					FailedTableUpdate($"{GetType().Name}: {_tableName} table encoded with dictionary");
+					FailedTableUpdate("table encoded with dictionary");
 					return;
 				}
 			}
@@ -129,7 +129,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 				if (entryIndex > mTable.Entries.Count) {
 					// I think we fail here for non-p1/hl2 games which implies the bool above doesn't mean what I think it does.
-					FailedTableUpdate($"{GetType().Name}: entry index {entryIndex} out of bounds for table {_tableName}, only {mTable.Entries.Count} entries");
+					FailedTableUpdate($"entry index {entryIndex} out of bounds, only {mTable.Entries.Count} entries");
 					return;
 				}
 
@@ -138,12 +138,12 @@ namespace DemoParser.Parser.Components.Messages {
 					if (bsr.ReadBool()) { // the first part of the string may be the same as previous entries
 						int index = (int)bsr.ReadUInt(5);
 						if (index >= history.Count) {
-							FailedTableUpdate($"{GetType().Name}: attempted to access a non-existent entry from the history");
+							FailedTableUpdate("attempted to access a non-existent entry from the history");
 							return;
 						}
 						int subStrLen = (int)bsr.ReadUInt(SubStringBits);
 						if (subStrLen > history[index].Length) {
-							FailedTableUpdate($"{GetType().Name}: tried to create a substring with {subStrLen - history[index].Length} too many characters from history");
+							FailedTableUpdate($"tried to create a substring with {subStrLen - history[index].Length} too many characters from history");
 							return;
 						}
 						entryName = history[index][..subStrLen];
@@ -164,7 +164,7 @@ namespace DemoParser.Parser.Components.Messages {
 				}
 
 				if (bsr.HasOverflowed) {
-					FailedTableUpdate($"{GetType().Name}: reader overflowed");
+					FailedTableUpdate("reader overflowed");
 					return;
 				}
 
@@ -193,7 +193,7 @@ namespace DemoParser.Parser.Components.Messages {
 		private void FailedTableUpdate(string reason) {
 			_failedParse = true;
 			GameState.StringTablesManager.SetTableStateInvalid(_tableName); // prevent future updates
-			DemoRef.LogError(reason);
+			DemoRef.LogError($"{GetType().Name} (table '{_tableName}'): {reason}");
 		}
 
 
