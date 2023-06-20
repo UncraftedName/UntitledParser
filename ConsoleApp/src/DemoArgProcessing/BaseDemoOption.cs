@@ -226,9 +226,9 @@ namespace ConsoleApp.DemoArgProcessing {
 
 		private FileStream CreateFileStream(string suffix, string extension) {
 			Directory.CreateDirectory(SetupInfo.FolderOutput);
-			return new FileStream(
-				Path.Combine(SetupInfo.FolderOutput, $"{CurrentDemo.FileName![..^4]}--{suffix}{extension}"),
-				FileMode.Create);
+			string path = Path.GetFullPath(Path.Combine(SetupInfo.FolderOutput, $"{CurrentDemo.FileName![..^4]}--{suffix}{extension}"));
+			Console.WriteLine($"writing to '{path}'");
+			return new FileStream(path, FileMode.Create);
 		}
 
 
