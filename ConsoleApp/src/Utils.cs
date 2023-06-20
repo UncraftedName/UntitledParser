@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace ConsoleApp {
@@ -114,7 +115,9 @@ namespace ConsoleApp {
 
 		// used to check if we should use ReadKey() once we finish
 		public static bool WillBeDestroyedOnExit() {
-			return !Debugger.IsAttached && GetConsoleProcessList(new int[2], 2) <= 1;
+			if (IsWindows())
+				return !Debugger.IsAttached && GetConsoleProcessList(new int[2], 2) <= 1;
+			return false; // bit of a hack for now, otherwise the above always seems to return false
 		}
 
 
@@ -178,6 +181,9 @@ namespace ConsoleApp {
 			}
 			return newArgs.ToArray();
 		}
+
+
+		public static bool IsWindows() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 	}
 
 

@@ -135,7 +135,14 @@ namespace ConsoleApp {
 			return i;
 		}
 
-		public static string GetRelativePath(string relativeTo, string path, StringComparison comparisonType = StringComparison.OrdinalIgnoreCase) {
+		public static string GetRelativePath(string relativeTo, string path) {
+
+			if (!Utils.IsWindows())
+				return Path.GetRelativePath(relativeTo, path);
+
+			// just windows things
+			const StringComparison comparisonType = StringComparison.OrdinalIgnoreCase;
+
 			if (relativeTo == null) throw new ArgumentNullException(nameof(relativeTo));
 			if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Empty path", nameof(relativeTo));
 			if (path == null) throw new ArgumentNullException(nameof(path));

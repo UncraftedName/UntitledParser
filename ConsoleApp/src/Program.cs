@@ -134,7 +134,7 @@ namespace ConsoleApp {
 							: @$"Use '.\{Utils.GetExeName()} --help' for help.",
 						ConsoleColor.Yellow);
 				} else {
-					demoParserCommand.Execute(Utils.FixPowerShellBullshit(args));
+					demoParserCommand.Execute(Utils.IsWindows() ? Utils.FixPowerShellBullshit(args) : args);
 				}
 			} catch (ArgProcessUserException e) {
 				Utils.Warning($"User error: {e.Message}\n");
@@ -150,6 +150,7 @@ namespace ConsoleApp {
 				Environment.ExitCode = 3;
 			}
 			Console.ResetColor();
+			Console.WriteLine();
 			if (Utils.WillBeDestroyedOnExit())
 				Console.ReadLine();
 		}

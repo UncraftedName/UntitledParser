@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0-windows</TargetFramework>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Title>UntitledDemoParser</Title>
 		<Authors>UncraftedName</Authors>
@@ -13,6 +12,7 @@
 		<Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
 		<LangVersion>10</LangVersion>
 		<Nullable>enable</Nullable>
+		<TargetFrameworks>net7.0;net7.0-windows</TargetFrameworks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
