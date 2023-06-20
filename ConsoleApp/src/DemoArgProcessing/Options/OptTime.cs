@@ -8,6 +8,7 @@ using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Messages;
+using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Parser.EntityStuff;
 using DemoParser.Utils;
 using static System.Text.RegularExpressions.RegexOptions;
@@ -196,12 +197,13 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			tw.WriteLine($"{"Measured time ",FmtIdt}: {Utils.FormatTime(demo.TickCount(tfs) * tickInterval)}");
 			tw.WriteLine($"{"Measured ticks ",FmtIdt}: {demo.TickCount(tfs)}");
 
-			if ((demo.DemoParseResult & DemoParseResult.EntParsingFailed) != 0) {
+			/*if ((demo.DemoParseResult & DemoParseResult.EntParsingFailed) != 0) {
 				Utils.PushForegroundColor(ConsoleColor.Red);
-				tw.Write($"{"CM time ",FmtIdt}: INVALID");
+				tw.WriteLine($"{"CM time ",FmtIdt}: UNKNOWN");
+				tw.WriteLine($"{"Portal count ",FmtIdt}: UNKNOWN");
 				Utils.PopForegroundColor();
-			} else {
-				var cmTimes = demo.FilterForMessage<SvcPacketEntities>()
+			} else*/ {
+				/*var cmTimes = demo.FilterForMessage<SvcPacketEntities>()
 					.SelectMany(tuple => tuple.message.Updates!)
 					.OfType<Delta>()
 					.Where(delta => delta.EntIndex == 1)
@@ -209,12 +211,44 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					.Select(tuple => tuple.prop)
 					.OfType<SingleEntProp<float>>()
 					.Where(prop => prop.Name == "m_StatsThisLevel.fNumSecondsTaken")
-					.Select(prop => prop.Value);
+					.Select(prop => prop.Value);*/
 
-				float cmTime = cmTimes.LastOrDefault(-666);
+				// float cmTime = cmTimes.LastOrDefault(-666);
 
-				if (Math.Abs(cmTime - demo.TickCount(false) * tickInterval) < 2)
-					tw.Write($"{"CM time ",FmtIdt}: {Utils.FormatTime(cmTime)}");
+				var cmTime = demo.FilterForUserMessage<ScoreboardTempUpdate>()
+					.Select(tuple => tuple.userMessage.TimeTaken).LastOrDefault(-666) / 100f;
+
+				tw.WriteLine($"{"CM time ",FmtIdt}: {Utils.FormatTime(cmTime)}");
+				tw.WriteLine($"{"CM ticks ",FmtIdt}: {(int)Math.Round(cmTime / tickInterval)}");
+
+				var numPortals = demo.FilterForUserMessage<ScoreboardTempUpdate>()
+					.Select(tuple => tuple.userMessage.NumPortals).LastOrDefault(-1);
+
+				tw.WriteLine($"{"Portal count ",FmtIdt}: {numPortals}");
+
+				/*int numPortalsSelf = demo.FilterForMessage<SvcPacketEntities>()
+					.SelectMany(tuple => tuple.message.Updates!)
+					.OfType<Delta>()
+					.Where(delta => delta.EntIndex == 1)
+					.SelectMany(delta => delta.Props)
+					.Select(tuple => tuple.prop)
+					.OfType<SingleEntProp<int>>()
+					.Where(prop => prop.Name == "m_StatsThisLevel.iNumPortalsPlaced")
+					.Select(prop => prop.Value)
+					.LastOrDefault(0);
+
+				int numPortalsAll = demo.FilterForMessage<SvcPacketEntities>()
+					.SelectMany(tuple => tuple.message.Updates!)
+					.OfType<Delta>()
+					.Where(delta => delta.ServerClass!.ClassName == "CPortalMPGameRulesProxy")
+					.SelectMany(delta => delta.Props)
+					.Select(tuple => tuple.prop)
+					.OfType<SingleEntProp<int>>()
+					.Where(prop => prop.Name == "portalmp_gamerules_data.m_nNumPortalsPlaced")
+					.Select(prop => prop.Value)
+					.LastOrDefault(0);
+
+				tw.WriteLine($"{"Portal count ",FmtIdt}: {Math.Max(numPortalsSelf, numPortalsAll)}");*/
 			}
 
 			if (demo.TickCount(tfs) != demo.AdjustedTickCount(tfs)) {
