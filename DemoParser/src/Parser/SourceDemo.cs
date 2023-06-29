@@ -49,6 +49,8 @@ namespace DemoParser.Parser {
 		public int? StartTick, EndTick, StartAdjustmentTick, EndAdjustmentTick;
 		public GameState.GameState State;
 		public List<string> ErrorList;
+		// if the demo is part of a multi-demo run, this tells its position in the sequence
+		public readonly TimingAdjustment.SequenceType SequenceType;
 
 		private readonly IProgress<double>? _parseProgress;
 		private PacketFrame? _lastFrame;
@@ -57,27 +59,29 @@ namespace DemoParser.Parser {
 		public DemoParseResult DemoParseResult;
 
 
-		public SourceDemo(string fileDir, IProgress<double>? parseProgress = null)
-			: this(new FileInfo(fileDir), parseProgress) {}
+		public SourceDemo(string fileDir, IProgress<double>? parseProgress = null, TimingAdjustment.SequenceType sequenceType = TimingAdjustment.SequenceType.MidDemo)
+			: this(new FileInfo(fileDir), parseProgress, sequenceType) {}
 
 
-		public SourceDemo(FileInfo file, IProgress<double>? parseProgress = null) {
+		public SourceDemo(FileInfo file, IProgress<double>? parseProgress = null, TimingAdjustment.SequenceType sequenceType = TimingAdjustment.SequenceType.MidDemo) {
 			if (file.Length > BitStreamReader.MaxDataSize) {
 				DemoParseResult |= DemoParseResult.DataTooLong | DemoParseResult.ReaderOverflowed;
 			} else {
 				_parseProgress = parseProgress;
 				FileName = file.Name;
+				SequenceType = sequenceType;
 				_bsr = new BitStreamReader(File.ReadAllBytes(file.FullName));
 			}
 		}
 
 
-		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null, string demoName = "") {
+		public SourceDemo(byte[] data, IProgress<double>? parseProgress = null, string demoName = "", TimingAdjustment.SequenceType sequenceType = TimingAdjustment.SequenceType.MidDemo) {
 			if (data.Length > BitStreamReader.MaxDataSize) {
 				DemoParseResult |= DemoParseResult.DataTooLong | DemoParseResult.ReaderOverflowed;
 			} else {
 				_parseProgress = parseProgress;
 				FileName = demoName;
+				SequenceType = sequenceType;
 				_bsr = new BitStreamReader(data);
 			}
 		}

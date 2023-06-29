@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using DemoParser.Parser;
+using static DemoParser.Parser.TimingAdjustment;
 
 namespace ConsoleApp.DemoArgProcessing {
 
@@ -53,11 +54,18 @@ namespace ConsoleApp.DemoArgProcessing {
 		public ThreadPoolDemoParser(IImmutableList<(FileInfo demoPath, string displayPath)> paths) {
 			_parseInfos = new ParseInfo[paths.Count];
 			for (int i = 0; i < paths.Count; i++) {
+				// TODO: paths isn't necessarily sorted according to the map/save order in the run.
+				// rework half of this software to sort it out properly whenever the time comes
+				SequenceType seqType = SequenceType.MidDemo;
+				if (paths.Count == 1) seqType = SequenceType.SingleDemo;
+				else if (i == 0) seqType = SequenceType.FirstDemo;
+				else if (i == paths.Count - 1) seqType = SequenceType.LastDemo;
+
 				ThreadPool.QueueUserWorkItem(state => {
 					ParseInfo info = (ParseInfo)state!;
 					if (!_disposed) {
 						try {
-							info.Demo = new SourceDemo(info.FileInfo, info.ProgressBar);
+							info.Demo = new SourceDemo(info.FileInfo, info.ProgressBar, seqType);
 							info.Demo.Parse();
 						} catch (Exception e) {
 							info.Exception = e;

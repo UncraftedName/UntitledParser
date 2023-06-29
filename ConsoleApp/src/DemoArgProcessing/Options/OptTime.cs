@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
+using DemoParser.Parser.Components.Messages;
 using DemoParser.Utils;
 using static System.Text.RegularExpressions.RegexOptions;
 
@@ -193,6 +194,22 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			Utils.PushForegroundColor(ConsoleColor.Cyan);
 			tw.WriteLine($"{"Measured time ",FmtIdt}: {Utils.FormatTime(demo.TickCount(tfs) * tickInterval)}");
 			tw.WriteLine($"{"Measured ticks ",FmtIdt}: {demo.TickCount(tfs)}");
+
+			// hack before we implement proper timing strategies
+			if (demo.DemoInfo.IsLeft4Dead1() && demo.SequenceType == TimingAdjustment.SequenceType.SingleDemo && demo.StartAdjustmentTick.HasValue) {
+				// all maps except finales will have a map_transition event at the end if the map was completed
+				(var gameEvent, int? endTick) = demo.FilterForMessage<SvcGameEvent>().FirstOrDefault(ev => ev.message.EventDescription!.Name == "map_transition");
+
+				// assume it's a finale if we don't find a map_transition event and copy the end adjustment tick
+				if (gameEvent == null)
+					endTick = demo.EndAdjustmentTick;
+				if (endTick.HasValue) {
+					int mapTime = endTick.Value - demo.StartAdjustmentTick.Value + 1;
+					tw.WriteLine($"{"Individual Map time ",FmtIdt}: {Utils.FormatTime(mapTime * tickInterval)}");
+					tw.Write($"{"Individual Map ticks ",FmtIdt}: {mapTime}");
+					tw.WriteLine($" ({demo.StartAdjustmentTick}-{endTick})");
+				}
+			}
 
 			if (demo.TickCount(tfs) != demo.AdjustedTickCount(tfs)) {
 				tw.WriteLine($"{"Adjusted time ",FmtIdt}: {Utils.FormatTime(demo.AdjustedTickCount(tfs) * tickInterval)}");

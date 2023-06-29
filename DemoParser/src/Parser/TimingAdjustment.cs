@@ -13,6 +13,7 @@ using static DemoParser.Parser.DemoInfo;
 using static DemoParser.Parser.EntityStuff.PropEnums.PlayerMfFlags_t;
 using static DemoParser.Parser.TimingAdjustment.AdjustmentType;
 using static DemoParser.Parser.SourceGame;
+using DemoParser.Parser.Components.Abstract;
 
 namespace DemoParser.Parser {
 
@@ -36,7 +37,7 @@ namespace DemoParser.Parser {
 
 		// In vanilla you can check for game begin/end without doing ent parsing, so I use that so that the this works
 		// with steampipe.
-		public static IReadOnlyList<AdjustmentType> AdjustmentTypeFromMap(string mapName, SourceGame game) {
+		public static IReadOnlyList<AdjustmentType> AdjustmentTypeFromMap(string mapName, SourceGame game, SequenceType sequenceIndicator) {
 			switch (game) {
 				case PORTAL_1_5135:
 					switch (mapName) {
@@ -133,6 +134,66 @@ namespace DemoParser.Parser {
 							return new[] {Portal2CoopMapStart, Portal2CoopMapEnd};
 					}
 					break;
+				case L4D1_1005:
+				case L4D1_1040:
+				case L4D2_2000:
+				case L4D2_2012:
+				case L4D2_2027:
+				case L4D2_2042:
+				case L4D2_2091:
+				case L4D2_2147:
+				case L4D2_2203:
+					switch (mapName.ToLower()) {
+						case "l4d_hospital01_apartment":
+						case "l4d_smalltown01_caves":
+						case "l4d_airport01_greenhouse":
+						case "l4d_farm01_hilltop":
+						case "l4d_river01_docks":
+						case "l4d_garage01_alleys":
+						case "c1m1_hotel":
+						case "c2m1_highway":
+						case "c3m1_plankcountry":
+						case "c4m1_milltown_a":
+						case "c5m1_waterfront":
+						case "c6m1_riverbank":
+						case "c7m1_docks":
+						case "c8m1_apartment":
+						case "c9m1_alleys":
+						case "c10m1_caves":
+						case "c11m1_greenhouse":
+						case "c12m1_hilltop":
+						case "c13m1_alpinecreek":
+						case "c14m1_junkyard":
+							if (sequenceIndicator == SequenceType.FirstDemo || sequenceIndicator == SequenceType.SingleDemo)
+								return new[] {L4DBegin};
+							else
+								return new[] {L4DCampaignStart};
+						case "l4d_hospital05_rooftop":
+						case "l4d_smalltown05_houseboat":
+						case "l4d_airport05_runway":
+						case "l4d_farm05_cornfield":
+						case "l4d_river03_port":
+						case "l4d_garage02_lots":
+						case "c1m4_atrium":
+						case "c2m5_concert":
+						case "c3m4_plantation":
+						case "c4m5_milltown_escape":
+						case "c5m5_bridge":
+						case "c6m3_port":
+						case "c7m3_port":
+						case "c8m5_rooftop":
+						case "c9m2_lots":
+						case "c10m5_houseboat":
+						case "c11m5_runway":
+						case "c12m5_cornfield":
+						case "c13m4_cutthroatcreek":
+						case "c14m2_lighthouse":
+							if (sequenceIndicator == SequenceType.LastDemo || sequenceIndicator == SequenceType.SingleDemo)
+								return new[] {L4DMapStart, L4DEnd};
+							goto default;
+						default:
+							return new[] {L4DMapStart};
+					}
 			}
 			return new AdjustmentType[] {};
 		}
@@ -163,6 +224,27 @@ namespace DemoParser.Parser {
 			}
 		}
 
+		public static void AdjustFromUserCmd(UserCmd userCmd) {
+			ref int? start = ref userCmd.DemoRef.StartAdjustmentTick;
+			//ref int? end = ref userCmd.DemoRef.EndAdjustmentTick;
+
+			foreach (AdjustmentType type in userCmd.DemoRef.DemoInfo.TimeAdjustmentTypes) {
+				switch (type) {
+					// fallback in case there's no intro cutscene
+					case L4DBegin when !start.HasValue:
+					case L4DCampaignStart when !start.HasValue:
+					// first UserCmd in general
+					case L4DMapStart when !start.HasValue:
+					// first UserCmd after some specific Packet
+					// this is an attempt to stay close to video timing without losing timing fairness
+					// (this is equally unfair compared to choosing the aforementioned Packet as the start tick)
+					case L4DCampaignStart when start < 0:
+						start = userCmd.Tick;
+						return;
+				}
+			}
+		}
+
 
 		public static void AdjustFromPacket(Packet packet) {
 			if (packet.Tick <= 0)
@@ -174,6 +256,10 @@ namespace DemoParser.Parser {
 			// assume only one valid adjustment per packet
 			foreach (AdjustmentType type in packet.DemoRef.DemoInfo.TimeAdjustmentTypes) {
 				switch (type) {
+					case L4DCampaignStart when L4DCampaignPosterHideCheck(packet):
+						start = -packet.Tick; // negative value as signal for AdjustFromUserCmd
+						return;
+					case L4DBegin when L4DControlGainCheck(packet):
 					case Portal2CoopBegin when !start.HasValue && Portal2CoopStartCheck(packet):
 						start = packet.Tick;
 						return;
@@ -193,6 +279,7 @@ namespace DemoParser.Parser {
 						end = packet.Tick + 1;
 						return;
 					case Portal2End when Portal2PortalOnMoon(packet):
+					case L4DEnd when L4DEscapeTriggeredCheck(packet):
 						end = packet.Tick;
 						return;
 				}
@@ -329,6 +416,51 @@ namespace DemoParser.Parser {
 		}
 
 
+		private static bool L4DControlGainCheck(Packet packet) {
+			// other potential props to check are moveparent and m_hViewEntity
+			// but not on the exact same tick as they aren't always updated on the same tick
+			return packet.FilterForMessage<SvcPacketEntities>()
+				.Any(entityMessage => entityMessage.Updates!.OfType<Delta>()
+					.Where(delta => delta.EntIndex == 1)
+					.SelectMany(delta => delta.Props)
+					.Select(tuple => tuple.prop)
+					.OfType<SingleEntProp<int>>()
+					.Any(prop => prop == NullEHandle && prop.Name == "m_positionEntity"));
+		}
+
+
+		private static bool L4DCampaignPosterHideCheck(Packet packet) {
+			UserMessageType messageType = packet.DemoRef.DemoInfo.Game == L4D1_1005 ? UserMessageType.HideLoadingPlaque : UserMessageType.AllPlayersConnectedGameStarting;
+			return packet.FilterForMessage<SvcUserMessage>()
+				.Any(frame => frame.MessageType == messageType);
+		}
+
+
+		// Prioritize the finale_vehicle_leaving event and fallback on the last HideHUD + Flags combo
+		// This logic isn't reliable on finales that have death/cutscene cameras and are breakable, but
+		// those don't exist (yet)
+		private static bool L4DFinaleVehicleLeft = false;
+		private static bool L4DEscapeTriggeredCheck(Packet packet) {
+			if (L4DFinaleVehicleLeft)
+				return false;
+			L4DFinaleVehicleLeft = packet.FilterForMessage<SvcGameEvent>()
+				.Any(ev => ev.EventDescription.Name == "finale_vehicle_leaving");
+			return L4DFinaleVehicleLeft || packet.FilterForMessage<SvcPacketEntities>()
+				.Any(entityMessage => {
+					var props = entityMessage.Updates!.OfType<Delta>()
+						.Where(delta => delta.ServerClass.ClassName == "CTerrorPlayer" && delta.EntIndex == 1)
+						.SelectMany(delta => delta.Props)
+						.Select(tuple => tuple.prop)
+						.OfType<SingleEntProp<int>>();
+					// m_iHideHUD == HIDEHUD_WEAPONSELECTION, HIDEHUD_FLASHLIGHT, HIDEHUD_HEALTH, HIDEHUD_PLAYERDEAD, HIDEHUD_NEEDSUIT,
+					// HIDEHUD_MISCSTATUS, HIDEHUD_CROSSHAIR, HIDEHUD_VEHICLE_CROSSHAIR, HIDEHUD_INVEHICLE, HIDEHUD_BONUS_PROGRESS
+					return props.Any(prop => prop.Name == "m_Local.m_iHideHUD" && prop.Value == 3963) &&
+						props.Any(prop => prop.Name == "m_fFlags" &&
+							packet.DemoRef.DemoInfo.PlayerMfFlagChecker.HasFlags(prop, FL_FROZEN, FL_CLIENT));
+				});
+		}
+
+
 		public enum AdjustmentType {
 			Portal1Begin,
 			Portal1End,
@@ -348,7 +480,19 @@ namespace DemoParser.Parser {
 			PortalUnityEnd,
 			PortalProEnd,
 			PortalPreludeBegin,
-			PortalPreludeEnd
+			PortalPreludeEnd,
+
+			L4DMapStart,
+			L4DCampaignStart,
+			L4DBegin,
+			L4DEnd
+		}
+
+		public enum SequenceType {
+			SingleDemo,
+			FirstDemo,
+			MidDemo,
+			LastDemo
 		}
 	}
 }

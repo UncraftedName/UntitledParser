@@ -209,7 +209,7 @@ namespace DemoParser.Parser {
 				SoundFlagBitsEncode = h.NetworkProtocol > 18 ? 11 : 9;
 			}
 
-			TimeAdjustmentTypes = TimingAdjustment.AdjustmentTypeFromMap(h.MapName, Game);
+			TimeAdjustmentTypes = TimingAdjustment.AdjustmentTypeFromMap(h.MapName, Game, demo.SequenceType);
 		}
 
 

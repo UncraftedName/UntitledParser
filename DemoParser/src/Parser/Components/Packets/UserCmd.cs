@@ -45,6 +45,7 @@ namespace DemoParser.Parser.Components.Packets {
 			MouseDy = (short?)uBsr.ReadUShortIfExists();
 			if (uBsr.HasOverflowed)
 				DemoRef.LogError($"{GetType().Name}: reader overflowed");
+			TimingAdjustment.AdjustFromUserCmd(this);
 		}
 
 
