@@ -65,7 +65,6 @@ namespace DemoParser.Parser {
 				[(3, 15)]   = PORTAL_1_5135,
 				[(3, 24)]   = PORTAL_1_1910503,
 				[(4, 37)]   = L4D1_1005,
-				[(4, 1040)] = L4D1_1040,
 				[(4, 1041)] = L4D1_1040,
 				[(4, 2000)] = L4D2_2000,
 				[(4, 2001)] = PORTAL_2,
@@ -116,11 +115,14 @@ namespace DemoParser.Parser {
 			} else if (IsLeft4Dead()) {
 				TickInterval = 1f / 30;
 				MaxSplitscreenPlayers = 4;
-				if (IsLeft4Dead1()) {
-					UserMessageTypes = Game >= L4D1_1040 ? UserMessage.L4D1SteamTable : UserMessage.L4D1OldTable;
-				} else {
-					UserMessageTypes = UserMessage.L4D2SteamTable;
-				}
+				demo.DemoParseResult |= DemoParseResult.EntParsingEnabled;
+				UserMessageTypes = Game switch {
+					L4D1_1005 => UserMessage.L4D1OldTable,
+					L4D1_1040 => UserMessage.L4D1SteamTable,
+					L4D2_2000 => UserMessage.L4D2000Table,
+					L4D2_2203 => UserMessage.L4D2SteamTable,
+					_ => UserMessage.L4D2042Table
+				};
 				PacketTypes = DemoPacket.DemoProtocol4Table;
 			}
 
@@ -172,6 +174,9 @@ namespace DemoParser.Parser {
 					if (Game == PORTAL_2) {
 						PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsPortal2();
 						CollisionsGroupList = PropEnums.CollisionGroupListPortal2;
+					} else if (IsLeft4Dead()) {
+						PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsOldDemoProtocol();
+						CollisionsGroupList = PropEnums.CollisionGroupListNewDemoProtocol; // unchecked
 					} else {
 						PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsNewDemoProtocol();
 						CollisionsGroupList = PropEnums.CollisionGroupListNewDemoProtocol;

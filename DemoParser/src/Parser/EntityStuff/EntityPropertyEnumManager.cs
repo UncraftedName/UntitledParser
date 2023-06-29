@@ -38,6 +38,7 @@ namespace DemoParser.Parser.EntityStuff {
 			{
 				[("DT_PlayerState", "deadflag")]                  = Bool,
 				[("DT_Portal_Player", "m_pHeldObjectPortal")]     = Handle,
+				[("DT_TerrorPlayer", "m_positionEntity")]         = Handle,
 				[("DT_Local", "m_audio.ent")]                     = Handle,
 				[("DT_CollisionProperty", "m_usSolidFlags")]      = DT_CollisionProperty__m_usSolidFlags,
 				[("DT_CollisionProperty", "m_nSurroundType")]     = DT_CollisionProperty__m_nSurroundType,

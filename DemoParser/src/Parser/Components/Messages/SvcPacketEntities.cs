@@ -121,7 +121,6 @@ namespace DemoParser.Parser.Components.Messages {
 					case 1: // leave PVS
 					case 3: // delete
 						update = new LeavePvs(idx, ents[idx]?.ServerClass, updateType == 3);
-						//run_demo.dem
 						if (ents[idx] == null)
 							DemoRef.LogError($"{GetType().Name}: attempt to delete null entity");
 						else
@@ -133,19 +132,34 @@ namespace DemoParser.Parser.Components.Messages {
 				Updates.Add(update);
 			}
 
-			// process explicit deletes
+			Action<Entity?[], int, EntitySnapshot> ProcessExplicitDelete = (ents, idx, snapshot) => {
+				if (idx < 0 || idx >= ents.Length) return;
+				// idx may be a null entity for some reason ¯\_(ツ)_/¯
+				LeavePvs update = new LeavePvs(idx, ents[idx]?.ServerClass, true);
+				snapshot.ProcessLeavePvs(update);
+				Updates.Add(update);
+			};
 			if (IsDelta) {
-				while (entBsr.ReadBool()) {
-					// idx may be a null entity for some reason ¯\_(ツ)_/¯
-					idx = (int)entBsr.ReadUInt(DemoInfo.MaxEdictBits);
-					LeavePvs update = new LeavePvs(idx, ents[idx]?.ServerClass, true);
-					snapshot.ProcessLeavePvs(update);
-					Updates.Add(update);
+				if (DemoInfo.IsLeft4Dead2() && DemoInfo.Game >= SourceGame.L4D2_2091) {
+					idx = -1;
+					uint deletionCount = entBsr.ReadUBitInt();
+					for (int i = 0; i < deletionCount; i++) {
+						idx += (int)entBsr.ReadUBitInt();
+						if (entBsr.HasOverflowed) break;
+						ProcessExplicitDelete(ents, idx, snapshot);
+					}
+				} else {
+					while (entBsr.ReadBool()) {
+						idx = (int)entBsr.ReadUInt(DemoInfo.MaxEdictBits);
+						if (entBsr.HasOverflowed) break;
+						ProcessExplicitDelete(ents, idx, snapshot);
+					}
 				}
 			}
+
 			if (entBsr.BitsRemaining != 0)
 				DemoRef.LogError($"{GetType().Name}: {entBsr.BitsRemaining} bits left after parsing message");
-			else if (entBsr.HasOverflowed) // 2147
+			else if (entBsr.HasOverflowed)
 				DemoRef.LogError($"{GetType().Name}: overflowed bit stream while parsing message");
 			else
 				ParseSuccess = true;

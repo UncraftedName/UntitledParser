@@ -269,7 +269,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.HapMeleeContact
 		};
 
-		public static readonly IReadOnlyList<UserMessageType> L4D2SteamTable = new[] {
+		public static readonly IReadOnlyList<UserMessageType> L4D2000Table = new[] {
 			UserMessageType.Geiger,
 			UserMessageType.Train,
 			UserMessageType.HudText,
@@ -330,14 +330,18 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.DesiredTimescale,
 			UserMessageType.PZEndGamePanelMsg,
 			UserMessageType.PZEndGamePanelVoteRegisteredMsg,
-			UserMessageType.PZEndGameVoteStatsMsg,
-			UserMessageType.VoteStart,
-			UserMessageType.VotePass,
-			UserMessageType.VoteFailed // called VoteFail in l4d2
+			UserMessageType.PZEndGameVoteStatsMsg
 		};
 
-		// all but the last 3 (the vote uMessages)
-		public static readonly IReadOnlyList<UserMessageType> L4D2OldSoloTable = L4D2SteamTable.Take(61).ToArray();
+		public static readonly IReadOnlyList<UserMessageType> L4D2042Table = L4D2000Table.Concat(new [] {
+			UserMessageType.VoteStart, // added between 2000 and 2012
+			UserMessageType.VotePass, // added between 2000 and 2012
+			UserMessageType.VoteFailed, // added between 2000 and 2012, called VoteFail in l4d2
+		}).ToList().AsReadOnly();
+
+		public static readonly IReadOnlyList<UserMessageType> L4D2SteamTable = L4D2042Table.Concat(new[] {
+			UserMessageType.SavedConvar // added after 2147 (probably on TLS)
+		}).ToList().AsReadOnly();
 
 		public static readonly IReadOnlyList<UserMessageType> L4D1OldTable = new[]
 		{
@@ -410,7 +414,7 @@ namespace DemoParser.Parser.Components.Abstract {
 			UserMessageType.VGUIMenu,
 			UserMessageType.Rumble,
 			UserMessageType.CloseCaption,
-			UserMessageType.CloseCaptionDirect,
+			UserMessageType.CloseCaptionDirect, // new message that makes the lists incompatible with L4D1OldTable
 			UserMessageType.SendAudio,
 			UserMessageType.RawAudio,
 			UserMessageType.VoiceMask,
@@ -669,6 +673,7 @@ namespace DemoParser.Parser.Components.Abstract {
 		PZEndGamePanelMsg,
 		PZEndGamePanelVoteRegisteredMsg,
 		PZEndGameVoteStatsMsg,
+		SavedConvar,
 		// additional types from l4d1
 		HideLoadingPlaque,
 	}
