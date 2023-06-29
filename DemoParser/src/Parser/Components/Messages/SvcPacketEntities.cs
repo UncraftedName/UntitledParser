@@ -23,6 +23,7 @@ namespace DemoParser.Parser.Components.Messages {
 		public bool UpdateBaseline;
 		public List<EntityUpdate>? Updates;
 
+		public bool ParseSuccess;
 
 		public SvcPacketEntities(SourceDemo? demoRef, byte value) : base(demoRef, value) {}
 
@@ -48,11 +49,12 @@ namespace DemoParser.Parser.Components.Messages {
 			ref EntitySnapshot? snapshot = ref GameState.EntitySnapshot;
 			snapshot ??= new EntitySnapshot(DemoRef);
 
-			if (IsDelta && snapshot.EngineTick != DeltaFrom) {
+			if (IsDelta && snapshot.EngineTick < DeltaFrom) {
 				// If the messages ever arrive in a different order I should queue them,
 				// but for now just exit if we're updating from a non-existent snapshot.
 				DemoRef.LogError($"{GetType().Name}: attempted to retrieve non existent snapshot on engine tick {DeltaFrom}");
 				DemoRef.DemoParseResult |= DemoParseResult.EntParsingFailed;
+				Updates = new List<EntityUpdate>(0);
 				return;
 			}
 
@@ -79,6 +81,12 @@ namespace DemoParser.Parser.Components.Messages {
 					? (int)entBsr.ReadUBitInt()
 					: (int)entBsr.ReadUBitVar());
 
+				if (idx < 0 || idx > ents.Length) {
+					DemoRef.LogError($"{GetType().Name}: invalid ent index on update number {_}");
+					DemoRef.DemoParseResult |= DemoParseResult.EntParsingFailed;
+					return;
+				}
+
 				EntityUpdate update;
 				// vars used in enter pvs & delta
 				ServerClass entClass;
@@ -87,8 +95,11 @@ namespace DemoParser.Parser.Components.Messages {
 				uint updateType = entBsr.ReadUInt(2);
 				switch (updateType) {
 					case 0: // delta
-						if (snapshot.Entities[idx] == null)
-							throw new ArgumentException("attempt to delta null entity");
+						if (snapshot.Entities[idx] == null) {
+							DemoRef.LogError($"{GetType().Name}: attempt to delta null entity");
+							DemoRef.DemoParseResult |= DemoParseResult.EntParsingFailed;
+							return;
+						}
 						iClass = snapshot.Entities[idx].ServerClass.DataTableId;
 						(entClass, fProps) = dtMgr.FlattenedProps[iClass];
 						update = new Delta(idx, entClass, entBsr.ReadEntProps(fProps, DemoRef));
@@ -97,6 +108,11 @@ namespace DemoParser.Parser.Components.Messages {
 					case 2: // enter PVS
 						iClass = (int)entBsr.ReadUInt(dtMgr.ServerClassBits);
 						uint iSerial = (uint)entBsr.ReadULong(HandleSerialNumberBits);
+						if (iClass < 0 || iClass > dtMgr.FlattenedProps.Count) {
+							DemoRef.LogError($"{GetType().Name}: invalid server class index on update number {_}");
+							DemoRef.DemoParseResult |= DemoParseResult.EntParsingFailed;
+							return;
+						}
 						(entClass, fProps) = dtMgr.FlattenedProps[iClass];
 						bool bNew = ents[idx] == null || ents[idx].Serial != iSerial;
 						update = new EnterPvs(idx, entClass, entBsr.ReadEntProps(fProps, DemoRef), iSerial, bNew);
@@ -104,10 +120,12 @@ namespace DemoParser.Parser.Components.Messages {
 						break;
 					case 1: // leave PVS
 					case 3: // delete
-						if (snapshot.Entities[idx] == null)
-							throw new ArgumentException("attempt to delete null entity");
-						update = new LeavePvs(idx, ents[idx].ServerClass, updateType == 3);
-						snapshot.ProcessLeavePvs((LeavePvs)update);
+						update = new LeavePvs(idx, ents[idx]?.ServerClass, updateType == 3);
+						//run_demo.dem
+						if (ents[idx] == null)
+							DemoRef.LogError($"{GetType().Name}: attempt to delete null entity");
+						else
+							snapshot.ProcessLeavePvs((LeavePvs)update);
 						break;
 					default:
 						throw new ArgumentException($"unknown ent update type: {updateType}");
@@ -125,8 +143,12 @@ namespace DemoParser.Parser.Components.Messages {
 					Updates.Add(update);
 				}
 			}
-			if (entBsr.BitsRemaining != 0 || entBsr.HasOverflowed)
-				bsr.SetOverflow();
+			if (entBsr.BitsRemaining != 0)
+				DemoRef.LogError($"{GetType().Name}: {entBsr.BitsRemaining} bits left after parsing message");
+			else if (entBsr.HasOverflowed) // 2147
+				DemoRef.LogError($"{GetType().Name}: overflowed bit stream while parsing message");
+			else
+				ParseSuccess = true;
 		}
 
 
