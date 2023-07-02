@@ -1,4 +1,4 @@
-# Untitled Demo Parser
+# Untitled Parser
 
 A parser for source engine demos similar to [listdemo+](https://www.speedrun.com/portal/resources "portal resources"). Mainly used to time individual demos or entire speeruns, but can be used to extract other information from demos. In addition, there is built-in flag detection which can be useful for segmented runs (ticks which have `#FLAGS#` echoed will get displayed). To time demos, simply drag a demo or a folder of demos over the [application](https://github.com/UncraftedName/UncraftedDemoParser/releases "releases"). You can also set it as the default application to open .dem files.
 
