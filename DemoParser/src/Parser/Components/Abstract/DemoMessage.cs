@@ -195,6 +195,7 @@ namespace DemoParser.Parser.Components.Abstract {
 				MessageType.SvcCmdKeyValues      => new SvcCmdKeyValues     (dRef, val),
 				MessageType.SvcPaintmapData      => new SvcPaintMapData     (dRef, val),
 				MessageType.SvcSplitScreen       => new SvcSplitScreen      (dRef, val),
+				MessageType.SvcVoiceData         => new SvcVoiceData        (dRef, val),
 				_ => null
 			};
 		}

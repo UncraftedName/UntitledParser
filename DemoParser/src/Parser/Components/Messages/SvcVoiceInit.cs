@@ -16,17 +16,19 @@ namespace DemoParser.Parser.Components.Messages {
 		protected override void Parse(ref BitStreamReader bsr) {
 			Codec = bsr.ReadNullTerminatedString();
 			Quality = bsr.ReadByte();
-			if (Quality == 255)
-				SampleRate = bsr.ReadSInt();
+			if (Quality == 255) {
+				SampleRate = bsr.ReadSShort();
+			} else {
+				SampleRate = Codec == "vaudio_celt" ? 22050 : 11025;
+			}
 		}
 
 
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.AppendLine($"codec: {Codec}");
-			if (SampleRate.HasValue)
-				pw.Append($"sample rate: {SampleRate}");
-			else
-				pw.Append($"quality: {Quality}");
+			if (Quality != 255)
+				pw.AppendLine($"quality: {Quality}");
+			pw.Append(SampleRate == 0 && Codec == "steam" ? "sample rate: optimal" : $"sample rate: {SampleRate}");
 		}
 	}
 }
