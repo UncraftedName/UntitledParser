@@ -11,6 +11,7 @@ Here is a (mostly accurate) list of all supported games/versions and what featur
 | HL2 OE              | ✅ | ❌ | 🔶 | ❌ | ❌ |
 | Portal 1 3420, 5135 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Portal 1 steampipe  | ✅ | ✅ | 🔶 | ❌ | ✅ |
+| Team Fortress 2     | ❌ | ❌ | 🔶 | ❌ | ✅ |
 | Portal 2            | ✅ | ✅ | 🔶 | 🔶 | 🔶 |
 | L4D1 1005,1040      | ✅ | ❌ | 🔶 | ❌ | ❌ |
 | L4D2 2000-2220      | ✅ | ❌ | 🔶 | ❌ | ❌ |

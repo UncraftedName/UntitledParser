@@ -1,5 +1,6 @@
 #nullable enable
 using System.Collections.Generic;
+using System.Linq;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.EntityStuff;
@@ -114,6 +115,10 @@ namespace DemoParser.Parser.Components.Packets {
 				serverClass.ParseStream(ref dBsr);
 			}
 			ParseSuccessful = true;
+
+			// hack to detect tf2 game
+			if (DemoInfo.Game == SourceGame.PORTAL_1_1910503 && ServerClasses.Any(serverClass => serverClass.ClassName == "CTFBat"))
+				DemoInfo.Game = SourceGame.TF2;
 
 			// in case SvcServerInfo parsing fails
 			GameState.EntBaseLines ??= new EntityBaseLines(DemoRef!, ServerClasses.Count);

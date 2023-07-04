@@ -230,6 +230,8 @@ namespace DemoParser.Parser {
 		PORTAL_1_5135,
 		PORTAL_1_1910503, // latest steam version
 
+		TF2, // I don't know what the different versions of tf2 are
+
 		PORTAL_2,
 
 		L4D1_1005,

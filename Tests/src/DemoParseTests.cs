@@ -22,6 +22,8 @@ namespace Tests {
 			new TestCaseData("portal 1 5135 spliced.dem").SetName("Portal 1 (5135 Spliced)"),
 			new TestCaseData("portal 1 steampipe.dem").SetName("Portal 1 (SteamPipe)"),
 
+			new TestCaseData("tf2.dem").SetName("Team Fortress 2"),
+
 			new TestCaseData("portal 2 sp.dem").SetName("Portal 2 single player"),
 			new TestCaseData("portal 2 coop.dem").SetName("Portal 2 co-op"),
 
