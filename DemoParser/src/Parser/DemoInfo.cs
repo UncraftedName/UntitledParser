@@ -221,6 +221,8 @@ namespace DemoParser.Parser {
 
 		public bool IsPortal1() => Game >= PORTAL_1_3420 && Game <= PORTAL_1_1910503;
 
+		public bool IsPortal2() => Game == PORTAL_2;
+
 		public bool IsHL2() => Game == HL2_OE;
 	}
 

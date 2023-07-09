@@ -8,6 +8,7 @@ using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
 using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Messages;
+using DemoParser.Parser.Components.Messages.UserMessages;
 using DemoParser.Utils;
 using static System.Text.RegularExpressions.RegexOptions;
 
@@ -216,6 +217,23 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				tw.Write($"{"Adjusted ticks ",FmtIdt}: {demo.AdjustedTickCount(tfs)}");
 				tw.WriteLine($" ({demo.StartAdjustmentTick}-{demo.EndAdjustmentTick})");
 			}
+
+			// another hack until we time things better :)
+			if (demo.DemoInfo.IsPortal2()) {
+				ScoreboardTempUpdate? lastScoreBoard =
+					demo.FilterForUserMessage<ScoreboardTempUpdate>()
+						.Select(tuple => tuple.userMessage)
+						.LastOrDefault();
+
+				if (lastScoreBoard != null) {
+					float cmTime = lastScoreBoard.TimeTaken / 100f;
+					float numPortals = lastScoreBoard.NumPortals;
+					tw.WriteLine($"{"CM time ",FmtIdt}: {Utils.FormatTime(cmTime)}");
+					tw.WriteLine($"{"CM ticks ",FmtIdt}: {(int)Math.Round(cmTime / tickInterval)}");
+					tw.WriteLine($"{"CM portals ",FmtIdt}: {numPortals}");
+				}
+			}
+
 			Utils.PopForegroundColor();
 		}
 
