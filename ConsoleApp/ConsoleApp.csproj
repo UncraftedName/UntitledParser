@@ -2,7 +2,6 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net7.0-windows</TargetFramework>
 		<ApplicationIcon>../github-resources/investigation.ico</ApplicationIcon>
 		<Platforms>AnyCPU;x64</Platforms>
 		<Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
@@ -11,6 +10,7 @@
 		<AssemblyName>UntitledParser</AssemblyName>
 		<Nullable>enable</Nullable>
 		<WarningLevel>9999</WarningLevel>
+		<TargetFrameworks>net7.0;net7.0-windows</TargetFrameworks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Debug_ProcessEnts' ">
@@ -68,8 +68,8 @@
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 	  <!--Make sure to update Utils.GetVersionString() if you edit this!-->
-	  <Exec Command="git rev-list --count HEAD > version.txt"/>
-	  <Exec Command="git branch --show-current >> version.txt"/>
-	  <Exec Command="git describe --always --dirty --exclude=* >> version.txt"/>
+	  <Exec Command="git rev-list --count HEAD &gt; version.txt" />
+	  <Exec Command="git branch --show-current &gt;&gt; version.txt" />
+	  <Exec Command="git describe --always --dirty --exclude=* &gt;&gt; version.txt" />
 	</Target>
 </Project>

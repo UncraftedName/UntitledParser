@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace ConsoleApp {
@@ -108,13 +109,15 @@ namespace ConsoleApp {
 		public static string GetExeName() => QuoteIfHasSpaces(AppDomain.CurrentDomain.FriendlyName);
 
 
-		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+		[DllImport("kernel32.dll")]
 		private static extern int GetConsoleProcessList(int[] buffer, int size);
 
 
 		// used to check if we should use ReadKey() once we finish
 		public static bool WillBeDestroyedOnExit() {
-			return !Debugger.IsAttached && GetConsoleProcessList(new int[2], 2) <= 1;
+			if (IsWindows())
+				return !Debugger.IsAttached && GetConsoleProcessList(new int[2], 2) <= 1;
+			return false; // TODO this is a bit of a hack, see if there's a better solution on linux
 		}
 
 
@@ -140,8 +143,13 @@ namespace ConsoleApp {
 		}
 
 
+		public static bool IsWindows() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+
 		// microsoft, you autocomplete dir to '.\dir name\' and then that last single quote escapes into a double quote which fucks everything
 		public static string[] FixPowerShellBullshit(string[] args) {
+			if (!IsWindows())
+				return args;
 			// example input: '.\nosla 12 50 89\' '.\nosla 12 50 89\' gets converted to [.\nosla 12 50 89" .\nosla, 12, 50, 89"]
 			var newArgs = new List<string>();
 			bool fixing = false;

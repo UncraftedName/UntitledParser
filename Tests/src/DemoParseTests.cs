@@ -47,9 +47,30 @@ namespace Tests {
 		private static readonly Dictionary<string, byte[]> RawDemoDataLookup = RawDemoDataLookup = new Dictionary<string, byte[]>();
 		private static bool _loaded;
 
-		public static readonly string ProjectDir =
-			// bin/Debug/net461 -> ../../..
-			Directory.GetParent(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!)!.Parent!.Parent!.FullName;
+		private static string _projectDir;
+		public static string ProjectDir {
+			get {
+				if (_projectDir != null)
+					return _projectDir;
+				/*
+				 * I keep running into stupid issues with the executable being nested at different levels in the
+				 * bin folder, and it seems like C# doesn't provide a way for us to know what the project folder
+				 * is (maybe there's some assembly attribute stuff I could use?). So I'll just iterate up the
+				 * folders until I get to the project folder; this should always work and will throw exceptions
+				 * when it doesn't.
+				 */
+				string projectName = Assembly.GetCallingAssembly().GetName().Name!;
+				string dir = Path.GetFullPath(Environment.CurrentDirectory);
+				for (int i = 0; i < 10; i++) {
+					if (dir.EndsWith(projectName, StringComparison.OrdinalIgnoreCase)) {
+						_projectDir = dir;
+						return _projectDir;
+					}
+					dir = Directory.GetParent(dir)!.FullName;
+				}
+				throw new DirectoryNotFoundException($"Could not find directory '{projectName}'");
+			}
+		}
 
 
 		[OneTimeSetUp]

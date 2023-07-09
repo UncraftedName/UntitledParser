@@ -150,6 +150,8 @@ namespace ConsoleApp {
 				Environment.ExitCode = 3;
 			}
 			Console.ResetColor();
+			if (!Utils.IsWindows())
+				Console.WriteLine(); // TODO: checkout why linux doesn't give us as many lines as windows
 			if (Utils.WillBeDestroyedOnExit())
 				Console.ReadLine();
 		}

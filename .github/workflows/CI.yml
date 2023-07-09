@@ -10,8 +10,31 @@ on:
 
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - {os: windows-latest, framework: net7.0-windows, runtime: win-x64}
+          - {os: ubuntu-latest, framework: net7.0, runtime: linux-x64}
+        build_type:
+          - {
+            name: 'Build',
+            configuration: Debug,
+            command: 'dotnet build ConsoleApp --no-self-contained',
+          }
+          - {
+            name: 'Publish to single file',
+            configuration: Release,
+            command: 'dotnet publish ConsoleApp -p:PublishSingleFile=true --self-contained',
+          }
+          - {
+            name: 'Run tests',
+            configuration: Release,
+            command: 'dotnet test --logger "console;verbosity=detailed"',
+          }
 
-    runs-on: windows-latest
+    runs-on: ${{ matrix.platform.os }}
+    name: ${{ matrix.build_type.name }} (${{ matrix.build_type.configuration }}, ${{ matrix.platform.os }}
 
     steps:
     - name: Checkout Project
@@ -20,14 +43,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.1
 
-    - name: Build Debug
-      run: msbuild ConsoleApp\ConsoleApp.csproj -target:Rebuild -property:Configuration=Debug -restore
-    - name: Build Release
-      run: msbuild ConsoleApp\ConsoleApp.csproj -target:Rebuild -property:Configuration=Release -restore
-    - name: Publish to single executable
-      run: msbuild ConsoleApp\ConsoleApp.csproj -target:Rebuild /p:DeployOnBuild=true /p:PublishProfile=publish-single-file -restore
-    - name: Test
-      run: dotnet test --logger "console;verbosity=detailed" --configuration Release
+    - name: ${{ matrix.build_type.name }}
+      run: >
+        ${{ matrix.build_type.command }}
+        --framework=${{ matrix.platform.framework }}
+        --runtime=${{ matrix.platform.runtime }}
+        --configuration=${{ matrix.build_type.configuration }}
