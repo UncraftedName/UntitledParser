@@ -2,74 +2,72 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
+		<TargetFramework>net481</TargetFramework>
 		<ApplicationIcon>../github-resources/investigation.ico</ApplicationIcon>
-		<Platforms>AnyCPU;x64</Platforms>
+		<Platforms>AnyCPU</Platforms>
 		<Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
 		<LangVersion>10</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<AssemblyName>UntitledParser</AssemblyName>
 		<Nullable>enable</Nullable>
-		<WarningLevel>9999</WarningLevel>
-		<TargetFrameworks>net7.0;net7.0-windows</TargetFrameworks>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+		<TargetName>UntitledParser.Unmerged</TargetName>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Debug_ProcessEnts' ">
-	  <DefineConstants>TRACE;DEBUG</DefineConstants>
+		<DefineConstants>TRACE;DEBUG</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-	  <DebugType>full</DebugType>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-	  <DebugType>embedded</DebugType>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ProcessEnts|AnyCPU'">
-	  <DebugType>full</DebugType>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ProcessEnts|x64'">
-	  <DebugType>full</DebugType>
+		<DebugType>full</DebugType>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\DemoParser\DemoParser.csproj" />
+		<PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.13" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <AssemblyAttribute Include="ConsoleApp.BuildDateAttribute">
-		<_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
-	  </AssemblyAttribute>
+		<ProjectReference Include="..\DemoParser\DemoParser.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Properties\Resources.Designer.cs">
-		<DesignTime>True</DesignTime>
-		<AutoGen>True</AutoGen>
-		<DependentUpon>Resources.resx</DependentUpon>
-	  </Compile>
+		<AssemblyAttribute Include="ConsoleApp.BuildDateAttribute">
+			<_Parameter1>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_Parameter1>
+		</AssemblyAttribute>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Update="Properties\Resources.resx">
-		<Generator>ResXFileCodeGenerator</Generator>
-		<LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
-	  <None Remove="version.txt" />
-	  <EmbeddedResource Include="version.txt">
-		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </EmbeddedResource>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
 	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<None Remove="version.txt" />
+		<EmbeddedResource Include="version.txt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<Target Condition=" '$(Configuration)' == 'Release' " Name="Merge" AfterTargets="Build">
+		<PropertyGroup>
+			<WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
+		</PropertyGroup>
+		<ILRepack OutputType="$(OutputType)" MainAssembly="$(AssemblyName).Unmerged.exe" OutputAssembly="UntitledParser.exe" InputAssemblies="$(WorkingDirectory)\*.dll" WilcardInputAssemblies="true" WorkingDirectory="$(WorkingDirectory)" />
+	</Target>
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-	  <!--Make sure to update Utils.GetVersionString() if you edit this!-->
-	  <Exec Command="git rev-list --count HEAD &gt; version.txt" />
-	  <Exec Command="git branch --show-current &gt;&gt; version.txt" />
-	  <Exec Command="git describe --always --dirty --exclude=* &gt;&gt; version.txt" />
+		<!--Make sure to update Utils.GetVersionString() if you edit this!-->
+		<Exec Command="git rev-list --count HEAD > version.txt"/>
+		<Exec Command="git branch --show-current >> version.txt"/>
+		<Exec Command="git describe --always --dirty --exclude=* >> version.txt"/>
 	</Target>
 </Project>

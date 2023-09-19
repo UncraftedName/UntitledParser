@@ -1,1 +1,0 @@
-dotnet publish ConsoleApp --runtime=linux-x64 --framework=net7.0 -p:PublishSingleFile=true --self-contained=true --configuration=Release

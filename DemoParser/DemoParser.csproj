@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0;net7.0-windows</TargetFrameworks>
+		<TargetFramework>net481</TargetFramework>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Title>UntitledDemoParser</Title>
 		<Authors>UncraftedName</Authors>
@@ -9,39 +9,39 @@
 		<PackageTags>SourceEngine demo Valve Portal</PackageTags>
 		<Description>A parser for Source Engine demos.</Description>
 		<PackageIconUrl>https://raw.githubusercontent.com/UncraftedName/UncraftedDemoParser/master/github-resources/investigation.ico</PackageIconUrl>
-		<Platforms>AnyCPU;x64</Platforms>
+		<Platforms>AnyCPU</Platforms>
 		<Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
 		<LangVersion>10</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-	  <DefineConstants>TRACE</DefineConstants>
-	  <NoWarn>1701;1702;8618;8602</NoWarn>
+		<DefineConstants>TRACE</DefineConstants>
+		<NoWarn>1701;1702;8618;8602</NoWarn>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Debug_ProcessEnts' ">
-	  <DefineConstants>TRACE;FORCE_PROCESS_ENTS;DEBUG</DefineConstants>
-	  <NoWarn>1701;1702;8618;8602</NoWarn>
+		<DefineConstants>TRACE;FORCE_PROCESS_ENTS;DEBUG</DefineConstants>
+		<NoWarn>1701;1702;8618;8602</NoWarn>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-	  <NoWarn>1701;1702;8618;8602</NoWarn>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ProcessEnts|AnyCPU'">
-	  <Optimize>false</Optimize>
+		<NoWarn>1701;1702;8618;8602</NoWarn>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ProcessEnts|x64'">
-	  <Optimize>false</Optimize>
+		<Optimize>false</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_ProcessEnts|x64'">
+		<Optimize>false</Optimize>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="C5" Version="3.0.0-rc" />
-	  <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.0" />
-	  <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
-	  <PackageReference Include="System.Memory" Version="4.5.4" />
-	  <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+		<PackageReference Include="C5" Version="3.0.0-rc" />
+		<PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.0" />
+		<PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
+		<PackageReference Include="System.Memory" Version="4.5.4" />
+		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
 	</ItemGroup>
 </Project>

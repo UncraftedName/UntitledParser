@@ -26,7 +26,7 @@ Note that many of these more advanced features are only supported for some games
 
 ## Building and Coding
 
-This project uses .NET 7.0. To build the project, just build the solution with Visual Studio or MSBuild. If you build a release build, all the assemblies get merged into one .exe which is easy to just send people or whatever (thanks mike). There is a pre-build step which runs some git commands to save the info used for the `--version` option, so as long as the repo has been cloned and you have a recent version of git that should work alright.
+This project uses .NET 4.6.1. To build the project, just build the solution with Visual Studio or MSBuild. If you build a release build, all the assemblies get merged into one .exe which is easy to just send people or whatever (thanks mike). There is a pre-build step which runs some git commands to save the info used for the `--version` option, so as long as the repo has been cloned and you have a recent version of git that should work alright.
 
 There isn't an API or even any extensive documentation, and demos can be pretty darn complicated sometimes. If you want to get some information from them your best bet is to start digging through the code, or feel free to get in touch with me. The `--demo-dump` option will create a text file which contains a human readable representation of everything I know how to parse in the given demo, this is a good way to start digging for stuff.
 

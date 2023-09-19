@@ -47,7 +47,7 @@ namespace DemoParser.Parser.Components.Messages {
 #endif
 			// now, we do some setup for ent parsing
 			ref EntitySnapshot? snapshot = ref GameState.EntitySnapshot;
-			snapshot ??= new EntitySnapshot(DemoRef);
+			snapshot ??= new EntitySnapshot(DemoRef!);
 
 			if (IsDelta && snapshot.EngineTick < DeltaFrom) {
 				// If the messages ever arrive in a different order I should queue them,
