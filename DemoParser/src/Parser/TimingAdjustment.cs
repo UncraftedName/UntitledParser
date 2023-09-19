@@ -137,6 +137,7 @@ namespace DemoParser.Parser {
 				case L4D1_1005:
 				case L4D1_1040:
 				case L4D2_2000:
+				case L4D2_2011:
 				case L4D2_2012:
 				case L4D2_2027:
 				case L4D2_2042:

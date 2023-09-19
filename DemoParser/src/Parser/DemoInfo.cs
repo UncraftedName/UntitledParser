@@ -68,6 +68,7 @@ namespace DemoParser.Parser {
 				[(4, 1041)] = L4D1_1040,
 				[(4, 2000)] = L4D2_2000,
 				[(4, 2001)] = PORTAL_2,
+				[(4, 2011)] = L4D2_2011,
 				[(4, 2012)] = L4D2_2012,
 				[(4, 2027)] = L4D2_2027,
 				[(4, 2042)] = L4D2_2042,
@@ -245,6 +246,7 @@ namespace DemoParser.Parser {
 		L4D1_1040, // 1032/1040/1041 version
 
 		L4D2_2000,
+		L4D2_2011,
 		L4D2_2012,
 		L4D2_2027,
 		L4D2_2042, // 2042 protocol, version is 2045, 2063 or 2075 (thanks valve)
