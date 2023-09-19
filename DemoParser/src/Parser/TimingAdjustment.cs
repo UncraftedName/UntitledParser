@@ -444,7 +444,7 @@ namespace DemoParser.Parser {
 			if (L4DFinaleVehicleLeft)
 				return false;
 			L4DFinaleVehicleLeft = packet.FilterForMessage<SvcGameEvent>()
-				.Any(ev => ev.EventDescription.Name == "finale_vehicle_leaving");
+				.Any(ev => ev.EventDescription?.Name == "finale_vehicle_leaving");
 			return L4DFinaleVehicleLeft || packet.FilterForMessage<SvcPacketEntities>()
 				.Any(entityMessage => {
 					var props = entityMessage.Updates!.OfType<Delta>()
