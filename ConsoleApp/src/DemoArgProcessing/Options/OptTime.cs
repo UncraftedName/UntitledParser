@@ -154,17 +154,27 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				.OrderBy(grouping => grouping.Min())
 				.ToList();
 
+			// holy crap this needs to be restructured
+			var otherGroups = demo.FilterForUserMessage<Rumble>()
+				.Where(tuple => tuple.tick != 0 && tuple.userMessage.RumbleType == RumbleLookup.RumbleStopAll)
+				.GroupBy(_ => "RumbleStopAll", tuple => tuple.tick)
+				.ToList();
+
 			double tickInterval = demo.DemoInfo.TickInterval;
 
-			List<int> ticks = customGroups.SelectMany(g => g)
-				.Concat(flagGroups.SelectMany(g => g)).ToList();
+			List<int> ticks =
+				customGroups.SelectMany(g => g)
+				.Concat(flagGroups.SelectMany(g => g))
+				.Concat(otherGroups.SelectMany(g => g))
+				.ToList();
 
-			List<string>
-				descriptions = customGroups.Select(g => Enumerable.Repeat(g.Key, g.Count()))
-					.Concat(flagGroups.Select(g => Enumerable.Repeat($"'{g.Key}' flag", g.Count())))
-					.SelectMany(e => e).ToList(),
-				tickStrs = ticks.Select(i => i.ToString()).ToList(),
-				times = ticks.Select(i => Utils.FormatTime(i * tickInterval)).ToList();
+			List<string> descriptions =
+				customGroups.Select(g => Enumerable.Repeat(g.Key, g.Count()))
+				.Concat(otherGroups.Select(g => Enumerable.Repeat(g.Key, g.Count())))
+				.Concat(flagGroups.Select(g => Enumerable.Repeat($"'{g.Key}' flag", g.Count())))
+				.SelectMany(e => e).ToList();
+			List<string> tickStrs = ticks.Select(i => i.ToString()).ToList();
+			List<string> times = ticks.Select(i => Utils.FormatTime(i * tickInterval)).ToList();
 
 			if (descriptions.Any()) {
 				int maxDescPad = descriptions.Max(s => s.Length),
