@@ -543,6 +543,7 @@ namespace DemoParser.Parser.Components.Abstract {
 				UserMessageType.HapPunch             => new HapPunch          (dRef, val),
 				UserMessageType.SPHapWeapEvent       => new SpHapWeaponEvent  (dRef, val),
 				UserMessageType.WitchBloodSplatter   => new WitchBloodSplatter(dRef, val),
+				UserMessageType.TransitionFade       => new TransitionFade    (dRef, val),
 				UserMessageType.ScoreboardTempUpdate => new ScoreboardTempUpdate(dRef, val),
 				_ => null // I do a check for this so that I don't have to allocate the unknown type twice
 			};
