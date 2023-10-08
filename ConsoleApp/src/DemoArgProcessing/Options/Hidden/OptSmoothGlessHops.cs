@@ -1,14 +1,18 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
+using DemoParser.Parser.Components;
 using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
+using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
 using DemoParser.Parser.EntityStuff;
+using DemoParser.Parser.GameState;
 using DemoParser.Utils;
 using DemoParser.Utils.BitStreams;
 
@@ -51,19 +55,16 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 			Stream s = infoObj.StartWritingBytes("smooth-jumps", ".dem");
 			try {
 				SmoothJumps(infoObj.CurrentDemo, s, arg);
-			} catch (Exception) {
-				Utils.Warning("Smoothing jumps failed.\n");
+			} catch (Exception e) {
+				Utils.Warning($"Smoothing jumps failed: {e.Message}\n");
 				infoObj.CancelOverwrite = true;
 			}
 		}
 
 		/*
-		 * Okay so this is long and wacky and honestly I don't remember exactly how this works because I threw it
-		 * together for rendering glitchless v2 a while ago. Sooooooooo, the general idea is to smoothly transition the
-		 * player's origin and view offset during a jump.
-		 *
-		 *
-		 * Normally, a jump will look something like this (each column is a tick):
+		 * Unfortunately even with demo interp on, for unknown reasons transitions in the player's view offset look
+		 * bad during demo playback. The solution is to get rid of any places where it changes. Jumps are a common
+		 * place for that, and they normally look something like this in portal 1 (each column is a tick):
 		 *
 		 * cam pos:     👁️👁️👁️👁️👁️                               👁️👁️👁️👁️👁️
 		 *                        👁️👁️👁️👁️               👁️👁️👁️👁️
@@ -79,111 +80,62 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		 *                                      🦶🦶
 		 * floor:       ------------------------------------------------------------
 		 *
-		 * God bless you if you don't see emojis here. Notice that the player is in a crouched state until they get
-		 * close to the floor. For the 2 (in this case) ticks that the player is on the floor, they are standing. To
-		 * compensate for this, the view offset is increased and therein lies the problem. It seems like the player's
-		 * view offset transitions smoothly regardless of demo_interpolateview and always happens a tick too late or
-		 * something like that. This makes jumps extremely ugly without demo interp and slightly bouncy with interp.
-		 * The goal of this function is to "bridge the gap" if you will, and pull the player's feet up during a jump.
-		 * We find jumps by looking at "m_Local.m_flJumpTime", and then linearly interpolate the player's origin and
-		 * view offset across the ticks when they are on the ground. There's some spicy stuff below, this is probably
-		 * something that should be improved in the future.
+		 * God bless you if you don't see emojis here. ThE fix is to set the player's view offset to 0 in the entire
+		 * demo. For each tick we get the origin and view offset, then set the origin to origin + view offset and the
+		 * view offset to 0.
 		 */
 		public static void SmoothJumps(SourceDemo demo, Stream s, int maxGroundTicks) {
-
-			// ReSharper disable once CompareOfFloatsByEqualityOperator
-			var jumpTicks =
-				(from msgTup in demo.FilterForMessage<SvcPacketEntities>()
-					from update in msgTup.message.Updates!
-					where update.ServerClass!.ClassName == "CPortal_Player" && update is Delta
-					from deltaProp in ((Delta)update).Props
-					where deltaProp.prop.Name == "m_Local.m_flJumpTime" &&
-						  ((SingleEntProp<float>)deltaProp.prop).Value == 510.0
-					select msgTup.tick).ToList();
-
-
-			Console.WriteLine($"found jump ticks: {jumpTicks.SequenceToString()}");
 			BitStreamWriter bsw = new BitStreamWriter(demo.Reader.Data);
 
-			const float interpThreshold = 15; // this many units off the ground is considered a jump
+			// get baseline view offset
+			SingleEntProp<float>? prevViewOffsetProp =
+				demo.FilterForPacket<StringTables>().Single().Tables
+					.Where(table => table.Name == TableNames.InstanceBaseLine)
+					.SelectMany(table => table.TableEntries!)
+					.Select(entry => entry.EntryData)
+					.OfType<InstanceBaseline>()
+					.Where(baseline => baseline.ServerClassRef!.ClassName == "CPortal_Player")
+					.SelectMany(baseline => baseline.Properties!)
+					.Select(tuple => tuple.prop)
+					.OfType<SingleEntProp<float>>()
+					.SingleOrDefault(prop => prop.Name == "m_vecViewOffset[2]");
 
-			var frames = demo.Frames;
-			foreach (int jumpTick in jumpTicks) {
+			// set baseline view offset to 0
+			if (prevViewOffsetProp != null) {
+				BitStreamWriter viewOffsetBytes = new BitStreamWriter();
+				viewOffsetBytes.WriteFloat(0);
+				bsw.EditBitsAtIndex(viewOffsetBytes, prevViewOffsetProp.Offset);
+			}
 
-				int jumpTickIdx = 0;
-				for (; frames[jumpTickIdx].Type != PacketType.Packet; jumpTickIdx++) ; // find first packet
-				while (frames[++jumpTickIdx].Tick < jumpTick) ; // find the first frame with the matching tick
-				for (; frames[jumpTickIdx].Type != PacketType.Packet; jumpTickIdx++) ; // find the packet on this tick
+			foreach (Packet packet in demo.FilterForPacket<Packet>()) {
+				// get packet view offset
+				SingleEntProp<float>? curViewOffsetProp = packet
+					.FilterForMessage<SvcPacketEntities>()
+					.SelectMany(svcMsg => svcMsg.Updates!)
+					.OfType<Delta>()
+					.Where(delta => delta.ServerClass!.ClassName == "CPortal_Player")
+					.SelectMany(delta => delta.Props)
+					.Select(tuple => tuple.prop)
+					.OfType<SingleEntProp<float>>()
+					.FirstOrDefault(prop => prop.Name == "m_vecViewOffset[2]");
 
-				Packet groundPacket = (Packet)frames[jumpTickIdx].Packet!;
-				Vector3 groundPos = groundPacket.PacketInfo[0].ViewOrigin; // roughly the ground pos
-
-				int endTick;
-				Vector3 endVec;
-
-				int idx = jumpTickIdx;
-				while (frames[++idx].Type != PacketType.Packet) ; // jump to next packet
-
-				Vector3 curViewOrigin = ((Packet)frames[idx].Packet!).PacketInfo[0].ViewOrigin;
-
-				if (curViewOrigin.Z - groundPos.Z > interpThreshold) {
-					endTick = ((Packet)frames[idx].Packet!).Tick;
-					endVec = curViewOrigin;
-				} else {
-					Console.WriteLine($"not patching jump on tick {jumpTick}, too many ticks before air time detected");
-					continue;
+				// set packet view offset to 0
+				if (curViewOffsetProp != null) {
+					prevViewOffsetProp = curViewOffsetProp;
+					BitStreamWriter viewOffsetBytes = new BitStreamWriter();
+					viewOffsetBytes.WriteFloat(0);
+					bsw.EditBitsAtIndex(viewOffsetBytes, curViewOffsetProp.Offset);
 				}
-
-				Vector3 startVec = new Vector3(float.PositiveInfinity);
-				idx = jumpTickIdx;
-				bool shouldInterp = true;
-
-				for (int ticksBeforeJump = 0; ticksBeforeJump < maxGroundTicks; ticksBeforeJump++) {
-
-					while (frames[--idx].Type != PacketType.Packet) ; // jump to previous packet
-
-					Packet curPacket = (Packet)frames[idx].Packet!;
-					curViewOrigin = curPacket.PacketInfo[0].ViewOrigin;
-
-					if (curViewOrigin.Z - groundPos.Z > interpThreshold) {
-						startVec = curViewOrigin;
-						break;
-					}
-					if (ticksBeforeJump == maxGroundTicks - 1) {
-						shouldInterp = false;
-						Console.WriteLine($"not patching jump on tick {jumpTick}, too many ticks on ground (at least {maxGroundTicks}) before this jump");
-						break;
-					}
-				}
-				if (!shouldInterp)
-					continue;
-
-				int startTick = frames[idx].Tick; // idx is currently the start tick (right before the first interp tick)
-
-				while (frames[idx].Tick < endTick) {
-
-					while (frames[++idx].Type != PacketType.Packet); // jump to next packet
-
+				// set origin
+				if (prevViewOffsetProp != null) {
 					BitStreamWriter vecBytes = new BitStreamWriter();
-					Packet packet = (Packet)frames[idx].Packet!;
-					float lerpAmount = (float)(frames[idx].Tick - startTick) / (endTick - startTick);
-					Vector3 lerpVec = Vector3.Lerp(startVec, endVec, lerpAmount);
-					vecBytes.WriteVector3(lerpVec);
-					// edit the pos in the cmdinfo, we don't actually need to edit the origin in the ent data since that isn't used during demo playback
+					Vector3 oldOrigin = packet.PacketInfo[0].ViewOrigin;
+					vecBytes.WriteVector3(oldOrigin with {Z = oldOrigin.Z + prevViewOffsetProp.Value});
+					// edit the pos in the cmdinfo - the origin in the ent data isn't used during demo playback
 					bsw.EditBitsAtIndex(vecBytes, packet.Reader.AbsoluteStart + 32);
-
-					var viewOffsetProp = (SingleEntProp<float>?)(
-							(Delta?)packet.FilterForMessage<SvcPacketEntities>().Single().Updates!
-								.SingleOrDefault(update => update.ServerClass!.ClassName == "CPortal_Player"))
-						?.Props.SingleOrDefault(tuple => tuple.prop.Name == "m_vecViewOffset[2]").prop;
-
-					if (viewOffsetProp != null) {
-						BitStreamWriter viewOffsetBytes = new BitStreamWriter();
-						viewOffsetBytes.WriteFloat(28);
-						bsw.EditBitsAtIndex(viewOffsetBytes, viewOffsetProp.Offset);
-					}
 				}
 			}
+
 			s.Write(bsw, 0, bsw.ByteLength);
 		}
 
