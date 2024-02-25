@@ -1,0 +1,1 @@
+vstest.console Tests\bin\Release\net461\Tests.dll /Framework:net461 /Platform:x64
