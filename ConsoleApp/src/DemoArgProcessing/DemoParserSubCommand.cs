@@ -123,7 +123,7 @@ namespace ConsoleApp.DemoArgProcessing {
 				demoPath,
 				commonParent == ""
 					? demoPath.FullName
-					: Path.GetRelativePath(commonParent, demoPath.FullName)
+					: PathExt.GetRelativePath(commonParent, demoPath.FullName)
 				));
 		}
 

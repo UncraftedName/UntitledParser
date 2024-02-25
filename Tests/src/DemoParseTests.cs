@@ -60,7 +60,7 @@ namespace Tests {
 				 * when it doesn't.
 				 */
 				string projectName = Assembly.GetCallingAssembly().GetName().Name!;
-				string dir = Path.GetFullPath(Environment.CurrentDirectory);
+				string dir = Directory.GetParent(Assembly.GetCallingAssembly().Location).FullName;
 				for (int i = 0; i < 10; i++) {
 					if (dir.EndsWith(projectName, StringComparison.OrdinalIgnoreCase)) {
 						_projectDir = dir;
