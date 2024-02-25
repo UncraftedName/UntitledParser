@@ -14,18 +14,18 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - {os: windows-latest, framework: net7.0-windows, runtime: win-x64}
-          - {os: ubuntu-latest, framework: net7.0, runtime: linux-x64}
+          - {os: windows-latest, framework: net461, runtime: win-x64}
+          # - {os: ubuntu-latest, framework: net7.0, runtime: linux-x64}
         build_type:
           - {
             name: 'Build',
             configuration: Debug,
-            command: 'dotnet build ConsoleApp --no-self-contained',
+            command: 'dotnet build ConsoleApp',
           }
           - {
-            name: 'Publish to single file',
+            name: 'Build',
             configuration: Release,
-            command: 'dotnet publish ConsoleApp -p:PublishSingleFile=true --self-contained',
+            command: 'dotnet build ConsoleApp',
           }
           - {
             name: 'Run tests',

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net461</TargetFrameworks>
+		<TargetFramework>net461</TargetFramework>
 		<IsPackable>false</IsPackable>
 		<Platforms>AnyCPU;x64</Platforms>
 		<Configurations>Debug;Release;Debug_ProcessEnts</Configurations>

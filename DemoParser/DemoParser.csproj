@@ -12,7 +12,7 @@
 		<Configurations>Debug;Release;Debug_ProcessEnts</Configurations>
 		<LangVersion>10</LangVersion>
 		<Nullable>enable</Nullable>
-		<TargetFrameworks>net461</TargetFrameworks>
+		<TargetFramework>net461</TargetFramework>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
