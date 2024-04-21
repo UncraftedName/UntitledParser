@@ -66,7 +66,8 @@ namespace ConsoleApp.DemoArgProcessing {
 				((OptTime)option).SetForceFirstTickTiming(new[] {
 					SourceGame.L4D1_1005, SourceGame.L4D1_1040, SourceGame.L4D2_2000, SourceGame.L4D2_2011,
 					SourceGame.L4D2_2012, SourceGame.L4D2_2027, SourceGame.L4D2_2042, SourceGame.L4D2_2091, SourceGame.L4D2_2147,
-					SourceGame.L4D2_2203, SourceGame.PORTAL_1_3420, SourceGame.PORTAL_1_5135, SourceGame.PORTAL_1_1910503
+					SourceGame.L4D2_2203, SourceGame.PORTAL_1_3420, SourceGame.PORTAL_1_5135, SourceGame.PORTAL_1_1910503,
+					SourceGame.PORTAL_REVOLUTION
 				});
 			} else {
 				throw new ArgProcessProgrammerException("listdemo option not passed to demo sub-command.");

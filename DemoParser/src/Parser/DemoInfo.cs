@@ -73,6 +73,7 @@ namespace DemoParser.Parser {
 				[(4, 2027)] = L4D2_2027,
 				[(4, 2042)] = L4D2_2042,
 				[(4, 2100)] = L4D2_2203,
+				[(4, 13703)] = PORTAL_REVOLUTION,
 			};
 
 
@@ -106,7 +107,7 @@ namespace DemoParser.Parser {
 					UserMessageTypes = UserMessage.Portal5135Table;
 				else
 					UserMessageTypes = UserMessage.Portal1SteamTable;
-			} else if (Game == PORTAL_2 || (Game == UNKNOWN && h.DemoProtocol == 4)) {
+			} else if (Game == PORTAL_2 || Game == PORTAL_REVOLUTION || (Game == UNKNOWN && h.DemoProtocol == 4)) {
 				TickInterval = 1f / 60;
 				MaxSplitscreenPlayers = 2;
 				if (Game == PORTAL_2)
@@ -253,6 +254,10 @@ namespace DemoParser.Parser {
 		L4D2_2091, // 2042 protocol, version 2091 (yes, same protocol version, but has to be distinguished)
 		L4D2_2147, // 2042 protocol, version 2147 (yet again, has to be distinguished without any protocol version indicating that)
 		L4D2_2203, // 2100 protocol, version 2203. compatible with latest steam version (2220)
+
+		// Strata Source games
+		PORTAL_REVOLUTION,
+
 		UNKNOWN
 	}
 }

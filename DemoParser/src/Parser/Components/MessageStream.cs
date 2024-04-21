@@ -30,6 +30,9 @@ namespace DemoParser.Parser.Components {
 		protected override void Parse(ref BitStreamReader bsr) {
 			BitStreamReader mBsr = bsr.ForkAndSkip((int)(bsr.ReadUInt() * 8));
 			Messages = new List<DemoMessage>();
+			// not bothering with protobuf message parsing at all at the moment
+			// TODO: implement protobuf Some Day:tm:
+			if (DemoInfo.Game == SourceGame.PORTAL_REVOLUTION) return;
 			byte messageValue;
 			DemoMessage? demoMessage;
 			do {

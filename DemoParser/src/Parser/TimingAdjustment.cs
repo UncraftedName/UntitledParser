@@ -134,6 +134,14 @@ namespace DemoParser.Parser {
 							return new[] {Portal2CoopMapStart, Portal2CoopMapEnd};
 					}
 					break;
+				case PORTAL_REVOLUTION:
+					switch(mapName) {
+						case "sp_a1_begin":
+							return new[] {PortalRevolutionBegin};
+						case "sp_a4_finale":
+							return new[] {PortalRevolutionEnd};
+					}
+					break;
 				case L4D1_1005:
 				case L4D1_1040:
 				case L4D2_2000:
@@ -262,6 +270,7 @@ namespace DemoParser.Parser {
 						return;
 					case L4DBegin when L4DControlGainCheck(packet):
 					case Portal2CoopBegin when !start.HasValue && Portal2CoopStartCheck(packet):
+					case PortalRevolutionBegin when !start.HasValue && PortalRevolutionStartCheck(packet):
 						start = packet.Tick;
 						return;
 					case Portal1GenericWakeup when Portal1WakeupCheck(packet):
@@ -280,6 +289,7 @@ namespace DemoParser.Parser {
 						end = packet.Tick + 1;
 						return;
 					case Portal2End when Portal2PortalOnMoon(packet):
+					case PortalRevolutionEnd when !end.HasValue && PortalRevolutionEndCheck(packet):
 					case L4DEnd when L4DEscapeTriggeredCheck(packet):
 						end = packet.Tick;
 						return;
@@ -314,6 +324,13 @@ namespace DemoParser.Parser {
 				   packet.PacketInfo[0].ViewOrigin == new Vector3(-11168f, -4384f, 3040.03125f);
 		}
 
+		private static bool PortalRevolutionStartCheck(Packet packet) {
+			return packet.PacketInfo[0].ViewOrigin == new Vector3(-1891.20654f, 1322.52161f, 128.03125f);
+		}
+
+		private static bool PortalRevolutionEndCheck(Packet packet) {
+			return packet.PacketInfo[0].ViewOrigin == new Vector3(1216f, 1152f, 512f);
+		}
 
 		private static bool Portal1VanillaWakeupCheck(Packet packet) {
 			return packet.FilterForMessage<SvcFixAngle>()
@@ -474,6 +491,9 @@ namespace DemoParser.Parser {
 			Portal2CoopBegin,
 			Portal2CoopEnd,
 			Portal2CoopEndCourse6,
+
+			PortalRevolutionBegin,
+			PortalRevolutionEnd,
 
 			TfvEnd,
 			RexauraEnd,

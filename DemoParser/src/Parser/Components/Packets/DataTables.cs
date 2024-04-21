@@ -101,10 +101,38 @@ namespace DemoParser.Parser.Components.Packets {
 			BitStreamReader dBsr = bsr.ForkAndSkip(bsr.ReadSInt() * 8);
 
 			Tables = new List<SendTable>();
-			while (dBsr.ReadBool() && !dBsr.HasOverflowed) {
-				var table = new SendTable(DemoRef);
-				Tables.Add(table);
-				table.ParseStream(ref dBsr);
+			if (DemoInfo.Game == SourceGame.PORTAL_REVOLUTION) {
+				while (!dBsr.HasOverflowed) {
+					var table = new SendTable(DemoRef);
+					Tables.Add(table);
+					// minimal protobuf parsing just to skip over the payloads
+					// there's a dummy table at the end of the list that indicates
+					// if we should stop parsing
+					uint type = dBsr.ReadVarUInt32(); // protobuf message type
+					int size = (int)dBsr.ReadVarUInt32(); // size of message
+					// coincidentally, the first message member is the one we are looking for (is_end member)
+					// it's an optional member but it's always set on the dummy final table
+					// every member begins with a tag byte formatted as (field_number << 3) | wire_type
+					// is_end has field_number 1 and wire_type 0
+					// if needed in the future, net_table_name has field number 2 and wire_type 2
+					int tag = dBsr.ReadByte();
+					if (tag != (1 << 3)) {
+						dBsr.SkipBytes(size - 1);
+						continue;
+					}
+					byte is_end = dBsr.ReadByte();
+					dBsr.SkipBytes(size - 2);
+					if (is_end == 1) {
+						break;
+					}
+				}
+			}
+			else {
+				while (dBsr.ReadBool() && !dBsr.HasOverflowed) {
+					var table = new SendTable(DemoRef);
+					Tables.Add(table);
+					table.ParseStream(ref dBsr);
+				}
 			}
 
 			ushort classCount = dBsr.ReadUShort();
@@ -129,7 +157,8 @@ namespace DemoParser.Parser.Components.Packets {
 
 			// create the prop list for each class
 			GameState.DataTablesManager = new DataTablesManager(DemoRef!, this);
-			GameState.DataTablesManager.FlattenClasses(true);
+			if (DemoInfo.Game != SourceGame.PORTAL_REVOLUTION)
+				GameState.DataTablesManager.FlattenClasses(true);
 		}
 
 
@@ -191,7 +220,7 @@ namespace DemoParser.Parser.Components.Packets {
 
 		public override void PrettyWrite(IPrettyWriter pw) {
 			pw.Append($"{Name}{(NeedsDecoder ? "*" : "")} (");
-			if (SendProps.Count > 0) {
+			if (SendProps?.Count > 0) {
 				pw.Append($"{SendProps.Count} prop{(SendProps.Count > 1 ? "s" : "")}):");
 				pw.FutureIndent++;
 				foreach (SendTableProp sendProp in SendProps) {
