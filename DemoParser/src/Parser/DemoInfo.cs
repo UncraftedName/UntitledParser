@@ -93,7 +93,7 @@ namespace DemoParser.Parser {
 			}
 
 			// provide default values in case of unknown game
-			if (IsPortal1() || IsHL2() || (Game == UNKNOWN && h.DemoProtocol == 3)) {
+			if (Game.IsPortal1() || Game.IsHL2() || (Game == UNKNOWN && h.DemoProtocol == 3)) {
 				TickInterval = 0.015f;
 				MaxSplitscreenPlayers = 1;
 				if (h.NetworkProtocol <= 15 && Game != HL2_OE)
@@ -114,7 +114,7 @@ namespace DemoParser.Parser {
 					demo.DemoParseResult |= DemoParseResult.EntParsingEnabled;
 				PacketTypes = DemoPacket.DemoProtocol4Table;
 				UserMessageTypes = UserMessage.Portal2Table;
-			} else if (IsLeft4Dead()) {
+			} else if (Game.IsLeft4Dead()) {
 				TickInterval = 1f / 30;
 				MaxSplitscreenPlayers = 4;
 				demo.DemoParseResult |= DemoParseResult.EntParsingEnabled;
@@ -137,7 +137,7 @@ namespace DemoParser.Parser {
 				SendPropTypes = SendPropEnums.OldNetPropTypes;
 			} else {
 				NetMsgTypeBits = Game == L4D1_1005 ? 5 : 6;
-				SendPropNumBitsToGetNumBits = IsLeft4Dead() ? 6 : 7;
+				SendPropNumBitsToGetNumBits = Game.IsLeft4Dead() ? 6 : 7;
 				SendPropTypes = SendPropEnums.NewNetPropTypes;
 			}
 			SendPropTypesReverseLookup = SendPropTypes.CreateReverseLookupDict();
@@ -148,9 +148,9 @@ namespace DemoParser.Parser {
 					SendPropFlagBits = 11;
 					goto default; // I don't know anything else about protocol 2 :/
 				case 3:
-				case 4 when IsLeft4Dead1():
+				case 4 when Game.IsLeft4Dead1():
 					// l4d1 behaves mostly like version 3 except for places where "NewDemoProtocol" is used
-					NewDemoProtocol = IsLeft4Dead1();
+					NewDemoProtocol = Game.IsLeft4Dead1();
 					SendPropFlagBits = Game == HL2_OE ? 13 : 16;
 					PropFlagChecker = new SendPropEnums.DemoProtocol3FlagChecker();
 					PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsOldDemoProtocol();
@@ -171,12 +171,12 @@ namespace DemoParser.Parser {
 				case 4:
 					NewDemoProtocol = true;
 					SendPropFlagBits = 19;
-					UserMessageLengthBits = IsLeft4Dead() ? 11 : 12;
+					UserMessageLengthBits = Game.IsLeft4Dead() ? 11 : 12;
 					PropFlagChecker = new SendPropEnums.DemoProtocol4FlagChecker();
 					if (Game == PORTAL_2) {
 						PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsPortal2();
 						CollisionsGroupList = PropEnums.CollisionGroupListPortal2;
-					} else if (IsLeft4Dead()) {
+					} else if (Game.IsLeft4Dead()) {
 						PlayerMfFlagChecker = new PropEnums.PlayerMfFlagsOldDemoProtocol();
 						CollisionsGroupList = PropEnums.CollisionGroupListNewDemoProtocol; // unchecked
 					} else {
@@ -196,9 +196,9 @@ namespace DemoParser.Parser {
 			}
 			MessageTypesReverseLookup = MessageTypes.CreateReverseLookupDict(MessageType.Invalid);
 
-			if (IsPortal1() && Game >= PORTAL_1_1910503)
+			if (Game.IsPortal1() && Game >= PORTAL_1_1910503)
 				SpModelIndexBits = 13;
-			else if (IsLeft4Dead2() && Game >= L4D2_2203)
+			else if (Game.IsLeft4Dead2() && Game >= L4D2_2203)
 				SpModelIndexBits = 12;
 			else
 				SpModelIndexBits = 11;
@@ -213,19 +213,6 @@ namespace DemoParser.Parser {
 
 			TimeAdjustmentTypes = TimingAdjustment.AdjustmentTypeFromMap(h.MapName, Game, demo.SequenceType);
 		}
-
-
-		public bool IsLeft4Dead() => Game >= L4D1_1005 && Game <= L4D2_2203;
-
-		public bool IsLeft4Dead1() => Game >= L4D1_1005 && Game <= L4D1_1040;
-
-		public bool IsLeft4Dead2() => Game >= L4D2_2000 && Game <= L4D2_2203;
-
-		public bool IsPortal1() => Game >= PORTAL_1_3420 && Game <= PORTAL_1_1910503;
-
-		public bool IsPortal2() => Game == PORTAL_2;
-
-		public bool IsHL2() => Game == HL2_OE;
 	}
 
 
@@ -259,5 +246,14 @@ namespace DemoParser.Parser {
 		PORTAL_REVOLUTION,
 
 		UNKNOWN
+	}
+
+	public static class SourceGameExtensions {
+		public static bool IsHL2(this SourceGame game) { return game == HL2_OE; }
+		public static bool IsPortal1(this SourceGame game) { return game >= SourceGame.PORTAL_1_3420 && game <= SourceGame.PORTAL_1_1910503; }
+		public static bool IsPortal2(this SourceGame game) { return game == SourceGame.PORTAL_2; }
+		public static bool IsLeft4Dead1(this SourceGame game) { return game >= L4D1_1005 && game <= L4D1_1040; }
+		public static bool IsLeft4Dead2(this SourceGame game) { return game >= L4D2_2000 && game <= L4D2_2203; }
+		public static bool IsLeft4Dead(this SourceGame game) { return game.IsLeft4Dead1() || game.IsLeft4Dead2(); }
 	}
 }

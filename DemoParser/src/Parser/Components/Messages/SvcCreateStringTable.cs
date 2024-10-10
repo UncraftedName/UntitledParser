@@ -24,7 +24,7 @@ namespace DemoParser.Parser.Components.Messages {
 			TableName = bsr.ReadNullTerminatedString();
 			MaxEntries = (short)bsr.ReadUShort();
 			NumEntries = (int)bsr.ReadUInt(ParserUtils.HighestBitIndex((uint)MaxEntries) + 1);
-			uint dataLen = bsr.ReadUInt(DemoInfo.IsLeft4Dead2() ? 21 : 20);
+			uint dataLen = bsr.ReadUInt(DemoInfo.Game.IsLeft4Dead2() ? 21 : 20);
 			UserDataFixedSize = bsr.ReadBool();
 			UserDataSize = (int)(UserDataFixedSize ? bsr.ReadUInt(12) : 0);
 			UserDataSizeBits = (int)(UserDataFixedSize ? bsr.ReadUInt(4) : 0);

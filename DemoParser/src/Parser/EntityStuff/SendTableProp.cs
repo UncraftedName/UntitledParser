@@ -38,7 +38,7 @@ namespace DemoParser.Parser.EntityStuff {
 			SendPropType = DemoInfo.SendPropTypes[type];
 			Name = bsr.ReadNullTerminatedString();
 			Flags = (int)bsr.ReadUInt(DemoInfo.SendPropFlagBits);
-			if (DemoInfo.NewDemoProtocol && !DemoInfo.IsLeft4Dead1())
+			if (DemoInfo.NewDemoProtocol && !DemoInfo.Game.IsLeft4Dead1())
 				Priority = bsr.ReadByte();
 			if (SendPropType == SendPropType.DataTable || DemoInfo.PropFlagChecker.HasFlag(Flags, PropFlag.Exclude)) {
 				ExcludeDtName = bsr.ReadNullTerminatedString();

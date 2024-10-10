@@ -31,7 +31,7 @@ namespace DemoParser.Parser.Components.Packets.StringTableEntryTypes {
 
 		// we're reading a player_info_t, so take alignment into account
 		protected override void Parse(ref BitStreamReader bsr) {
-            if (DemoInfo.NewDemoProtocol && !DemoInfo.IsLeft4Dead1())
+            if (DemoInfo.NewDemoProtocol && !DemoInfo.Game.IsLeft4Dead1())
                 SteamId = (CSteamId)bsr.ReadULong();
 			Name = bsr.ReadStringOfLength(MaxPlayerNameLength);
 			UserId = bsr.ReadSInt();

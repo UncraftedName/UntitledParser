@@ -63,12 +63,7 @@ namespace ConsoleApp.DemoArgProcessing {
 				// Due to the portal community's love for hundreds of saveloads, the time option will time w/ first tick by default
 				// for p1 and l4d (because hindsight or something). This is a hack for now and will hopefully by improved with a
 				// more advanced timing system in the utopian future.
-				((OptTime)option).SetForceFirstTickTiming(new[] {
-					SourceGame.L4D1_1005, SourceGame.L4D1_1040, SourceGame.L4D2_2000, SourceGame.L4D2_2011,
-					SourceGame.L4D2_2012, SourceGame.L4D2_2027, SourceGame.L4D2_2042, SourceGame.L4D2_2091, SourceGame.L4D2_2147,
-					SourceGame.L4D2_2203, SourceGame.PORTAL_1_3420, SourceGame.PORTAL_1_5135, SourceGame.PORTAL_1_1910503,
-					SourceGame.PORTAL_REVOLUTION
-				});
+				((OptTime)option).SetForceFirstTickTiming((SourceGame game) => game.IsPortal1() || game.IsLeft4Dead() || game == SourceGame.PORTAL_REVOLUTION);
 			} else {
 				throw new ArgProcessProgrammerException("listdemo option not passed to demo sub-command.");
 			}
