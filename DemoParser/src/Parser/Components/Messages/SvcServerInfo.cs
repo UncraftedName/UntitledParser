@@ -42,7 +42,7 @@ namespace DemoParser.Parser.Components.Messages {
 			ServerCount = bsr.ReadUInt();
 			IsHltv = bsr.ReadBool();
 			IsDedicated = bsr.ReadBool();
-			if (DemoInfo.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2147)
+			if (DemoInfo.Game.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2147)
 				RestrictWorkshopAddons = bsr.ReadBool();
 			ClientCrc = bsr.ReadSInt();
 			if (DemoInfo.NewDemoProtocol)
@@ -61,7 +61,7 @@ namespace DemoParser.Parser.Components.Messages {
 			MapName = bsr.ReadNullTerminatedString();
 			SkyName = bsr.ReadNullTerminatedString();
 			HostName = bsr.ReadNullTerminatedString();
-			if (DemoInfo.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2147)
+			if (DemoInfo.Game.IsLeft4Dead() && DemoInfo.Game >= SourceGame.L4D2_2147)
 			{
 				MissionName = bsr.ReadNullTerminatedString();
 				MutationName = bsr.ReadNullTerminatedString();

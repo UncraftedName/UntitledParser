@@ -20,9 +20,6 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 		private const int FmtIdt = -25;
 
-		// a hack to allow only p1 & l4d to time w/ first tick
-		private ISet<SourceGame> _forceFirstTickTiming = null!;
-
 
 		[Flags]
 		public enum TimeFlags {
@@ -51,7 +48,6 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		public override void Reset() {
 			base.Reset();
 			_sdt = null!;
-			_forceFirstTickTiming = new HashSet<SourceGame>();
 		}
 
 
@@ -71,7 +67,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					WriteAdjustedTime(
 						infoObj.CurrentDemo,
 						Console.Out,
-						(arg & TimeFlags.TimeFirstTick) != 0 || _forceFirstTickTiming.Contains(infoObj.CurrentDemo.DemoInfo.Game)
+						(arg & TimeFlags.TimeFirstTick) != 0 || _sdt.TimeFirstTick
 					);
 					Console.WriteLine();
 				}
@@ -207,7 +203,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			tw.WriteLine($"{"Measured ticks ",FmtIdt}: {demo.TickCount(tfs)}");
 
 			// hack before we implement proper timing strategies
-			if (demo.DemoInfo.IsLeft4Dead1() && demo.SequenceType == TimingAdjustment.SequenceType.SingleDemo && demo.StartAdjustmentTick.HasValue) {
+			if (demo.DemoInfo.Game.IsLeft4Dead1() && demo.SequenceType == TimingAdjustment.SequenceType.SingleDemo && demo.StartAdjustmentTick.HasValue) {
 				// all maps except finales will have a map_transition event at the end if the map was completed
 				(var gameEvent, int? endTick) = demo.FilterForMessage<SvcGameEvent>().FirstOrDefault(ev => ev.message.EventDescription!.Name == "map_transition");
 
@@ -215,7 +211,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				if (gameEvent == null)
 					endTick = demo.EndAdjustmentTick;
 				if (endTick.HasValue) {
-					int mapTime = endTick.Value - demo.StartAdjustmentTick.Value + 1;
+					int mapTime = endTick!.Value - demo.StartAdjustmentTick.Value + 1;
 					tw.WriteLine($"{"Individual Map time ",FmtIdt}: {Utils.FormatTime(mapTime * tickInterval)}");
 					tw.Write($"{"Individual Map ticks ",FmtIdt}: {mapTime}");
 					tw.WriteLine($" ({demo.StartAdjustmentTick}-{endTick})");
@@ -229,7 +225,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 			}
 
 			// another hack until we time things better :)
-			if (demo.DemoInfo.IsPortal2()) {
+			if (demo.DemoInfo.Game.IsPortal2()) {
 				ScoreboardTempUpdate? lastScoreBoard =
 					demo.FilterForUserMessage<ScoreboardTempUpdate>()
 						.Select(tuple => tuple.userMessage)
@@ -249,10 +245,8 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 
 		// a hack to allow only p1 & l4d to time w/ first tick
-		internal void SetForceFirstTickTiming(IEnumerable<SourceGame> games) {
-			var gameSet = games.ToImmutableHashSet();
-			_forceFirstTickTiming = gameSet;
-			_sdt.SetForceFirstTickTiming(gameSet);
+		internal void SetForceFirstTickTiming(Predicate<SourceGame> pred) {
+			_sdt.SetForceFirstTickTiming(pred);
 		}
 	}
 
@@ -286,14 +280,14 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 
 		// a hack to allow only p1 & l4d to time w/ first tick
 		private SourceDemo _curDemo = null!;
-		private ISet<SourceGame> _forceFirstTickTiming;
-		public bool TimeFirstTick => _timeFirstTick || _forceFirstTickTiming.Contains(_curDemo.DemoInfo.Game);
+		private Predicate<SourceGame> _forceFirstTickTiming;
+		public bool TimeFirstTick => _timeFirstTick || _forceFirstTickTiming(_curDemo.DemoInfo.Game);
 
 
 		public SimpleDemoTimer(bool timeFirstTick) {
 			_timeFirstTick = timeFirstTick;
 			ValidFlags = Flags.TotalTimeValid | Flags.AdjustedTimeValid;
-			_forceFirstTickTiming = new HashSet<SourceGame>();
+			_forceFirstTickTiming = (SourceGame) => false;
 			_simpleDemoDifferences = new HashSet<string>();
 		}
 
@@ -304,7 +298,7 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 		}
 
 
-		internal void SetForceFirstTickTiming(IEnumerable<SourceGame> games) => _forceFirstTickTiming = games.ToImmutableHashSet();
+		internal void SetForceFirstTickTiming(Predicate<SourceGame> pred) => _forceFirstTickTiming = pred;
 
 
 		/// <summary>

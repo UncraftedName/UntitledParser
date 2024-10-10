@@ -15,7 +15,7 @@ namespace DemoParser.Parser.Components.Messages {
 
 
 		protected override void Parse(ref BitStreamReader bsr) {
-			var soundIndexBits = DemoInfo.IsLeft4Dead2() ? DemoInfo.Game >= SourceGame.L4D2_2091 ? 15 : 14 : 13;
+			var soundIndexBits = DemoInfo.Game.IsLeft4Dead2() ? DemoInfo.Game >= SourceGame.L4D2_2091 ? 15 : 14 : 13;
 			SoundIndex = (int)bsr.ReadUInt(soundIndexBits);
 
 			var mgr = GameState.StringTablesManager;

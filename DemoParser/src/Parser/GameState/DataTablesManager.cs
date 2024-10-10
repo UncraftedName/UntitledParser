@@ -116,7 +116,7 @@ namespace DemoParser.Parser.GameState {
 		// priority or a "ChangesOften" flag in newer versions which bumps them up in the table. This is done with a
 		// custom non-stable sort.
 		private void SortProps(IList<FlattenedProp> fProps) {
-			if (_demoRef.DemoInfo.NewDemoProtocol && !_demoRef.DemoInfo.IsLeft4Dead1()) {
+			if (_demoRef.DemoInfo.NewDemoProtocol && !_demoRef.DemoInfo.Game.IsLeft4Dead1()) {
 				int start = 0;
 				var priorities = fProps.Select(entry => entry.PropInfo.Priority!.Value).Concat(new[] { 64 }).Distinct();
 				foreach (int priority in priorities.OrderBy(i => i)) {

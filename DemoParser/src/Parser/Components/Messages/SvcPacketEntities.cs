@@ -140,7 +140,7 @@ namespace DemoParser.Parser.Components.Messages {
 				Updates.Add(update);
 			};
 			if (IsDelta) {
-				if (DemoInfo.IsLeft4Dead2() && DemoInfo.Game >= SourceGame.L4D2_2091) {
+				if (DemoInfo.Game.IsLeft4Dead2() && DemoInfo.Game >= SourceGame.L4D2_2091) {
 					idx = -1;
 					uint deletionCount = entBsr.ReadUBitInt();
 					for (int i = 0; i < deletionCount; i++) {

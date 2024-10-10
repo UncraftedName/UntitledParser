@@ -19,7 +19,7 @@ public class SvcVoiceData : DemoMessage {
 		FromClient = bsr.ReadByte();
 		Proximity = bsr.ReadByte() != 0;
 		BitLen = bsr.ReadUShort();
-		if (DemoRef.DemoInfo.IsLeft4Dead()) {
+		if (DemoRef.DemoInfo.Game.IsLeft4Dead()) {
 			Unknown = new bool[4];
 			for (int i = 0; i < 4; i++)
 				Unknown[i] = bsr.ReadBool();
