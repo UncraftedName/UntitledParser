@@ -1,13 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using ConsoleApp.GenericArgProcessing;
 using DemoParser.Parser;
-using DemoParser.Parser.Components;
-using DemoParser.Parser.Components.Abstract;
 using DemoParser.Parser.Components.Messages;
 using DemoParser.Parser.Components.Packets;
 using DemoParser.Parser.Components.Packets.StringTableEntryTypes;
@@ -18,43 +14,28 @@ using DemoParser.Utils.BitStreams;
 
 namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 
-	public class OptSmoothGlessHops : DemoOption<int> {
+	public class OptSmoothGlessHops : DemoOption {
 
 		public static readonly ImmutableArray<string> DefaultAliases = new[] {"--smooth-jumps"}.ToImmutableArray();
 
 
-		private static int ValidateInterpTicks(string s) {
-			if (!int.TryParse(s, out int numTicks))
-				throw new ArgProcessUserException("not a valid integer");
-			if (numTicks <= 0 || numTicks > 20)
-				throw new ArgProcessUserException($"expected interp ticks to be between 1 and 20, got {numTicks}");
-			return numTicks;
-		}
-
-
 		public OptSmoothGlessHops() : base(
 			DefaultAliases,
-			Arity.ZeroOrOne,
-			"Create a new demo with smoother jumps, main use is for rendering demos with lots of standing glitchless hops." +
-			"\nmax_ground_ticks is at most how many ticks the player is on the ground before they jump again. High values might interp too much." +
-			"\nOnly jumps in the middle of a hop sequence will be smoothed. Only designed to work for portal 1 unpack.",
-			"max_ground_ticks",
-			ValidateInterpTicks,
-			5,
+			"Create a new demo with smoother jumps, main use is for rendering demos with lots of standing glitchless hops. Only designed to work for portal 1 unpack.",
 			true) {}
 
 
-		protected override void AfterParse(DemoParsingSetupInfo setupObj, int arg, bool isDefault) {
+		public override void AfterParse(DemoParsingSetupInfo setupObj) {
 			setupObj.ExecutableOptions++;
 			setupObj.EditsDemos = true;
 		}
 
 
-		protected override void Process(DemoParsingInfo infoObj, int arg, bool isDefault) {
+		public override void Process(DemoParsingInfo infoObj) {
 			infoObj.PrintOptionMessage("smoothing jumps");
 			Stream s = infoObj.StartWritingBytes("smooth-jumps", ".dem");
 			try {
-				SmoothJumps(infoObj.CurrentDemo, s, arg);
+				SmoothJumps(infoObj.CurrentDemo, s);
 			} catch (Exception e) {
 				Utils.Warning($"Smoothing jumps failed: {e.Message}\n");
 				infoObj.CancelOverwrite = true;
@@ -84,7 +65,7 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		 * demo. For each tick we get the origin and view offset, then set the origin to origin + view offset and the
 		 * view offset to 0.
 		 */
-		public static void SmoothJumps(SourceDemo demo, Stream s, int maxGroundTicks) {
+		public static void SmoothJumps(SourceDemo demo, Stream s) {
 			BitStreamWriter bsw = new BitStreamWriter(demo.Reader.Data);
 
 			// get baseline view offset
@@ -108,6 +89,26 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 			}
 
 			foreach (Packet packet in demo.FilterForPacket<Packet>()) {
+
+				// set string table view offset
+				var stringTableUpdates = packet
+					.FilterForMessage<SvcUpdateStringTable>()
+					.Where(svcMsg => svcMsg!.TableName == TableNames.InstanceBaseLine)
+					.SelectMany(svcMsg => svcMsg.TableUpdates.TableUpdates)
+					.Select(update => update?.Entry?.EntryData)
+					.OfType<InstanceBaseline>()
+					.Where(baseline => baseline.ServerClassRef!.ClassName == "CPortal_Player")
+					.SelectMany(baseline => baseline.Properties!)
+					.Select(tuple => tuple.prop)
+					.OfType<SingleEntProp<float>>()
+					.Where(prop => prop.Name == "m_vecViewOffset[2]");
+
+				foreach (var update in stringTableUpdates) {
+					BitStreamWriter viewOffsetBytes = new BitStreamWriter();
+					viewOffsetBytes.WriteFloat(0);
+					bsw.EditBitsAtIndex(viewOffsetBytes, update.Offset);
+				}
+
 				// get packet view offset
 				SingleEntProp<float>? curViewOffsetProp = packet
 					.FilterForMessage<SvcPacketEntities>()
@@ -140,6 +141,6 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		}
 
 
-		protected override void PostProcess(DemoParsingInfo infoObj, int arg, bool isDefault) {}
+		public override void PostProcess(DemoParsingInfo infoObj) {}
 	}
 }
