@@ -77,8 +77,16 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 						tw.WriteLine($"_y_spt_afterframes {tick} \"{cmdNoQuotes}\"");
 						break;
 					case UserCmd uCmd when lastUCmdTick != tick:
-						lastUCmdTick = tick;
-						tw.WriteLine($"_y_spt_afterframes {tick} \"_y_spt_setangles {uCmd.ViewAngleX:R} {uCmd.ViewAngleY:R}\"");
+						// TODO: does not handle controller inputs
+						if (uCmd.ViewAngleX.HasValue || uCmd.ViewAngleY.HasValue) {
+							lastUCmdTick = tick;
+							if (!uCmd.ViewAngleX.HasValue)
+								tw.WriteLine($"_y_spt_afterframes {tick} \"_y_spt_setyaw {uCmd.ViewAngleY:R}\"");
+							else if (!uCmd.ViewAngleY.HasValue)
+								tw.WriteLine($"_y_spt_afterframes {tick} \"_y_spt_setpitch {uCmd.ViewAngleX:R}\"");
+							else
+								tw.WriteLine($"_y_spt_afterframes {tick} \"_y_spt_setangles {uCmd.ViewAngleX:R} {uCmd.ViewAngleY:R}\"");
+						}
 						break;
 				}
 			}
