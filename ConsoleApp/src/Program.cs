@@ -122,6 +122,7 @@ namespace ConsoleApp {
 						new OptPortals(),
 						new OptInputs(),
 						new OptDemoDump(),
+						new OptServerInfo(),
 						new OptTime() // this option should always be here and probably be last, it's sort of a default
 					}.ToImmutableArray()
 				);
