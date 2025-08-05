@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -68,18 +69,34 @@ namespace ConsoleApp.DemoArgProcessing.Options.Hidden {
 		public static void SmoothJumps(SourceDemo demo, Stream s) {
 			BitStreamWriter bsw = new BitStreamWriter(demo.Reader.Data);
 
-			// get baseline view offset
-			SingleEntProp<float>? prevViewOffsetProp =
-				demo.FilterForPacket<StringTables>().Single().Tables
+			IEnumerable<InstanceBaseline> baselines;
+			StringTables? st = demo.FilterForPacket<StringTables>().SingleOrDefault();
+
+			if (st != null)
+			{
+				// look through StringTables
+				baselines = st.Tables
 					.Where(table => table.Name == TableNames.InstanceBaseLine)
 					.SelectMany(table => table.TableEntries!)
 					.Select(entry => entry.EntryData)
-					.OfType<InstanceBaseline>()
-					.Where(baseline => baseline.ServerClassRef!.ClassName == "CPortal_Player")
-					.SelectMany(baseline => baseline.Properties!)
-					.Select(tuple => tuple.prop)
-					.OfType<SingleEntProp<float>>()
-					.SingleOrDefault(prop => prop.Name == "m_vecViewOffset[2]");
+					.OfType<InstanceBaseline>();
+			} else {
+				// look through SvcCreateStringTable
+				baselines = demo.FilterForMessage<SvcCreateStringTable>()
+					.Select(msg => msg.message?.TableUpdates)
+					.Where(updates => updates != null)
+					.SelectMany(updates => updates!.TableUpdates)
+					.Select(update => update?.Entry?.EntryData)
+					.OfType<InstanceBaseline>();
+			}
+
+			// get baseline view offset
+			SingleEntProp<float>? prevViewOffsetProp = baselines
+				.Where(baseline => baseline.ServerClassRef!.ClassName == "CPortal_Player")
+				.SelectMany(baseline => baseline.Properties!)
+				.Select(tuple => tuple.prop)
+				.OfType<SingleEntProp<float>>()
+				.SingleOrDefault(prop => prop.Name == "m_vecViewOffset[2]");
 
 			// set baseline view offset to 0
 			if (prevViewOffsetProp != null) {
