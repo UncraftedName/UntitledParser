@@ -19,6 +19,11 @@ namespace DemoParser.Parser.Components.Packets {
 		public byte? Impulse;
 		public uint? WeaponSelect, WeaponSubtype;
 		public short? MouseDx, MouseDy;
+		// portal 2
+		public short? PlayerHeldEntityIndex;
+		public short? PlayerHeldEntityThroughPortalIndex;
+		public ushort? CommandAcksPending;
+		public byte? PredictedPortalTeleports;
 
 		public UserCmd(SourceDemo? demoRef, PacketFrame frameRef) : base(demoRef, frameRef) {}
 
@@ -43,6 +48,13 @@ namespace DemoParser.Parser.Components.Packets {
 			}
 			MouseDx = (short?)uBsr.ReadUShortIfExists();
 			MouseDy = (short?)uBsr.ReadUShortIfExists();
+			if (DemoInfo.Game == SourceGame.PORTAL_2) {
+				PlayerHeldEntityIndex = uBsr.ReadSShortIfExists();
+				PlayerHeldEntityThroughPortalIndex = uBsr.ReadSShortIfExists();
+				CommandAcksPending = uBsr.ReadUShortIfExists();
+				PredictedPortalTeleports = uBsr.ReadByteIfExists();
+			}
+			// missing fields for Dota 2 & Alien swarm - shared/usercmd.cpp
 			if (uBsr.HasOverflowed)
 				DemoRef.LogError($"{GetType().Name}: reader overflowed");
 			TimingAdjustment.AdjustFromUserCmd(this);
@@ -67,6 +79,12 @@ namespace DemoParser.Parser.Components.Packets {
 				WeaponSelect?.ToString() ?? "null", WeaponSubtype?.ToString() ?? "null");
 			pw.AppendFormat("mouseDx, mouseDy: {0,4}, {1,4}",
 				MouseDx?.ToString() ?? "null", MouseDy?.ToString() ?? "null");
+			if (DemoInfo.Game == SourceGame.PORTAL_2) {
+				pw.Append($"\nplayer held entity index: {PlayerHeldEntityIndex?.ToString() ?? "null"}\n");
+				pw.Append($"held entity through portal index: {PlayerHeldEntityThroughPortalIndex?.ToString() ?? "null"}\n");
+				pw.Append($"command acknowledgements pending: {CommandAcksPending?.ToString() ?? "null"}\n");
+				pw.Append($"predicted portal teleports: {PredictedPortalTeleports?.ToString() ?? "null"}");
+			}
 		}
 	}
 
