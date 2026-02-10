@@ -275,6 +275,7 @@ namespace DemoParser.Utils.BitStreams {
 		public byte? ReadByteIfExists() => ReadBool() ? ReadByte() : (byte?) null;
 		public uint? ReadUIntIfExists() => ReadBool() ? ReadUInt() : (uint?)null;
 		public ushort? ReadUShortIfExists() => ReadBool() ? ReadUShort() : (ushort?)null;
+		public short? ReadSShortIfExists() => ReadBool() ? ReadSShort() : (short?)null;
 		public float? ReadFloatIfExists() => ReadBool() ? ReadFloat() : (float?)null;
 		public uint? ReadUIntIfExists(int numBits) => ReadBool() ? ReadUInt(numBits) : (uint?)null;
 		public int? ReadSIntIfExists(int numBits) => ReadBool() ? ReadSInt(numBits) : (int?)null;
