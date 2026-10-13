@@ -106,6 +106,7 @@ namespace ConsoleApp {
 						new OptRecursive(),
 						new OptOverwrite(),
 						new OptRegexSearch(),
+						new OptOobCheck(),
 						new OptPauses(),
 						new OptJumps(),
 						new OptCheatCommands(),
