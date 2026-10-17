@@ -86,12 +86,14 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 				return;
 			}
 
-			bool prevEyesOob = false;
-			int prevTick = int.MinValue + 42069;
-			int? lastOobChangeTick = null;
+			int? rangeTickStart = null;
+			int? lastSampleTick = null;
+			int? prevTick = null; // for demos with non-consecutive ticks
+			bool rangeOob = false;
 
 			foreach (PacketFrame frame in dem.Frames) {
-				// let the world state consume all frames
+
+				// feed all frames to the world state
 				worldState.TryProcessFrame(frame, out err);
 				if (err is not null) {
 					Utils.Warning($"Failed on tick {frame.Tick}: {err}\n");
@@ -99,33 +101,33 @@ namespace ConsoleApp.DemoArgProcessing.Options {
 					return;
 				}
 
-				// only report changes on Packet packets, this should hopefully avoid garbage ticks
-				if (frame.Type != PacketType.Packet)
+				// for reporting purposes only report changes on Packet packets and non-negative ticks
+				if (frame.Type != PacketType.Packet || frame.Tick < 0 || frame.Tick == lastSampleTick)
 					continue;
 
-				bool newEyesOob = prevEyesOob;
-				if (frame.Tick != prevTick && frame.Tick >= 0) {
-					newEyesOob = worldState.PointOutsideWorldPortalRules(frame.Tick, out bool playerExists, out err);
-					if (!playerExists)
-						continue;
-					if (err is not null) {
-						Utils.Warning($"Failed on tick {frame.Tick}: {err}\n");
-						PersistState.AnyDemosFailed = true;
-						return;
-					}
-					lastOobChangeTick ??= frame.Tick;
+				bool tickOob = worldState.PointOutsideWorldPortalRules(frame.Tick, out bool playerExists, out err);
+				if (err is not null) {
+					Utils.Warning($"Failed on tick {frame.Tick}: {err}\n");
+					PersistState.AnyDemosFailed = true;
+					return;
 				}
-				if (prevEyesOob != newEyesOob) {
-					if (lastOobChangeTick.HasValue)
-						ReportTickRangeOobStatus(lastOobChangeTick.Value, prevTick, prevEyesOob);
-					lastOobChangeTick = frame.Tick;
+
+				if (!playerExists)
+					continue; // player entity hasn't been initialized yet
+
+				lastSampleTick = frame.Tick;
+				if (rangeTickStart.HasValue && tickOob != rangeOob) {
+					// report old range
+					ReportTickRangeOobStatus(rangeTickStart.Value, prevTick!.Value, rangeOob);
+					rangeTickStart = frame.Tick;
 				}
+				rangeTickStart ??= frame.Tick;
+				rangeOob = tickOob;
 				prevTick = frame.Tick;
-				prevEyesOob = newEyesOob;
 			}
 
-			if (lastOobChangeTick != prevTick || prevTick == 0)
-				ReportTickRangeOobStatus(lastOobChangeTick ?? 0, prevTick, prevEyesOob);
+			if (rangeTickStart.HasValue && prevTick.HasValue)
+				ReportTickRangeOobStatus(rangeTickStart.Value, prevTick.Value, rangeOob);
 
 			PersistState.AnyDemosSucceeded = true;
 		}
