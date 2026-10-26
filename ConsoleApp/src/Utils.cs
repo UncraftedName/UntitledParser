@@ -92,15 +92,17 @@ namespace ConsoleApp {
 			if (Math.Abs(seconds) > 8640000) // 10 days, probably happens from initializing the tick interval to garbage
 				return "invalid";
 			string sign = seconds < 0 ? "-" : "";
-			TimeSpan t = TimeSpan.FromSeconds(Math.Round(Math.Abs(seconds), 3));
+			TimeSpan t = TimeSpan.FromSeconds(Math.Abs(seconds));
+			// explicitly rounding ms like this seems to be the best way to handle TimeSpan ms truncation
+			int milli = (int)Math.Round(t.Milliseconds + t.Microseconds / 1000.0);
 			if (t.Days > 0)
-				return $"{sign}{t.Days:D1}.{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}.{t.Milliseconds:D3}";
+				return $"{sign}{t.Days:D1}.{t.Hours:D2}:{t.Minutes:D2}:{t.Seconds:D2}.{milli:D3}";
 			else if (t.Hours > 0)
-				return $"{sign}{t.Hours:D1}:{t.Minutes:D2}:{t.Seconds:D2}.{t.Milliseconds:D3}";
+				return $"{sign}{t.Hours:D1}:{t.Minutes:D2}:{t.Seconds:D2}.{milli:D3}";
 			else if (t.Minutes > 0)
-				return $"{sign}{t.Minutes:D1}:{t.Seconds:D2}.{t.Milliseconds:D3}";
+				return $"{sign}{t.Minutes:D1}:{t.Seconds:D2}.{milli:D3}";
 			else
-				return $"{sign}{t.Seconds:D1}.{t.Milliseconds:D3}";
+				return $"{sign}{t.Seconds:D1}.{milli:D3}";
 		}
 
 

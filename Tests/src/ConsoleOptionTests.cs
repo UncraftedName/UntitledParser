@@ -28,6 +28,12 @@ namespace Tests {
 			Val8 = 8
 		}
 
+		[TestCase(18037, 1/30.0, "10:01.233")]
+		[Parallelizable(ParallelScope.All)]
+		public void FormatTime(int ticks, double tickrate, string expected) {
+			Assert.AreEqual(Utils.FormatTime(ticks * tickrate), expected);
+		}
+
 
 		[TestCase("Val0", BasicEnum.Val0, true)]
 		[TestCase(" VAL2 \t ", BasicEnum.Val2, true)]
